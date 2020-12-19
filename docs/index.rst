@@ -10,6 +10,9 @@ Welcome to Astutus's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   source/readme
+   source/modules
+
 
 
 Indices and tables
