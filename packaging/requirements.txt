@@ -1,7 +1,6 @@
+flake8
+Flask
 pytest
+setuptools==51.0.0
 sphinx
 sphinx_rtd_theme
-Flask
-setuptools==51.0.0
-snooty
-flake8
