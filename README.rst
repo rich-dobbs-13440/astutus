@@ -22,14 +22,14 @@ Install and update using `pip`_:
 Technologies
 ------------
 
-This is the technologies demonstrated:
+Here are the technologies demonstrated:
 
 - Flask
 - Sphinx
+- Restructured Text
 - Setuptools
 - Pytest
 - REST API's
-- Restructured Text
 - Continuous Integration
 - Continuous Deployment
 - Docker

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            function deleteViaJavascript(item_id) {
+                if (confirm("Are you sure you want to delete item " + item_id + "?")) {
+                    $.ajax({
+                        method : 'delete',
+                        success: function(data, textStatus,  jqXHR) {
+                            if (jqXHR.status == 202) {
+                                redirect_url = data["redirect_url"]
+                                window.location.replace(redirect_url);
+                            }
+                        },
+                        error: function(xhr) {
+                            alert('Failed to delete item ' + item_id)
+                        }
+                    })
+                }
+            }
+        </script>
+
+
+    </head>
+    <body>
+        <h1>{{ page_data.title }} </h1>
+        <span class="home_button">
+            <form class="inline_form"><button formaction="{{ page_data.home }}">Home</button></form>
+        </span>
+        <span class="up_button">
+            <form class="inline_form"><button formaction="{{ page_data.parent_path }}">Up</button></form>
+        </span>
+
+
+        {% if page_data.show_raw_json_section %}
+        <h2>Raw JSON</h2>
+        <pre>{{ data | tojson_pretty }}</pre>
+        {% endif %}
+
+        {% if page_data.show_links_section %}
+        <h2>Links</h2>
+        <ul>
+            {% for link in links %}
+            <li><a href="{{ link }}">{{ link }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+
+        {% if page_data.show_delete_section %}
+        <form onsubmit="return deleteViaJavascript({{ page_data.item_id }});">
+            <button type="submit">Delete</button>
+        </form>
+        {% endif %}
+
+
+        {% if page_data.show_post_section %}
+        <h2>POST Method</h2>
+        <form method="post">
+            {# To keep it simple, use a standard html application/x-www-form-urlencoded form #}
+            {# rather than using javascript to implement ajax. #}
+            {# The server side will just extract out the json and handle it appropriately. #}
+
+        <h3>JSON</h3>
+        <div>
+            <textarea id="urlencoded_json" name="urlencoded_json" rows="15" cols="120">
+                {{ page_data.post_content }}
+            </textarea>
+        </div>
+        <div>
+            <button type="submit">POST</button>
+        </div>
+        </form>
+        {% endif %}
+
+        {% if page_data.show_web_debugging_section %}
+        <h2>Web Development Debugging</h2>
+        <h3>page_data:</h3>
+        <pre>{{ page_data | tojson_pretty }}</pre>
+        <h3>links:</h3>
+        <pre>{{ links | tojson_pretty }}</pre>
+        {% endif %}
+
+    </body>
+</html>

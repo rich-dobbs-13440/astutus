@@ -20,3 +20,6 @@ rm -rf src/astutus/web/static/_docs
 cp -r docs/_build/html src/astutus/web/static/_docs
 
 python -m pep517.build packaging/
+
+rm -rf packaging/dist/content/
+unzip  -d packaging/dist/content/ packaging/dist/astutus-* 
