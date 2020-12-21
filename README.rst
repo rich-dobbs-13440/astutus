@@ -32,4 +32,4 @@ This is the technologies demonstrated:
 - Restructured Text
 - Continuous Integration
 - Continuous Deployment
--
+- Docker

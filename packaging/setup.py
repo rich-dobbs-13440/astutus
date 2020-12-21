@@ -1,4 +1,7 @@
 import setuptools
 
 
-setuptools.setup()
+setuptools.setup(
+    package_dir={'': "../src/"},
+    packages=["astutus"],
+)
