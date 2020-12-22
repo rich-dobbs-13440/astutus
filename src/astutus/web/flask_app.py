@@ -1,18 +1,40 @@
 #!/usr/bin/env python3
 import json
+import logging
 import os
 from http import HTTPStatus
-import logging
 
 import astutus.raspi
 import astutus.web.flask_app
+import astutus.db
 import flask
 import flask.logging
+import flask_sqlalchemy
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 app = flask.Flask('astutus.web.flask_app', template_folder='templates')
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/astutus.db"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = flask_sqlalchemy.SQLAlchemy(app)
+db.create_all()
+
+
+class RaspberryPi(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    mac_addr = db.Column(db.String, unique=True)
+    ipv4 = db.Column(db.String)
+
+    def __repr__(self):
+        return f"RaspberryPi(id={self.id}, mac_addr='{self.mac_addr}', ipv4='{self.ipv4}')"
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    def as_json(self):
+        return json.dumps(self.as_dict())
+
 
 flask.logging.default_handler.setFormatter(
     logging.Formatter("[%(asctime)s] %(levelname)s File \"%(pathname)s:%(lineno)d\" %(message)s")
@@ -65,14 +87,13 @@ def handle_raspi():
     if flask.request.method == 'GET':
         if flask.request.args.get('find') is not None:
             return flask.render_template('raspi_find.html', search_result=None, filter=['Raspberry'])
+        items = RaspberryPi.query.all()
         page_data = {
             'title': "Astutus/Raspberry Pi's",
             'show_links_section': True,
             "show_post_section": True,
         }
-        links = {
-            "astutus/raspi/1",
-        }
+        links = [f"raspi/{item.id}" for item in items]
         return flask.render_template(
             'generic_rest_page.html',
             page_data=page_data,
@@ -81,7 +102,30 @@ def handle_raspi():
         form = flask.request.form
         if form.get("action") == "seach_using_nmap":
             return handle_rasp_find(form)
-        return "Should create and show newly created item", HTTPStatus.NOT_IMPLEMENTED
+        if form.get("action") == "create":
+            raspi_ipv4 = form.get("raspi_ipv4")
+            raspi_mac_addr = form.get("raspi_mac_addr")
+            db.session.add(
+                RaspberryPi(ipv4=raspi_ipv4, mac_addr=raspi_mac_addr))
+            db.session.commit()
+        return "Case not handled", HTTPStatus.NOT_IMPLEMENTED
+
+
+@app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET'])
+def handle_raspi_item(id):
+    item = RaspberryPi.query.get(id)
+    page_data = {
+        'title': "Raspberry Pi's",
+        'show_links_section': False,
+        "show_post_section": False,
+        "show_delete_section": True,
+        "show_raw_json_section": True,
+    }
+    return flask.render_template(
+        'generic_rest_page.html',
+        page_data=page_data,
+        data=item.as_json(),
+        links=None)
 
 
 @app.route('/astutus/doc')
@@ -91,7 +135,8 @@ def handle_doc():
 
 @app.route('/astutus/doc/index.html')
 def doc_top():
-    directory = os.path.join(app.root_path, 'web', 'static', '_docs')
+    logger.debug(f"app.root_path: {app.root_path}")
+    directory = os.path.join(app.root_path, 'static', '_docs')
     print(f"directory: {directory}")
     return flask.send_from_directory(directory, 'index.html')
 
@@ -100,7 +145,8 @@ def doc_top():
 def doc(path):
     print(f"path: {path}")
     # print(f"filename: {filename}")
-    real_path = os.path.join(app.root_path, 'web', 'static', '_docs', path)
+    logger.debug(f"app.root_path: {app.root_path}")
+    real_path = os.path.join(app.root_path, 'static', '_docs', path)
     print(f"real_directory: {real_path}")
     return flask.send_file(real_path)
 
