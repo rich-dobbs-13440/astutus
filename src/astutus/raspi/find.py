@@ -15,12 +15,17 @@ def parse_section_to_dictionary(section: str) -> {}:
     # 22/tcp   open  ssh
     # 5900/tcp open  vnc
     # MAC Address: DC:A6:32:C5:94:AD (Raspberry Pi Trading)
-    pattern = r'((\d{1,3}\.){3}\d{1,3})'
-    matches = re.search(pattern, section)
+    ipv4_pattern = r'((\d{1,3}\.){3}\d{1,3})'
+    matches = re.search(ipv4_pattern, section)
     ipv4 = matches.group(0)
     logger.debug(f"ipv4: {ipv4}")
+    mac_addr_pattern = r'([0-9A-F]{2}:){5}[0-9A-F]{2}'
+    matches = re.search(mac_addr_pattern, section, re.MULTILINE | re.IGNORECASE)
+    mac_addr = matches.group(0)
+    logger.debug(f"mac_addr: {mac_addr}")
     parsed_section = {
         'ipv4': ipv4,
+        'mac_addr': mac_addr,
         'content': section,
     }
     return parsed_section
