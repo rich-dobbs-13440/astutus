@@ -25,11 +25,22 @@ Technologies
 Here are the technologies demonstrated:
 
 - Flask
+- Jinja2
+- HTML5
+- CSS
 - Sphinx
 - Restructured Text
+- Integrated Documentation
 - Setuptools
 - Pytest
 - REST API's
+- Continuous Improvement
+- Automation
 - Continuous Integration
 - Continuous Deployment
 - Docker
+- Raspbery Pi
+- Semantic Versioning
+- Agile Planning
+- Bias for Action
+

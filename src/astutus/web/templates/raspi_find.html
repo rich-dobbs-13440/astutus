@@ -6,7 +6,15 @@
     <body>
         <h1>Find Raspberry Pi's on this LAN</h1>
         <h2>Search using NMAP</h2>
-        <form method="POST"><!-- Use post because of security on password-->
+        <form method="POST"><!-- TODO: Use GET method, since POST is no longer required.-->
+            <p>
+                <label for="raspi">Filter: Raspberry</label>
+                <input id="raspi" name= "raspi" type="checkbox" value="Raspberry" checked="checked">
+                <label for="vnc">VNC Running Running</label>
+                <input id="vnc" name= "vnc" type="checkbox" value="vnc">
+                <label for="ssh">SSH Server Running</label>
+                <input id="ssh" name= "ssh" type="checkbox" value="ssh">
+            </p>
             <p>
                 <label for="ipv4">Router IPv4:</label>
                 <input id="ipv4" name="ipv4" type="text" pattern="[0-9]{1-3}.[0-9]{1-3}.[0-9]{1-3}.[0-9]{1-3}" value="192.168.0.1" size="15"></input>
@@ -16,10 +24,13 @@
                 <input type="submit" value="Search"/>
             </p>
         </form>
-        {% for section in search_result %}
-        <pre>
+        {% if search_result is not none %}  
+            <h2>Results</h2>
+            {% for section in search_result %}
+            <pre>
 {{ section }}
-        </pre>
-        {% endfor %}
+            </pre>
+            {% endfor %}
+        {%endif %}
     </body>
 </html>
