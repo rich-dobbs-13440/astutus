@@ -8,12 +8,12 @@
         <h2>Search using NMAP</h2>
         <form method="POST"><!-- TODO: Use GET method, since POST is no longer required.-->
             <p>
-                <label for="raspi">Filter: Raspberry</label>
-                <input id="raspi" name= "raspi" type="checkbox" value="Raspberry" checked="checked">
-                <label for="vnc">VNC Running Running</label>
-                <input id="vnc" name= "vnc" type="checkbox" value="vnc">
-                <label for="ssh">SSH Server Running</label>
-                <input id="ssh" name= "ssh" type="checkbox" value="ssh">
+                Filter: Raspberry
+                <input id="filter" name= "filter" type="checkbox" value="Raspberry" {% if "Raspberry" in filter %}checked{% endif %}>
+                VNC Running Running
+                <input id="filter" name= "filter" type="checkbox" value="vnc" {% if "vnc" in filter %}checked{% endif %}>
+                SSH Server Running
+                <input id="filter" name= "filter" type="checkbox" value="ssh" {% if "ssh" in filter %}checked{% endif %}>
             </p>
             <p>
                 <label for="ipv4">Router IPv4:</label>
@@ -28,7 +28,7 @@
             <h2>Results</h2>
             {% for section in search_result %}
             <pre>
-{{ section }}
+{{ section.content }}
             </pre>
             {% endfor %}
         {%endif %}
