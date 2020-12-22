@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
-# from http import HTTPStatus
-import os
 import json
+import os
+from http import HTTPStatus
+import logging
 
+import astutus.raspi
 import astutus.web.flask_app
 import flask
+import flask.logging
 
-app = flask.Flask('astutus', template_folder='./web/templates')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+app = flask.Flask('astutus.web.flask_app', template_folder='templates')
+
+library_handler = logging.StreamHandler(flask.logging.wsgi_errors_stream)
+library_handler.setFormatter(
+    # Set format suitable for clicking in terminal in Visual Studio Code (Ctrl or Cmd Click)
+    logging.Formatter("[%(asctime)s] %(levelname)s File \"%(pathname)s:%(lineno)d\" %(message)s")
+)
+flask.logging.default_handler.setFormatter(
+    logging.Formatter("[%(asctime)s] %(levelname)s File \"%(pathname)s:%(lineno)d\" %(message)s")
+)
+app.logger.addHandler(flask.logging.default_handler)
+astutus.raspi.find.logger.addHandler(library_handler)
+logger.addHandler(library_handler)
 
 
 @app.template_filter('tojson_pretty')
-def caps(json_text):
+def tojson_pretty(json_text):
     """Pretty Print Json"""
     parsed_json = json.loads(json_text)
     return json.dumps(parsed_json, indent=4, sort_keys=True)
@@ -32,9 +50,38 @@ def handle_astutus():
         "astutus/raspi",
     }
     return flask.render_template(
-        'generic_rest_page.html', 
+        'generic_rest_page.html',
         page_data=page_data,
         links=links)
+
+
+@app.route('/astutus/raspi', methods=['POST', 'GET'])
+def handle_raspi():
+    if flask.request.method == 'GET':
+        if flask.request.args.get('find') is not None:
+            return flask.render_template('raspi_find.html', search_result=None)
+        page_data = {
+            'title': "Astutus/Raspberry Pi's",
+            'show_links_section': True,
+            "show_post_section": True,
+        }
+        links = {
+            "astutus/raspi/1",
+        }
+        return flask.render_template(
+            'generic_rest_page.html',
+            page_data=page_data,
+            links=links)
+    if flask.request.method == 'POST':
+        form = flask.request.form
+        if form.get("action") == "seach_using_nmap":
+            ipv4 = form.get("ipv4")
+            logger.debug(f"ipv4: {ipv4}")
+            mask = flask.request.form.get("mask")
+            logger.debug(f"mask: {mask}")
+            search_result = astutus.raspi.search_using_nmap(ipv4, mask)
+            return flask.render_template('raspi_find.html', search_result=search_result)
+        return "Should create and show newly created item", HTTPStatus.NOT_IMPLEMENTED
 
 
 @app.route('/astutus/doc')
@@ -55,9 +102,6 @@ def doc(path):
     # print(f"filename: {filename}")
     real_path = os.path.join(app.root_path, 'web', 'static', '_docs', path)
     print(f"real_directory: {real_path}")
-    # real_path = os.path.join(real_directory, filename)
-    # print(f"real_path: {real_path}")
-    # return "Working on it", HTTPStatus.NOT_IMPLEMENTED
     return flask.send_file(real_path)
 
 
