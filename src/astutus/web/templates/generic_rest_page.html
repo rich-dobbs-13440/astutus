@@ -49,7 +49,7 @@
 
 
         {% if page_data.show_delete_section %}
-        <form onsubmit="return deleteViaJavascript({{ page_data.item_id }});">
+        <form onsubmit="return deleteViaJavascript('{{ page_data.item_id }}' );">  
             <button type="submit">Delete</button>
         </form>
         {% endif %}

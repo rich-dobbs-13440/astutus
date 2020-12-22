@@ -9,31 +9,22 @@ import astutus.web.flask_app
 import astutus.db
 import flask
 import flask.logging
-import flask_sqlalchemy
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-app = flask.Flask('astutus.web.flask_app', template_folder='templates')
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/astutus.db"
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = flask_sqlalchemy.SQLAlchemy(app)
-db.create_all()
+
+def create_app():
+    app = flask.Flask('astutus.web.flask_app', template_folder='templates')
+    db = astutus.db.get_instance()
+    db.init_app(app)
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/astutus.db"
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    return app
 
 
-class RaspberryPi(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    mac_addr = db.Column(db.String, unique=True)
-    ipv4 = db.Column(db.String)
-
-    def __repr__(self):
-        return f"RaspberryPi(id={self.id}, mac_addr='{self.mac_addr}', ipv4='{self.ipv4}')"
-
-    def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-    def as_json(self):
-        return json.dumps(self.as_dict())
+app = create_app()
+db = astutus.db.get_instance()
 
 
 flask.logging.default_handler.setFormatter(
@@ -87,7 +78,7 @@ def handle_raspi():
     if flask.request.method == 'GET':
         if flask.request.args.get('find') is not None:
             return flask.render_template('raspi_find.html', search_result=None, filter=['Raspberry'])
-        items = RaspberryPi.query.all()
+        items = astutus.db.RaspberryPi.query.all()
         page_data = {
             'title': "Astutus/Raspberry Pi's",
             'show_links_section': True,
@@ -106,14 +97,14 @@ def handle_raspi():
             raspi_ipv4 = form.get("raspi_ipv4")
             raspi_mac_addr = form.get("raspi_mac_addr")
             db.session.add(
-                RaspberryPi(ipv4=raspi_ipv4, mac_addr=raspi_mac_addr))
+                astutus.db.RaspberryPi(ipv4=raspi_ipv4, mac_addr=raspi_mac_addr))
             db.session.commit()
         return "Case not handled", HTTPStatus.NOT_IMPLEMENTED
 
 
 @app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET'])
 def handle_raspi_item(id):
-    item = RaspberryPi.query.get(id)
+    item = astutus.db.RaspberryPi.query.get(id)
     page_data = {
         'title': "Raspberry Pi's",
         'show_links_section': False,

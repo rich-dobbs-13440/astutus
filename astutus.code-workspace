@@ -10,6 +10,7 @@
 		"python.linting.enabled": true,
 		"python.terminal.activateEnvironment": true,
 		"python.path": "${workspaceFolder}/venv/bin/python3",
-		"restructuredtext.confPath": "${workspaceFolder}/docs"
+		"restructuredtext.confPath": "${workspaceFolder}/docs",
+		"emmet.includeLanguages": {"jinja-html": "html"},
 	}
 }

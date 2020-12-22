@@ -1,11 +1,11 @@
-import logging
+# import logging
 
-import sqlalchemy
-import sqlalchemy.ext.declarative
-import sqlalchemy.orm
+# import sqlalchemy
+# import sqlalchemy.ext.declarative
+# import sqlalchemy.orm
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+# logger = logging.getLogger(__name__)
+# logger.setLevel(logging.DEBUG)
 
 # This design was adapted from https://www.fullstackpython.com/sqlalchemy-model-examples.html
 

@@ -1,2 +1,3 @@
-# from astutus.db.sqllite_db import RaspberryPi  # noqa
-# from astutus.db.sqllite_db import init_db  # noqa
+from astutus.db.raspi_db import RaspberryPi  # noqa
+# Just a kludge to get moving
+from astutus.db.raspi_db import get_instance # noqa
