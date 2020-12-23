@@ -106,11 +106,13 @@ def handle_raspi():
 
 @app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET'])
 def handle_raspi_item(id):
+    if flask.request.method == 'POST':
+        return "Got here"
     item = astutus.db.RaspberryPi.query.get(id)
     page_data = {
         'title': "Raspberry Pi's",
         'show_links_section': False,
-        "show_post_section": False,
+        "show_post_section": True,
         "show_delete_section": True,
         "show_raw_json_section": True,
     }
