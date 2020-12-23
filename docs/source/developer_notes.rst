@@ -58,6 +58,15 @@ Traceback (most recent call last):
 NameError: name 'db' is not defined
 >>> astutus.web.flask_app.db.create_all()
 
+Pytest
+------
+
+pytest -s -p no:logging
+
+pytest -vv -s --log-cli-level=DEBUG --log-cli-format="%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)" --log-cli-date-format="%Y-%m-%d %H:%M:%S" 
+
+Fix it up so path is full.  
+
 Olio
 ----
 Linter rstcheck is not installed.

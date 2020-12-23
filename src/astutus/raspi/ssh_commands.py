@@ -4,14 +4,26 @@ import re
 import subprocess
 
 logger = logging.getLogger(__name__)
+# Which is better?
 logger.setLevel(logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
+
+
+class RaspberryPiRuntimeError(RuntimeError):
+    pass
 
 
 class RaspberryPi():
 
-    def __init__(self, db_data):
-        self.id = db_data.id
-        self.ipv4 = db_data.ipv4
+    def __init__(self, *, db_data=None, ipv4=None):
+        if db_data is not None:
+            self.id = db_data.id
+            self.ipv4 = db_data.ipv4
+        elif ipv4 is not None:
+            self.id = 35567
+            self.ipv4 = ipv4
+        else:
+            raise ValueError("Must somehow provide ipv4")
 
     def parse_ifconfig_section_to_kvs(self, section):
         logger.debug(f"section: \n{section}")
@@ -52,8 +64,16 @@ class RaspberryPi():
         return json.dumps(results)
 
     def publish_wheels(self):
-        # cmd = f"scp src/astutus/wheels/astutus-0.1.0-py3-none-any.whl pi@{self.ipv4}:"
-        cmd = f"scp src/astutus/wheels/*-py3-none-any.whl pi@{self.ipv4}:"
+        working_dir = '/home/rich/src/github.com/rich-dobbs-13440/astutus/src/astutus/wheels'
+        logger.debug(f"working_dir: {working_dir}")
+        cmd = f'/usr/bin/rsync --human-readable --verbose --progress * pi@{self.ipv4}:wheels'
         logger.debug(f"cmd: {cmd}")
-        output = subprocess.getoutput(cmd)
-        logger.debug(f"output: {output}")
+        completed_process = subprocess.run(
+            args=cmd,
+            cwd=working_dir,
+            shell=True,
+            capture_output=True
+        )
+        logger.debug(f"completed_process.stdout: {str(completed_process.stdout)}")
+        if completed_process.returncode != 0:
+            raise RaspberryPiRuntimeError(completed_process)
