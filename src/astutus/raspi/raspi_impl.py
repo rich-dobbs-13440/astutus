@@ -2,6 +2,7 @@ import json
 import logging
 import re
 import subprocess
+import pathlib
 
 logger = logging.getLogger(__name__)
 # Which is better?
@@ -64,7 +65,7 @@ class RaspberryPi():
         return json.dumps(results)
 
     def publish_wheels(self):
-        working_dir = '/home/rich/src/github.com/rich-dobbs-13440/astutus/src/astutus/wheels'
+        working_dir = (pathlib.Path(__file__).parent.parent / 'wheels').absolute()
         logger.debug(f"working_dir: {working_dir}")
         cmd = f'/usr/bin/rsync --human-readable --verbose --progress * pi@{self.ipv4}:wheels'
         logger.debug(f"cmd: {cmd}")
@@ -74,6 +75,8 @@ class RaspberryPi():
             shell=True,
             capture_output=True
         )
-        logger.debug(f"completed_process.stdout: {str(completed_process.stdout)}")
+        logger.debug(f"type(completed_process.stdout): {type(completed_process.stdout)}")
+        stdout = completed_process.stdout.decode("utf-8")
+        logger.debug(f"stdout: \n{stdout}")
         if completed_process.returncode != 0:
             raise RaspberryPiRuntimeError(completed_process)

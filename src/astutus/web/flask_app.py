@@ -7,6 +7,7 @@ from http import HTTPStatus
 import astutus.raspi
 import astutus.web.flask_app
 import astutus.db
+import astutus.log
 import flask
 import flask.logging
 
@@ -28,11 +29,9 @@ app = create_app()
 db = astutus.db.get_instance()
 
 
-flask.logging.default_handler.setFormatter(
-    logging.Formatter("[%(asctime)s] %(levelname)s File \"%(pathname)s:%(lineno)d\" %(message)s")
-)
+flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
 astutus.raspi.find.logger.addHandler(flask.logging.default_handler)
-astutus.raspi.ssh_commands.logger.addHandler(flask.logging.default_handler)
+astutus.raspi.raspi_impl.logger.addHandler(flask.logging.default_handler)
 logger.addHandler(flask.logging.default_handler)
 
 
