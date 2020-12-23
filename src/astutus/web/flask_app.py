@@ -16,10 +16,11 @@ logger.setLevel(logging.DEBUG)
 
 def create_app():
     app = flask.Flask('astutus.web.flask_app', template_folder='templates')
-    db = astutus.db.get_instance()
-    db.init_app(app)
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/astutus.db"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db = astutus.db.get_instance()
+    db.init_app(app)
+
     return app
 
 
@@ -31,6 +32,7 @@ flask.logging.default_handler.setFormatter(
     logging.Formatter("[%(asctime)s] %(levelname)s File \"%(pathname)s:%(lineno)d\" %(message)s")
 )
 astutus.raspi.find.logger.addHandler(flask.logging.default_handler)
+astutus.raspi.ssh_commands.logger.addHandler(flask.logging.default_handler)
 logger.addHandler(flask.logging.default_handler)
 
 
@@ -119,13 +121,33 @@ def handle_raspi_item(id):
         links=None)
 
 
+@app.route('/astutus/raspi/<int:id>/ifconfig', methods=['GET'])
+def handle_raspi_item_ifconfig(id):
+    item = astutus.db.RaspberryPi.query.get(id)
+    raspi = astutus.raspi.RaspberryPi(item)
+    ifconfig = raspi.get_ifconfig()
+    page_data = {
+        'title': "Raspberry Pi - ifconfig",
+        'show_links_section': False,
+        "show_post_section": False,
+        "show_delete_section": False,
+        "show_raw_json_section": True,
+    }
+    return flask.render_template(
+        'generic_rest_page.html',
+        page_data=page_data,
+        data=ifconfig,
+        links=None)
+
+
+
 @app.route('/astutus/doc')
 def handle_doc():
     return flask.redirect(flask.url_for("doc_top"))
 
 
 @app.route('/astutus/doc/index.html')
-def doc_top():
+def handle_doc_top():
     logger.debug(f"app.root_path: {app.root_path}")
     directory = os.path.join(app.root_path, 'static', '_docs')
     print(f"directory: {directory}")
@@ -133,7 +155,7 @@ def doc_top():
 
 
 @app.route('/astutus/doc/<path:path>')
-def doc(path):
+def handle_doc_path(path):
     print(f"path: {path}")
     # print(f"filename: {filename}")
     logger.debug(f"app.root_path: {app.root_path}")

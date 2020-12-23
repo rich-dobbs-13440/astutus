@@ -42,6 +42,8 @@ Meaning:  shrewd, sagacious, expert, astute.  Sounds wonderful.
    source/readme
    source/modules
    source/roadmap_to_documentation
+   source/developer_notes
+   source/macosx
 
 
 
