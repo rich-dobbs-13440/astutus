@@ -12,7 +12,7 @@ class RaspberryPi():
     def __init__(self, db_data):
         self.id = db_data.id
         self.ipv4 = db_data.ipv4
-    
+
     def parse_ifconfig_section_to_kvs(self, section):
         logger.debug(f"section: \n{section}")
         interface_pattern = r"(\w+): flags="
@@ -50,3 +50,10 @@ class RaspberryPi():
             key, value = self.parse_ifconfig_section_to_kvs(section)
             results[key] = value
         return json.dumps(results)
+
+    def publish_wheels(self):
+        # cmd = f"scp src/astutus/wheels/astutus-0.1.0-py3-none-any.whl pi@{self.ipv4}:"
+        cmd = f"scp src/astutus/wheels/*-py3-none-any.whl pi@{self.ipv4}:"
+        logger.debug(f"cmd: {cmd}")
+        output = subprocess.getoutput(cmd)
+        logger.debug(f"output: {output}")

@@ -142,7 +142,6 @@ def handle_raspi_item_ifconfig(id):
         links=None)
 
 
-
 @app.route('/astutus/doc')
 def handle_doc():
     return flask.redirect(flask.url_for("doc_top"))
