@@ -157,3 +157,13 @@ crw-rw---- 1 root dialout ... /dev/ttyS0
 So all you have to do is add the user to the dialout group:
 
 sudo adduser $USER dialout
+
+
+Okay, it turns out busnum and devnum are not stable and can change by rebooting, plugging/unplugging devices, etc.
+
+What is stable, I think it the path:
+
+pci0000:00/0000:00:07.0/0000:05:00.0/usb10/10-1/10-1.2/10-1.2.2
+
+As long as the devices aren't physically moved, the path stays the same.  
+

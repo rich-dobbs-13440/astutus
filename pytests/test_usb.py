@@ -28,9 +28,10 @@ def test_find_tty_from_busnum_and_devnum():
 
 
 def test_usb_relay():
-    # busnum, devnum = 10, 8
-    # tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
-    tty = '/dev/ttyUSB0'
+    pci_path = 'pci0000:00/0000:00:07.0/0000:05:00.0/usb10/10-1/10-1.2/10-1.2.2'
+    tty, _, _, vendorid, productid, _ = astutus.usb.find_tty_description_from_pci_path(pci_path)
+    assert vendorid == '1a86'
+    assert productid == '7523'
     with astutus.usb.UsbRelayLcus1(tty) as relay:
         relay.turn_on()
         time.sleep(3)
@@ -39,3 +40,22 @@ def test_usb_relay():
         relay.turn_on()
         time.sleep(3)
         relay.turn_off()
+
+
+def test_find_characteristics_from_pci_path():
+    pci_path = 'pci0000:00/0000:00:07.0/0000:05:00.0/usb10/10-1/10-1.2/10-1.2.2'
+    tty, busnum, devnum, vendorid, productid, description = astutus.usb.find_tty_description_from_pci_path(pci_path)
+    logger.info(f"busnum: {busnum}")
+    logger.info(f"devnum: {devnum}")
+    logger.info(f"tty: {tty}")
+    logger.info(f"vendorid: {vendorid}")
+    logger.info(f"productid: {productid}")
+    logger.info(f"description: {description}")
+    assert tty is not None
+    assert description == 'QinHeng Electronics HL-340 USB-Serial adapter'
+    assert vendorid == '1a86'
+    assert productid == '7523'
+
+
+def test_print_tree():
+    astutus.usb.print_tree()

@@ -1,6 +1,8 @@
 import logging
 import re
 import subprocess
+import treelib
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -34,11 +36,15 @@ def find_paths_for_vendor_and_product(vendor_id: str, product_id: str):
     return paths
 
 
-def find_bus_and_dev_for_sys_device(path) -> (int, int):
-    abs_path = f"/sys/devices/{path}"
+def find_busnum_and_devnum_for_sys_device(pci_path) -> (int, int):
+    abs_path = f"/sys/devices/{pci_path}"
     return_code, stdout, stderr = run_cmd(f'cat {abs_path}/busnum')
+    if return_code != 0:
+        raise RuntimeError(return_code, stderr, stdout)
     busnum = int(stdout.strip())
     return_code, stdout, stderr = run_cmd(f'cat {abs_path}/devnum')
+    if return_code != 0:
+        raise RuntimeError(return_code, stderr, stdout)
     devnum = int(stdout.strip())
     return busnum, devnum
 
@@ -63,9 +69,9 @@ def find_sym_link_for_tty(tty):
 
 
 def find_busnum_and_devnum_for_sym_link(sym_link):
-    for path in find_paths_for_vendor_and_product('1a86', '7523'):
-        if path in sym_link:
-            busnum, devnum = find_bus_and_dev_for_sys_device(path)
+    for pci_path in find_paths_for_vendor_and_product('1a86', '7523'):
+        if pci_path in sym_link:
+            busnum, devnum = find_busnum_and_devnum_for_sys_device(pci_path)
             return busnum, devnum
     raise ValueError(f"No busnum, devnum found for symbolic link: {sym_link}")
 
@@ -90,7 +96,81 @@ def find_tty_for_busnum_and_devnum(busnum, devnum):
     for tty in tty_devices:
         busnum_for_tty, devnum_for_tty = find_busnum_and_devnum_for_tty(tty)
         logger.info(f"tty: '{tty}' busnum_for_tty: '{busnum_for_tty}' devnum_for_tty: '{devnum_for_tty}'")
-        logger.debug(f"busnum_for_tty == busnum {busnum_for_tty == busnum}")
         if busnum_for_tty == busnum and devnum_for_tty == devnum:
             return tty
     raise ValueError(f"No tty USB device found for busnum: {busnum} devnum: {devnum}")
+
+
+def find_vendor_info_from_busnum_and_devnum(busnum: int, devnum: int):
+    return_code, stdout, stderr = run_cmd(f"lsusb -s {busnum}:{devnum}")
+    if return_code != 0:
+        raise RuntimeError(return_code, stderr, stdout)
+    vendor_info_pattern = r'([0-9,a-e]{4}):([0-9,a-e]{4}) (.*)'
+    matches = re.search(vendor_info_pattern, stdout, re.IGNORECASE)
+    if not matches:
+        assert False, f"Parsing failed with line: {stdout} and vendor_info_pattern: {vendor_info_pattern}"
+    vendorid = matches.group(1)
+    productid = matches.group(2)
+    description = matches.group(3)
+    return vendorid, productid, description
+
+
+def find_tty_description_from_pci_path(pci_path):
+    busnum, devnum = find_busnum_and_devnum_for_sys_device(pci_path)
+    tty = find_tty_for_busnum_and_devnum(busnum, devnum)
+    vendorid, productid, description = find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    return tty, busnum, devnum, vendorid, productid, description
+
+
+excluded_directories = [r'^power$', r'^msi_irqs$', r'^ep_\d\d$']
+
+
+def exclude_directory(tag):
+
+    for pattern in excluded_directories:
+        if re.match(pattern, tag):
+            return True
+    return False
+
+
+included_files = ['manufacturer', 'product']
+
+
+class Directory(object):
+    def __init__(self, data=None, color="yellow"):
+        self.data = data
+        self.color = color
+
+
+class Terminal(object):
+
+    def __init__(self, data, color="blue"):
+        self.data = data
+        self.color = color
+
+
+def print_tree():
+    basepath = '/sys/devices/pci0000:00/0000:00:07.0/0000:05:00.0'
+    tree = treelib.Tree()
+    tree.create_node(
+        tag="0000:00:07.0", identifier="/sys/devices/pci0000:00/0000:00:07.0", parent=None, data=Directory())
+
+    # parent_id = "top"
+    for dirpath, dirnames, filenames in os.walk(basepath):
+        # print(dirpath)
+        parent_path, tag = dirpath.rsplit("/", 1)
+        if exclude_directory(tag):
+            continue
+        tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory())
+        for filename in filenames:
+            if filename in included_files:
+                filepath = os.path.join(dirpath, filename)
+                return_code, stdout, stderr = run_cmd(f"cat {filepath}")
+                if return_code != 0:
+                    raise RuntimeError(return_code, stderr, stdout)
+                data = stdout.strip()
+                print(f"filename: {filename} data: {data}")
+                tree.create_node(tag=filename, identifier=filepath,  parent=dirpath, data=Terminal(data))
+
+    # tree.show(data_property="color")
+    tree.show()
