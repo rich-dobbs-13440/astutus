@@ -3,6 +3,7 @@ import re
 import subprocess
 import treelib
 import os
+import astutus.util
 
 logger = logging.getLogger(__name__)
 
@@ -137,23 +138,36 @@ included_files = ['manufacturer', 'product']
 
 
 class Directory(object):
-    def __init__(self, data=None, color="yellow"):
-        self.data = data
+    def __init__(self, tag, color="yellow"):
+        self.tag = tag
         self.color = color
+
+    @property
+    def colorized(self):
+        return self.tag
 
 
 class Terminal(object):
 
-    def __init__(self, data, color="blue"):
+    def __init__(self, filename, data, color="blue"):
+        self.filename = filename
         self.data = data
         self.color = color
+
+    @property
+    def colorized(self):
+        ansi = astutus.util.AnsiSequenceStack()
+        start = ansi.push
+        end = ansi.end
+        return f"{self.filename} - {start(self.color)}{self.data}{end(self.color)}"
 
 
 def print_tree():
     basepath = '/sys/devices/pci0000:00/0000:00:07.0/0000:05:00.0'
     tree = treelib.Tree()
+    tag = "0000:00:07.0"
     tree.create_node(
-        tag="0000:00:07.0", identifier="/sys/devices/pci0000:00/0000:00:07.0", parent=None, data=Directory())
+        tag=tag, identifier="/sys/devices/pci0000:00/0000:00:07.0", parent=None, data=Directory(tag))
 
     # parent_id = "top"
     for dirpath, dirnames, filenames in os.walk(basepath):
@@ -161,7 +175,7 @@ def print_tree():
         parent_path, tag = dirpath.rsplit("/", 1)
         if exclude_directory(tag):
             continue
-        tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory())
+        tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
         for filename in filenames:
             if filename in included_files:
                 filepath = os.path.join(dirpath, filename)
@@ -170,7 +184,6 @@ def print_tree():
                     raise RuntimeError(return_code, stderr, stdout)
                 data = stdout.strip()
                 print(f"filename: {filename} data: {data}")
-                tree.create_node(tag=filename, identifier=filepath,  parent=dirpath, data=Terminal(data))
+                tree.create_node(tag=filename, identifier=filepath,  parent=dirpath, data=Terminal(filename, data))
 
-    # tree.show(data_property="color")
-    tree.show()
+    tree.show(data_property="colorized")
