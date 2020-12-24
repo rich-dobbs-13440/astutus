@@ -12,5 +12,10 @@
 		"python.path": "${workspaceFolder}/venv/bin/python3",
 		"restructuredtext.confPath": "${workspaceFolder}/docs",
 		"emmet.includeLanguages": {"jinja-html": "html"},
-	}
+	},
+	"files.watcherExclude": {
+		"**/.git/objects/**": true,
+		"**/.git/subtree-cache/**": true,
+		"**/__pycache__/*/**": true
+	  }
 }

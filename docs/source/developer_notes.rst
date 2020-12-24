@@ -147,3 +147,13 @@ Serial Communication with USB Relay
   Bus (\d+) Device (\d+)
 
   Bus (\d+) Device (\d+): ID ([0-9,a-e]{4}):([0-9,a-e]{4}) (.*)
+
+
+https://askubuntu.com/questions/373096/how-do-i-permanently-change-permissions-for-dev-ttys0#373269
+
+There's no need to change system file's permissions. The serial devices have the following default permissions:
+
+crw-rw---- 1 root dialout ... /dev/ttyS0
+So all you have to do is add the user to the dialout group:
+
+sudo adduser $USER dialout

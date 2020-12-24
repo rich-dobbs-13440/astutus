@@ -1,4 +1,5 @@
 import logging
+import time
 
 import astutus.usb
 
@@ -24,3 +25,16 @@ def test_find_tty_from_busnum_and_devnum():
     busnum, devnum = 10, 21
     tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
     logger.info(f"busnum: {busnum} devnum: {devnum} tty: {tty}")
+
+
+def test_usb_relay():
+    busnum, devnum = 10, 8
+    tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+    with astutus.usb.UsbRelayLcus1(tty) as relay:
+        relay.turn_on()
+        time.sleep(3)
+        relay.turn_off()
+        time.sleep(3)
+        relay.turn_on()
+        time.sleep(3)
+        relay.turn_off()

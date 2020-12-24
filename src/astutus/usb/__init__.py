@@ -4,3 +4,5 @@ from astutus.usb.usb_impl import find_sym_link_for_tty  # noqa
 from astutus.usb.usb_impl import find_busnum_and_devnum_for_sym_link  # noqa
 from astutus.usb.usb_impl import find_busnum_and_devnum_for_tty  # noqa
 from astutus.usb.usb_impl import find_tty_for_busnum_and_devnum  # noqa
+
+from astutus.usb.lcus_1_usb_relay import UsbRelayLcus1 # noqa
