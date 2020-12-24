@@ -35,7 +35,7 @@ class SerialPort:
         self.port = None
 
     def open(self):
-        port = serial.Serial("/dev/ttyUSB1")
+        port = serial.Serial(self.tty_dev)
         port.baudrate = self.baudrate
         port.bytesize = self.bytesize
         port.parity = self.parity

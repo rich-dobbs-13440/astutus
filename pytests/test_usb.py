@@ -28,8 +28,9 @@ def test_find_tty_from_busnum_and_devnum():
 
 
 def test_usb_relay():
-    busnum, devnum = 10, 8
-    tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+    # busnum, devnum = 10, 8
+    # tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+    tty = '/dev/ttyUSB0'
     with astutus.usb.UsbRelayLcus1(tty) as relay:
         relay.turn_on()
         time.sleep(3)
