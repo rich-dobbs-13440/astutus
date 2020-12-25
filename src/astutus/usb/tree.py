@@ -8,14 +8,16 @@ import treelib
 logger = logging.getLogger(__name__)
 
 
-computer_pci_aliases = {
+aliases = {
     '0000:00:05.0': {'order': '01', 'label': 'wendy:front', 'color': 'cyan'},
     '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
-    '0000:00:07.0': {'order': '20', 'label': 'wendy:back:row2:blue', 'color': 'blue'},
+    '0000:00:07.0': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
     '0000:00:12.0': {'order': '30', 'label': 'wendy:back:row3', 'color': 'red'},
-    '0000:00:13.2': {'order': '40', 'label': 'wendy:back: row4:red, row5:green', 'color': 'green'}
+    '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
+    '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
+        {'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
+    '05e3:0610': {'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'yellow'},
 }
-
 
 included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
 
@@ -24,7 +26,7 @@ class Directory(object):
 
     def __init__(self, tag):
         self.tag = tag
-        self.alias = computer_pci_aliases.get(self.tag)
+        self.alias = aliases.get(self.tag)
         if self.alias is None:
             self.order = '00'
         else:
@@ -61,6 +63,9 @@ class UsbDeviceNodeData(object):
         if config.get('find_tty'):
             tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
             data['tty'] = tty
+        # For now, just find the alias based on the vendorId:productId value
+        id = f"{data['idVendor']}:{data['idProduct']}"
+        self.alias = aliases.get(id)
 
     @property
     def colorized(self):
@@ -82,11 +87,16 @@ class UsbDeviceNodeData(object):
         if description_template is None:
             description_template = "{description}"
         description = description_template.format_map(self.data)
-        color = self.config['color']
+        if self.alias is None:
+            label = description
+            color = self.config['color']
+        else:
+            label = self.alias['label']
+            color = self.alias['color']
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
-        return f"{self.filename} - {start(color)}{description}{end(color)}"
+        return f"{self.filename} - {start(color)}{label}{end(color)}"
 
     def key(self):
         return f"00 - {self.filename}"
