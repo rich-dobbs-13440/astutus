@@ -89,10 +89,12 @@ def find_tty_for_busnum_and_devnum(busnum, devnum):
 
 
 def find_vendor_info_from_busnum_and_devnum(busnum: int, devnum: int):
-    return_code, stdout, stderr = astutus.util.run_cmd(f"lsusb -s {busnum}:{devnum}")
+    cmd = f"lsusb -s {busnum}:{devnum}"
+    logger.debug(f"cmd: {cmd}")
+    return_code, stdout, stderr = astutus.util.run_cmd(cmd)
     if return_code != 0:
         raise RuntimeError(return_code, stderr, stdout)
-    vendor_info_pattern = r'([0-9,a-e]{4}):([0-9,a-e]{4}) (.*)'
+    vendor_info_pattern = r'([0-9,a-f]{4}):([0-9,a-f]{4}) (.*)'
     matches = re.search(vendor_info_pattern, stdout, re.IGNORECASE)
     if not matches:
         assert False, f"Parsing failed with line: {stdout} and vendor_info_pattern: {vendor_info_pattern}"

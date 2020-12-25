@@ -68,8 +68,101 @@ def lcus_1_usb_relay_node_handler(tree, tag, dirpath, parent_path, filenames, da
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(id, augmented_description, color='yellow'))
+        data=FileNode(id, augmented_description, color='green'))
     node.expanded = False
+
+
+def pdpgaming_lvl50_wireless_headset_handler(tree, tag, dirpath, parent_path, filenames, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    id = f"{vendorid}:{productid}"
+    augmented_description = f"{data['product']}"
+    node = tree.create_node(
+        tag=tag,
+        identifier=dirpath,
+        parent=parent_path,
+        data=FileNode(id, augmented_description, color='magenta'))
+    node.expanded = False
+
+
+def realtek_usb_lan_adapter_handler(tree, tag, dirpath, parent_path, filenames, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    id = f"{vendorid}:{productid}"
+    augmented_description = f"{data['manufacturer']} {data['product']}"
+    node = tree.create_node(
+        tag=tag,
+        identifier=dirpath,
+        parent=parent_path,
+        data=FileNode(id, augmented_description, color='green'))
+    node.expanded = False
+
+
+def logitech_usb_receiver_handler(tree, tag, dirpath, parent_path, filenames, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    id = f"{vendorid}:{productid}"
+    # Might be a keyboard or a mouse or a touchpad or more than one!
+    # Will just handle my cases for now.
+    augmented_description = None
+    _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "mouse" 2>/dev/null', cwd=dirpath)
+    if 'mouse' in stdout:
+        augmented_description = f"{data['manufacturer']} {data['product']} mouse"
+    if augmented_description is None:
+        _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "numlock" 2>/dev/null', cwd=dirpath) 
+        if 'numlock' in stdout:
+            augmented_description = f"{data['manufacturer']} {data['product']} keyboard"
+    if augmented_description is None:
+        augmented_description = f"{data['manufacturer']} {data['product']} unknown transmitter type"
+    node = tree.create_node(
+        tag=tag,
+        identifier=dirpath,
+        parent=parent_path,
+        data=FileNode(id, augmented_description, color='magenta'))
+    node.expanded = False
+
+
+def logitech_hd_webcam_c615_handler(tree, tag, dirpath, parent_path, filenames, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    id = f"{vendorid}:{productid}"
+    augmented_description = f"Logitech {data['product']}"
+    node = tree.create_node(
+        tag=tag,
+        identifier=dirpath,
+        parent=parent_path,
+        data=FileNode(id, augmented_description, color='magenta'))
+    node.expanded = False
+
+
+def genesys_logic_inc_4_port_hub_handler(tree, tag, dirpath, parent_path, filenames, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    id = f"{vendorid}:{productid}"
+    node = tree.create_node(
+        tag=tag,
+        identifier=dirpath,
+        parent=parent_path,
+        data=FileNode(id, description, color='yellow'))
+    node.expanded = True
+
+
+def generic_host_controller(tree, tag, dirpath, parent_path, filenames, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    id = f"{vendorid}:{productid}"
+    node = tree.create_node(
+        tag=tag,
+        identifier=dirpath,
+        parent=parent_path,
+        data=FileNode(id, description, color='yellow'))
+    node.expanded = True
 
 
 excluded_directories = [r'^power$', r'^msi_irqs$', r'^ep_\d\d$']
@@ -123,6 +216,20 @@ def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
 def get_node_handler(data):
     if data.get('idVendor') == '1a86' and data.get('idProduct') == '7523':
         return lcus_1_usb_relay_node_handler
+    if data.get('idVendor') == '05e3' and data.get('idProduct') == '0610':
+        return genesys_logic_inc_4_port_hub_handler
+    if data.get('idVendor') == '0e6f' and data.get('idProduct') == '0232':
+        return pdpgaming_lvl50_wireless_headset_handler
+    if data.get('idVendor') == '0bda' and data.get('idProduct') == '8153':
+        return realtek_usb_lan_adapter_handler
+    if data.get('idVendor') == '046d' and data.get('idProduct') == 'c52f':
+        return logitech_usb_receiver_handler
+    if data.get('idVendor') == '046d' and data.get('idProduct') == 'c52b':
+        return logitech_usb_receiver_handler
+    if data.get('idVendor') == '046d' and data.get('idProduct') == '082c':
+        return logitech_hd_webcam_c615_handler
+    if data.get('idVendor') == '1d6b':
+        return generic_host_controller
     return default_node_handler
 
 

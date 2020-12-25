@@ -146,7 +146,7 @@ Serial Communication with USB Relay
 
   Bus (\d+) Device (\d+)
 
-  Bus (\d+) Device (\d+): ID ([0-9,a-e]{4}):([0-9,a-e]{4}) (.*)
+  Bus (\d+) Device (\d+): ID ([0-9,af]{4}):([0-9,a-f]{4}) (.*)
 
 
 https://askubuntu.com/questions/373096/how-do-i-permanently-change-permissions-for-dev-ttys0#373269

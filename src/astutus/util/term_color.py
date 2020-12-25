@@ -13,6 +13,8 @@ attribute_map = {
     'blue': colorama.Fore.BLUE,
     'cyan': colorama.Fore.CYAN,
     'yellow': colorama.Fore.YELLOW,
+    'magenta': colorama.Fore.MAGENTA,
+    'green': colorama.Fore.GREEN,
 }
 
 
