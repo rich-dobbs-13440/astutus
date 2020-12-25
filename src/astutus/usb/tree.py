@@ -47,6 +47,16 @@ class UsbDeviceNodeData(object):
         if callable(self.config['description_template']):
             template_generator = self.config['description_template']
             description_template = template_generator(self.dirpath, self.data)
+        elif isinstance([], type(self.config['description_template'])):
+            for item in self.config['description_template']:
+                if item.get('test') == 'value_in_stdout':
+                    cmd = item.get('cmd')
+                    if cmd is None:
+                        raise ValueError('cmd must be given for test value_in_stdout')
+                    _, stdout, stderr = astutus.util.run_cmd(cmd, cwd=self.dirpath)
+                    if item.get('value') in stdout:
+                        description_template = item.get('description_template')
+                        break
         else:
             description_template = self.config['description_template']
         if description_template is None:
@@ -111,17 +121,42 @@ def find_device_config(data):
         '046d:c52f': {
             'name_of_config': 'Logitech, Inc. Unifying Receiver',
             'color': 'magenta',
-            'description_template': logitech_usb_receiver_template,
+            'description_template': [
+                {
+                    'cmd': 'grep -r . -e "mouse" 2>/dev/null',
+                    'test': 'value_in_stdout',
+                    'value': 'mouse',
+                    'description_template': "{manufacturer} {product} mouse",
+                },
+                {
+                    'cmd': 'grep -r . -e "numlock" 2>/dev/null',
+                    'test': 'value_in_stdout',
+                    'value': 'numlock',
+                    'description_template': "{manufacturer} {product} keyboard",
+                },
+            ],
         },
         '046d:c52b': {
             'name_of_config': 'Logitech, Inc. Unifying Receiver',
             'color': 'magenta',
-            'description_template': logitech_usb_receiver_template,
+            'description_template': [
+                {
+                    'cmd': 'grep -r . -e "mouse" 2>/dev/null',
+                    'test': 'value_in_stdout',
+                    'value': 'mouse',
+                    'description_template': "{manufacturer} {product} mouse",
+                },
+                {
+                    'cmd': 'grep -r . -e "numlock" 2>/dev/null',
+                    'test': 'value_in_stdout',
+                    'value': 'numlock',
+                    'description_template': "{manufacturer} {product} keyboard",
+                },
+            ],
         },
         '1a86:7523': {
             'name_of_config': 'QinHeng Electronics HL-340 USB-Serial adapter',
             'color': 'green',
-            # 'description_template': qinHeng_electronics_hl_340_usb_serial_template,
             'description_template': "{description} - {tty}",
             'find_tty': True
         },
@@ -138,22 +173,6 @@ def find_device_config(data):
                 'description_template': None,
             }
     return characteristics
-
-
-def logitech_usb_receiver_template(dirpath, data):
-    # Might be a keyboard or a mouse or a touchpad or more than one!
-    # Will just handle my cases for now.
-    description_template = None
-    _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "mouse" 2>/dev/null', cwd=dirpath)
-    if 'mouse' in stdout:
-        description_template = "{manufacturer} {product} mouse"
-    if description_template is None:
-        _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "numlock" 2>/dev/null', cwd=dirpath)
-        if 'numlock' in stdout:
-            description_template = "{manufacturer} {product} keyboard"
-    if description_template is None:
-        description_template = "{manufacturer} {product} unknown transmitter type"
-    return description_template
 
 
 def extract_data(tag, dirpath, filenames):
