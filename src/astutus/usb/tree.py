@@ -42,8 +42,6 @@ class UsbDeviceNodeData(object):
         busnum = int(self.data['busnum'])
         devnum = int(self.data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-        # data["fvi_vendorid"] = vendorid
-        # data["fvi_productid"] = productid
         self.data["description"] = description
 
     @property
@@ -60,51 +58,6 @@ class UsbDeviceNodeData(object):
 
 def key_for_files_first_first_alphabetic(node):
     return node.data.key()
-
-
-def lcus_1_usb_relay_node_handler(tree, tag, dirpath, parent_path, filenames, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
-    data['tty'] = tty
-    description_template = "{description} - {tty}"
-    node = tree.create_node(
-        tag=tag,
-        identifier=dirpath,
-        parent=parent_path,
-        data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='green'))
-    node.expanded = False
-
-
-def logitech_usb_receiver_handler(tree, tag, dirpath, parent_path, filenames, data):
-    # Might be a keyboard or a mouse or a touchpad or more than one!
-    # Will just handle my cases for now.
-    description_template = None
-    _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "mouse" 2>/dev/null', cwd=dirpath)
-    if 'mouse' in stdout:
-        description_template = "{manufacturer} {product} mouse"
-    if description_template is None:
-        _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "numlock" 2>/dev/null', cwd=dirpath)
-        if 'numlock' in stdout:
-            description_template = "{manufacturer} {product} keyboard"
-    if description_template is None:
-        description_template = "{manufacturer} {product} unknown transmitter type"
-    tree.create_node(
-        tag=tag,
-        identifier=dirpath,
-        parent=parent_path,
-        data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='magenta'))
-
-
-def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
-    if data.get('busnum') and data.get('devnum'):
-        tree.create_node(
-            tag=tag,
-            identifier=dirpath,
-            parent=parent_path,
-            data=UsbDeviceNodeData(filename=tag, data=data, color='blue'))
-    else:
-        tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
 
 
 def find_device_characteristics(data):
@@ -149,22 +102,59 @@ def find_device_characteristics(data):
             'color': 'yellow',
             'description_template': None,
         },
+        '046d:c52f': {
+            'name_of_config': 'Logitech, Inc. Unifying Receiver',
+            'color': 'magenta',
+            'description_template': logitech_usb_receiver_template,
+        },
+        '046d:c52b': {
+            'name_of_config': 'Logitech, Inc. Unifying Receiver',
+            'color': 'magenta',
+            'description_template': logitech_usb_receiver_template,
+        },
+        '1a86:7523': {
+            'name_of_config': 'QinHeng Electronics HL-340 USB-Serial adapter',
+            'color': 'green',
+            'description_template': qinHeng_electronics_hl_340_usb_serial_template,
+        },
     }
     if data.get('idVendor') is None:
         return None
     key = f"{data['idVendor']}:{data['idProduct']}"
     characteristics = device_map.get(key)
+    if characteristics is None:
+        if data.get('busnum') and data.get('devnum'):
+            characteristics = {
+                'name_of_config': 'Generic',
+                'color': 'blue',
+                'description_template': None,
+            }
     return characteristics
 
 
-def get_node_handler(data):
-    if data.get('idVendor') == '1a86' and data.get('idProduct') == '7523':
-        return lcus_1_usb_relay_node_handler
-    if data.get('idVendor') == '046d' and data.get('idProduct') == 'c52f':
-        return logitech_usb_receiver_handler
-    if data.get('idVendor') == '046d' and data.get('idProduct') == 'c52b':
-        return logitech_usb_receiver_handler
-    return default_node_handler
+def qinHeng_electronics_hl_340_usb_serial_template(dirpath, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+    data['tty'] = tty
+    description_template = "{description} - {tty}"
+    return description_template
+
+
+def logitech_usb_receiver_template(dirpath, data):
+    # Might be a keyboard or a mouse or a touchpad or more than one!
+    # Will just handle my cases for now.
+    description_template = None
+    _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "mouse" 2>/dev/null', cwd=dirpath)
+    if 'mouse' in stdout:
+        description_template = "{manufacturer} {product} mouse"
+    if description_template is None:
+        _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "numlock" 2>/dev/null', cwd=dirpath)
+        if 'numlock' in stdout:
+            description_template = "{manufacturer} {product} keyboard"
+    if description_template is None:
+        description_template = "{manufacturer} {product} unknown transmitter type"
+    return description_template
 
 
 def extract_data(tag, dirpath, filenames):
@@ -218,17 +208,22 @@ def print_tree():
             data = extract_data(tag, dirpath, filenames)
             device_characteristics = find_device_characteristics(data)
             if device_characteristics is not None:
+                # Probably can clean this up by using a generator.
+                if callable(device_characteristics['description_template']):
+                    template_generator = device_characteristics['description_template']
+                    description_template = template_generator(dirpath, data)
+                else:
+                    description_template = device_characteristics['description_template']
                 tree.create_node(
                     tag=tag,
                     identifier=dirpath,
                     parent=parent_path,
                     data=UsbDeviceNodeData(
                         filename=tag,
-                        description_template=device_characteristics['description_template'],
+                        description_template=description_template,
                         data=data,
                         color=device_characteristics['color']))
             else:
-                handle = get_node_handler(data)
-                handle(tree, tag, dirpath, parent_path, filenames, data)
+                tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
 
     tree.show(data_property="colorized", key=key_for_files_first_first_alphabetic)
