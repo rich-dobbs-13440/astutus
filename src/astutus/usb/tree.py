@@ -29,28 +29,34 @@ class Directory(object):
 
 class UsbDeviceNodeData(object):
 
-    def __init__(self, *, filename, description_template=None, data=None, color="blue"):
+    def __init__(self, *, filename, dirpath, data, config):
         self.filename = filename
-        if description_template is None:
-            description_template = "{description}"
-        self.description_template = description_template
+        self.dirpath = dirpath
         self.data = data
-        self.color = color
-        self.find_description()
-
-    def find_description(self):
+        self.config = config
         busnum = int(self.data['busnum'])
         devnum = int(self.data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
         self.data["description"] = description
+        if config.get('find_tty'):
+            tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+            data['tty'] = tty
 
     @property
     def colorized(self):
-        description = self.description_template.format_map(self.data)
+        if callable(self.config['description_template']):
+            template_generator = self.config['description_template']
+            description_template = template_generator(self.dirpath, self.data)
+        else:
+            description_template = self.config['description_template']
+        if description_template is None:
+            description_template = "{description}"
+        description = description_template.format_map(self.data)
+        color = self.config['color']
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
-        return f"{self.filename} - {start(self.color)}{description}{end(self.color)}"
+        return f"{self.filename} - {start(color)}{description}{end(color)}"
 
     def key(self):
         return f"00 - {self.filename}"
@@ -60,7 +66,7 @@ def key_for_files_first_first_alphabetic(node):
     return node.data.key()
 
 
-def find_device_characteristics(data):
+def find_device_config(data):
     device_map = {
         '0e6f:0232': {
             'name_of_config': 'PDPGaming LVL50 Wireless Headset',
@@ -115,7 +121,9 @@ def find_device_characteristics(data):
         '1a86:7523': {
             'name_of_config': 'QinHeng Electronics HL-340 USB-Serial adapter',
             'color': 'green',
-            'description_template': qinHeng_electronics_hl_340_usb_serial_template,
+            # 'description_template': qinHeng_electronics_hl_340_usb_serial_template,
+            'description_template': "{description} - {tty}",
+            'find_tty': True
         },
     }
     if data.get('idVendor') is None:
@@ -130,15 +138,6 @@ def find_device_characteristics(data):
                 'description_template': None,
             }
     return characteristics
-
-
-def qinHeng_electronics_hl_340_usb_serial_template(dirpath, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
-    data['tty'] = tty
-    description_template = "{description} - {tty}"
-    return description_template
 
 
 def logitech_usb_receiver_template(dirpath, data):
@@ -178,7 +177,7 @@ def print_tree():
         if "busnum" in filenames and "devnum" in filenames:
             device_paths.append(dirpath + "/")
 
-    logger.debug("device_paths: {len(device_paths}")
+    logger.info("device_paths: {len(device_paths}")
     for device_path in device_paths:
         logger.debug(device_path)
 
@@ -191,7 +190,7 @@ def print_tree():
                 nodes_to_create.append(node)
             idx = device_path.find("/", idx + 1)
 
-    logger.debug("nodes to create")
+    logger.info("nodes to create")
     for node in nodes_to_create:
         logger.debug(node)
 
@@ -199,30 +198,23 @@ def print_tree():
     tree = treelib.Tree()
     tree.create_node(
         tag=rootpath, identifier=rootpath, parent=None, data=Directory(rootpath))
-
     for dirpath, dirnames, filenames in os.walk(basepath):
         if dirpath in nodes_to_create:
             if dirpath == rootpath:
                 continue
             parent_path, tag = dirpath.rsplit("/", 1)
             data = extract_data(tag, dirpath, filenames)
-            device_characteristics = find_device_characteristics(data)
-            if device_characteristics is not None:
-                # Probably can clean this up by using a generator.
-                if callable(device_characteristics['description_template']):
-                    template_generator = device_characteristics['description_template']
-                    description_template = template_generator(dirpath, data)
-                else:
-                    description_template = device_characteristics['description_template']
+            device_config = find_device_config(data)
+            if device_config is not None:
                 tree.create_node(
                     tag=tag,
                     identifier=dirpath,
                     parent=parent_path,
                     data=UsbDeviceNodeData(
                         filename=tag,
-                        description_template=description_template,
+                        dirpath=dirpath,
                         data=data,
-                        color=device_characteristics['color']))
+                        config=device_config))
             else:
                 tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
 
