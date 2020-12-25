@@ -6,7 +6,7 @@ import astutus.util
 import treelib
 
 
-included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum']
+included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
 
 
 class Directory(object):
@@ -91,7 +91,7 @@ def realtek_usb_lan_adapter_handler(tree, tag, dirpath, parent_path, filenames, 
     devnum = int(data['devnum'])
     vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
     id = f"{vendorid}:{productid}"
-    augmented_description = f"{data['manufacturer']} {data['product']}"
+    augmented_description = f"{data['manufacturer']} {data['product']} (sn: {data['serial']})"
     node = tree.create_node(
         tag=tag,
         identifier=dirpath,
@@ -112,7 +112,7 @@ def logitech_usb_receiver_handler(tree, tag, dirpath, parent_path, filenames, da
     if 'mouse' in stdout:
         augmented_description = f"{data['manufacturer']} {data['product']} mouse"
     if augmented_description is None:
-        _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "numlock" 2>/dev/null', cwd=dirpath) 
+        _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "numlock" 2>/dev/null', cwd=dirpath)
         if 'numlock' in stdout:
             augmented_description = f"{data['manufacturer']} {data['product']} keyboard"
     if augmented_description is None:
@@ -130,7 +130,21 @@ def logitech_hd_webcam_c615_handler(tree, tag, dirpath, parent_path, filenames, 
     devnum = int(data['devnum'])
     vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
     id = f"{vendorid}:{productid}"
-    augmented_description = f"Logitech {data['product']}"
+    augmented_description = f"Logitech {data['product']} (sn: {data['serial']})"
+    node = tree.create_node(
+        tag=tag,
+        identifier=dirpath,
+        parent=parent_path,
+        data=FileNode(id, augmented_description, color='magenta'))
+    node.expanded = False
+
+
+def samsung_galaxy_phone_handler(tree, tag, dirpath, parent_path, filenames, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    id = f"{vendorid}:{productid}"
+    augmented_description = f"{description} (sn: {data['serial']})"
     node = tree.create_node(
         tag=tag,
         identifier=dirpath,
@@ -150,9 +164,11 @@ def genesys_logic_inc_4_port_hub_handler(tree, tag, dirpath, parent_path, filena
         parent=parent_path,
         data=FileNode(id, description, color='yellow'))
     node.expanded = True
+    # Omit children that are not special.
+    excluded_dirpaths.append(dirpath)
 
 
-def generic_host_controller(tree, tag, dirpath, parent_path, filenames, data):
+def generic_host_controller_handler(tree, tag, dirpath, parent_path, filenames, data):
     busnum = int(data['busnum'])
     devnum = int(data['devnum'])
     vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
@@ -163,6 +179,8 @@ def generic_host_controller(tree, tag, dirpath, parent_path, filenames, data):
         parent=parent_path,
         data=FileNode(id, description, color='yellow'))
     node.expanded = True
+    # Omit children that are not special.
+    excluded_dirpaths.append(dirpath)
 
 
 excluded_directories = [r'^power$', r'^msi_irqs$', r'^ep_\d\d$']
@@ -171,6 +189,16 @@ excluded_directories = [r'^power$', r'^msi_irqs$', r'^ep_\d\d$']
 def excluded(tag):
     for pattern in excluded_directories:
         if re.match(pattern, tag):
+            return True
+    return False
+
+
+excluded_dirpaths = []
+
+
+def excluded_dirpath(dirpath):
+    for ex_path in excluded_dirpaths:
+        if ex_path in dirpath:
             return True
     return False
 
@@ -193,8 +221,15 @@ def collapse(tag):
     return False
 
 
+def collapse_handler(tree, tag, dirpath, parent_path, filenames, data):
+    node = tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
+    node.expanded = False
+
+
 def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
     if excluded(tag):
+        return
+    if excluded_dirpath(dirpath):
         return
     node = tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
     if collapse(tag):
@@ -228,8 +263,14 @@ def get_node_handler(data):
         return logitech_usb_receiver_handler
     if data.get('idVendor') == '046d' and data.get('idProduct') == '082c':
         return logitech_hd_webcam_c615_handler
+    if data.get('idVendor') == '04e8' and data.get('idProduct') == '6860':
+        return samsung_galaxy_phone_handler
     if data.get('idVendor') == '1d6b':
-        return generic_host_controller
+        return generic_host_controller_handler
+    if data.get('tag') == 'wmi_bus':
+        return collapse_handler
+    if data.get('tag') == 'pci_bus':
+        return collapse_handler
     return default_node_handler
 
 
@@ -242,14 +283,13 @@ def print_tree():
 
     for dirpath, dirnames, filenames in os.walk(basepath):
         parent_path, tag = dirpath.rsplit("/", 1)
-        data = {}
+        data = {'tag': tag}
         for filename in filenames:
             if filename not in included_files:
                 continue
             filepath = os.path.join(dirpath, filename)
             return_code, stdout, stderr = astutus.util.run_cmd(f"cat {filepath}")
             if return_code != 0:
-                # raise RuntimeError(return_code, stderr, stdout)
                 continue
             data[filename] = stdout.strip()
         handle = get_node_handler(data)
