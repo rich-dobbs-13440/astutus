@@ -27,23 +27,39 @@ class Directory(object):
         return f"10 - {self.tag}"
 
 
-class FileNode(object):
+class UsbDeviceNodeData(object):
 
-    def __init__(self, *, filename, description, data=None, color="blue"):
+    def __init__(self, *, filename, description_template=None, data=None, color="blue"):
         self.filename = filename
-        self.description = description
+        if description_template is None:
+            description_template = "{description}"
+        self.description_template = description_template
         self.data = data
         self.color = color
+        self.find_description()
+
+    def find_description(self):
+        busnum = int(self.data['busnum'])
+        devnum = int(self.data['devnum'])
+        _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+        # data["fvi_vendorid"] = vendorid
+        # data["fvi_productid"] = productid
+        self.data["description"] = description
 
     @property
     def colorized(self):
-        description = self.description
-        if self.data.get('serial'):
-            description = description + f"(sn: {self.data['serial']})"
+        # description = self.description
+        # data = self.data
+        # if self.data.get('serial'):
+        #     description = description + f"(sn: {data['serial']})"
+        # if self.description_template is not None:
+        description = self.description_template.format_map(self.data)
+        #logger.error(description)
+
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
-        return f"{self.filename} - {start(self.color)}{self.description}{end(self.color)}"
+        return f"{self.filename} - {start(self.color)}{description}{end(self.color)}"
 
     def key(self):
         return f"00 - {self.filename}"
@@ -56,138 +72,99 @@ def key_for_files_first_first_alphabetic(node):
 def lcus_1_usb_relay_node_handler(tree, tag, dirpath, parent_path, filenames, data):
     busnum = int(data['busnum'])
     devnum = int(data['devnum'])
-    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
     tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
-    data["found_vendorid"] = vendorid
-    data["found_productid"] = productid
-    augmented_description = f"{tty} - {description}"
+    data['tty'] = tty
+    description_template = "{description} - {tty}"
     node = tree.create_node(
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(filename=tag, description=augmented_description, data=data, color='green'))
+        data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='green'))
     node.expanded = False
 
 
 def pdpgaming_lvl50_wireless_headset_handler(tree, tag, dirpath, parent_path, filenames, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-    data["found_vendorid"] = vendorid
-    data["found_productid"] = productid
-    augmented_description = f"{data['product']}"
+    description_template = "{product}"
     tree.create_node(
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(filename=tag, description=augmented_description, data=data, color='magenta'))
+        data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='magenta'))
 
 
 def realtek_usb_lan_adapter_handler(tree, tag, dirpath, parent_path, filenames, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-    data["found_vendorid"] = vendorid
-    data["found_productid"] = productid
-    augmented_description = f"{data['manufacturer']} {data['product']} (sn: {data['serial']})"
+    description_template = "{manufacturer} {product} (sn: {serial})"
     tree.create_node(
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(filename=tag, description=augmented_description, data=data, color='green'))
+        data=UsbDeviceNodeData(
+            filename=tag,
+            description_template=description_template,
+            data=data,
+            color='green'))
 
 
 def logitech_usb_receiver_handler(tree, tag, dirpath, parent_path, filenames, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-    data["found_vendorid"] = vendorid
-    data["found_productid"] = productid
     # Might be a keyboard or a mouse or a touchpad or more than one!
     # Will just handle my cases for now.
-    augmented_description = None
+    description_template = None
     _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "mouse" 2>/dev/null', cwd=dirpath)
     if 'mouse' in stdout:
-        augmented_description = f"{data['manufacturer']} {data['product']} mouse"
-    if augmented_description is None:
+        description_template = "{manufacturer} {product} mouse"
+    if description_template is None:
         _, stdout, stderr = astutus.util.run_cmd('grep -r . -e "numlock" 2>/dev/null', cwd=dirpath)
         if 'numlock' in stdout:
-            augmented_description = f"{data['manufacturer']} {data['product']} keyboard"
-    if augmented_description is None:
-        augmented_description = f"{data['manufacturer']} {data['product']} unknown transmitter type"
+            description_template = "{manufacturer} {product} keyboard"
+    if description_template is None:
+        description_template = "{manufacturer} {product} unknown transmitter type"
     tree.create_node(
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(filename=tag, description=augmented_description, data=data, color='magenta'))
+        data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='magenta'))
 
 
 def logitech_hd_webcam_c615_handler(tree, tag, dirpath, parent_path, filenames, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-    data["found_vendorid"] = vendorid
-    data["found_productid"] = productid
-    augmented_description = f"Logitech {data['product']}"
+    description_template = "Logitech {product}"
     tree.create_node(
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(filename=tag, description=augmented_description, data=data, color='magenta'))
+        data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='magenta'))
 
 
 def samsung_galaxy_phone_handler(tree, tag, dirpath, parent_path, filenames, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-    data["found_vendorid"] = vendorid
-    data["found_productid"] = productid
     tree.create_node(
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(filename=tag, description=description, data=data, color='magenta'))
+        data=UsbDeviceNodeData(filename=tag, data=data, color='magenta'))
 
 
 def genesys_logic_inc_4_port_hub_handler(tree, tag, dirpath, parent_path, filenames, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-    data["found_vendorid"] = vendorid
-    data["found_productid"] = productid
     tree.create_node(
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(filename=tag, description=description, data=data, color='yellow'))
+        data=UsbDeviceNodeData(filename=tag, data=data, color='yellow'))
 
 
 def generic_host_controller_handler(tree, tag, dirpath, parent_path, filenames, data):
-    busnum = int(data['busnum'])
-    devnum = int(data['devnum'])
-    vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-    data["found_vendorid"] = vendorid
-    data["found_productid"] = productid
     tree.create_node(
         tag=tag,
         identifier=dirpath,
         parent=parent_path,
-        data=FileNode(filename=tag, description=description, data=data, color='yellow'))
+        data=UsbDeviceNodeData(filename=tag, data=data, color='yellow'))
 
 
 def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
     if data.get('busnum') and data.get('devnum'):
-        # Handle as a generic device
-        busnum = int(data['busnum'])
-        devnum = int(data['devnum'])
-        vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-        data["found_vendorid"] = vendorid
-        data["found_productid"] = productid
         tree.create_node(
             tag=tag,
             identifier=dirpath,
             parent=parent_path,
-            data=FileNode(filename=tag, description=description, data=data, color='blue'))
+            data=UsbDeviceNodeData(filename=tag, data=data, color='blue'))
     else:
         tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
 
