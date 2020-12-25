@@ -59,3 +59,7 @@ def test_find_characteristics_from_pci_path():
 
 def test_print_tree():
     astutus.usb.print_tree()
+
+
+def test_print_tree_2():
+    astutus.usb.print_tree_2()

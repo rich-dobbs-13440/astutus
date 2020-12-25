@@ -97,7 +97,7 @@ def realtek_usb_lan_adapter_handler(tree, tag, dirpath, parent_path, filenames, 
         identifier=dirpath,
         parent=parent_path,
         data=FileNode(id, augmented_description, color='green'))
-    node.expanded = False
+    # node.expanded = False
 
 
 def logitech_usb_receiver_handler(tree, tag, dirpath, parent_path, filenames, data):
@@ -122,7 +122,7 @@ def logitech_usb_receiver_handler(tree, tag, dirpath, parent_path, filenames, da
         identifier=dirpath,
         parent=parent_path,
         data=FileNode(id, augmented_description, color='magenta'))
-    node.expanded = False
+    # node.expanded = False
 
 
 def logitech_hd_webcam_c615_handler(tree, tag, dirpath, parent_path, filenames, data):
@@ -136,7 +136,7 @@ def logitech_hd_webcam_c615_handler(tree, tag, dirpath, parent_path, filenames, 
         identifier=dirpath,
         parent=parent_path,
         data=FileNode(id, augmented_description, color='magenta'))
-    node.expanded = False
+    # node.expanded = False
 
 
 def samsung_galaxy_phone_handler(tree, tag, dirpath, parent_path, filenames, data):
@@ -150,7 +150,7 @@ def samsung_galaxy_phone_handler(tree, tag, dirpath, parent_path, filenames, dat
         identifier=dirpath,
         parent=parent_path,
         data=FileNode(id, augmented_description, color='magenta'))
-    node.expanded = False
+    # node.expanded = False
 
 
 def genesys_logic_inc_4_port_hub_handler(tree, tag, dirpath, parent_path, filenames, data):
@@ -165,7 +165,7 @@ def genesys_logic_inc_4_port_hub_handler(tree, tag, dirpath, parent_path, filena
         data=FileNode(id, description, color='yellow'))
     node.expanded = True
     # Omit children that are not special.
-    excluded_dirpaths.append(dirpath)
+    # excluded_dirpaths.append(dirpath)
 
 
 def generic_host_controller_handler(tree, tag, dirpath, parent_path, filenames, data):
@@ -224,6 +224,7 @@ def collapse(tag):
 def collapse_handler(tree, tag, dirpath, parent_path, filenames, data):
     node = tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
     node.expanded = False
+    node.expanded = True
 
 
 def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
@@ -231,9 +232,10 @@ def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
         return
     if excluded_dirpath(dirpath):
         return
-    node = tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
-    if collapse(tag):
-        node.expanded = False
+    # node =
+    tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
+    # if collapse(tag):
+    #     node.expanded = False
     for filename in filenames:
         filepath = os.path.join(dirpath, filename)
         if filename in included_files:
@@ -274,6 +276,19 @@ def get_node_handler(data):
     return default_node_handler
 
 
+def extract_data(tag, dirpath, filenames):
+    data = {'tag': tag}
+    for filename in filenames:
+        if filename not in included_files:
+            continue
+        filepath = os.path.join(dirpath, filename)
+        return_code, stdout, stderr = astutus.util.run_cmd(f"cat {filepath}")
+        if return_code != 0:
+            continue
+        data[filename] = stdout.strip()
+    return data
+
+
 def print_tree():
     basepath = '/sys/devices/pci0000:00'
     rootpath, tag = basepath.rsplit('/', 1)
@@ -283,16 +298,50 @@ def print_tree():
 
     for dirpath, dirnames, filenames in os.walk(basepath):
         parent_path, tag = dirpath.rsplit("/", 1)
-        data = {'tag': tag}
-        for filename in filenames:
-            if filename not in included_files:
-                continue
-            filepath = os.path.join(dirpath, filename)
-            return_code, stdout, stderr = astutus.util.run_cmd(f"cat {filepath}")
-            if return_code != 0:
-                continue
-            data[filename] = stdout.strip()
+        data = extract_data(tag, dirpath, filenames)
         handle = get_node_handler(data)
         handle(tree, tag, dirpath, parent_path, filenames, data)
+
+    tree.show(data_property="colorized", key=key_for_files_first_first_alphabetic)
+
+
+def print_tree_2():
+    basepath = '/sys/devices/pci0000:00'
+    device_paths = []
+
+    for dirpath, dirnames, filenames in os.walk(basepath):
+        if "busnum" in filenames and "devnum" in filenames:
+            device_paths.append(dirpath + "/")
+
+    print("device_paths: {len(device_paths}")
+    for device_path in device_paths:
+        print(device_path)
+
+    nodes_to_create = []
+    for device_path in device_paths:
+        idx = len(basepath)
+        while idx > 0:
+            node = device_path[:idx]
+            if node not in nodes_to_create:
+                nodes_to_create.append(node)
+            idx = device_path.find("/", idx + 1)
+
+    print("nodes to create")
+    for node in nodes_to_create:
+        print(node)
+
+    rootpath, tag = basepath.rsplit('/', 1)
+    tree = treelib.Tree()
+    tree.create_node(
+        tag=rootpath, identifier=rootpath, parent=None, data=Directory(rootpath))
+
+    for dirpath, dirnames, filenames in os.walk(basepath):
+        if dirpath in nodes_to_create:
+            if dirpath == rootpath:
+                continue
+            parent_path, tag = dirpath.rsplit("/", 1)
+            data = extract_data(tag, dirpath, filenames)
+            handle = get_node_handler(data)
+            handle(tree, tag, dirpath, parent_path, filenames, data)
 
     tree.show(data_property="colorized", key=key_for_files_first_first_alphabetic)
