@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 
 import astutus.usb
 import astutus.util
@@ -48,16 +47,6 @@ class FileNode(object):
 
 def key_for_files_first_first_alphabetic(node):
     return node.data.key()
-
-
-def tree_filter(node):
-    parent_node = node.parent
-    if parent_node is None:
-        # Must show top of tree!
-        return True
-    if parent_node.data.show_children:
-        return True
-    return False
 
 
 def lcus_1_usb_relay_node_handler(tree, tag, dirpath, parent_path, filenames, data):
@@ -177,18 +166,21 @@ def generic_host_controller_handler(tree, tag, dirpath, parent_path, filenames, 
 
 
 def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
-    tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
-    for filename in filenames:
-        filepath = os.path.join(dirpath, filename)
-        if filename in included_files:
-            return_code, stdout, stderr = astutus.util.run_cmd(f"cat {filepath}")
-            if return_code != 0:
-                raise RuntimeError(return_code, stderr, stdout)
-            data = stdout.strip()
-        else:
-            data = None
-        if data is not None:
-            tree.create_node(tag=filename, identifier=filepath,  parent=dirpath, data=FileNode(filename, data))
+    if data.get('busnum') and data.get('devnum'):
+        # Handle as a generic device
+        busnum = int(data['busnum'])
+        devnum = int(data['devnum'])
+        vendorid, productid, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+        id = f"{vendorid}:{productid}"
+        if data.get('serial'):
+            description = description + f"(sn: {data['serial']})"
+        tree.create_node(
+            tag=tag,
+            identifier=dirpath,
+            parent=parent_path,
+            data=FileNode(id, description, color='blue'))
+    else:
+        tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
 
 
 def get_node_handler(data):
