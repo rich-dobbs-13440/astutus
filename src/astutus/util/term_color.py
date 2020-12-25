@@ -11,6 +11,8 @@ logger.setLevel(logging.DEBUG)
 attribute_map = {
     'red': colorama.Fore.RED,
     'blue': colorama.Fore.BLUE,
+    'cyan': colorama.Fore.CYAN,
+    'yellow': colorama.Fore.YELLOW,
 }
 
 

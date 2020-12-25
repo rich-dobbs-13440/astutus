@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_cmd(cmd: str, *, cwd: str = None) -> (int, str, str):
+    logger.debug(f"cmd: {cmd}")
     completed_process = subprocess.run(
             args=cmd,
             cwd=cwd,
@@ -16,7 +17,10 @@ def run_cmd(cmd: str, *, cwd: str = None) -> (int, str, str):
             capture_output=True
         )
     return_code = completed_process.returncode
-    stdout = completed_process.stdout.decode('utf-8')
+    try:
+        stdout = completed_process.stdout.decode('utf-8')
+    except UnicodeDecodeError:
+        stdout = "<<not unicode>>"
     stderr = completed_process.stderr.decode('utf-8')
     return return_code, stdout, stderr
 
@@ -134,17 +138,39 @@ def exclude_directory(tag):
     return False
 
 
-included_files = ['manufacturer', 'product']
+included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum']
 
 
 class Directory(object):
-    def __init__(self, tag, color="yellow"):
+
+    excluded_directories = [
+        r'^power$',
+        r'^msi_irqs$',
+        r'^ep_\d\d$',
+        r'^widgets$',
+        r'^ata\d$',
+        r'^card\d$',
+        r'^i2c-dev$'
+    ]
+
+    def __init__(self, tag):
         self.tag = tag
-        self.color = color
 
     @property
     def colorized(self):
-        return self.tag
+        ansi = astutus.util.AnsiSequenceStack()
+        start = ansi.push
+        end = ansi.end
+        return f"{start('cyan')}{self.tag}{end('cyan')}"
+
+    def key(self):
+        return f"10 - {self.tag}"
+
+    def keep(self):
+        for pattern in self.excluded_directories:
+            if re.match(pattern, self.tag):
+                return False
+        return True
 
 
 class Terminal(object):
@@ -161,29 +187,72 @@ class Terminal(object):
         end = ansi.end
         return f"{self.filename} - {start(self.color)}{self.data}{end(self.color)}"
 
+    def key(self):
+        return f"00 - {self.filename}"
+
+    def keep(self):
+        return True
+
+
+def key_for_terminals_first_alphabetic(node):
+    return node.data.key()
+
+
+def tree_filter(node):
+    return node.data.keep()
+
+
+def lcus_1_usb_relay_node_handler(tree, tag, dirpath, parent_path, filenames, data):
+    busnum = int(data['busnum'])
+    devnum = int(data['devnum'])
+    vendorid, productid, description = find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+    tty = find_tty_for_busnum_and_devnum(busnum, devnum)
+    id = f"{vendorid}:{productid}"
+    augmented_description = f"{tty} - {description}"
+    tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Terminal(id, augmented_description, color='yellow'))
+
+
+def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
+    tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
+    for filename in filenames:
+        if filename in included_files:
+            filepath = os.path.join(dirpath, filename)
+            return_code, stdout, stderr = run_cmd(f"cat {filepath}")
+            if return_code != 0:
+                raise RuntimeError(return_code, stderr, stdout)
+            data = stdout.strip()
+            print(f"filename: {filename} data: {data}")
+            tree.create_node(tag=filename, identifier=filepath,  parent=dirpath, data=Terminal(filename, data))
+
+
+def get_node_handler(data):
+    if data.get('idVendor') == '1a86' and data.get('idProduct') == '7523':
+        return lcus_1_usb_relay_node_handler
+    return default_node_handler
+
 
 def print_tree():
-    basepath = '/sys/devices/pci0000:00/0000:00:07.0/0000:05:00.0'
+    basepath = '/sys/devices/pci0000:00'
+    rootpath, tag = basepath.rsplit('/', 1)
     tree = treelib.Tree()
-    tag = "0000:00:07.0"
     tree.create_node(
-        tag=tag, identifier="/sys/devices/pci0000:00/0000:00:07.0", parent=None, data=Directory(tag))
+        tag=rootpath, identifier=rootpath, parent=None, data=Directory(rootpath))
 
-    # parent_id = "top"
     for dirpath, dirnames, filenames in os.walk(basepath):
-        # print(dirpath)
         parent_path, tag = dirpath.rsplit("/", 1)
         if exclude_directory(tag):
             continue
-        tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
+        data = {}
         for filename in filenames:
-            if filename in included_files:
-                filepath = os.path.join(dirpath, filename)
-                return_code, stdout, stderr = run_cmd(f"cat {filepath}")
-                if return_code != 0:
-                    raise RuntimeError(return_code, stderr, stdout)
-                data = stdout.strip()
-                print(f"filename: {filename} data: {data}")
-                tree.create_node(tag=filename, identifier=filepath,  parent=dirpath, data=Terminal(filename, data))
+            if filename not in included_files:
+                continue
+            filepath = os.path.join(dirpath, filename)
+            return_code, stdout, stderr = run_cmd(f"cat {filepath}")
+            if return_code != 0:
+                # raise RuntimeError(return_code, stderr, stdout)
+                continue
+            data[filename] = stdout.strip()
+        handle = get_node_handler(data)
+        handle(tree, tag, dirpath, parent_path, filenames, data)
 
-    tree.show(data_property="colorized")
+    tree.show(data_property="colorized", key=key_for_terminals_first_alphabetic, filter=tree_filter)
