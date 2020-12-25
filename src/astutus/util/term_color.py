@@ -15,6 +15,7 @@ attribute_map = {
     'yellow': colorama.Fore.YELLOW,
     'magenta': colorama.Fore.MAGENTA,
     'green': colorama.Fore.GREEN,
+    'orange': '\x1b[38;2;255;165;0m',
 }
 
 

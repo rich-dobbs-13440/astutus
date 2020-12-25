@@ -16,7 +16,7 @@ aliases = {
     '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
     '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
         {'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
-    '05e3:0610': {'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'yellow'},
+    '05e3:0610': {'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'orange'},
 }
 
 included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
