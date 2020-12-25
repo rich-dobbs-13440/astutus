@@ -8,6 +8,15 @@ import treelib
 logger = logging.getLogger(__name__)
 
 
+computer_pci_aliases = {
+    '0000:00:05.0': {'order': '01', 'label': 'wendy:front', 'color': 'cyan'},
+    '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
+    '0000:00:07.0': {'order': '20', 'label': 'wendy:back:row2:blue', 'color': 'blue'},
+    '0000:00:12.0': {'order': '30', 'label': 'wendy:back:row3', 'color': 'red'},
+    '0000:00:13.2': {'order': '40', 'label': 'wendy:back: row4:red, row5:green', 'color': 'green'}
+}
+
+
 included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
 
 
@@ -15,16 +24,27 @@ class Directory(object):
 
     def __init__(self, tag):
         self.tag = tag
+        self.alias = computer_pci_aliases.get(self.tag)
+        if self.alias is None:
+            self.order = '00'
+        else:
+            self.order = self.alias['order']
 
     @property
     def colorized(self):
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
-        return f"{start('cyan')}{self.tag}{end('cyan')}"
+        if self.alias is None:
+            label = self.tag
+            color = 'cyan'
+        else:
+            label = self.alias['label']
+            color = self.alias['color']
+        return f"{start(color)}{label}{end(color)}"
 
     def key(self):
-        return f"10 - {self.tag}"
+        return f"10 - {self.order} - {self.tag}"
 
 
 class UsbDeviceNodeData(object):
