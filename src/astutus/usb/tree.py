@@ -48,14 +48,7 @@ class UsbDeviceNodeData(object):
 
     @property
     def colorized(self):
-        # description = self.description
-        # data = self.data
-        # if self.data.get('serial'):
-        #     description = description + f"(sn: {data['serial']})"
-        # if self.description_template is not None:
         description = self.description_template.format_map(self.data)
-        #logger.error(description)
-
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
@@ -83,28 +76,6 @@ def lcus_1_usb_relay_node_handler(tree, tag, dirpath, parent_path, filenames, da
     node.expanded = False
 
 
-def pdpgaming_lvl50_wireless_headset_handler(tree, tag, dirpath, parent_path, filenames, data):
-    description_template = "{product}"
-    tree.create_node(
-        tag=tag,
-        identifier=dirpath,
-        parent=parent_path,
-        data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='magenta'))
-
-
-def realtek_usb_lan_adapter_handler(tree, tag, dirpath, parent_path, filenames, data):
-    description_template = "{manufacturer} {product} (sn: {serial})"
-    tree.create_node(
-        tag=tag,
-        identifier=dirpath,
-        parent=parent_path,
-        data=UsbDeviceNodeData(
-            filename=tag,
-            description_template=description_template,
-            data=data,
-            color='green'))
-
-
 def logitech_usb_receiver_handler(tree, tag, dirpath, parent_path, filenames, data):
     # Might be a keyboard or a mouse or a touchpad or more than one!
     # Will just handle my cases for now.
@@ -125,39 +96,6 @@ def logitech_usb_receiver_handler(tree, tag, dirpath, parent_path, filenames, da
         data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='magenta'))
 
 
-def logitech_hd_webcam_c615_handler(tree, tag, dirpath, parent_path, filenames, data):
-    description_template = "Logitech {product}"
-    tree.create_node(
-        tag=tag,
-        identifier=dirpath,
-        parent=parent_path,
-        data=UsbDeviceNodeData(filename=tag, description_template=description_template, data=data, color='magenta'))
-
-
-def samsung_galaxy_phone_handler(tree, tag, dirpath, parent_path, filenames, data):
-    tree.create_node(
-        tag=tag,
-        identifier=dirpath,
-        parent=parent_path,
-        data=UsbDeviceNodeData(filename=tag, data=data, color='magenta'))
-
-
-def genesys_logic_inc_4_port_hub_handler(tree, tag, dirpath, parent_path, filenames, data):
-    tree.create_node(
-        tag=tag,
-        identifier=dirpath,
-        parent=parent_path,
-        data=UsbDeviceNodeData(filename=tag, data=data, color='yellow'))
-
-
-def generic_host_controller_handler(tree, tag, dirpath, parent_path, filenames, data):
-    tree.create_node(
-        tag=tag,
-        identifier=dirpath,
-        parent=parent_path,
-        data=UsbDeviceNodeData(filename=tag, data=data, color='yellow'))
-
-
 def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
     if data.get('busnum') and data.get('devnum'):
         tree.create_node(
@@ -169,25 +107,63 @@ def default_node_handler(tree, tag, dirpath, parent_path, filenames, data):
         tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
 
 
+def find_device_characteristics(data):
+    device_map = {
+        '0e6f:0232': {
+            'name_of_config': 'PDPGaming LVL50 Wireless Headset',
+            'color': 'magenta',
+            'description_template': "{product}",
+        },
+        '05e3:0610': {
+            'name_of_config': 'Genesys Logic, Inc. 4-port hub',
+            'color': 'yellow',
+            'description_template': None,
+        },
+        '04e8:6860': {
+            'name_of_config': 'Samsung Electronics Co., Ltd Galaxy series, misc. (MTP mode)',
+            'color': 'blue',
+            'description_template': None,
+        },
+        '046d:082c': {
+            'name_of_config': 'Logitech HD Webcam C615',
+            'color': 'magenta',
+            'description_template': "Logitech {product}",
+        },
+        '0bda:8153': {
+            'name_of_config': 'Realtek USB 10/100/1000 LAN',
+            'color': 'green',
+            'description_template': "{manufacturer} {product}",
+        },
+        '1d6b:0001': {
+            'name_of_config': 'Linux Foundation 1.1 root hub',
+            'color': 'yellow',
+            'description_template': None,
+        },
+        '1d6b:0002': {
+            'name_of_config': 'Linux Foundation 2.0 root hub',
+            'color': 'yellow',
+            'description_template': None,
+        },
+        '1d6b:0003': {
+            'name_of_config': 'Linux Foundation 3.0 root hub',
+            'color': 'yellow',
+            'description_template': None,
+        },
+    }
+    if data.get('idVendor') is None:
+        return None
+    key = f"{data['idVendor']}:{data['idProduct']}"
+    characteristics = device_map.get(key)
+    return characteristics
+
+
 def get_node_handler(data):
     if data.get('idVendor') == '1a86' and data.get('idProduct') == '7523':
         return lcus_1_usb_relay_node_handler
-    if data.get('idVendor') == '05e3' and data.get('idProduct') == '0610':
-        return genesys_logic_inc_4_port_hub_handler
-    if data.get('idVendor') == '0e6f' and data.get('idProduct') == '0232':
-        return pdpgaming_lvl50_wireless_headset_handler
-    if data.get('idVendor') == '0bda' and data.get('idProduct') == '8153':
-        return realtek_usb_lan_adapter_handler
     if data.get('idVendor') == '046d' and data.get('idProduct') == 'c52f':
         return logitech_usb_receiver_handler
     if data.get('idVendor') == '046d' and data.get('idProduct') == 'c52b':
         return logitech_usb_receiver_handler
-    if data.get('idVendor') == '046d' and data.get('idProduct') == '082c':
-        return logitech_hd_webcam_c615_handler
-    if data.get('idVendor') == '04e8' and data.get('idProduct') == '6860':
-        return samsung_galaxy_phone_handler
-    if data.get('idVendor') == '1d6b':
-        return generic_host_controller_handler
     return default_node_handler
 
 
@@ -240,7 +216,19 @@ def print_tree():
                 continue
             parent_path, tag = dirpath.rsplit("/", 1)
             data = extract_data(tag, dirpath, filenames)
-            handle = get_node_handler(data)
-            handle(tree, tag, dirpath, parent_path, filenames, data)
+            device_characteristics = find_device_characteristics(data)
+            if device_characteristics is not None:
+                tree.create_node(
+                    tag=tag,
+                    identifier=dirpath,
+                    parent=parent_path,
+                    data=UsbDeviceNodeData(
+                        filename=tag,
+                        description_template=device_characteristics['description_template'],
+                        data=data,
+                        color=device_characteristics['color']))
+            else:
+                handle = get_node_handler(data)
+                handle(tree, tag, dirpath, parent_path, filenames, data)
 
     tree.show(data_property="colorized", key=key_for_files_first_first_alphabetic)
