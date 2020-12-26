@@ -18,22 +18,22 @@ class AliasPaths:
     current_pattern = vp_pattern
     ancestor_current_child_pattern = ancestor_pattern + vp_pattern + vp_child_pattern
 
-    hardcoded_aliases = {
-        '0000:00:05.0': {'order': '01', 'label': 'wendy:front', 'color': 'cyan'},
-        '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
-        '0000:00:07.0': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
-        '0000:00:12.0': {'order': '30', 'label': 'wendy:back:row3', 'color': 'red'},
-        '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
-        '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
-            {'priority': 100, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard by nickname',
-             'color': 'orange'},
-        '[ancestor::0000:00:12.2]05e3:0610[child::0bda:8153]':
-            {'priority': 90, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
-        '05e3:0610':
-            {'priority': 10, 'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'orange'},
-        '05e3:0610[child::0bda:8153]':
-            {'priority': 50, 'order': '40', 'label': 'TECKNET', 'color': 'orange'},
-    }
+    hardcoded_aliases = {}
+    #     '0000:00:05.0': {'order': '01', 'label': 'wendy:front', 'color': 'cyan'},
+    #     '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
+    #     '0000:00:07.0': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
+    #     '0000:00:12.0': {'order': '30', 'label': 'wendy:back:row3', 'color': 'red'},
+    #     '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
+    #     '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
+    #         {'priority': 100, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard by nickname',
+    #          'color': 'orange'},
+    #     '[ancestor::0000:00:12.2]05e3:0610[child::0bda:8153]':
+    #         {'priority': 90, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
+    #     '05e3:0610':
+    #         {'priority': 10, 'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'orange'},
+    #     '05e3:0610[child::0bda:8153]':
+    #         {'priority': 50, 'order': '40', 'label': 'TECKNET', 'color': 'orange'},
+    # }
 
     def __init__(self):
         # Parse the key into ancestor, current, and child axes:
@@ -116,7 +116,7 @@ class AliasPaths:
         logger.info(f"dirs: {dirs}")
         for dir in dirs:
             subdirpath = os.path.join(root, dir)
-            data = extract_data('', subdirpath, ['idVendor', 'idProduct'])
+            data = UsbDeviceNodeData.extract_data('', subdirpath, ['idVendor', 'idProduct'])
             id = f"{data.get('idVendor', '')}:{data.get('idProduct', '')}"
             if id == child_id:
                 return True
@@ -126,60 +126,49 @@ class AliasPaths:
 alias_paths = AliasPaths()
 
 
-included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
+class DeviceNode(object):
 
+    @staticmethod
+    def extract_data(tag, dirpath, filenames, included_files):
+        data = {'tag': tag}
+        for filename in filenames:
+            if filename not in included_files:
+                continue
+            filepath = os.path.join(dirpath, filename)
+            return_code, stdout, stderr = astutus.util.run_cmd(f"cat {filepath}")
+            if return_code != 0:
+                continue
+            data[filename] = stdout.strip()
+        return data
 
-class Directory(object):
-
-    def __init__(self, tag, dirpath):
+    def __init__(self, tag, dirpath, data, config, alias, cls_order):
         self.tag = tag
-        self.alias = alias_paths.get(self.tag, dirpath)
+        self.dirpath = dirpath
+        self.data = data
+        self.config = config
+        self.alias = alias
         if self.alias is None:
             self.order = '00'
         else:
             self.order = self.alias['order']
-
-    @property
-    def colorized(self):
-        ansi = astutus.util.AnsiSequenceStack()
-        start = ansi.push
-        end = ansi.end
-        if self.alias is None:
-            label = self.tag
-            color = 'cyan'
-        else:
-            label = self.alias['label']
-            color = self.alias['color']
-        return f"{start(color)}{label}{end(color)}"
+        self.cls_order = cls_order
 
     def key(self):
-        return f"10 - {self.order} - {self.tag}"
+        return f"{self.cls_order} - {self.order} - {self.tag}"
 
+    def get_description(self):
+        description_template = self.find_description_template()
+        return description_template.format_map(self.data)
 
-class UsbDeviceNodeData(object):
-
-    def __init__(self, *, filename, dirpath, data, config):
-        self.filename = filename
-        self.dirpath = dirpath
-        self.data = data
-        self.config = config
-        busnum = int(self.data['busnum'])
-        devnum = int(self.data['devnum'])
-        _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
-        self.data["description"] = description
-        if config.get('find_tty'):
-            tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
-            data['tty'] = tty
-        # For now, just find the alias based on the vendorId:productId value
-        id = f"{data['idVendor']}:{data['idProduct']}"
-        self.alias = alias_paths.get(id, self.dirpath)
-
-    @property
-    def colorized(self):
-        if callable(self.config['description_template']):
-            template_generator = self.config['description_template']
+    def find_description_template(self):
+        # The config may directly have a simple template, or something that
+        # can select or generate a template.
+        template_thing = self.config.get('description_template')
+        if callable(template_thing):
+            template_generator = template_thing
             description_template = template_generator(self.dirpath, self.data)
-        elif isinstance([], type(self.config['description_template'])):
+        elif isinstance([], type(template_thing)):
+            # If it is a list, then currently it contain selectors.
             for item in self.config['description_template']:
                 if item.get('test') == 'value_in_stdout':
                     cmd = item.get('cmd')
@@ -190,12 +179,16 @@ class UsbDeviceNodeData(object):
                         description_template = item.get('description_template')
                         break
         else:
-            description_template = self.config['description_template']
+            # If none of the above, the template thing is just a template.
+            description_template = template_thing
         if description_template is None:
             description_template = "{description}"
-        description = description_template.format_map(self.data)
+        return description_template
+
+    @property
+    def colorized(self):
         if self.alias is None:
-            label = description
+            label = self.get_description()
             color = self.config['color']
         else:
             label = self.alias['label']
@@ -203,13 +196,66 @@ class UsbDeviceNodeData(object):
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
-        return f"{self.filename} - {start(color)}{label}{end(color)}"
-
-    def key(self):
-        return f"00 - {self.filename}"
+        return f"{self.tag} - {start(color)}{label}{end(color)}"
 
 
-def key_for_files_first_first_alphabetic(node):
+class PciDeviceNodeData(DeviceNode):
+
+    included_files = ['vendor', 'device', 'class']
+    cls_order = "10"
+
+    @classmethod
+    def extract_data(cls, tag, dirpath, filenames):
+        return DeviceNode.extract_data(tag, dirpath, filenames, cls.included_files)
+
+    def __init__(self, *, tag, dirpath, data, config):
+        id = f"pci({data.get('vendor', '-')}:{data.get('device', '-')}:{data.get('class', '-')})"
+        logger.info(f'id: {id}')
+        # TODO:  "Use lspci to get description"
+        data["description"] = id
+        alias = alias_paths.get(id, dirpath)
+        logger.info(f'alias: {alias}')
+        super(PciDeviceNodeData, self).__init__(tag, dirpath, data, config, alias, self.cls_order)
+        logger.info('Node created.')
+
+    # @property
+    # def colorized(self):
+    #     ansi = astutus.util.AnsiSequenceStack()
+    #     start = ansi.push
+    #     end = ansi.end
+    #     if self.alias is None:
+    #         label = self.tag
+    #         color = 'cyan'
+    #     else:
+    #         label = self.alias['label']
+    #         color = self.alias['color']
+    #     return f"{start(color)}{label}{end(color)}"
+
+
+class UsbDeviceNodeData(DeviceNode):
+
+    included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
+    cls_order = "00"
+
+    @classmethod
+    def extract_data(cls, tag, dirpath, filenames):
+        return DeviceNode.extract_data(tag, dirpath, filenames, cls.included_files)
+
+    def __init__(self, *, tag, dirpath, data, config):
+        busnum = int(data['busnum'])
+        devnum = int(data['devnum'])
+        _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
+        data["description"] = description
+        if config.get('find_tty'):
+            tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+            data['tty'] = tty
+        # For now, just find the alias based on the vendorId:productId value
+        id = f"{data['idVendor']}:{data['idProduct']}"
+        alias = alias_paths.get(id, dirpath)
+        super(UsbDeviceNodeData, self).__init__(tag, dirpath, data, config, alias, self.cls_order)
+
+
+def key_by_node_data_key(node):
     return node.data.key()
 
 
@@ -312,19 +358,6 @@ def find_device_config(data):
     return characteristics
 
 
-def extract_data(tag, dirpath, filenames):
-    data = {'tag': tag}
-    for filename in filenames:
-        if filename not in included_files:
-            continue
-        filepath = os.path.join(dirpath, filename)
-        return_code, stdout, stderr = astutus.util.run_cmd(f"cat {filepath}")
-        if return_code != 0:
-            continue
-        data[filename] = stdout.strip()
-    return data
-
-
 def print_tree():
     basepath = '/sys/devices/pci0000:00'
     device_paths = []
@@ -352,28 +385,34 @@ def print_tree():
 
     rootpath, tag = basepath.rsplit('/', 1)
     tree = treelib.Tree()
-    # Not sure what this should be!
-    dirpath = ''
+    root_data = {
+        'vendor': '-',
+        'device': 'pci_host',
+        'class': '-',
+    }
+    root_config = {'color': 'orange'}
     tree.create_node(
-        tag=rootpath, identifier=rootpath, parent=None, data=Directory(rootpath, dirpath))
+        tag=rootpath,
+        identifier=rootpath,
+        parent=None,
+        data=PciDeviceNodeData(tag=tag, dirpath=rootpath, data=root_data, config=root_config))
     for dirpath, dirnames, filenames in os.walk(basepath):
         if dirpath in nodes_to_create:
             if dirpath == rootpath:
                 continue
             parent_path, tag = dirpath.rsplit("/", 1)
-            data = extract_data(tag, dirpath, filenames)
+            data = UsbDeviceNodeData.extract_data(tag, dirpath, filenames)
             device_config = find_device_config(data)
             if device_config is not None:
-                tree.create_node(
-                    tag=tag,
-                    identifier=dirpath,
-                    parent=parent_path,
-                    data=UsbDeviceNodeData(
-                        filename=tag,
-                        dirpath=dirpath,
-                        data=data,
-                        config=device_config))
+                node_data = UsbDeviceNodeData(tag=tag, dirpath=dirpath, data=data, config=device_config)
             else:
-                tree.create_node(tag=tag, identifier=dirpath, parent=parent_path, data=Directory(tag, dirpath=dirpath))
+                pci_data = PciDeviceNodeData.extract_data(tag, dirpath, filenames)
+                pci_config = {'color': 'blue'}
+                node_data = PciDeviceNodeData(tag=tag, dirpath=dirpath, data=pci_data, config=pci_config)
+            tree.create_node(
+                tag=tag,
+                identifier=dirpath,
+                parent=parent_path,
+                data=node_data)
 
-    tree.show(data_property="colorized", key=key_for_files_first_first_alphabetic)
+    tree.show(data_property="colorized", key=key_by_node_data_key)
