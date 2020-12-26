@@ -4,29 +4,125 @@ import os
 import astutus.usb
 import astutus.util
 import treelib
+import re
 
 logger = logging.getLogger(__name__)
 
 
-aliases = {
-    '0000:00:05.0': {'order': '01', 'label': 'wendy:front', 'color': 'cyan'},
-    '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
-    '0000:00:07.0': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
-    '0000:00:12.0': {'order': '30', 'label': 'wendy:back:row3', 'color': 'red'},
-    '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
-    '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
-        {'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
-    '05e3:0610': {'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'orange'},
-}
+class AliasPaths:
+
+    vp_pattern = r'([0-9,a-f]{4}:[0-9,af]{4})'
+    vp_child_pattern = r'\[child::' + vp_pattern + r'\]'
+    ancestor_pattern = r'\[ancestor::([\w,:\.]+)\]'
+    parent_child_pattern = vp_pattern + vp_child_pattern
+    parent_pattern = vp_pattern
+    ancestor_parent_child_pattern = ancestor_pattern + vp_pattern + vp_child_pattern
+
+    hardcoded_aliases = {
+        '0000:00:05.0': {'order': '01', 'label': 'wendy:front', 'color': 'cyan'},
+        '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
+        '0000:00:07.0': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
+        '0000:00:12.0': {'order': '30', 'label': 'wendy:back:row3', 'color': 'red'},
+        '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
+        '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
+            {'priority': 100, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard by nickname', 'color': 'orange'},
+        '[ancestor::0000:00:12.2]05e3:0610[child::0bda:8153]':
+            {'priority': 90, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
+        '05e3:0610':
+            {'priority': 10, 'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'orange'},
+        '05e3:0610[child::0bda:8153]':
+            {'priority': 50, 'order': '40', 'label': 'TECKNET', 'color': 'orange'},
+    }
+
+    def __init__(self):
+        # Parse the key into ancestor, parent, and child axes:
+        self.aliases = {}
+        for key in self.hardcoded_aliases.keys():
+            logger.error(f"key: {key}")
+            pc_matches = re.match(self.parent_child_pattern, key)
+            p_matches = re.match(self.parent_pattern, key)
+            apc_matches = re.match(self.ancestor_parent_child_pattern, key)
+            if apc_matches:
+                ancestor_key = apc_matches.group(1)
+                parent_key = apc_matches.group(2)
+                child_key = apc_matches.group(3)
+            elif pc_matches:
+                ancestor_key = ''
+                parent_key = pc_matches.group(1)
+                child_key = pc_matches.group(2)
+            elif p_matches:
+                ancestor_key = ''
+                parent_key = p_matches.group(1)
+                child_key = ''
+            else:
+                ancestor_key = ''
+                parent_key = key
+                child_key = ''
+            self.aliases[(ancestor_key, parent_key, child_key)] = self.hardcoded_aliases[key]
+
+    def get(self, id, dirpath):
+        items = []
+        for key in self.aliases.keys():
+            logger.info(f"key: {key}")
+            if id == key[1]:
+                items.append((key, self.aliases[key]))
+
+        if len(items) > 0:
+            logger.info(f"id: {id}")
+            logger.info(f"tests: {len(items)}")
+            # Sort by priority, so that first passed test is the chosen one.
+
+            def by_priority_key(item):
+                return item[1].get('priority', '00')
+
+            items = sorted(items, key=by_priority_key, reverse=True)
+            for item in items:
+                test, alias = item
+                logger.info(f"test: {test}")
+                logger.info(f"alias: {alias}")
+                a_test, p_test, c_test = test
+                if a_test != '':
+                    logger.info(f"a_test: {a_test}")
+                    logger.info(f"dirpath: {dirpath}")
+                    # For now, skip interpretation of ancestor aliases.
+                    if dirpath.find(a_test) < 0:
+                        continue
+                # if p_test != '':
+                #     logger.info(f"p_test: {p_test}")
+                #     logger.info(f"id: {id}")
+                #     if p_test != id:
+                #         continue
+                if c_test != '':
+                    logger.info(f"c_test: {c_test}")
+                    if not self.has_child(dirpath, c_test):
+                        continue
+                    # raise NotImplementedError()
+                return alias
+        return None
+
+    def has_child(self, dirpath, child_id):
+        root, dirs, _ = next(os.walk(dirpath))
+        logger.info(f"dirs: {dirs}")
+        for dir in dirs:
+            subdirpath = os.path.join(root, dir)
+            data = extract_data('', subdirpath, ['idVendor', 'idProduct'])
+            id = f"{data.get('idVendor', '')}:{data.get('idProduct', '')}"
+            if id == child_id:
+                return True
+        return False
+
+
+alias_paths = AliasPaths()
+
 
 included_files = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
 
 
 class Directory(object):
 
-    def __init__(self, tag):
+    def __init__(self, tag, dirpath):
         self.tag = tag
-        self.alias = aliases.get(self.tag)
+        self.alias = alias_paths.get(self.tag, dirpath)
         if self.alias is None:
             self.order = '00'
         else:
@@ -65,7 +161,7 @@ class UsbDeviceNodeData(object):
             data['tty'] = tty
         # For now, just find the alias based on the vendorId:productId value
         id = f"{data['idVendor']}:{data['idProduct']}"
-        self.alias = aliases.get(id)
+        self.alias = alias_paths.get(id, self.dirpath)
 
     @property
     def colorized(self):
@@ -245,8 +341,10 @@ def print_tree():
 
     rootpath, tag = basepath.rsplit('/', 1)
     tree = treelib.Tree()
+    # Not sure what this should be!
+    dirpath = ''
     tree.create_node(
-        tag=rootpath, identifier=rootpath, parent=None, data=Directory(rootpath))
+        tag=rootpath, identifier=rootpath, parent=None, data=Directory(rootpath, dirpath))
     for dirpath, dirnames, filenames in os.walk(basepath):
         if dirpath in nodes_to_create:
             if dirpath == rootpath:
@@ -265,6 +363,6 @@ def print_tree():
                         data=data,
                         config=device_config))
             else:
-                tree.create_node(tag=tag, identifier=dirpath,  parent=parent_path, data=Directory(tag))
+                tree.create_node(tag=tag, identifier=dirpath, parent=parent_path, data=Directory(tag, dirpath=dirpath))
 
     tree.show(data_property="colorized", key=key_for_files_first_first_alphabetic)
