@@ -218,19 +218,6 @@ class PciDeviceNodeData(DeviceNode):
         super(PciDeviceNodeData, self).__init__(tag, dirpath, data, config, alias, self.cls_order)
         logger.info('Node created.')
 
-    # @property
-    # def colorized(self):
-    #     ansi = astutus.util.AnsiSequenceStack()
-    #     start = ansi.push
-    #     end = ansi.end
-    #     if self.alias is None:
-    #         label = self.tag
-    #         color = 'cyan'
-    #     else:
-    #         label = self.alias['label']
-    #         color = self.alias['color']
-    #     return f"{start(color)}{label}{end(color)}"
-
 
 class UsbDeviceNodeData(DeviceNode):
 
@@ -384,23 +371,18 @@ def print_tree():
         logger.debug(node)
 
     rootpath, tag = basepath.rsplit('/', 1)
+    logger.debug(f"rootpath: {rootpath}")
+    logger.debug(f"tag: {tag}")
     tree = treelib.Tree()
-    root_data = {
-        'vendor': '-',
-        'device': 'pci_host',
-        'class': '-',
-    }
-    root_config = {'color': 'orange'}
-    tree.create_node(
-        tag=rootpath,
-        identifier=rootpath,
-        parent=None,
-        data=PciDeviceNodeData(tag=tag, dirpath=rootpath, data=root_data, config=root_config))
     for dirpath, dirnames, filenames in os.walk(basepath):
         if dirpath in nodes_to_create:
             if dirpath == rootpath:
                 continue
             parent_path, tag = dirpath.rsplit("/", 1)
+            if parent_path == rootpath:
+                parent = None
+            else:
+                parent = parent_path
             data = UsbDeviceNodeData.extract_data(tag, dirpath, filenames)
             device_config = find_device_config(data)
             if device_config is not None:
@@ -412,7 +394,7 @@ def print_tree():
             tree.create_node(
                 tag=tag,
                 identifier=dirpath,
-                parent=parent_path,
+                parent=parent,
                 data=node_data)
 
     tree.show(data_property="colorized", key=key_by_node_data_key)
