@@ -18,11 +18,14 @@ class AliasPaths:
     current_pattern = vp_pattern
     ancestor_current_child_pattern = ancestor_pattern + vp_pattern + vp_child_pattern
 
-    hardcoded_aliases = {}
-    #     '0000:00:05.0': {'order': '01', 'label': 'wendy:front', 'color': 'cyan'},
+    hardcoded_aliases = {
+        'pci(0x1002:0x5a19)': {'order': '10', 'label': 'wendy:front', 'color': 'cyan'},
+        'pci(0x1002:0x5a1b)': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
+    }
+
     #     '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
-    #     '0000:00:07.0': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
-    #     '0000:00:12.0': {'order': '30', 'label': 'wendy:back:row3', 'color': 'red'},
+    #     '0000:00:12.0': {'order': '30', 'label': 'wendy:b
+    # ack:row3', 'color': 'red'},
     #     '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
     #     '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
     #         {'priority': 100, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard by nickname',
@@ -148,13 +151,15 @@ class DeviceNode(object):
         self.config = config
         self.alias = alias
         if self.alias is None:
-            self.order = '00'
+            self.order = '50'
         else:
             self.order = self.alias['order']
         self.cls_order = cls_order
 
     def key(self):
-        return f"{self.cls_order} - {self.order} - {self.tag}"
+        key_value = f"{self.cls_order} - {self.order} - {self.tag}"
+        logger.info(f"key_value: {key_value}")
+        return key_value
 
     def get_description(self):
         description_template = self.find_description_template()
@@ -201,7 +206,7 @@ class DeviceNode(object):
 
 class PciDeviceNodeData(DeviceNode):
 
-    included_files = ['vendor', 'device', 'class']
+    included_files = ['vendor', 'device']
     cls_order = "10"
 
     @classmethod
@@ -209,7 +214,7 @@ class PciDeviceNodeData(DeviceNode):
         return DeviceNode.extract_data(tag, dirpath, filenames, cls.included_files)
 
     def __init__(self, *, tag, dirpath, data, config):
-        id = f"pci({data.get('vendor', '-')}:{data.get('device', '-')}:{data.get('class', '-')})"
+        id = f"pci({data.get('vendor', '-')}:{data.get('device', '-')})"
         logger.info(f'id: {id}')
         # TODO:  "Use lspci to get description"
         data["description"] = id
@@ -389,7 +394,7 @@ def print_tree():
                 node_data = UsbDeviceNodeData(tag=tag, dirpath=dirpath, data=data, config=device_config)
             else:
                 pci_data = PciDeviceNodeData.extract_data(tag, dirpath, filenames)
-                pci_config = {'color': 'blue'}
+                pci_config = {'color': 'cyan'}
                 node_data = PciDeviceNodeData(tag=tag, dirpath=dirpath, data=pci_data, config=pci_config)
             tree.create_node(
                 tag=tag,
