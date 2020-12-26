@@ -14,9 +14,9 @@ class AliasPaths:
     vp_pattern = r'([0-9,a-f]{4}:[0-9,af]{4})'
     vp_child_pattern = r'\[child::' + vp_pattern + r'\]'
     ancestor_pattern = r'\[ancestor::([\w,:\.]+)\]'
-    parent_child_pattern = vp_pattern + vp_child_pattern
-    parent_pattern = vp_pattern
-    ancestor_parent_child_pattern = ancestor_pattern + vp_pattern + vp_child_pattern
+    current_child_pattern = vp_pattern + vp_child_pattern
+    current_pattern = vp_pattern
+    ancestor_current_child_pattern = ancestor_pattern + vp_pattern + vp_child_pattern
 
     hardcoded_aliases = {
         '0000:00:05.0': {'order': '01', 'label': 'wendy:front', 'color': 'cyan'},
@@ -25,7 +25,8 @@ class AliasPaths:
         '0000:00:12.0': {'order': '30', 'label': 'wendy:back:row3', 'color': 'red'},
         '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
         '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
-            {'priority': 100, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard by nickname', 'color': 'orange'},
+            {'priority': 100, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard by nickname',
+             'color': 'orange'},
         '[ancestor::0000:00:12.2]05e3:0610[child::0bda:8153]':
             {'priority': 90, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
         '05e3:0610':
@@ -35,32 +36,33 @@ class AliasPaths:
     }
 
     def __init__(self):
-        # Parse the key into ancestor, parent, and child axes:
+        # Parse the key into ancestor, current, and child axes:
         self.aliases = {}
         for key in self.hardcoded_aliases.keys():
             logger.error(f"key: {key}")
-            pc_matches = re.match(self.parent_child_pattern, key)
-            p_matches = re.match(self.parent_pattern, key)
-            apc_matches = re.match(self.ancestor_parent_child_pattern, key)
-            if apc_matches:
-                ancestor_key = apc_matches.group(1)
-                parent_key = apc_matches.group(2)
-                child_key = apc_matches.group(3)
-            elif pc_matches:
+            cc_matches = re.match(self.current_child_pattern, key)
+            c_matches = re.match(self.current_pattern, key)
+            acc_matches = re.match(self.ancestor_current_child_pattern, key)
+            if acc_matches:
+                ancestor_key = acc_matches.group(1)
+                current_key = acc_matches.group(2)
+                child_key = acc_matches.group(3)
+            elif cc_matches:
                 ancestor_key = ''
-                parent_key = pc_matches.group(1)
-                child_key = pc_matches.group(2)
-            elif p_matches:
+                current_key = cc_matches.group(1)
+                child_key = cc_matches.group(2)
+            elif c_matches:
                 ancestor_key = ''
-                parent_key = p_matches.group(1)
+                current_key = c_matches.group(1)
                 child_key = ''
             else:
                 ancestor_key = ''
-                parent_key = key
+                current_key = key
                 child_key = ''
-            self.aliases[(ancestor_key, parent_key, child_key)] = self.hardcoded_aliases[key]
+            self.aliases[(ancestor_key, current_key, child_key)] = self.hardcoded_aliases[key]
 
     def get(self, id, dirpath):
+        # Filter on current first of all, with an exact match required.
         items = []
         for key in self.aliases.keys():
             logger.info(f"key: {key}")
@@ -70,7 +72,7 @@ class AliasPaths:
         if len(items) > 0:
             logger.info(f"id: {id}")
             logger.info(f"tests: {len(items)}")
-            # Sort by priority, so that first passed test is the chosen one.
+            # Sort by priority, so that first passed test is the most desirable one.
 
             def by_priority_key(item):
                 return item[1].get('priority', '00')
@@ -78,26 +80,35 @@ class AliasPaths:
             items = sorted(items, key=by_priority_key, reverse=True)
             for item in items:
                 test, alias = item
-                logger.info(f"test: {test}")
-                logger.info(f"alias: {alias}")
-                a_test, p_test, c_test = test
+                logger.debug(f"test: {test}")
+                logger.debug(f"alias: {alias}")
+                # Parent test already applied, no need to retest now.
+                a_test, _, c_test = test
                 if a_test != '':
                     logger.info(f"a_test: {a_test}")
                     logger.info(f"dirpath: {dirpath}")
-                    # For now, skip interpretation of ancestor aliases.
-                    if dirpath.find(a_test) < 0:
+                    ancestors = dirpath.split('/')[:-1]
+                    logger.info(f"ancestors: {ancestors}")
+                    found = False
+                    for ancestor in ancestors:
+                        if ancestor == a_test or self.label(ancestor) == a_test:
+                            found = True
+                            break
+                    if not found:
                         continue
-                # if p_test != '':
-                #     logger.info(f"p_test: {p_test}")
-                #     logger.info(f"id: {id}")
-                #     if p_test != id:
-                #         continue
                 if c_test != '':
                     logger.info(f"c_test: {c_test}")
                     if not self.has_child(dirpath, c_test):
                         continue
-                    # raise NotImplementedError()
                 return alias
+        return None
+
+    def label(self, name):
+        for key in self.aliases.keys():
+            a_test, current_test, c_test = key
+            if a_test == '' and current_test == name and c_test == '':
+                alias = self.aliases[key]
+                return alias['label']
         return None
 
     def has_child(self, dirpath, child_id):
