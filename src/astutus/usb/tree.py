@@ -1,10 +1,11 @@
+import json
 import logging
 import os
+import re
 
 import astutus.usb
 import astutus.util
 import treelib
-import re
 
 logger = logging.getLogger(__name__)
 
@@ -312,7 +313,8 @@ def key_by_node_data_key(node):
     return node.data.key()
 
 
-def find_device_config(data):
+class DeviceConfigurations(object):
+
     device_map = {
         '0e6f:0232': {
             'name_of_config': 'PDPGaming LVL50 Wireless Headset',
@@ -397,18 +399,24 @@ def find_device_config(data):
             'find_tty': True
         },
     }
-    if data.get('idVendor') is None:
-        return None
-    key = f"{data['idVendor']}:{data['idProduct']}"
-    characteristics = device_map.get(key)
-    if characteristics is None:
-        if data.get('busnum') and data.get('devnum'):
-            characteristics = {
-                'name_of_config': 'Generic',
-                'color': 'blue',
-                'description_template': None,
-            }
-    return characteristics
+
+    def find_usb_configuration(self, data):
+        if data.get('idVendor') is None:
+            return None
+        key = f"{data['idVendor']}:{data['idProduct']}"
+        characteristics = self.device_map.get(key)
+        if characteristics is None:
+            if data.get('busnum') and data.get('devnum'):
+                characteristics = {
+                    'name_of_config': 'Generic',
+                    'color': 'blue',
+                    'description_template': None,
+                }
+        return characteristics
+
+    def write_as_json(self, filepath):
+        with open(filepath, 'w') as config_file:
+            json.dump(self.device_map, config_file, indent=4, sort_keys=True)
 
 
 def print_tree():
@@ -437,6 +445,8 @@ def print_tree():
     for node in nodes_to_create:
         logger.debug(node)
 
+    device_configurations = DeviceConfigurations()
+
     rootpath, tag = basepath.rsplit('/', 1)
     logger.debug(f"rootpath: {rootpath}")
     logger.debug(f"tag: {tag}")
@@ -451,7 +461,7 @@ def print_tree():
             else:
                 parent = parent_path
             data = UsbDeviceNodeData.extract_data(tag, dirpath, filenames)
-            device_config = find_device_config(data)
+            device_config = device_configurations.find_usb_configuration(data)
             if device_config is not None:
                 node_data = UsbDeviceNodeData(tag=tag, dirpath=dirpath, data=data, config=device_config)
             else:

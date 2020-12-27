@@ -56,3 +56,8 @@ def test_find_tty_from_busnum_and_devnum():
 
 def test_print_tree():
     astutus.usb.print_tree()
+
+
+def test_device_configuration_write_to_file():
+    device_configurations = astutus.usb.DeviceConfigurations()
+    device_configurations.write_as_json("device_configurations.json")
