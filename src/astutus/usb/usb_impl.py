@@ -70,7 +70,7 @@ def find_busnum_and_devnum_for_tty(tty):
 
 
 def find_tty_for_busnum_and_devnum(busnum, devnum):
-    logger.info(f"Searching for tty for busnum: {busnum} devnum: {devnum}")
+    logger.debug(f"Searching for tty for busnum: {busnum} devnum: {devnum}")
     # Issue:  The coding convention may be platform dependent
     return_code, stdout, stderr = astutus.util.run_cmd('ls /dev/tty*USB* /dev/tty*usb*')
     if return_code == 0:
@@ -82,7 +82,7 @@ def find_tty_for_busnum_and_devnum(busnum, devnum):
     tty_devices = stdout.splitlines()
     for tty in tty_devices:
         busnum_for_tty, devnum_for_tty = find_busnum_and_devnum_for_tty(tty)
-        logger.info(f"tty: '{tty}' busnum_for_tty: '{busnum_for_tty}' devnum_for_tty: '{devnum_for_tty}'")
+        logger.debug(f"tty: '{tty}' busnum_for_tty: '{busnum_for_tty}' devnum_for_tty: '{devnum_for_tty}'")
         if busnum_for_tty == busnum and devnum_for_tty == devnum:
             return tty
     raise ValueError(f"No tty USB device found for busnum: {busnum} devnum: {devnum}")

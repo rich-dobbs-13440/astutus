@@ -29,6 +29,7 @@ class AliasPaths:
     }
 
     def __init__(self):
+        logger.info("Initializing AliasPaths")
 
         child_pattern = r'\[child(==|!=)([^\]]+)]'
         ancestor_pattern = r'\[ancestor(==|!=)([^\]]+)]'
@@ -108,7 +109,7 @@ class AliasPaths:
         operator, value = check
         # Only implementing equality operator now.
         assert operator == "=="
-        logger.info(f"dirpath: {dirpath}")
+        logger.debug(f"dirpath: {dirpath}")
         a_dirpath, current = dirpath.rsplit('/', 1)
         while a_dirpath != '/sys/devices':
             if self.matches_as_usb_node(a_dirpath, value):
@@ -132,15 +133,15 @@ class AliasPaths:
         filtered_aliases = []
         # Filter on current check first of all, with an exact match required.
         for checks in self.aliases.keys():
-            logger.info(f"checks: {checks}")
+            logger.debug(f"checks: {checks}")
             if id == checks[1][1]:
                 # Only equality supported for current access
                 assert checks[1][0] == '=='
                 filtered_aliases.append((checks, self.aliases[checks]))
 
         if len(filtered_aliases) > 0:
-            logger.info(f"id: {id}")
-            logger.info(f"tests: {len(filtered_aliases)}")
+            logger.debug(f"id: {id}")
+            logger.debug(f"tests: {len(filtered_aliases)}")
             # Sort by priority, so that first passed test is the most desirable one.
 
             def by_priority_key(item):
@@ -175,7 +176,7 @@ class AliasPaths:
 
     def has_usb_child(self, dirpath, child_id):
         root, dirs, _ = next(os.walk(dirpath))
-        logger.info(f"dirs: {dirs}")
+        logger.debug(f"dirs: {dirs}")
         for dir in dirs:
             subdirpath = os.path.join(root, dir)
             data = UsbDeviceNodeData.extract_data('', subdirpath, ['idVendor', 'idProduct'])
@@ -217,7 +218,7 @@ class DeviceNode(object):
 
     def key(self):
         key_value = f"{self.cls_order} - {self.order} - {self.tag}"
-        logger.info(f"key_value: {key_value}")
+        logger.debug(f"key_value: {key_value}")
         return key_value
 
     def get_description(self):
@@ -274,13 +275,13 @@ class PciDeviceNodeData(DeviceNode):
 
     def __init__(self, *, tag, dirpath, data, config):
         id = f"pci({data.get('vendor', '-')}:{data.get('device', '-')})"
-        logger.info(f'id: {id}')
+        logger.debug(f'id: {id}')
         # TODO:  "Use lspci to get description"
         data["description"] = id
         alias = alias_paths.get(id, dirpath)
-        logger.info(f'alias: {alias}')
+        logger.debug(f'alias: {alias}')
         super(PciDeviceNodeData, self).__init__(tag, dirpath, data, config, alias, self.cls_order)
-        logger.info('Node created.')
+        logger.info(f'PCI node created id:{id} tag: {tag}')
 
 
 class UsbDeviceNodeData(DeviceNode):
@@ -303,9 +304,8 @@ class UsbDeviceNodeData(DeviceNode):
         # For now, just find the alias based on the vendorId:productId value
         id = f"{data['idVendor']}:{data['idProduct']}"
         alias = alias_paths.get(id, dirpath)
-        if id == '1a86:7523':
-            logger.error(f"alias: {alias}")
         super(UsbDeviceNodeData, self).__init__(tag, dirpath, data, config, alias, self.cls_order)
+        logger.info(f'USB node created id:{id} tag: {tag}')
 
 
 def key_by_node_data_key(node):
@@ -412,6 +412,7 @@ def find_device_config(data):
 
 
 def print_tree():
+    logger.info("Start print_tree")
     basepath = '/sys/devices/pci0000:00'
     device_paths = []
 
@@ -419,7 +420,7 @@ def print_tree():
         if "busnum" in filenames and "devnum" in filenames:
             device_paths.append(dirpath + "/")
 
-    logger.info("device_paths: {len(device_paths}")
+    logger.info(f"Number of USB devices found: {len(device_paths)}")
     for device_path in device_paths:
         logger.debug(device_path)
 
@@ -432,7 +433,7 @@ def print_tree():
                 nodes_to_create.append(node)
             idx = device_path.find("/", idx + 1)
 
-    logger.info("nodes to create")
+    logger.info(f"Number of nodes to create: {len(nodes_to_create)}")
     for node in nodes_to_create:
         logger.debug(node)
 
