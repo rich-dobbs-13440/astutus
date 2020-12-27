@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import pathlib
 import re
 
 import astutus.usb
@@ -315,90 +316,11 @@ def key_by_node_data_key(node):
 
 class DeviceConfigurations(object):
 
-    device_map = {
-        '0e6f:0232': {
-            'name_of_config': 'PDPGaming LVL50 Wireless Headset',
-            'color': 'magenta',
-            'description_template': "{product}",
-        },
-        '05e3:0610': {
-            'name_of_config': 'Genesys Logic, Inc. 4-port hub',
-            'color': 'yellow',
-            'description_template': None,
-        },
-        '04e8:6860': {
-            'name_of_config': 'Samsung Electronics Co., Ltd Galaxy series, misc. (MTP mode)',
-            'color': 'blue',
-            'description_template': None,
-        },
-        '046d:082c': {
-            'name_of_config': 'Logitech HD Webcam C615',
-            'color': 'magenta',
-            'description_template': "Logitech {product}",
-        },
-        '0bda:8153': {
-            'name_of_config': 'Realtek USB 10/100/1000 LAN',
-            'color': 'green',
-            'description_template': "{manufacturer} {product}",
-        },
-        '1d6b:0001': {
-            'name_of_config': 'Linux Foundation 1.1 root hub',
-            'color': 'yellow',
-            'description_template': None,
-        },
-        '1d6b:0002': {
-            'name_of_config': 'Linux Foundation 2.0 root hub',
-            'color': 'yellow',
-            'description_template': None,
-        },
-        '1d6b:0003': {
-            'name_of_config': 'Linux Foundation 3.0 root hub',
-            'color': 'yellow',
-            'description_template': None,
-        },
-        '046d:c52f': {
-            'name_of_config': 'Logitech, Inc. Unifying Receiver',
-            'color': 'magenta',
-            'description_template': [
-                {
-                    'cmd': 'grep -r . -e "mouse" 2>/dev/null',
-                    'test': 'value_in_stdout',
-                    'value': 'mouse',
-                    'description_template': "{manufacturer} {product} mouse",
-                },
-                {
-                    'cmd': 'grep -r . -e "numlock" 2>/dev/null',
-                    'test': 'value_in_stdout',
-                    'value': 'numlock',
-                    'description_template': "{manufacturer} {product} keyboard",
-                },
-            ],
-        },
-        '046d:c52b': {
-            'name_of_config': 'Logitech, Inc. Unifying Receiver',
-            'color': 'magenta',
-            'description_template': [
-                {
-                    'cmd': 'grep -r . -e "mouse" 2>/dev/null',
-                    'test': 'value_in_stdout',
-                    'value': 'mouse',
-                    'description_template': "{manufacturer} {product} mouse",
-                },
-                {
-                    'cmd': 'grep -r . -e "numlock" 2>/dev/null',
-                    'test': 'value_in_stdout',
-                    'value': 'numlock',
-                    'description_template': "{manufacturer} {product} keyboard",
-                },
-            ],
-        },
-        '1a86:7523': {
-            'name_of_config': 'QinHeng Electronics HL-340 USB-Serial adapter',
-            'color': 'green',
-            'description_template': "{description} - {tty}",
-            'find_tty': True
-        },
-    }
+    def __init__(self, filepath=None):
+        logger.info("Initializing device configurations")
+        self.device_map = None
+        self.read_from_json(filepath)
+        logger.info("Done initializing device configurations")
 
     def find_usb_configuration(self, data):
         if data.get('idVendor') is None:
@@ -417,6 +339,13 @@ class DeviceConfigurations(object):
     def write_as_json(self, filepath):
         with open(filepath, 'w') as config_file:
             json.dump(self.device_map, config_file, indent=4, sort_keys=True)
+
+    def read_from_json(self, filepath=None):
+        if filepath is None:
+            filepath = pathlib.Path(__file__).resolve().parent / "device_configurations.json"
+        with open(filepath, 'r') as config_file:
+            device_map = json.load(config_file)
+        self.device_map = device_map
 
 
 def print_tree():
