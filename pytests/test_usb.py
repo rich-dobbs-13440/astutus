@@ -1,5 +1,6 @@
 import logging
 # import time
+import pathlib
 
 import astutus.usb
 
@@ -55,7 +56,8 @@ def test_find_tty_from_busnum_and_devnum():
 
 
 def test_print_tree():
-    astutus.usb.print_tree()
+    device_aliases_filepath = pathlib.Path(__file__).resolve().parent / "test_data/device_aliases.json"
+    astutus.usb.print_tree(device_aliases_filepath)
 
 
 def test_device_configuration_write_to_file():
@@ -66,3 +68,24 @@ def test_device_configuration_write_to_file():
 def test_device_configuration_read_from_file():
     device_configurations = astutus.usb.DeviceConfigurations()
     device_configurations.read_from_json()
+
+
+def test_device_aliases_write_raw_as_json():
+    sample_hardcoded_aliases = {
+        'pci(0x1002:0x5a19)': {
+            'order': '10', 'label': 'wendy:front', 'color': 'cyan'},
+        'pci(0x1002:0x5a1b)': {
+            'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
+        '05e3:0610[child==0bda:8153]': {
+            'priority': 50, 'order': '30', 'label': 'TECKNET USB 2.0', 'color': 'orange'},
+        '05e3:0612[child==0bda:8153]': {
+            'priority': 50, 'order': '40', 'label': 'TECKNET USB 3.0', 'color': 'orange'},
+        '[ancestor==05e3:0612]1a86:7523[sibling==0bda:8153]': {
+            'priority': 99, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 3.0', 'color': 'fushia'},
+        '[ancestor==05e3:0610]1a86:7523[sibling==0bda:8153]': {
+            'priority': 98, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 2.0', 'color': 'fushia'},
+        '1a86:7523[sibling==05e3:0610]': {
+            'priority': 98, 'order': '40', 'label': 'SMAKIN Relay into ONN', 'color': 'fushia'},
+    }
+    # TODO: Write this to temporary directory
+    astutus.usb.DeviceAliases.write_raw_as_json('device_aliases.json', sample_hardcoded_aliases)

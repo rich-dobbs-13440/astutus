@@ -1,5 +1,6 @@
 import logging
 import re
+import os
 
 import astutus.util
 
@@ -109,3 +110,19 @@ def find_tty_description_from_pci_path(pci_path):
     tty = find_tty_for_busnum_and_devnum(busnum, devnum)
     vendorid, productid, description = find_vendor_info_from_busnum_and_devnum(busnum, devnum)
     return tty, busnum, devnum, vendorid, productid, description
+
+
+def extract_specified_data(tag, dirpath, filenames):
+    data = {'tag': tag}
+    for filename in filenames:
+        filepath = os.path.join(dirpath, filename)
+        return_code, stdout, stderr = astutus.util.run_cmd(f"cat {filepath}")
+        if return_code != 0:
+            continue
+        data[filename] = stdout.strip()
+    return data
+
+
+USB_KEY_ATTRIBUTES = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
+
+PCI_KEY_ATTRIBUTES = ['vendor', 'device', 'class']
