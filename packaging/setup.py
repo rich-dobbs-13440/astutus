@@ -8,7 +8,15 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/rst",
     package_dir={'': "../src/"},
-    packages=['astutus', 'astutus.web', 'astutus.raspi'],
+    packages=[
+        'astutus',
+        'astutus.db',
+        'astutus.log',
+        'astutus.web',
+        'astutus.raspi'
+        'astutus.usb'
+        'astutus.util',
+    ],
     package_data={
         'astutus': [
             'web/static/**/*',
