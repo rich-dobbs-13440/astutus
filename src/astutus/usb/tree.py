@@ -12,15 +12,22 @@ logger = logging.getLogger(__name__)
 class AliasPaths:
 
     vp_pattern = r'([0-9,a-f]{4}:[0-9,af]{4})'
-    vp_child_pattern = r'\[child::' + vp_pattern + r'\]'
-    ancestor_pattern = r'\[ancestor::([\w,:\.]+)\]'
+    vp_child_pattern = r'\[child==' + vp_pattern + r'\]'
+    ancestor_pattern = r'\[ancestor==([\w,:\.]+)\]'
     current_child_pattern = vp_pattern + vp_child_pattern
     current_pattern = vp_pattern
     ancestor_current_child_pattern = ancestor_pattern + vp_pattern + vp_child_pattern
+    ancestor_current_pattern = ancestor_pattern + current_pattern
 
     hardcoded_aliases = {
         'pci(0x1002:0x5a19)': {'order': '10', 'label': 'wendy:front', 'color': 'cyan'},
         'pci(0x1002:0x5a1b)': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
+        '05e3:0610[child==0bda:8153]': {'priority': 50, 'order': '30', 'label': 'TECKNET USB 2.0', 'color': 'orange'},
+        '05e3:0612[child==0bda:8153]': {'priority': 50, 'order': '40', 'label': 'TECKNET USB 3.0', 'color': 'orange'},
+        '[ancestor==05e3:0612]1a86:7523': {
+            'priority': 99, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 3.0', 'color': 'fushia'},
+        '[ancestor==05e3:0610]1a86:7523': {
+            'priority': 99, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 2.0', 'color': 'fushia'},
     }
 
     #     '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
@@ -34,8 +41,7 @@ class AliasPaths:
     #         {'priority': 90, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
     #     '05e3:0610':
     #         {'priority': 10, 'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'orange'},
-    #     '05e3:0610[child::0bda:8153]':
-    #         {'priority': 50, 'order': '40', 'label': 'TECKNET', 'color': 'orange'},
+
     # }
 
     def __init__(self):
@@ -43,8 +49,9 @@ class AliasPaths:
         self.aliases = {}
         for key in self.hardcoded_aliases.keys():
             logger.error(f"key: {key}")
-            cc_matches = re.match(self.current_child_pattern, key)
             c_matches = re.match(self.current_pattern, key)
+            ac_matches = re.match(self.ancestor_current_pattern, key)
+            cc_matches = re.match(self.current_child_pattern, key)
             acc_matches = re.match(self.ancestor_current_child_pattern, key)
             if acc_matches:
                 ancestor_key = acc_matches.group(1)
@@ -54,6 +61,10 @@ class AliasPaths:
                 ancestor_key = ''
                 current_key = cc_matches.group(1)
                 child_key = cc_matches.group(2)
+            elif ac_matches:
+                ancestor_key = ac_matches.group(1)
+                current_key = ac_matches.group(2)
+                child_key = ''
             elif c_matches:
                 ancestor_key = ''
                 current_key = c_matches.group(1)
@@ -71,6 +82,10 @@ class AliasPaths:
             logger.info(f"key: {key}")
             if id == key[1]:
                 items.append((key, self.aliases[key]))
+
+        if id == '1a86:7523':
+            logger.error(f"items: {items}")
+            raise NotImplementedError()
 
         if len(items) > 0:
             logger.info(f"id: {id}")
@@ -244,6 +259,8 @@ class UsbDeviceNodeData(DeviceNode):
         # For now, just find the alias based on the vendorId:productId value
         id = f"{data['idVendor']}:{data['idProduct']}"
         alias = alias_paths.get(id, dirpath)
+        if id == '1a86:7523':
+            logger.error(f"alias: {alias}")
         super(UsbDeviceNodeData, self).__init__(tag, dirpath, data, config, alias, self.cls_order)
 
 
