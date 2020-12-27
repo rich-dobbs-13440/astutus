@@ -12,9 +12,16 @@ from which I can search and reuse code as needed. Finally, it
 serves as repository of things that I've learned and want to be
 able to efficiently reuse.
 
-Why is it called **Astutus**?  The same name will be used for the 
-repository as for python package.  In both cases, the name should 
-be short, memorable, and easily searchable.  
+Git repository
+--------------
+
+The code can be found at https://github.com/rich-dobbs-13440/astutus.
+
+Why is it called **Astutus**?
+-----------------------------
+
+ The same name should be used for a repository as for the python package.  
+In both cases, the name should be short, memorable, and easily searchable.  
 
 For example, **flask** is 
 a good name, because when searching on the internet for software,
@@ -32,7 +39,9 @@ Essentially no hits for software related items.
 
 As a bonus:  Here is the meaning in Latin:  https://en.wiktionary.org/wiki/astutus
 
-Meaning:  shrewd, sagacious, expert, astute.  Sounds wonderful.
+Meaning:  shrewd, sagacious, expert, astute.  
+
+**Sounds wonderful.**
 
 
 .. toctree::
@@ -42,6 +51,8 @@ Meaning:  shrewd, sagacious, expert, astute.  Sounds wonderful.
    source/readme
    source/modules
    source/roadmap_to_documentation
+   source/developer_notes
+   source/macosx
 
 
 

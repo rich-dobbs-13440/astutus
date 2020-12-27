@@ -1,0 +1,18 @@
+============================= test session starts ==============================
+platform linux -- Python 3.8.5, pytest-6.2.1, py-1.10.0, pluggy-0.13.1
+rootdir: /home/rich/src/github.com/rich-dobbs-13440/astutus/pytests, configfile: pytest.ini
+collected 0 items / 1 error
+
+==================================== ERRORS ====================================
+________________________ ERROR collecting test_pyusb.py ________________________
+ImportError while importing test module '/home/rich/src/github.com/rich-dobbs-13440/astutus/pytests/test_pyusb.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib/python3.8/importlib/__init__.py:127: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+test_pyusb.py:1: in <module>
+    import usb.core
+E   ModuleNotFoundError: No module named 'usb'
+=========================== short test summary info ============================
+ERROR test_pyusb.py
+=============================== 1 error in 0.10s ===============================

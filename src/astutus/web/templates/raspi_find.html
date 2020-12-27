@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <h1>Find Raspberry Pi's on this LAN</h1>
+        <h2>Search using NMAP</h2>
+        <form method="POST"><!-- TODO: Use GET method, since POST is no longer required.-->
+            <p>
+                Filter: Raspberry
+                <input id="filter" name= "filter" type="checkbox" value="Raspberry" {% if "Raspberry" in filter %}checked{% endif %}>
+                VNC Running Running
+                <input id="filter" name= "filter" type="checkbox" value="vnc" {% if "vnc" in filter %}checked{% endif %}>
+                SSH Server Running
+                <input id="filter" name= "filter" type="checkbox" value="ssh" {% if "ssh" in filter %}checked{% endif %}>
+            </p>
+            <p>
+                <label for="ipv4">Router IPv4:</label>
+                <input id="ipv4" name="ipv4" type="text" pattern="[0-9]{1-3}.[0-9]{1-3}.[0-9]{1-3}.[0-9]{1-3}" value="192.168.0.1" size="15"></input>
+                /
+                <input id="mask" name="mask" type="number" value="24" size="2"></input> 
+                <input type="hidden" name="action" value="seach_using_nmap" />
+                <input type="submit" value="Search"/>
+            </p>
+        </form>
+        {% if search_result is not none %}  
+            <h2>Results</h2>
+            {% for section in search_result %}
+            <pre>
+{{ section.content }}
+            </pre>
+            <form method="POST">
+                <input id="raspi_ipvr" name="raspi_ipv4" type="text" value="{{ section.ipv4}}" />
+                <input id="raspi_mac_addr" name="raspi_mac_addr" type="text" value="{{ section.mac_addr}}" />
+                <input type="hidden" name="action" value="create" />
+                <input type="submit" value="Adopt"/>
+            </form>
+            {% endfor %}
+        {%endif %}
+    </body>
+</html>

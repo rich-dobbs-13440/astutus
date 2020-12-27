@@ -10,6 +10,8 @@ able to efficiently reuse.
 Installing
 ----------
 
+This is aspirational at this time:
+
 Install and update using `pip`_:
 
 .. _pip: https://pip.pypa.io/en/stable/quickstart/
@@ -22,14 +24,25 @@ Install and update using `pip`_:
 Technologies
 ------------
 
-This is the technologies demonstrated:
+Here are the technologies demonstrated:
 
 - Flask
+- Jinja2
+- HTML5
+- CSS
 - Sphinx
+- Restructured Text
+- Integrated Documentation
 - Setuptools
 - Pytest
 - REST API's
-- Restructured Text
+- Continuous Improvement
+- Automation
 - Continuous Integration
 - Continuous Deployment
 - Docker
+- Raspbery Pi
+- Semantic Versioning
+- Agile Planning
+- Bias for Action
+

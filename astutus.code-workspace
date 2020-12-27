@@ -10,6 +10,15 @@
 		"python.linting.enabled": true,
 		"python.terminal.activateEnvironment": true,
 		"python.path": "${workspaceFolder}/venv/bin/python3",
-		"restructuredtext.confPath": "${workspaceFolder}/docs"
-	}
+		"restructuredtext.confPath": "${workspaceFolder}/docs",
+		"emmet.includeLanguages": {"jinja-html": "html"},
+		"[restructuredtext]": {
+			"editor.quickSuggestions": false
+		},
+	},
+	"files.watcherExclude": {
+		"**/.git/objects/**": true,
+		"**/.git/subtree-cache/**": true,
+		"**/__pycache__/*/**": true
+	  }
 }
