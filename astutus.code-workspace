@@ -12,6 +12,10 @@
 		"python.path": "${workspaceFolder}/venv/bin/python3",
 		"restructuredtext.confPath": "${workspaceFolder}/docs",
 		"emmet.includeLanguages": {"jinja-html": "html"},
+		"emmet.excludeLanguages": ["rst", "restructuredtext", "REST", "ReST"],
+		"[restructuredtext]": {
+			"editor.quickSuggestions": false
+		},
 	},
 	"files.watcherExclude": {
 		"**/.git/objects/**": true,
