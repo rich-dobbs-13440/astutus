@@ -44,4 +44,4 @@ cp "${this_dir}"/wheels/none-any/*.whl "${REPOPATH}/src/astutus/wheels/"
 
 print_success "All steps done"
 
-mark_end_section "Building and Configuring Package"
+mark_end_section "End Building and Configuring Package"
