@@ -25,7 +25,10 @@ def find_paths_for_vendor_and_product(vendor_id: str, product_id: str):
 
 
 def find_busnum_and_devnum_for_sys_device(pci_path) -> (int, int):
-    abs_path = f"/sys/devices/{pci_path}"
+    if pci_path.startswith("/sys/devices"):
+        abs_path = pci_path
+    else:
+        abs_path = f"/sys/devices/{pci_path}"
     return_code, stdout, stderr = astutus.util.run_cmd(f'cat {abs_path}/busnum')
     if return_code != 0:
         raise RuntimeError(return_code, stderr, stdout)
@@ -39,7 +42,9 @@ def find_busnum_and_devnum_for_sys_device(pci_path) -> (int, int):
 
 def find_sym_link_for_tty(tty):
     return_code, stdout, stderr = astutus.util.run_cmd(f"ls -l {tty}")
-    if return_code != 0:
+    if return_code == 2:
+        return None
+    elif return_code != 0:
         raise RuntimeError(return_code, stderr, stdout)
     logger.debug(f"stdout: {stdout}")
     major_minor_pattern = r"dialout\s+(\d+),\s+(\d+)\s"
@@ -66,6 +71,8 @@ def find_busnum_and_devnum_for_sym_link(sym_link):
 
 def find_busnum_and_devnum_for_tty(tty):
     sym_link = find_sym_link_for_tty(tty)
+    if sym_link is None:
+        return -1, -1
     busnum, devnum = find_busnum_and_devnum_for_sym_link(sym_link)
     return busnum, devnum
 

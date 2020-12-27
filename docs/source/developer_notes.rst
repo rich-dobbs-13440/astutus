@@ -1,9 +1,17 @@
 Developer Notes
 ===============
 
-
-
 Plan:
+
+* Note: To control relays, need to be able to select them by topology it turns out.
+  Almost nothing that I'm interested in has a persistent unique identifier like a 
+  serial number attached to it.
+
+* Create USB utilities to understand how to USB and PCI work.
+
+* Create a print_tree routine to visualize topology 
+
+* Factor out utilities to make it feasible to uniquely identify  relays.
 
 * Create some REST API to drive adoption of Rasberry Pi into ecosystem.
 

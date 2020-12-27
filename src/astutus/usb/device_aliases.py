@@ -1,12 +1,171 @@
 import json
 import logging
 import os
-import pathlib
 import re
 
 import astutus.usb.usb_impl
 
 logger = logging.getLogger(__name__)
+
+
+def parse_selector(selector):
+    # Parse the key into ancestor, current, and child axes:
+    child_pattern = r'\[child(==|!=)([^\]]+)]'
+    ancestor_pattern = r'\[ancestor(==|!=)([^\]]+)]'
+    sibling_pattern = r'\[sibling(==|!=)([^\]]+)]'
+
+    check_str = selector
+    child_check = None
+    if "[child" in check_str:
+        logger.debug(f"child_pattern: {child_pattern}")
+        matches = re.search(child_pattern, check_str)
+        child_check = (matches.group(1), matches.group(2))
+        # Remove the child axes from the check string
+        check_str = re.sub(child_pattern, '', check_str, 0, re.MULTILINE)
+    ancestor_check = None
+    if "[ancestor" in check_str:
+        matches = re.search(ancestor_pattern, check_str)
+        ancestor_check = (matches.group(1), matches.group(2))
+        # Remove the ancestor axes from the key
+        check_str = re.sub(ancestor_pattern, '', check_str, 0, re.MULTILINE)
+    sibling_check = None
+    if "[sibling" in check_str:
+        matches = re.search(sibling_pattern, check_str)
+        sibling_check = (matches.group(1), matches.group(2))
+        # Remove the ancestor axes from the key
+        check_str = re.sub(sibling_pattern, '', check_str, 0, re.MULTILINE)
+    # After removing the other axes, will be just left with the current key, which
+    # implicitly has the equality operator.
+    current_check = ('==', check_str)
+    result = ancestor_check, current_check, child_check, sibling_check
+    logger.info(f"Parsed selector to : {result}")
+    return result
+
+
+def matches_as_usb_node(dirpath, vendor, product):
+    data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['idVendor', 'idProduct'])
+    data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['idVendor', 'idProduct'])
+    if data.get('idVendor') == vendor and data.get('idProduct') == product:
+        return True
+    return False
+
+
+def matches_as_pci_node(dirpath, vendor, device):
+    data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['vendor', 'device'])
+    if data.get('vendor') == vendor and data.get('device') == device:
+        return True
+    return False
+
+
+def matches_as_node(dirpath, ilk, vendor, device):
+    if ilk == "usb":
+        if matches_as_usb_node(dirpath, vendor, device):
+            return True
+    elif ilk == "pci":
+        if matches_as_pci_node(dirpath, vendor, device):
+            return True
+    else:
+        raise NotImplementedError(ilk)
+    return False
+
+
+def parse_value(value):
+    value_pattern = r'^(usb|pci)\(([^:]{4}):([^:]{4})\)$'
+    matches = re.match(value_pattern, value)
+    assert matches, value
+    ilk, vendor, device = matches.group(1), matches.group(2), matches.group(3)
+    return ilk, vendor, device
+
+
+def find_all_pci_paths(value):
+    logger.info(f"In find_all_pci_paths with value: {value}")
+    ilk, vendor, device = parse_value(value)
+    device_paths = []
+    for dirpath, dirnames, filenames in os.walk('/sys/devices/pci0000:00'):
+        if ilk == "usb" and "busnum" in filenames and "devnum" in filenames:
+            if matches_as_node(dirpath, ilk, vendor, device):
+                device_paths.append(dirpath)
+        if ilk == "pci" and "vendor" in filenames and "device" in filenames:
+            if matches_as_node(dirpath, ilk, vendor, device):
+                device_paths.append(dirpath)
+    return device_paths
+
+
+def ancestor_passes(check, dirpath):
+    logger.info(f"In ancestor_passes, with dirpath: {dirpath} and check {check}")
+    if check is None:
+        return True
+    operator, value = check
+    # Only implementing equality operator now.
+    assert operator == "=="
+    ilk, vendor, device = parse_value(value)
+    logger.debug(f"dirpath: {dirpath}")
+    a_dirpath, current = dirpath.rsplit('/', 1)
+    while a_dirpath != '/sys/devices':
+        if matches_as_node(a_dirpath, ilk, vendor, device):
+            logger.info(f"Match for ancestor: {a_dirpath}")
+            return True
+        a_dirpath, current = a_dirpath.rsplit('/', 1)
+    logger.info(f"No match for any ancestor of: {dirpath}")
+    return False
+
+
+def child_passes(check, dirpath, skip_dirpaths=[]):
+    # skip_dirpaths is for sibling checks, to avoid having current
+    # being considered a sibling of itself
+    logger.info(f"In child_passes, with dirpath: {dirpath} and check {check}")
+    if check is None:
+        return True
+    operator, value = check
+    # Only implementing equality operator now.
+    assert operator == "=="
+    ilk, vendor, device = parse_value(value)
+    root, dirs, _ = next(os.walk(dirpath))
+    for dir in dirs:
+        subdirpath = os.path.join(root, dir)
+        if subdirpath in skip_dirpaths:
+            logger.info(f"Skipping subdirpath: {subdirpath}")
+            continue
+        if matches_as_node(subdirpath, ilk, vendor, device):
+            logger.info(f"Match for: {subdirpath}")
+            return True
+        logger.info(f"No match for: {subdirpath}")
+    return False
+
+
+def sibling_passes(check, dirpath):
+    logger.info(f"In sibling_passes, with dirpath: {dirpath} and check {check}")
+    if check is None:
+        return True
+    operator, value = check
+    # Only implementing equality operator now.
+    assert operator == "=="
+    ilk, vendor, device = parse_value(value)
+    parent_dirpath, current = dirpath.rsplit('/', 1)
+    logger.debug(f"parent_dirpath: {parent_dirpath}")
+    if child_passes(check, parent_dirpath, skip_dirpaths=[dirpath]):
+        logger.info(f"Passed check: {check}")
+        return True
+    logger.info(f"Didn't passed with check: {check}")
+    return False
+
+
+def find_pci_paths(selector):
+    logger.info(f"In find_pci_paths with selector: {selector}")
+    ancestor_check, current_check, child_check, sibling_check = parse_selector(selector)
+    operator, value = current_check
+    assert operator == "=="
+    all_paths = find_all_pci_paths(value)
+    filtered_paths = []
+    for dirpath in all_paths:
+        if not ancestor_passes(ancestor_check, dirpath):
+            continue
+        if not child_passes(child_check, dirpath):
+            continue
+        if not sibling_passes(sibling_check, dirpath):
+            continue
+        filtered_paths.append(dirpath)
+    return filtered_paths
 
 
 class DeviceAliases:
@@ -15,7 +174,6 @@ class DeviceAliases:
         logger.info("Initializing AliasPaths")
         raw_aliases = self.read_raw_from_json(filepath)
         self.aliases = self.parse_raw_aliases(raw_aliases)
-        # DevCode: self.aliases = self.parse_raw_aliases(self.sample_hardcoded_aliases)
 
     @staticmethod
     def write_raw_as_json(filepath, raw_aliases):
@@ -23,113 +181,31 @@ class DeviceAliases:
             json.dump(raw_aliases, config_file, indent=4, sort_keys=True)
 
     @staticmethod
-    def read_raw_from_json(filepath=None):
-        if filepath is None:
-            filepath = pathlib.Path(__file__).resolve().parent / "device_aliases.json"
+    def read_raw_from_json(filepath):
         with open(filepath, 'r') as config_file:
             raw_device_aliases = json.load(config_file)
         return raw_device_aliases
 
     @staticmethod
     def parse_raw_aliases(raw_aliases):
-        # Parse the key into ancestor, current, and child axes:
-        child_pattern = r'\[child(==|!=)([^\]]+)]'
-        ancestor_pattern = r'\[ancestor(==|!=)([^\]]+)]'
-        sibling_pattern = r'\[sibling(==|!=)([^\]]+)]'
-
         aliases = {}
-        for key in raw_aliases.keys():
-            logger.debug(f"key: {key}")
-            check_str = key
-            child_check = None
-            if "[child" in check_str:
-                logger.debug(f"child_pattern: {child_pattern}")
-                matches = re.search(child_pattern, check_str)
-                child_check = (matches.group(1), matches.group(2))
-                # Remove the child axes from the check string
-                check_str = re.sub(child_pattern, '', check_str, 0, re.MULTILINE)
-            ancestor_check = None
-            if "[ancestor" in check_str:
-                matches = re.search(ancestor_pattern, check_str)
-                ancestor_check = (matches.group(1), matches.group(2))
-                # Remove the ancestor axes from the key
-                check_str = re.sub(ancestor_pattern, '', check_str, 0, re.MULTILINE)
-            sibling_check = None
-            if "[sibling" in check_str:
-                matches = re.search(sibling_pattern, check_str)
-                sibling_check = (matches.group(1), matches.group(2))
-                # Remove the ancestor axes from the key
-                check_str = re.sub(sibling_pattern, '', check_str, 0, re.MULTILINE)
-            # After removing the other axes, will be just left with the current key, which
-            # implicitly has the equality operator.
-            current_check = ('==', check_str)
-            aliases[(ancestor_check, current_check, child_check, sibling_check)] = raw_aliases[key]
+        for selector in raw_aliases.keys():
+            checks = parse_selector(selector)
+            aliases[checks] = raw_aliases[selector]
         return aliases
 
-    @staticmethod
-    def matches_as_usb_node(dirpath, value):
-        if value.startswith('pci('):
-            return False
-        data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['idVendor', 'idProduct'])
-        vendor = data.get('idVendor')
-        product = data.get('idProduct')
-        if vendor is not None and product is not None:
-            id = f"{vendor}:{product}"
-            if id == value:
-                return True
-        return False
-
-    @staticmethod
-    def matches_as_pci_node(dirpath, value):
-        if not value.startswith('pci('):
-            return False
-        data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['vendor', 'device'])
-        vendor = data.get('vendor')
-        device = data.get('device')
-        if vendor is not None and device is not None:
-            id = f"pci({vendor}:{device})"
-            if id == value:
-                return True
-        return False
-
-    def sibling_passes(self, check, dirpath):
-        if check is None:
-            return True
-        operator, value = check
-        # Only implementing equality operator now.
-        assert operator == "=="
-        parent_dirpath, current = dirpath.rsplit('/', 1)
-        if self.has_usb_child(parent_dirpath, value):
-            return True
-        if value.startswith('pci('):
-            raise NotImplementedError()
-        return False
-
-    def ancestor_passes(self, check, dirpath):
-        if check is None:
-            return True
-        operator, value = check
-        # Only implementing equality operator now.
-        assert operator == "=="
-        logger.debug(f"dirpath: {dirpath}")
-        a_dirpath, current = dirpath.rsplit('/', 1)
-        while a_dirpath != '/sys/devices':
-            if self.matches_as_usb_node(a_dirpath, value):
-                return True
-            if self.matches_as_pci_node(a_dirpath, value):
-                return True
-            a_dirpath, current = a_dirpath.rsplit('/', 1)
-        return False
-
-    def usb_child_passes(self, check, dirpath):
-        if check is None:
-            return True
-        operator, value = check
-        # Only implementing equality operator now.
-        assert operator == "=="
-        if self.has_usb_child(dirpath, value):
-            return True
-        return False
+    # @staticmethod
+    # def matches_as_pci_node(dirpath, value):
+    #     if not value.startswith('pci('):
+    #         return False
+    #     data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['vendor', 'device'])
+    #     vendor = data.get('vendor')
+    #     device = data.get('device')
+    #     if vendor is not None and device is not None:
+    #         id = f"pci({vendor}:{device})"
+    #         if id == value:
+    #             return True
+    #     return False
 
     def get(self, id, dirpath):
         filtered_aliases = []
@@ -158,11 +234,11 @@ class DeviceAliases:
                 logger.debug(f"alias_value: {alias_value}")
                 # Parent test already been applied, no need to retest now.
                 ancestor_check, _, child_check, sibling_check = checks
-                if not self.ancestor_passes(ancestor_check, dirpath):
+                if not ancestor_passes(ancestor_check, dirpath):
                     continue
-                if not self.usb_child_passes(child_check, dirpath):
+                if not child_passes(child_check, dirpath):
                     continue
-                if not self.sibling_passes(sibling_check, dirpath):
+                if not sibling_passes(sibling_check, dirpath):
                     continue
                 return alias_value
         return None
@@ -175,14 +251,3 @@ class DeviceAliases:
                 alias = self.aliases[checks]
                 return alias['label']
         return None
-
-    def has_usb_child(self, dirpath, child_id):
-        root, dirs, _ = next(os.walk(dirpath))
-        logger.debug(f"dirs: {dirs}")
-        for dir in dirs:
-            subdirpath = os.path.join(root, dir)
-            data = astutus.usb.usb_impl.extract_specified_data('', subdirpath, ['idVendor', 'idProduct'])
-            id = f"{data.get('idVendor', '')}:{data.get('idProduct', '')}"
-            if id == child_id:
-                return True
-        return False

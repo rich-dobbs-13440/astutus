@@ -1,4 +1,5 @@
 from astutus.usb.device_aliases import DeviceAliases  # noqa
+from astutus.usb.device_aliases import find_pci_paths  # noqa
 from astutus.usb.lcus_1_usb_relay import UsbRelayLcus1  # noqa
 from astutus.usb.tree import DeviceConfigurations  # noqa
 from astutus.usb.tree import print_tree  # noqa

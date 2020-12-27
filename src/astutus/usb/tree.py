@@ -157,7 +157,6 @@ def print_tree(device_alias_file_path):
     logger.info("Start print_tree")
     basepath = '/sys/devices/pci0000:00'
     device_paths = []
-
     for dirpath, dirnames, filenames in os.walk(basepath):
         if "busnum" in filenames and "devnum" in filenames:
             device_paths.append(dirpath + "/")

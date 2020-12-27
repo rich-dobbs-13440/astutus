@@ -5,7 +5,6 @@ logger = logging.getLogger(__name__)
 
 
 def run_cmd(cmd: str, *, cwd: str = None) -> (int, str, str):
-    logger.debug(f"cmd: {cmd}")
     completed_process = subprocess.run(
             args=cmd,
             cwd=cwd,
