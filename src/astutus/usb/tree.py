@@ -20,30 +20,19 @@ class AliasPaths:
             'priority': 50, 'order': '30', 'label': 'TECKNET USB 2.0', 'color': 'orange'},
         '05e3:0612[child==0bda:8153]': {
             'priority': 50, 'order': '40', 'label': 'TECKNET USB 3.0', 'color': 'orange'},
-        # '[ancestor==05e3:0612]1a86:7523': {
-        #     'priority': 99, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 3.0', 'color': 'fushia'},
-        # '[ancestor==05e3:0610]1a86:7523': {
-        #     'priority': 98, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 2.0', 'color': 'fushia'},
+        '[ancestor==05e3:0612]1a86:7523[sibling==0bda:8153]': {
+            'priority': 99, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 3.0', 'color': 'fushia'},
+        '[ancestor==05e3:0610]1a86:7523[sibling==0bda:8153]': {
+            'priority': 98, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 2.0', 'color': 'fushia'},
+        '1a86:7523[sibling==05e3:0610]': {
+            'priority': 98, 'order': '40', 'label': 'SMAKIN Relay into ONN', 'color': 'fushia'},
     }
-
-    #     '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
-    #     '0000:00:12.0': {'order': '30', 'label': 'wendy:b
-    # ack:row3', 'color': 'red'},
-    #     '0000:00:13.2': {'order': '40', 'label': 'wendy:back:row4,5', 'color': 'green'},
-    #     '[ancestor::wendy:back:row1]05e3:0610[child::0bda:8153]':
-    #         {'priority': 100, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard by nickname',
-    #          'color': 'orange'},
-    #     '[ancestor::0000:00:12.2]05e3:0610[child::0bda:8153]':
-    #         {'priority': 90, 'order': '40', 'label': 'TECKNET: orange mouse and keyboard', 'color': 'orange'},
-    #     '05e3:0610':
-    #         {'priority': 10, 'order': '40', 'label': 'TECKNET or ONN Hub', 'color': 'orange'},
-
-    # }
 
     def __init__(self):
 
         child_pattern = r'\[child(==|!=)([^\]]+)]'
         ancestor_pattern = r'\[ancestor(==|!=)([^\]]+)]'
+        sibling_pattern = r'\[sibling(==|!=)([^\]]+)]'
 
         # Parse the key into ancestor, current, and child axes:
         self.aliases = {}
@@ -63,10 +52,16 @@ class AliasPaths:
                 ancestor_check = (matches.group(1), matches.group(2))
                 # Remove the ancestor axes from the key
                 check_str = re.sub(ancestor_pattern, '', check_str, 0, re.MULTILINE)
+            sibling_check = None
+            if "[sibling" in check_str:
+                matches = re.search(sibling_pattern, check_str)
+                sibling_check = (matches.group(1), matches.group(2))
+                # Remove the ancestor axes from the key
+                check_str = re.sub(sibling_pattern, '', check_str, 0, re.MULTILINE)
             # After removing the other axes, will be just left with the current key, which
             # implicitly has the equality operator.
             current_check = ('==', check_str)
-            self.aliases[(ancestor_check, current_check, child_check)] = self.hardcoded_aliases[key]
+            self.aliases[(ancestor_check, current_check, child_check, sibling_check)] = self.hardcoded_aliases[key]
 
     @staticmethod
     def matches_as_usb_node(dirpath, value):
@@ -92,6 +87,19 @@ class AliasPaths:
             id = f"pci({vendor}:{device})"
             if id == value:
                 return True
+        return False
+
+    def sibling_passes(self, check, dirpath):
+        if check is None:
+            return True
+        operator, value = check
+        # Only implementing equality operator now.
+        assert operator == "=="
+        parent_dirpath, current = dirpath.rsplit('/', 1)
+        if self.has_usb_child(parent_dirpath, value):
+            return True
+        if value.startswith('pci('):
+            raise NotImplementedError()
         return False
 
     def ancestor_passes(self, check, dirpath):
@@ -146,15 +154,12 @@ class AliasPaths:
                 logger.debug(f"checks: {checks}")
                 logger.debug(f"alias_value: {alias_value}")
                 # Parent test already been applied, no need to retest now.
-                ancestor_check, _, child_check = checks
-                # if ancestor_check is not None:
-                #     if id == '1a86:7523':
-                #         logger.error(f"dirpath: {dirpath}")
-                #         self.ancestor_passes(ancestor_check, dirpath)
-                #         raise NotImplementedError()
+                ancestor_check, _, child_check, sibling_check = checks
                 if not self.ancestor_passes(ancestor_check, dirpath):
                     continue
                 if not self.usb_child_passes(child_check, dirpath):
+                    continue
+                if not self.sibling_passes(sibling_check, dirpath):
                     continue
                 return alias_value
         return None
