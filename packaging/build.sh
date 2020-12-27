@@ -39,6 +39,7 @@ unzip  -d packaging/dist/content/ packaging/dist/astutus-*.whl
 mark_sub_section "Self-publish Package Wheel"
 source "${this_dir}/fetch_wheels.sh"
 rm  "${REPOPATH}"/src/astutus/wheels/*.whl && true
+mkdir -p "${REPOPATH}/src/astutus/wheels/"
 cp "${this_dir}"/dist/*.whl "${REPOPATH}/src/astutus/wheels/"
 cp "${this_dir}"/wheels/none-any/*.whl "${REPOPATH}/src/astutus/wheels/"
 
