@@ -11,23 +11,19 @@ logger = logging.getLogger(__name__)
 
 class AliasPaths:
 
-    vp_pattern = r'([0-9,a-f]{4}:[0-9,af]{4})'
-    vp_child_pattern = r'\[child==' + vp_pattern + r'\]'
-    ancestor_pattern = r'\[ancestor==([\w,:\.]+)\]'
-    current_child_pattern = vp_pattern + vp_child_pattern
-    current_pattern = vp_pattern
-    ancestor_current_child_pattern = ancestor_pattern + vp_pattern + vp_child_pattern
-    ancestor_current_pattern = ancestor_pattern + current_pattern
-
     hardcoded_aliases = {
-        'pci(0x1002:0x5a19)': {'order': '10', 'label': 'wendy:front', 'color': 'cyan'},
-        'pci(0x1002:0x5a1b)': {'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
-        '05e3:0610[child==0bda:8153]': {'priority': 50, 'order': '30', 'label': 'TECKNET USB 2.0', 'color': 'orange'},
-        '05e3:0612[child==0bda:8153]': {'priority': 50, 'order': '40', 'label': 'TECKNET USB 3.0', 'color': 'orange'},
-        '[ancestor==05e3:0612]1a86:7523': {
-            'priority': 99, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 3.0', 'color': 'fushia'},
-        '[ancestor==05e3:0610]1a86:7523': {
-            'priority': 99, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 2.0', 'color': 'fushia'},
+        'pci(0x1002:0x5a19)': {
+            'order': '10', 'label': 'wendy:front', 'color': 'cyan'},
+        'pci(0x1002:0x5a1b)': {
+            'order': '20', 'label': 'wendy:back:row2', 'color': 'blue'},
+        '05e3:0610[child==0bda:8153]': {
+            'priority': 50, 'order': '30', 'label': 'TECKNET USB 2.0', 'color': 'orange'},
+        '05e3:0612[child==0bda:8153]': {
+            'priority': 50, 'order': '40', 'label': 'TECKNET USB 3.0', 'color': 'orange'},
+        # '[ancestor==05e3:0612]1a86:7523': {
+        #     'priority': 99, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 3.0', 'color': 'fushia'},
+        # '[ancestor==05e3:0610]1a86:7523': {
+        #     'priority': 98, 'order': '40', 'label': 'SMAKIN Relay into TECKNET USB 2.0', 'color': 'fushia'},
     }
 
     #     '0000:00:12.2': {'order': '10', 'label': 'wendy:back:row1', 'color': 'cyan'},
@@ -45,91 +41,134 @@ class AliasPaths:
     # }
 
     def __init__(self):
+
+        child_pattern = r'\[child(==|!=)([^\]]+)]'
+        ancestor_pattern = r'\[ancestor(==|!=)([^\]]+)]'
+
         # Parse the key into ancestor, current, and child axes:
         self.aliases = {}
         for key in self.hardcoded_aliases.keys():
-            logger.error(f"key: {key}")
-            c_matches = re.match(self.current_pattern, key)
-            ac_matches = re.match(self.ancestor_current_pattern, key)
-            cc_matches = re.match(self.current_child_pattern, key)
-            acc_matches = re.match(self.ancestor_current_child_pattern, key)
-            if acc_matches:
-                ancestor_key = acc_matches.group(1)
-                current_key = acc_matches.group(2)
-                child_key = acc_matches.group(3)
-            elif cc_matches:
-                ancestor_key = ''
-                current_key = cc_matches.group(1)
-                child_key = cc_matches.group(2)
-            elif ac_matches:
-                ancestor_key = ac_matches.group(1)
-                current_key = ac_matches.group(2)
-                child_key = ''
-            elif c_matches:
-                ancestor_key = ''
-                current_key = c_matches.group(1)
-                child_key = ''
-            else:
-                ancestor_key = ''
-                current_key = key
-                child_key = ''
-            self.aliases[(ancestor_key, current_key, child_key)] = self.hardcoded_aliases[key]
+            logger.debug(f"key: {key}")
+            check_str = key
+            child_check = None
+            if "[child" in check_str:
+                logger.debug(f"child_pattern: {child_pattern}")
+                matches = re.search(child_pattern, check_str)
+                child_check = (matches.group(1), matches.group(2))
+                # Remove the child axes from the check string
+                check_str = re.sub(child_pattern, '', check_str, 0, re.MULTILINE)
+            ancestor_check = None
+            if "[ancestor" in check_str:
+                matches = re.search(ancestor_pattern, check_str)
+                ancestor_check = (matches.group(1), matches.group(2))
+                # Remove the ancestor axes from the key
+                check_str = re.sub(ancestor_pattern, '', check_str, 0, re.MULTILINE)
+            # After removing the other axes, will be just left with the current key, which
+            # implicitly has the equality operator.
+            current_check = ('==', check_str)
+            self.aliases[(ancestor_check, current_check, child_check)] = self.hardcoded_aliases[key]
+
+    @staticmethod
+    def matches_as_usb_node(dirpath, value):
+        if value.startswith('pci('):
+            return False
+        data = UsbDeviceNodeData.extract_data('', dirpath, ['idVendor', 'idProduct'])
+        vendor = data.get('idVendor')
+        product = data.get('idProduct')
+        if vendor is not None and product is not None:
+            id = f"{vendor}:{product}"
+            if id == value:
+                return True
+        return False
+
+    @staticmethod
+    def matches_as_pci_node(dirpath, value):
+        if not value.startswith('pci('):
+            return False
+        data = PciDeviceNodeData.extract_data('', dirpath, ['vendor', 'device'])
+        vendor = data.get('vendor')
+        device = data.get('device')
+        if vendor is not None and device is not None:
+            id = f"pci({vendor}:{device})"
+            if id == value:
+                return True
+        return False
+
+    def ancestor_passes(self, check, dirpath):
+        if check is None:
+            return True
+        operator, value = check
+        # Only implementing equality operator now.
+        assert operator == "=="
+        logger.info(f"dirpath: {dirpath}")
+        a_dirpath, current = dirpath.rsplit('/', 1)
+        while a_dirpath != '/sys/devices':
+            if self.matches_as_usb_node(a_dirpath, value):
+                return True
+            if self.matches_as_pci_node(a_dirpath, value):
+                return True
+            a_dirpath, current = a_dirpath.rsplit('/', 1)
+        return False
+
+    def usb_child_passes(self, check, dirpath):
+        if check is None:
+            return True
+        operator, value = check
+        # Only implementing equality operator now.
+        assert operator == "=="
+        if self.has_usb_child(dirpath, value):
+            return True
+        return False
 
     def get(self, id, dirpath):
-        # Filter on current first of all, with an exact match required.
-        items = []
-        for key in self.aliases.keys():
-            logger.info(f"key: {key}")
-            if id == key[1]:
-                items.append((key, self.aliases[key]))
+        filtered_aliases = []
+        # Filter on current check first of all, with an exact match required.
+        for checks in self.aliases.keys():
+            logger.info(f"checks: {checks}")
+            if id == checks[1][1]:
+                # Only equality supported for current access
+                assert checks[1][0] == '=='
+                filtered_aliases.append((checks, self.aliases[checks]))
 
-        if id == '1a86:7523':
-            logger.error(f"items: {items}")
-            raise NotImplementedError()
-
-        if len(items) > 0:
+        if len(filtered_aliases) > 0:
             logger.info(f"id: {id}")
-            logger.info(f"tests: {len(items)}")
+            logger.info(f"tests: {len(filtered_aliases)}")
             # Sort by priority, so that first passed test is the most desirable one.
 
             def by_priority_key(item):
                 return item[1].get('priority', '00')
 
-            items = sorted(items, key=by_priority_key, reverse=True)
-            for item in items:
-                test, alias = item
-                logger.debug(f"test: {test}")
-                logger.debug(f"alias: {alias}")
-                # Parent test already applied, no need to retest now.
-                a_test, _, c_test = test
-                if a_test != '':
-                    logger.info(f"a_test: {a_test}")
-                    logger.info(f"dirpath: {dirpath}")
-                    ancestors = dirpath.split('/')[:-1]
-                    logger.info(f"ancestors: {ancestors}")
-                    found = False
-                    for ancestor in ancestors:
-                        if ancestor == a_test or self.label(ancestor) == a_test:
-                            found = True
-                            break
-                    if not found:
-                        continue
-                if c_test != '':
-                    logger.info(f"c_test: {c_test}")
-                    if not self.has_child(dirpath, c_test):
-                        continue
-                return alias
+            # TODO:  Should just sort them initially, rather than redoing each time.
+            prioritized_aliases = sorted(filtered_aliases, key=by_priority_key, reverse=True)
+
+            for alias in prioritized_aliases:
+                checks, alias_value = alias
+                logger.debug(f"checks: {checks}")
+                logger.debug(f"alias_value: {alias_value}")
+                # Parent test already been applied, no need to retest now.
+                ancestor_check, _, child_check = checks
+                # if ancestor_check is not None:
+                #     if id == '1a86:7523':
+                #         logger.error(f"dirpath: {dirpath}")
+                #         self.ancestor_passes(ancestor_check, dirpath)
+                #         raise NotImplementedError()
+                if not self.ancestor_passes(ancestor_check, dirpath):
+                    continue
+                if not self.usb_child_passes(child_check, dirpath):
+                    continue
+                return alias_value
         return None
 
     def label(self, name):
-        for key in self.aliases.keys():
-            a_test, current_test, c_test = key
-            if a_test == '' and current_test == name and c_test == '':
-                alias = self.aliases[key]
+        for checks in self.aliases.keys():
+            ancestor_check, current_check, child_check = checks
+            current_check_value = current_check[1]
+            if ancestor_check is None and current_check_value == name and child_check is None:
+                alias = self.aliases[checks]
                 return alias['label']
         return None
 
-    def has_child(self, dirpath, child_id):
+    def has_usb_child(self, dirpath, child_id):
         root, dirs, _ = next(os.walk(dirpath))
         logger.info(f"dirs: {dirs}")
         for dir in dirs:
@@ -147,7 +186,7 @@ alias_paths = AliasPaths()
 class DeviceNode(object):
 
     @staticmethod
-    def extract_data(tag, dirpath, filenames, included_files):
+    def extract_specified_data(tag, dirpath, filenames, included_files):
         data = {'tag': tag}
         for filename in filenames:
             if filename not in included_files:
@@ -226,7 +265,7 @@ class PciDeviceNodeData(DeviceNode):
 
     @classmethod
     def extract_data(cls, tag, dirpath, filenames):
-        return DeviceNode.extract_data(tag, dirpath, filenames, cls.included_files)
+        return DeviceNode.extract_specified_data(tag, dirpath, filenames, cls.included_files)
 
     def __init__(self, *, tag, dirpath, data, config):
         id = f"pci({data.get('vendor', '-')}:{data.get('device', '-')})"
@@ -246,7 +285,7 @@ class UsbDeviceNodeData(DeviceNode):
 
     @classmethod
     def extract_data(cls, tag, dirpath, filenames):
-        return DeviceNode.extract_data(tag, dirpath, filenames, cls.included_files)
+        return DeviceNode.extract_specified_data(tag, dirpath, filenames, cls.included_files)
 
     def __init__(self, *, tag, dirpath, data, config):
         busnum = int(data['busnum'])
