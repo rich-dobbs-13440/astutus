@@ -28,4 +28,4 @@ mv none-any/*.manylinux1_x86_64.whl manylinux1_x86_64 && true
 
 print_success "All steps done"
 
-mark_end_section "Building and Configuring Package"
+mark_end_section "End Fetching Wheels"
