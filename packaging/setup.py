@@ -13,8 +13,8 @@ setuptools.setup(
         'astutus.db',
         'astutus.log',
         'astutus.web',
-        'astutus.raspi'
-        'astutus.usb'
+        'astutus.raspi',
+        'astutus.usb',
         'astutus.util',
     ],
     package_data={
