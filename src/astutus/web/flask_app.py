@@ -87,6 +87,7 @@ def handle_raspi():
             "show_post_section": True,
         }
         links = [f"raspi/{item.id}" for item in items]
+        links.append('raspi?find=nmap')
         return flask.render_template(
             'generic_rest_page.html',
             page_data=page_data,
@@ -98,29 +99,40 @@ def handle_raspi():
         if form.get("action") == "create":
             raspi_ipv4 = form.get("raspi_ipv4")
             raspi_mac_addr = form.get("raspi_mac_addr")
-            db.session.add(
-                astutus.db.RaspberryPi(ipv4=raspi_ipv4, mac_addr=raspi_mac_addr))
+            rpi = astutus.db.RaspberryPi(ipv4=raspi_ipv4, mac_addr=raspi_mac_addr)
+            db.session.add(rpi)
             db.session.commit()
+            logger.debug(f"rpi: {rpi}")
+            return flask.redirect(flask.url_for('handle_raspi_item', id=rpi.id))
         return "Case not handled", HTTPStatus.NOT_IMPLEMENTED
 
 
-@app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET'])
+@app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET', 'DELETE'])
 def handle_raspi_item(id):
     if flask.request.method == 'POST':
         return "Got here"
-    item = astutus.db.RaspberryPi.query.get(id)
-    page_data = {
-        'title': "Raspberry Pi's",
-        'show_links_section': False,
-        "show_post_section": True,
-        "show_delete_section": True,
-        "show_raw_json_section": True,
-    }
-    return flask.render_template(
-        'generic_rest_page.html',
-        page_data=page_data,
-        data=item.as_json(),
-        links=None)
+    if flask.request.method == 'DELETE':
+        item = astutus.db.RaspberryPi.query.get(id)
+        db.session.delete(item)
+        db.session.commit()
+        data = {
+            "redirect_url": "/astutus/raspi"
+        }
+        return data, HTTPStatus.ACCEPTED
+    if flask.request.method == 'GET':
+        item = astutus.db.RaspberryPi.query.get(id)
+        page_data = {
+            'title': "Raspberry Pi's",
+            'show_links_section': False,
+            "show_post_section": True,
+            "show_delete_section": True,
+            "show_raw_json_section": True,
+        }
+        return flask.render_template(
+            'generic_rest_page.html',
+            page_data=page_data,
+            data=item.as_json(),
+            links=None)
 
 
 @app.route('/astutus/raspi/<int:id>/ifconfig', methods=['GET'])
