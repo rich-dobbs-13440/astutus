@@ -24,9 +24,11 @@ Validation
     cd astutus/packaging/dist
     python3 -m venv venv
     source venv/bin/activate
-    pip install astutus-0.1.0-py3-none-any.whl
+    pip install astutus-*-py3-none-any.whl
     python3 -m astutus.web.flask_app
 
+
+Then open up a browser to http://localhost:5000/astutus
 
 Deployment
 ----------
