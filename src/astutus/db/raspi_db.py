@@ -1,16 +1,11 @@
 import json
 import logging
 
-import flask_sqlalchemy
+from astutus.db.sqlite_db import db
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-
-db = flask_sqlalchemy.SQLAlchemy()
-
-
-def get_instance():
-    return db
 
 
 class RaspberryPi(db.Model):

@@ -15,18 +15,19 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def create_app():
+def create_app_and_db():
+
     app = flask.Flask('astutus.web.flask_app', template_folder='templates')
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/astutus.db"
+    app.config["SQLALCHEMY_DATABASE_URI"] = astutus.db.get_url()
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db = astutus.db.get_instance()
     db.init_app(app)
+    with app.app_context():
+        astutus.db.initialize_db_if_needed()
+    return app, db
 
-    return app
 
-
-app = create_app()
-db = astutus.db.get_instance()
+app, db = create_app_and_db()
 
 
 flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)

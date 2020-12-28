@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 cd astutus/packaging/dist
+unset PYTHONPATH
 python3 -m venv venv
 source venv/bin/activate
 pip install astutus-*-py3-none-any.whl

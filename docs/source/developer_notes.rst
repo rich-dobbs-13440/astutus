@@ -53,8 +53,8 @@ Running Flask from a package
 ----------------------------
 
 
-import astutus.web.flask_app
-astutus.web.flask_app.run_with_standard_options()
+>>>  import astutus.web.flask_app
+>>>  astutus.web.flask_app.run_with_standard_options()
 
 This doesn't seem to work.  Instead just use main()
 
@@ -242,3 +242,13 @@ As long as the devices aren't physically moved, the path stays the same.
 
 
   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/try-astutus/astutus/packaging/dist/venv/lib/python3.8/site-packages/astutus/web/static/_docs/source/developer_notes.html'
+
+
+2020-12-27 21:44 Getting this error with DB:  
+
+.. code-block:: console
+
+  sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: raspberry_pi
+  [SQL: SELECT raspberry_pi.id AS raspberry_pi_id, raspberry_pi.mac_addr AS raspberry_pi_mac_addr, raspberry_pi.ipv4 AS raspberry_pi_ipv4 
+  FROM raspberry_pi]
+  (Background on this error at: http://sqlalche.me/e/13/e3q8)
