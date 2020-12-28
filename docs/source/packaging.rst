@@ -30,6 +30,8 @@ Validation
 
 Then open up a browser to http://localhost:5000/astutus
 
+Troubleshooting:  /tmp/try-astutus/astutus/packaging/dist/venv/lib/python3.8/site-packages/astutus
+
 Deployment
 ----------
 
