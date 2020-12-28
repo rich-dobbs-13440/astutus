@@ -175,67 +175,70 @@ pci0000:00/0000:00:07.0/0000:05:00.0/usb10/10-1/10-1.2/10-1.2.2
 
 As long as the devices aren't physically moved, the path stays the same.  
 
-rich@wendy:~$ lsusb --tree
-/:  Bus 11.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 5000M
-/:  Bus 10.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 480M
-    |__ Port 1: Dev 2, If 0, Class=Hub, Driver=hub/4p, 480M
-        |__ Port 1: Dev 3, If 0, Class=Human Interface Device, Driver=usbhid, 12M
-        |__ Port 1: Dev 3, If 1, Class=Human Interface Device, Driver=usbhid, 12M
-        |__ Port 2: Dev 4, If 0, Class=Hub, Driver=hub/4p, 480M
-            |__ Port 1: Dev 11, If 0, Class=Vendor Specific Class, Driver=ch341, 12M
-            |__ Port 4: Dev 9, If 0, Class=Vendor Specific Class, Driver=r8152, 480M
-            |__ Port 2: Dev 13, If 2, Class=Audio, Driver=snd-usb-audio, 12M
-            |__ Port 2: Dev 13, If 0, Class=Audio, Driver=snd-usb-audio, 12M
-            |__ Port 2: Dev 13, If 3, Class=Human Interface Device, Driver=usbhid, 12M
-            |__ Port 2: Dev 13, If 1, Class=Audio, Driver=snd-usb-audio, 12M
-            |__ Port 3: Dev 15, If 0, Class=Imaging, Driver=usbfs, 480M
-        |__ Port 3: Dev 14, If 0, Class=Vendor Specific Class, Driver=ch341, 12M
-        |__ Port 4: Dev 7, If 0, Class=Audio, Driver=snd-usb-audio, 480M
-        |__ Port 4: Dev 7, If 3, Class=Video, Driver=uvcvideo, 480M
-        |__ Port 4: Dev 7, If 1, Class=Audio, Driver=snd-usb-audio, 480M
-        |__ Port 4: Dev 7, If 2, Class=Video, Driver=uvcvideo, 480M
-/:  Bus 09.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 5000M
-/:  Bus 08.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 480M
-    |__ Port 1: Dev 2, If 0, Class=Human Interface Device, Driver=usbhid, 12M
-    |__ Port 1: Dev 2, If 1, Class=Human Interface Device, Driver=usbhid, 12M
-    |__ Port 1: Dev 2, If 2, Class=Human Interface Device, Driver=usbhid, 12M
-/:  Bus 07.Port 1: Dev 1, Class=root_hub, Driver=ohci-pci/4p, 12M
-/:  Bus 06.Port 1: Dev 1, Class=root_hub, Driver=ohci-pci/2p, 12M
-/:  Bus 05.Port 1: Dev 1, Class=root_hub, Driver=ohci-pci/5p, 12M
-/:  Bus 04.Port 1: Dev 1, Class=root_hub, Driver=ohci-pci/5p, 12M
-/:  Bus 03.Port 1: Dev 1, Class=root_hub, Driver=ehci-pci/4p, 480M
-/:  Bus 02.Port 1: Dev 1, Class=root_hub, Driver=ehci-pci/5p, 480M
-/:  Bus 01.Port 1: Dev 1, Class=root_hub, Driver=ehci-pci/5p, 480M
+
+.. code-block:: console
+
+  rich@wendy:~$ lsusb --tree
+  /:  Bus 11.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 5000M
+  /:  Bus 10.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 480M
+      |__ Port 1: Dev 2, If 0, Class=Hub, Driver=hub/4p, 480M
+          |__ Port 1: Dev 3, If 0, Class=Human Interface Device, Driver=usbhid, 12M
+          |__ Port 1: Dev 3, If 1, Class=Human Interface Device, Driver=usbhid, 12M
+          |__ Port 2: Dev 4, If 0, Class=Hub, Driver=hub/4p, 480M
+              |__ Port 1: Dev 11, If 0, Class=Vendor Specific Class, Driver=ch341, 12M
+              |__ Port 4: Dev 9, If 0, Class=Vendor Specific Class, Driver=r8152, 480M
+              |__ Port 2: Dev 13, If 2, Class=Audio, Driver=snd-usb-audio, 12M
+              |__ Port 2: Dev 13, If 0, Class=Audio, Driver=snd-usb-audio, 12M
+              |__ Port 2: Dev 13, If 3, Class=Human Interface Device, Driver=usbhid, 12M
+              |__ Port 2: Dev 13, If 1, Class=Audio, Driver=snd-usb-audio, 12M
+              |__ Port 3: Dev 15, If 0, Class=Imaging, Driver=usbfs, 480M
+          |__ Port 3: Dev 14, If 0, Class=Vendor Specific Class, Driver=ch341, 12M
+          |__ Port 4: Dev 7, If 0, Class=Audio, Driver=snd-usb-audio, 480M
+          |__ Port 4: Dev 7, If 3, Class=Video, Driver=uvcvideo, 480M
+          |__ Port 4: Dev 7, If 1, Class=Audio, Driver=snd-usb-audio, 480M
+          |__ Port 4: Dev 7, If 2, Class=Video, Driver=uvcvideo, 480M
+  /:  Bus 09.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 5000M
+  /:  Bus 08.Port 1: Dev 1, Class=root_hub, Driver=xhci_hcd/2p, 480M
+      |__ Port 1: Dev 2, If 0, Class=Human Interface Device, Driver=usbhid, 12M
+      |__ Port 1: Dev 2, If 1, Class=Human Interface Device, Driver=usbhid, 12M
+      |__ Port 1: Dev 2, If 2, Class=Human Interface Device, Driver=usbhid, 12M
+  /:  Bus 07.Port 1: Dev 1, Class=root_hub, Driver=ohci-pci/4p, 12M
+  /:  Bus 06.Port 1: Dev 1, Class=root_hub, Driver=ohci-pci/2p, 12M
+  /:  Bus 05.Port 1: Dev 1, Class=root_hub, Driver=ohci-pci/5p, 12M
+  /:  Bus 04.Port 1: Dev 1, Class=root_hub, Driver=ohci-pci/5p, 12M
+  /:  Bus 03.Port 1: Dev 1, Class=root_hub, Driver=ehci-pci/4p, 480M
+  /:  Bus 02.Port 1: Dev 1, Class=root_hub, Driver=ehci-pci/5p, 480M
+  /:  Bus 01.Port 1: Dev 1, Class=root_hub, Driver=ehci-pci/5p, 480M
 
 
-rich@wendy:~$ lsusb
-Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 007 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-Bus 011 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
-Bus 010 Device 007: ID 046d:082c Logitech, Inc. HD Webcam C615
-Bus 010 Device 014: ID 1a86:7523 QinHeng Electronics HL-340 USB-Serial adapter
-Bus 010 Device 020: ID 0bda:8153 Realtek Semiconductor Corp. RTL8153 Gigabit Ethernet Adapter
-Bus 010 Device 030: ID 14cd:125d Super Top 
-Bus 010 Device 022: ID 0e6f:0232 Logic3 
-Bus 010 Device 031: ID 04e8:6860 Samsung Electronics Co., Ltd Galaxy series, misc. (MTP mode)
-Bus 010 Device 016: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
-Bus 010 Device 003: ID 046d:c52f Logitech, Inc. Unifying Receiver
-Bus 010 Device 002: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
-Bus 010 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
-Bus 009 Device 003: ID 0bda:8153 Realtek Semiconductor Corp. RTL8153 Gigabit Ethernet Adapter
-Bus 009 Device 002: ID 05e3:0612 Genesys Logic, Inc. Hub
-Bus 009 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
-Bus 008 Device 007: ID 046d:c52b Logitech, Inc. Unifying Receiver
-Bus 008 Device 006: ID 046d:c52b Logitech, Inc. Unifying Receiver
-Bus 008 Device 003: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
-Bus 008 Device 002: ID 046d:c52b Logitech, Inc. Unifying Receiver
-Bus 008 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  rich@wendy:~$ lsusb
+  Bus 003 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  Bus 007 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+  Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+  Bus 002 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  Bus 005 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+  Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  Bus 004 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+  Bus 011 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+  Bus 010 Device 007: ID 046d:082c Logitech, Inc. HD Webcam C615
+  Bus 010 Device 014: ID 1a86:7523 QinHeng Electronics HL-340 USB-Serial adapter
+  Bus 010 Device 020: ID 0bda:8153 Realtek Semiconductor Corp. RTL8153 Gigabit Ethernet Adapter
+  Bus 010 Device 030: ID 14cd:125d Super Top 
+  Bus 010 Device 022: ID 0e6f:0232 Logic3 
+  Bus 010 Device 031: ID 04e8:6860 Samsung Electronics Co., Ltd Galaxy series, misc. (MTP mode)
+  Bus 010 Device 016: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
+  Bus 010 Device 003: ID 046d:c52f Logitech, Inc. Unifying Receiver
+  Bus 010 Device 002: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
+  Bus 010 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
+  Bus 009 Device 003: ID 0bda:8153 Realtek Semiconductor Corp. RTL8153 Gigabit Ethernet Adapter
+  Bus 009 Device 002: ID 05e3:0612 Genesys Logic, Inc. Hub
+  Bus 009 Device 001: ID 1d6b:0003 Linux Foundation 3.0 root hub
+  Bus 008 Device 007: ID 046d:c52b Logitech, Inc. Unifying Receiver
+  Bus 008 Device 006: ID 046d:c52b Logitech, Inc. Unifying Receiver
+  Bus 008 Device 003: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
+  Bus 008 Device 002: ID 046d:c52b Logitech, Inc. Unifying Receiver
+  Bus 008 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
 
 
 
-FileNotFoundError: [Errno 2] No such file or directory: '/tmp/try-astutus/astutus/packaging/dist/venv/lib/python3.8/site-packages/astutus/web/static/_docs/source/developer_notes.html'
+  FileNotFoundError: [Errno 2] No such file or directory: '/tmp/try-astutus/astutus/packaging/dist/venv/lib/python3.8/site-packages/astutus/web/static/_docs/source/developer_notes.html'

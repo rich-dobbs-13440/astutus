@@ -53,6 +53,9 @@ Meaning:  shrewd, sagacious, expert, astute.
    source/roadmap_to_documentation
    source/developer_notes
    source/macosx
+   source/backlog
+   source/packaging
+   source/smakn_usb_relay
 
 
 
