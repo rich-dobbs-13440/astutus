@@ -19,6 +19,7 @@ setuptools.setup(
     ],
     package_data={
         'astutus': [
+            'web/static/*',
             'web/static/**/*',
             'web/static/_docs/_static/*',
             'web/static/_docs/_static/**/*',

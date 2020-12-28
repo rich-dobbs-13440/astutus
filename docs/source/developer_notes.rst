@@ -236,3 +236,6 @@ Bus 008 Device 003: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
 Bus 008 Device 002: ID 046d:c52b Logitech, Inc. Unifying Receiver
 Bus 008 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub
 
+
+
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/try-astutus/astutus/packaging/dist/venv/lib/python3.8/site-packages/astutus/web/static/_docs/source/developer_notes.html'

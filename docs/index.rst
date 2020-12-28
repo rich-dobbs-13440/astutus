@@ -20,7 +20,7 @@ The code can be found at https://github.com/rich-dobbs-13440/astutus.
 Why is it called **Astutus**?
 -----------------------------
 
- The same name should be used for a repository as for the python package.  
+The same name should be used for a repository as for the python package.  
 In both cases, the name should be short, memorable, and easily searchable.  
 
 For example, **flask** is 
