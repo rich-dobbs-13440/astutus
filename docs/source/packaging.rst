@@ -16,6 +16,7 @@ In theory, the process is:
     ./astutus/packaging/build.sh
 
 
+
 Validation
 ----------
 
@@ -26,6 +27,8 @@ Validation
     source venv/bin/activate
     pip install astutus-*-py3-none-any.whl
     python3 -m astutus.web.flask_app
+
+    ./astutus/packaging/validate_pkg.sh
 
 
 Then open up a browser to http://localhost:5000/astutus
