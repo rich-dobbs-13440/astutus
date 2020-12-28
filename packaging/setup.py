@@ -1,4 +1,21 @@
 import setuptools
+import setuptools.command.install
+import setuptools.command.develop
+
+
+class PostDevelopCommand(setuptools.command.develop.develop):
+    """Post-installation for development mode."""
+    def run(self):
+        setuptools.command.develop.develop.run(self)
+        # PUT YOUR POST-INSTALL SCRIPT HERE or CALL A FUNCTION
+
+
+class PostInstallCommand(setuptools.command.install.install):
+    """Post-installation for installation mode."""
+    def run(self):
+        setuptools.command.install.install.run(self)
+        # PUT YOUR POST-INSTALL SCRIPT HERE or CALL A FUNCTION
+
 
 with open("../README.rst", "r") as fh:
     long_description = fh.read()
@@ -34,5 +51,9 @@ setuptools.setup(
             'web/templates/*',
             # 'web/templates/**/*',l
         ]
-    }
+    },
+    cmdclass={
+        'develop': PostDevelopCommand,
+        'install': PostInstallCommand,
+    },
 )
