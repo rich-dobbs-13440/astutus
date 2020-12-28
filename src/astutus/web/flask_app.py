@@ -87,6 +87,7 @@ def handle_raspi():
             "show_post_section": True,
         }
         links = [f"raspi/{item.id}" for item in items]
+        links.append('raspi?find=nmap')
         return flask.render_template(
             'generic_rest_page.html',
             page_data=page_data,
@@ -98,9 +99,12 @@ def handle_raspi():
         if form.get("action") == "create":
             raspi_ipv4 = form.get("raspi_ipv4")
             raspi_mac_addr = form.get("raspi_mac_addr")
-            db.session.add(
-                astutus.db.RaspberryPi(ipv4=raspi_ipv4, mac_addr=raspi_mac_addr))
+            rpi = astutus.db.RaspberryPi(ipv4=raspi_ipv4, mac_addr=raspi_mac_addr)
+            db.session.add(rpi)
             db.session.commit()
+            logger.debug(f"rpi: {rpi}")
+            # return flask.redirect(flask.url_for(handle_raspi_item), id=rpi.id())
+            return flask.redirect(flask.url_for('handle_raspi_item', id=rpi.id))
         return "Case not handled", HTTPStatus.NOT_IMPLEMENTED
 
 
