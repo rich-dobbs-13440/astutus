@@ -22,6 +22,7 @@ setuptools.setup(
             'web/static/**/*',
             'web/static/_docs/_static/*',
             'web/static/_docs/_static/**/*',
+            'web/templates/*',
             'web/templates/**/*',
         ]
     }
