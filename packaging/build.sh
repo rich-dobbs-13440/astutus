@@ -5,13 +5,13 @@ set -e
 
 this_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "${this_dir}/utilities.sh"
+export REPOPATH=$( cd ${this_dir}/.. ; pwd )
 
 mark_section "Start Building"
 
 if [ ! -d "${REPOPATH}/venv/bin/" ]; then
     source "${this_dir}/make_venv.sh"
 fi
-export REPOPATH=$( cd ${this_dir}/.. ; pwd )
 cp "${this_dir}/astutus_customization.sh" "${REPOPATH}/venv/bin/"
 
 
