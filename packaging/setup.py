@@ -21,7 +21,8 @@ setuptools.setup(
         'astutus': [
             'web/static/**/*',
             'web/static/_docs/_static/*',
-            'web/static/_docs/_static/**/*'
+            'web/static/_docs/_static/**/*',
+            'web/templates/**/*',
         ]
     }
 )
