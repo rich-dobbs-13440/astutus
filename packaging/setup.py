@@ -20,11 +20,19 @@ setuptools.setup(
     package_data={
         'astutus': [
             'web/static/*',
-            'web/static/**/*',
+            # 'web/static/**/*',
             'web/static/_docs/_static/*',
-            'web/static/_docs/_static/**/*',
+            'web/static/_docs/_static/css/*',
+            'web/static/_docs/_static/css/fonts/*',
+            'web/static/_docs/_static/fonts/*',
+            'web/static/_docs/_static/fonts/Lato/*',
+            'web/static/_docs/_static/fonts/Lato/RobotoSlab/*',
+            'web/static/_docs/_static/fonts/js/*',
+            'web/static/_docs/_static/js/*',
+            'web/static/_docs/source/*',
+            # 'web/static/_docs/_static/**/*',
             'web/templates/*',
-            'web/templates/**/*',
+            # 'web/templates/**/*',l
         ]
     }
 )
