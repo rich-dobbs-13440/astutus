@@ -16,7 +16,6 @@ In theory, the process is:
     ./astutus/packaging/build.sh
 
 
-
 Validation
 ----------
 

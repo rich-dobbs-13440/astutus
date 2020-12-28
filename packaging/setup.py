@@ -1,6 +1,8 @@
 import setuptools
 import setuptools.command.install
 import setuptools.command.develop
+import os
+import os.path
 
 
 class PostDevelopCommand(setuptools.command.develop.develop):
@@ -21,6 +23,22 @@ with open("../README.rst", "r") as fh:
     long_description = fh.read()
 
 
+# Create list for package data manually, since wildcard are not universally supported
+# and are poorly documented at this time. Might be redundant with some setuptools
+# functionality, but it works.
+def get_package_data_list(root_dir, dirname):
+    items = []
+    for dirpath, _, _ in os.walk(os.path.join(root_dir, dirname)):
+        item = os.path.relpath(dirpath, root_dir)
+        if item == dirname:
+            # Don't want the data directory itself, only subdirectories
+            continue
+        if '__pycache__' in item:
+            continue
+        items.append(os.path.join(item, '*'))
+    return items
+
+
 setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/rst",
@@ -35,22 +53,7 @@ setuptools.setup(
         'astutus.util',
     ],
     package_data={
-        'astutus': [
-            'web/static/*',
-            # 'web/static/**/*',
-            'web/static/_docs/_static/*',
-            'web/static/_docs/_static/css/*',
-            'web/static/_docs/_static/css/fonts/*',
-            'web/static/_docs/_static/fonts/*',
-            'web/static/_docs/_static/fonts/Lato/*',
-            'web/static/_docs/_static/fonts/Lato/RobotoSlab/*',
-            'web/static/_docs/_static/fonts/js/*',
-            'web/static/_docs/_static/js/*',
-            'web/static/_docs/source/*',
-            # 'web/static/_docs/_static/**/*',
-            'web/templates/*',
-            # 'web/templates/**/*',l
-        ]
+        'astutus': get_package_data_list('../src/astutus', 'web'),
     },
     cmdclass={
         'develop': PostDevelopCommand,
