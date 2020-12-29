@@ -1,21 +1,31 @@
 Developer Notes
 ===============
 
+
+
+.. |done| raw:: html
+
+    <input checked=""  disabled="" type="checkbox">
+
+.. |in_progress| raw:: html
+
+    <input checked=""  disabled="" type="radio">
+
 Plan:
 
 * Note: To control relays, need to be able to select them by topology it turns out.
   Almost nothing that I'm interested in has a persistent unique identifier like a 
   serial number attached to it.
 
-* Create USB utilities to understand how to USB and PCI work.
+* |done| Create USB utilities to understand how to USB and PCI work.
 
-* Create a print_tree routine to visualize topology 
+* |done| Create a print_tree routine to visualize topology 
 
-* Factor out utilities to make it feasible to uniquely identify  relays.
+* |done| Factor out utilities to make it feasible to uniquely identify relays.
 
-* Create some REST API to drive adoption of Rasberry Pi into ecosystem.
+* |in_progress| Create some REST API to drive adoption of Rasberry Pi into ecosystem.
 
-* This requires a persistence layer, so do SQLAlchemy next
+* |done| This requires a persistence layer, so do SQLAlchemy next
 
 * Transfer python package to RaspPi.
 
@@ -252,3 +262,26 @@ As long as the devices aren't physically moved, the path stays the same.
   [SQL: SELECT raspberry_pi.id AS raspberry_pi_id, raspberry_pi.mac_addr AS raspberry_pi_mac_addr, raspberry_pi.ipv4 AS raspberry_pi_ipv4 
   FROM raspberry_pi]
   (Background on this error at: http://sqlalche.me/e/13/e3q8)
+
+
+Deprecation Warning
+-------------------
+
+2020-12-28 18:36 Warning showed up in Pytest with most recent venv:
+
+.. code-block:: console
+
+    ================================================================================================ warnings summary =================================================================================================
+  ../venv/lib/python3.8/site-packages/future/standard_library/__init__.py:65
+    /home/rich/src/github.com/rich-dobbs-13440/astutus/venv/lib/python3.8/site-packages/future/standard_library/__init__.py:65: DeprecationWarning: the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses
+      import imp
+
+  -- Docs: https://docs.pytest.org/en/stable/warnings.html
+
+
+Defining Commands for Packages
+------------------------------
+
+.. code-block:: console
+
+  python3 -m astutus.usb.tree:main
