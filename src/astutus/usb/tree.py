@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import os.path
 import pathlib
 
 
@@ -153,8 +154,11 @@ class DeviceConfigurations(object):
         self.device_map = device_map
 
 
-def print_tree(device_alias_file_path):
+def print_tree(device_alias_file_path=None):
+    # TODO:  Create cli for this
     logger.info("Start print_tree")
+    if device_alias_file_path is None:
+        device_alias_file_path = os.path.expanduser("~/.astutus/device_aliases.json")
     basepath = '/sys/devices/pci0000:00'
     device_paths = []
     for dirpath, dirnames, filenames in os.walk(basepath):
@@ -211,3 +215,7 @@ def print_tree(device_alias_file_path):
                 data=node_data)
 
     tree.show(data_property="colorized", key=key_by_node_data_key)
+
+
+if __name__ == '__main__':
+    astutus.usb.tree.print_tree()

@@ -39,6 +39,10 @@ def get_package_data_list(root_dir, dirname):
     return items
 
 
+package_data = get_package_data_list('../src/astutus', 'web')
+package_data.append("usb/device_configurations.json")
+
+
 setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/rst",
@@ -53,10 +57,13 @@ setuptools.setup(
         'astutus.util',
     ],
     package_data={
-        'astutus': get_package_data_list('../src/astutus', 'web'),
+        'astutus': package_data,
     },
     cmdclass={
         'develop': PostDevelopCommand,
         'install': PostInstallCommand,
     },
+    entry_points={
+        'console_scripts': ['astutus-usb-tree=astutus.usb.tree:print_tree']
+    }
 )
