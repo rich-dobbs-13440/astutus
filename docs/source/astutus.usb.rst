@@ -1,6 +1,14 @@
 astutus.usb package
 ===================
 
+Module contents
+---------------
+
+.. automodule:: astutus.usb
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -36,10 +44,4 @@ astutus.usb.usb\_impl module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
 
-.. automodule:: astutus.usb
-   :members:
-   :undoc-members:
-   :show-inheritance:
