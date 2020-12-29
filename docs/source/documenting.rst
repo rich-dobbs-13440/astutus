@@ -11,8 +11,8 @@ accurate, useable, adequate, and organized.
 
 The workflow used in this system treats working on documentation as a
 programming and testing task, rather than an exercise in writing.  
-Developers typically like to program.  Journeyman developers have
-used test-driven-devlopment to increase there effectiveness.  The
+Developers typically like to program.  Journeymen developers have
+used test-driven-devlopment to increase their effectiveness.  The
 goal here is to generate adequate to high quality documentation
 without getting bogged down with writers block, by relying on 
 a developer's skillset. 
@@ -41,9 +41,7 @@ Auto-Doc Code
 
 API documentionation is generated using the sphinx.ext.autodoc
 extension.  As new modules are written, the initial **package**.rst
-file needs to generated.  The command to add new autodoc 
-files is: 
-
+file needs to generated.
 
 **Do not use the -f or --force option.** The existing files 
 may contain customizations that you don't want to lose.
