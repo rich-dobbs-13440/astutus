@@ -170,20 +170,27 @@ def find_pci_paths(selector):
 
 class DeviceAliases:
 
-    def __init__(self, filepath):
+    def __init__(self, *, filepath):
         logger.info("Initializing AliasPaths")
         raw_aliases = self.read_raw_from_json(filepath)
         self.aliases = self.parse_raw_aliases(raw_aliases)
 
     @staticmethod
     def write_raw_as_json(filepath, raw_aliases):
-        with open(filepath, 'w') as config_file:
-            json.dump(raw_aliases, config_file, indent=4, sort_keys=True)
+        with open(filepath, 'w') as aliases_file:
+            json.dump(raw_aliases, aliases_file, indent=4, sort_keys=True)
 
     @staticmethod
     def read_raw_from_json(filepath):
-        with open(filepath, 'r') as config_file:
-            raw_device_aliases = json.load(config_file)
+        if filepath is None:
+            filepath = os.path.join(astutus.util.get_user_data_path(), 'device_aliases.json')
+            if not os.path.isfile(filepath):
+                # If the file doesn't exist in the user's data dir,
+                # Create an "empty" one.
+                raw_aliases = {}
+                DeviceAliases.write_raw_as_json(filepath, raw_aliases)
+        with open(filepath, 'r') as aliases_file:
+            raw_device_aliases = json.load(aliases_file)
         return raw_device_aliases
 
     @staticmethod
@@ -193,19 +200,6 @@ class DeviceAliases:
             checks = parse_selector(selector)
             aliases[checks] = raw_aliases[selector]
         return aliases
-
-    # @staticmethod
-    # def matches_as_pci_node(dirpath, value):
-    #     if not value.startswith('pci('):
-    #         return False
-    #     data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['vendor', 'device'])
-    #     vendor = data.get('vendor')
-    #     device = data.get('device')
-    #     if vendor is not None and device is not None:
-    #         id = f"pci({vendor}:{device})"
-    #         if id == value:
-    #             return True
-    #     return False
 
     def get(self, id, dirpath):
         filtered_aliases = []

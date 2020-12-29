@@ -164,7 +164,7 @@ class DeviceConfigurations(object):
         self.device_map = device_map
 
 
-def print_tree(*, device_alias_filepath, device_configuration_filepath):
+def print_tree(*, device_aliases_filepath, device_configurations_filepath):
     logger.info("Start print_tree")
     basepath = '/sys/devices/pci0000:00'
     device_paths = []
@@ -189,8 +189,8 @@ def print_tree(*, device_alias_filepath, device_configuration_filepath):
     for node in nodes_to_create:
         logger.debug(node)
 
-    alias_paths = astutus.usb.device_aliases.DeviceAliases(device_alias_filepath)
-    device_configurations = DeviceConfigurations(filepath=device_configuration_filepath)
+    alias_paths = astutus.usb.device_aliases.DeviceAliases(filepath=device_aliases_filepath)
+    device_configurations = DeviceConfigurations(filepath=device_configurations_filepath)
 
     rootpath, tag = basepath.rsplit('/', 1)
     logger.debug(f"rootpath: {rootpath}")
@@ -225,7 +225,9 @@ def print_tree(*, device_alias_filepath, device_configuration_filepath):
 
 
 def parse_args(raw_args):
+    # TODO:  Move this to astutus.util to avoid breaking DRY principle.
     default_device_aliases_filepath = "~/.astutus/device_aliases.json"
+    default_device_configurations_filepath = "~/.astutus/device_configurations.json"
     parser = argparse.ArgumentParser(
         raw_args,
         description="Print out a tree of USB devices attached to computer. "
@@ -233,10 +235,17 @@ def parse_args(raw_args):
     # Note:  For consistency with standard usage, help strings should be phrases
     #        that start with a lower case, and not be sentences.
     parser.add_argument(
-        "-d", "--device-aliases",
-        default=os.path.expanduser(default_device_aliases_filepath),
-        dest="device_alias_filepath",
-        help=f"specify default aliases file - defaults to {default_device_aliases_filepath}")
+        "-a", "--device-aliases",
+        default=None,
+        dest="device_aliases_filepath",
+        help=f"specify device aliases file - defaults to {default_device_aliases_filepath}")
+
+    parser.add_argument(
+        "-c", "--device-configurations",
+        default=None,
+        dest="default_device_configurations_filepath",
+        help=f"specify device configurations file - defaults to {default_device_configurations_filepath}")
+
     args = parser.parse_args()
     return args
 
@@ -244,8 +253,8 @@ def parse_args(raw_args):
 def main():
     args = parse_args(sys.argv[1:])
     astutus.usb.tree.print_tree(
-        device_alias_filepath=args.device_alias_filepath,
-        device_configuration_filepath=None
+        device_aliases_filepath=args.device_aliases_filepath,
+        device_configurations_filepath=args.default_device_configurations_filepath
     )
 
 
