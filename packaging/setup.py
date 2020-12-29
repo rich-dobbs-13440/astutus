@@ -64,6 +64,6 @@ setuptools.setup(
         'install': PostInstallCommand,
     },
     entry_points={
-        'console_scripts': ['astutus-usb-tree=astutus.usb.tree:print_tree']
+        'console_scripts': ['astutus-usb-tree=astutus.usb.tree:main']
     }
 )

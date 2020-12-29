@@ -12,8 +12,8 @@ deactivate && true
 
 cd ${this_dir}/dist
 unset PYTHONPATH
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv dist_venv
+source dist_venv/bin/activate
 pip install astutus-*-py3-none-any.whl
 
 set +e

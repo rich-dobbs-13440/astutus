@@ -218,7 +218,10 @@ def print_tree(*, device_alias_file_path):
 
 def parse_args(raw_args):
     default_device_aliases_path = "~/.astutus/device_aliases.json"
-    parser = argparse.ArgumentParser(raw_args)
+    parser = argparse.ArgumentParser(
+        raw_args,
+        description="Print out a tree of USB devices attached to computer. "
+    )
     # Note:  For consistency with standard usage, help strings should be phrases
     #        that start with a lower case, and not be sentences.
     parser.add_argument(
