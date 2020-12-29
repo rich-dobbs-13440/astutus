@@ -3,6 +3,7 @@ import os
 import re
 import pathlib
 
+import astutus.util
 import flask_sqlalchemy
 import sqlalchemy.exc
 import sqlalchemy.schema
@@ -36,5 +37,5 @@ def initialize_db_if_needed():
 def get_url():
     db_url = os.environ.get("ASTUTUS_DB_URL")
     if db_url is None:
-        db_url = 'sqlite:///' + os.path.expandvars(os.path.expanduser('~/.astutus/astutus.db'))
+        db_url = 'sqlite:///' + os.path.join(astutus.util.get_user_data_path(), 'astutus.db')
     return db_url

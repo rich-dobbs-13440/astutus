@@ -109,7 +109,10 @@ def test_usb_relay():
 
 def test_print_tree():
     device_aliases_filepath = pathlib.Path(__file__).resolve().parent / "test_data/device_aliases.json"
-    astutus.usb.print_tree(device_aliases_filepath)
+    astutus.usb.print_tree(
+        device_aliases_filepath=device_aliases_filepath,
+        device_configurations_filepath=None,
+    )
 
 
 def test_device_configuration_write_to_file():
