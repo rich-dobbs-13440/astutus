@@ -3,9 +3,9 @@ Backlog
 
 Backlog:
 
-  * Story: As a user, I can run a command to view the USB tree.
+  * Task: Update for autodocs for all all modules.
   * Story: As a user, I can configure my own aliases for physical USB
-           devices in the USB tree.
+    devices in the USB tree.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
   * Task: Get color sensor working on RPi.
@@ -19,6 +19,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2020-12-29 09:16 Story: As a user, I can run a command to view the USB tree.
 
     * |done| 2020-12-28 13:06 Story: As a developer, the database is operational 
       in the Flask App.

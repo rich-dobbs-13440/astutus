@@ -1,4 +1,23 @@
 #!/usr/bin/env python3
+"""
+
+This module implements the Flask web application for the package.
+
+The web application provides:
+
+    * A server for the Sphinx generated documentation.
+    * An HTML interface for interacting with the system.
+    * A REST API for interacting with the system remotely
+    * or locally for automation.
+
+The handle routines are all Flask endpoints.
+
+Maintainence note:
+
+    Include the app.route decorator in the docstrings
+    for the handle routines.
+
+"""
 import json
 import logging
 import os
@@ -37,19 +56,20 @@ logger.addHandler(flask.logging.default_handler)
 
 
 @app.template_filter('tojson_pretty')
-def tojson_pretty(json_text):
-    """Pretty Print Json"""
+def tojson_pretty_jinja2_template_file(json_text):
     parsed_json = json.loads(json_text)
     return json.dumps(parsed_json, indent=4, sort_keys=True)
 
 
 @app.route('/')
 def handle_top():
-    return "Hi there."
+    """ app.route('/') """
+    return "TODO: redirect to /astutus"
 
 
 @app.route('/astutus')
 def handle_astutus():
+    """ app.route('/astutus') """
     page_data = {
         'title': "Astutus",
         'show_links_section': True,
@@ -64,7 +84,7 @@ def handle_astutus():
         links=links)
 
 
-def handle_rasp_find(form):
+def process_raspi_find_form(form):
     ipv4 = form.get("ipv4")
     logger.debug(f"ipv4: {ipv4}")
     mask = flask.request.form.get("mask")
@@ -77,6 +97,7 @@ def handle_rasp_find(form):
 
 @app.route('/astutus/raspi', methods=['POST', 'GET'])
 def handle_raspi():
+    """ app.route('/astutus/raspi', methods=['POST', 'GET']) """
     if flask.request.method == 'GET':
         if flask.request.args.get('find') is not None:
             return flask.render_template('raspi_find.html', search_result=None, filter=['Raspberry'])
@@ -95,7 +116,7 @@ def handle_raspi():
     if flask.request.method == 'POST':
         form = flask.request.form
         if form.get("action") == "seach_using_nmap":
-            return handle_rasp_find(form)
+            return process_raspi_find_form(form)
         if form.get("action") == "create":
             raspi_ipv4 = form.get("raspi_ipv4")
             raspi_mac_addr = form.get("raspi_mac_addr")
@@ -109,6 +130,7 @@ def handle_raspi():
 
 @app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET', 'DELETE'])
 def handle_raspi_item(id):
+    """ app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET', 'DELETE']) """
     if flask.request.method == 'POST':
         return "Got here"
     if flask.request.method == 'DELETE':
@@ -137,6 +159,7 @@ def handle_raspi_item(id):
 
 @app.route('/astutus/raspi/<int:id>/ifconfig', methods=['GET'])
 def handle_raspi_item_ifconfig(id):
+    """" app.route('/astutus/raspi/<int:id>/ifconfig', methods=['GET']) """
     item = astutus.db.RaspberryPi.query.get(id)
     raspi = astutus.raspi.RaspberryPi(item)
     ifconfig = raspi.get_ifconfig()
@@ -156,11 +179,13 @@ def handle_raspi_item_ifconfig(id):
 
 @app.route('/astutus/doc')
 def handle_doc():
+    """ @app.route('/astutus/doc') """
     return flask.redirect(flask.url_for("handle_doc_top"))
 
 
 @app.route('/astutus/doc/index.html')
 def handle_doc_top():
+    """ app.route('/astutus/doc/index.html') """
     logger.debug(f"app.root_path: {app.root_path}")
     directory = os.path.join(app.root_path, 'static', '_docs')
     print(f"directory: {directory}")
@@ -169,6 +194,7 @@ def handle_doc_top():
 
 @app.route('/astutus/doc/<path:path>')
 def handle_doc_path(path):
+    """ app.route('/astutus/doc/<path:path>') """
     print(f"path: {path}")
     # print(f"filename: {filename}")
     logger.debug(f"app.root_path: {app.root_path}")

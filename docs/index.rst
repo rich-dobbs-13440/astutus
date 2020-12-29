@@ -54,10 +54,10 @@ Meaning:  shrewd, sagacious, expert, astute.
    source/developer_notes
    source/macosx
    source/backlog
+   source/documenting
    source/packaging
    source/smakn_usb_relay
-
-
+   
 
 Indices and tables
 ==================
