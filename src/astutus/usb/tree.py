@@ -1,8 +1,10 @@
+import argparse
 import json
 import logging
 import os
 import os.path
 import pathlib
+import sys
 
 
 import astutus.usb
@@ -154,11 +156,8 @@ class DeviceConfigurations(object):
         self.device_map = device_map
 
 
-def print_tree(device_alias_file_path=None):
-    # TODO:  Create cli for this
+def print_tree(*, device_alias_file_path):
     logger.info("Start print_tree")
-    if device_alias_file_path is None:
-        device_alias_file_path = os.path.expanduser("~/.astutus/device_aliases.json")
     basepath = '/sys/devices/pci0000:00'
     device_paths = []
     for dirpath, dirnames, filenames in os.walk(basepath):
@@ -217,5 +216,24 @@ def print_tree(device_alias_file_path=None):
     tree.show(data_property="colorized", key=key_by_node_data_key)
 
 
+def parse_args(raw_args):
+    default_device_aliases_path = "~/.astutus/device_aliases.json"
+    parser = argparse.ArgumentParser(raw_args)
+    # Note:  For consistency with standard usage, help strings should be phrases
+    #        that start with a lower case, and not be sentences.
+    parser.add_argument(
+        "-d", "--device-aliases",
+        default=os.path.expanduser(default_device_aliases_path),
+        dest="device_alias_file_path",
+        help=f"specify default aliases file - defaults to {default_device_aliases_path}")
+    args = parser.parse_args()
+    return args
+
+
+def main():
+    args = parse_args(sys.argv[1:])
+    astutus.usb.tree.print_tree(device_alias_file_path=args.device_alias_file_path)
+
+
 if __name__ == '__main__':
-    astutus.usb.tree.print_tree()
+    main()
