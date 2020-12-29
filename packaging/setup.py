@@ -15,8 +15,22 @@ class PostDevelopCommand(setuptools.command.develop.develop):
 class PostInstallCommand(setuptools.command.install.install):
     """Post-installation for installation mode."""
     def run(self):
+        # Note:  The command will be run in the context of the installed package
+        #        such as a virtual environment.  So imports must be done
+        #        within the function itself.
+        import os
+        import os.path
+        import shutil
+        import astutus.usb
+        # Create the user's data directory if needed
         setuptools.command.install.install.run(self)
-        # PUT YOUR POST-INSTALL SCRIPT HERE or CALL A FUNCTION
+        user_data_dir = os.path.expanduser('~/.astutus')
+        os.makedirs(user_data_dir, exist_ok=True)
+        # Move the device configurations to the user's directory
+        # so that the user can customize them as needed.
+        source_path = os.path.join(astutus.usb.__path__, 'device_configurations.json')
+        destin_path = os.path.join(user_data_dir, 'device_configurations.json')
+        shutil.copyfile(source_path, destin_path)
 
 
 with open("../README.rst", "r") as fh:
