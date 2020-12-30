@@ -112,7 +112,23 @@ def test_print_tree():
     astutus.usb.print_tree(
         device_aliases_filepath=device_aliases_filepath,
         device_configurations_filepath=None,
+        verbose=True,
+        test=False
     )
+
+
+def test_parse_args():
+    raw_args = ['-a', 'Joe']
+    args = astutus.usb.tree.parse_args(raw_args)
+    assert args.device_aliases_filepath == "Joe"
+
+    raw_args = ['--verbose']
+    args = astutus.usb.tree.parse_args(raw_args)
+    assert args.verbose is True
+
+
+def test_tree_main():
+    astutus.usb.tree.main(["--test"])
 
 
 def test_device_configuration_write_to_file():

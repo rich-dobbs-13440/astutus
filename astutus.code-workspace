@@ -15,10 +15,11 @@
 		"[restructuredtext]": {
 			"editor.quickSuggestions": false
 		},
+		"files.trimTrailingWhitespace": true
 	},
 	"files.watcherExclude": {
 		"**/.git/objects/**": true,
 		"**/.git/subtree-cache/**": true,
 		"**/__pycache__/*/**": true
-	  }
+	  },
 }

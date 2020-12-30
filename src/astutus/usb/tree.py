@@ -16,10 +16,12 @@ logger = logging.getLogger(__name__)
 
 class DeviceNode(object):
 
-    def __init__(self, tag, dirpath, data, config, alias, cls_order):
+    def __init__(self, tag, dirpath, node_id, data, config, alias, cls_order, verbose):
         self.tag = tag
         self.dirpath = dirpath
         self.data = data
+        self.node_id = node_id
+        self.node_color = 'pink'
         self.config = config
         self.alias = alias
         if self.alias is None:
@@ -27,6 +29,7 @@ class DeviceNode(object):
         else:
             self.order = self.alias['order']
         self.cls_order = cls_order
+        self.verbose = verbose
 
     def key(self):
         key_value = f"{self.cls_order} - {self.order} - {self.tag}"
@@ -35,7 +38,12 @@ class DeviceNode(object):
 
     def get_description(self):
         description_template = self.find_description_template()
-        return description_template.format_map(self.data)
+        description = description_template.format_map(self.data)
+        if description == "<built-in function id>":
+            logger.error(description_template)
+            logger.error(self.data)
+            raise AssertionError()
+        return description
 
     def find_description_template(self):
         # The config may directly have a simple template, or something that
@@ -73,7 +81,11 @@ class DeviceNode(object):
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
-        return f"{self.tag} - {start(color)}{label}{end(color)}"
+        colored_label = f"{start(color)}{label}{end(color)}"
+        if self.verbose:
+            node_label = f"{start(self.node_color)}{self.node_id}{end(self.node_color)}"
+            return f"{self.tag}  - {node_label} - {colored_label}"
+        return f"{self.tag} - {colored_label}"
 
 
 class PciDeviceNodeData(DeviceNode):
@@ -84,15 +96,15 @@ class PciDeviceNodeData(DeviceNode):
     def extract_data(cls, tag, dirpath, filenames):
         return astutus.usb.usb_impl.extract_specified_data(tag, dirpath, astutus.usb.usb_impl.PCI_KEY_ATTRIBUTES)
 
-    def __init__(self, *, tag, dirpath, data, config, alias_paths):
-        id = f"pci({data.get('vendor', '-')}:{data.get('device', '-')})"
+    def __init__(self, *, tag, dirpath, data, config, alias_paths, verbose):
+        node_id = f"pci({data.get('vendor', '-')}:{data.get('device', '-')})"
         logger.debug(f'id: {id}')
         # TODO:  "Use lspci to get description"
-        data["description"] = id
-        alias = alias_paths.get(id, dirpath)
+        data["description"] = node_id
+        alias = alias_paths.get(node_id, dirpath)
         logger.debug(f'alias: {alias}')
-        super(PciDeviceNodeData, self).__init__(tag, dirpath, data, config, alias, self.cls_order)
-        logger.info(f'PCI node created id:{id} tag: {tag}')
+        super(PciDeviceNodeData, self).__init__(tag, dirpath, node_id, data, config, alias, self.cls_order, verbose)
+        logger.info(f'PCI node created node_id:{node_id} tag: {tag}')
 
 
 class UsbDeviceNodeData(DeviceNode):
@@ -103,7 +115,7 @@ class UsbDeviceNodeData(DeviceNode):
     def extract_data(cls, tag, dirpath, filenames):
         return astutus.usb.usb_impl.extract_specified_data(tag, dirpath, astutus.usb.usb_impl.USB_KEY_ATTRIBUTES)
 
-    def __init__(self, *, tag, dirpath, data, config, alias_paths):
+    def __init__(self, *, tag, dirpath, data, config, alias_paths, verbose):
         busnum = int(data['busnum'])
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
@@ -112,10 +124,10 @@ class UsbDeviceNodeData(DeviceNode):
             tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
             data['tty'] = tty
         # For now, just find the alias based on the vendorId:productId value
-        id = f"{data['idVendor']}:{data['idProduct']}"
-        alias = alias_paths.get(id, dirpath)
-        super(UsbDeviceNodeData, self).__init__(tag, dirpath, data, config, alias, self.cls_order)
-        logger.info(f'USB node created id:{id} tag: {tag}')
+        node_id = f"usb({data['idVendor']}:{data['idProduct']})"
+        alias = alias_paths.get(node_id, dirpath)
+        super(UsbDeviceNodeData, self).__init__(tag, dirpath, node_id, data, config, alias, self.cls_order, verbose)
+        logger.info(f'USB node created id:{node_id} tag: {tag}')
 
 
 def key_by_node_data_key(node):
@@ -164,7 +176,7 @@ class DeviceConfigurations(object):
         self.device_map = device_map
 
 
-def print_tree(*, device_aliases_filepath, device_configurations_filepath):
+def print_tree(*, device_aliases_filepath, device_configurations_filepath, verbose, test):
     logger.info("Start print_tree")
     basepath = '/sys/devices/pci0000:00'
     device_paths = []
@@ -189,6 +201,9 @@ def print_tree(*, device_aliases_filepath, device_configurations_filepath):
     for node in nodes_to_create:
         logger.debug(node)
 
+    if test:
+        return
+
     alias_paths = astutus.usb.device_aliases.DeviceAliases(filepath=device_aliases_filepath)
     device_configurations = DeviceConfigurations(filepath=device_configurations_filepath)
 
@@ -209,12 +224,22 @@ def print_tree(*, device_aliases_filepath, device_configurations_filepath):
             device_config = device_configurations.find_usb_configuration(data)
             if device_config is not None:
                 node_data = UsbDeviceNodeData(
-                    tag=tag, dirpath=dirpath, data=data, config=device_config, alias_paths=alias_paths)
+                    tag=tag,
+                    dirpath=dirpath,
+                    data=data,
+                    config=device_config,
+                    alias_paths=alias_paths,
+                    verbose=verbose)
             else:
                 pci_data = PciDeviceNodeData.extract_data(tag, dirpath, filenames)
                 pci_config = {'color': 'cyan'}
                 node_data = PciDeviceNodeData(
-                    tag=tag, dirpath=dirpath, data=pci_data, config=pci_config, alias_paths=alias_paths)
+                    tag=tag,
+                    dirpath=dirpath,
+                    data=pci_data,
+                    config=pci_config,
+                    alias_paths=alias_paths,
+                    verbose=verbose)
             tree.create_node(
                 tag=tag,
                 identifier=dirpath,
@@ -229,7 +254,6 @@ def parse_args(raw_args):
     default_device_aliases_filepath = "~/.astutus/device_aliases.json"
     default_device_configurations_filepath = "~/.astutus/device_configurations.json"
     parser = argparse.ArgumentParser(
-        raw_args,
         description="Print out a tree of USB devices attached to computer. "
     )
     # Note:  For consistency with standard usage, help strings should be phrases
@@ -246,17 +270,35 @@ def parse_args(raw_args):
         dest="default_device_configurations_filepath",
         help=f"specify device configurations file - defaults to {default_device_configurations_filepath}")
 
-    args = parser.parse_args()
+    parser.add_argument(
+        "-v", "--verbose",
+        default=False,
+        dest="verbose",
+        action="store_true",
+        help="output the tree with additional information")
+
+    parser.add_argument(
+        "--test",
+        default=False,
+        dest="test",
+        action="store_true",
+        help="test the code, but create no output")
+
+    args = parser.parse_args(args=raw_args)
     return args
 
 
-def main():
-    args = parse_args(sys.argv[1:])
+def main(raw_args=None):
+    if raw_args is None:
+        raw_args = sys.argv[1:]
+    args = parse_args(raw_args)
     astutus.usb.tree.print_tree(
         device_aliases_filepath=args.device_aliases_filepath,
-        device_configurations_filepath=args.default_device_configurations_filepath
+        device_configurations_filepath=args.default_device_configurations_filepath,
+        verbose=args.verbose,
+        test=args.test,
     )
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
