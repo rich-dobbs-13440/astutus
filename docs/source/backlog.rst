@@ -3,7 +3,8 @@ Backlog
 
 Backlog:
 
-  * Task: Create the docstring for the DeviceAliases class.
+  * Task: Create a verbose mode for the astutus-usb-tree, to give user info necessary to
+    specify selectors for aliases.
   * Story: As a user, I can configure my own aliases for physical USB
     devices in the USB tree.
   * Story: As a developer, I can view documentation from RPi
@@ -19,6 +20,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2020-12-29 18:17 Task: Create the docstring for the DeviceAliases class.
 
     * |done| 2020-12-29 14:51 Task: Create an initial pass for module docstring for astutus.usb.tree
 
