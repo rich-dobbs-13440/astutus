@@ -10,8 +10,6 @@ able to efficiently reuse.
 Installing
 ----------
 
-This is aspirational at this time:
-
 Install and update using `pip`_:
 
 .. _pip: https://pip.pypa.io/en/stable/quickstart/

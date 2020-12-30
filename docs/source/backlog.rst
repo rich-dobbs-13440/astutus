@@ -3,7 +3,8 @@ Backlog
 
 Backlog:
 
-  * Task: Create the docstring for the DeviceAliases class.
+  * Task: Create a verbose mode for the astutus-usb-tree, to give user info necessary to
+    specify selectors for aliases.
   * Story: As a user, I can configure my own aliases for physical USB
     devices in the USB tree.
   * Story: As a developer, I can view documentation from RPi
@@ -11,7 +12,7 @@ Backlog:
   * Task: Get color sensor working on RPi.
   * Task: Write test with relays controlling lights and monitored by color sensor.
   * Story: Implement a USB print tree command for package.
-  * Epic: Get package available on PyPi
+  
   * Next Epic: Get repository good enough to be publically visible.
 
 .. |done| raw:: html
@@ -19,6 +20,11 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2020-12-29 19:13 Epic: Get package available on PyPi - double checked license and then 
+      just published it.  Manual twine upload from Wendy for now.
+
+    * |done| 2020-12-29 18:17 Task: Create the docstring for the DeviceAliases class.
 
     * |done| 2020-12-29 14:51 Task: Create an initial pass for module docstring for astutus.usb.tree
 
