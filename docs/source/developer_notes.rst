@@ -14,12 +14,12 @@ Developer Notes
 Plan:
 
 * Note: To control relays, need to be able to select them by topology it turns out.
-  Almost nothing that I'm interested in has a persistent unique identifier like a 
+  Almost nothing that I'm interested in has a persistent unique identifier like a
   serial number attached to it.
 
 * |done| Create USB utilities to understand how to USB and PCI work.
 
-* |done| Create a print_tree routine to visualize topology 
+* |done| Create a print_tree routine to visualize topology
 
 * |done| Factor out utilities to make it feasible to uniquely identify relays.
 
@@ -55,7 +55,7 @@ Found this searching the web:
 
     This is explained more here: https://askubuntu.com/a/39294
 
-TODO: 
+TODO:
 
     * Capture modified version of sudoers and document change.
 
@@ -81,9 +81,9 @@ Pytest
 
 pytest -s -p no:logging
 
-pytest -vv -s --log-cli-level=DEBUG --log-cli-format="%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)" --log-cli-date-format="%Y-%m-%d %H:%M:%S" 
+pytest -vv -s --log-cli-level=DEBUG --log-cli-format="%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)" --log-cli-date-format="%Y-%m-%d %H:%M:%S"
 
-Fix it up so path is full.  
+Fix it up so path is full.
 
 Olio
 ----
@@ -156,7 +156,7 @@ Serial Communication with USB Relay
   10
   (venv) rich@wendy:/sys/devices/pci0000:00/0000:00:07.0/0000:05:00.0/usb10$ cat devnum
   1
-  (venv) rich@wendy:/sys/devices/pci0000:00/0000:00:07.0/0000:05:00.0/usb10$ 
+  (venv) rich@wendy:/sys/devices/pci0000:00/0000:00:07.0/0000:05:00.0/usb10$
 
 
   (venv) rich@wendy:/sys/devices$ grep -r . -e "1a86" 2>/dev/null
@@ -183,7 +183,7 @@ What is stable, I think it the path:
 
 pci0000:00/0000:00:07.0/0000:05:00.0/usb10/10-1/10-1.2/10-1.2.2
 
-As long as the devices aren't physically moved, the path stays the same.  
+As long as the devices aren't physically moved, the path stays the same.
 
 
 .. code-block:: console
@@ -233,8 +233,8 @@ As long as the devices aren't physically moved, the path stays the same.
   Bus 010 Device 007: ID 046d:082c Logitech, Inc. HD Webcam C615
   Bus 010 Device 014: ID 1a86:7523 QinHeng Electronics HL-340 USB-Serial adapter
   Bus 010 Device 020: ID 0bda:8153 Realtek Semiconductor Corp. RTL8153 Gigabit Ethernet Adapter
-  Bus 010 Device 030: ID 14cd:125d Super Top 
-  Bus 010 Device 022: ID 0e6f:0232 Logic3 
+  Bus 010 Device 030: ID 14cd:125d Super Top
+  Bus 010 Device 022: ID 0e6f:0232 Logic3
   Bus 010 Device 031: ID 04e8:6860 Samsung Electronics Co., Ltd Galaxy series, misc. (MTP mode)
   Bus 010 Device 016: ID 05e3:0610 Genesys Logic, Inc. 4-port hub
   Bus 010 Device 003: ID 046d:c52f Logitech, Inc. Unifying Receiver
@@ -254,12 +254,12 @@ As long as the devices aren't physically moved, the path stays the same.
   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/try-astutus/astutus/packaging/dist/venv/lib/python3.8/site-packages/astutus/web/static/_docs/source/developer_notes.html'
 
 
-2020-12-27 21:44 Getting this error with DB:  
+2020-12-27 21:44 Getting this error with DB:
 
 .. code-block:: console
 
   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: raspberry_pi
-  [SQL: SELECT raspberry_pi.id AS raspberry_pi_id, raspberry_pi.mac_addr AS raspberry_pi_mac_addr, raspberry_pi.ipv4 AS raspberry_pi_ipv4 
+  [SQL: SELECT raspberry_pi.id AS raspberry_pi_id, raspberry_pi.mac_addr AS raspberry_pi_mac_addr, raspberry_pi.ipv4 AS raspberry_pi_ipv4
   FROM raspberry_pi]
   (Background on this error at: http://sqlalche.me/e/13/e3q8)
 
@@ -285,3 +285,17 @@ Defining Commands for Packages
 .. code-block:: console
 
   python3 -m astutus.usb.tree:main
+
+
+Different Selector Syntax Idea
+------------------------------
+
+pci(0x1002:0x5a1b)/pci(0x1b21:0x1042)/usb(1d6b:0002)/usb(05e3:0610)/usb(1a86:7523)
+
+Convert node to list
+
+Do a match based on that.
+
+Add a capability to astutus-usb-tree to list out paths for a selected node.
+
+Do it in JSON format, that can be plopped into aliases and then modified.

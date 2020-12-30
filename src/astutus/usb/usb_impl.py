@@ -119,8 +119,14 @@ def find_tty_description_from_pci_path(pci_path):
     return tty, busnum, devnum, vendorid, productid, description
 
 
-def extract_specified_data(tag, dirpath, filenames):
-    data = {'tag': tag}
+def extract_specified_data(dirpath, filenames):
+    logger.error(f"dirpath: {dirpath}")
+    parent_dirpath, dirname = dirpath.rsplit('/', 1)
+    data = {
+        'dirpath': dirpath,
+        'parent_dirpath': parent_dirpath,
+        'dirname': dirname,
+    }
     for filename in filenames:
         filepath = os.path.join(dirpath, filename)
         return_code, stdout, stderr = astutus.util.run_cmd(f"cat {filepath}")

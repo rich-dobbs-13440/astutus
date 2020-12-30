@@ -67,6 +67,7 @@ import os
 import re
 
 import astutus.usb.usb_impl
+import astutus.usb.node
 
 logger = logging.getLogger(__name__)
 
@@ -132,22 +133,13 @@ def matches_as_node(dirpath, ilk, vendor, device):
     return False
 
 
-def parse_value(value):
-    """ Given a value break it down by the ilk of node (usb or pci), the vendor, and the device or product."""
-    value_pattern = r'^(usb|pci)\(([^:]{4}):([^:]{4})\)$'
-    matches = re.match(value_pattern, value)
-    assert matches, value
-    ilk, vendor, device = matches.group(1), matches.group(2), matches.group(3)
-    return ilk, vendor, device
-
-
 def find_all_pci_paths(value):
     """ Find all that terminate with a node that matches the value.
 
     The value is something like usb(1a86:7523) or pci(0x1002:0x5a19)
     """
     logger.info(f"In find_all_pci_paths with value: {value}")
-    ilk, vendor, device = parse_value(value)
+    ilk, vendor, device = astutus.usb.node.parse_value(value)
     device_paths = []
     for dirpath, dirnames, filenames in os.walk('/sys/devices/pci0000:00'):
         if ilk == "usb" and "busnum" in filenames and "devnum" in filenames:
@@ -159,6 +151,29 @@ def find_all_pci_paths(value):
     return device_paths
 
 
+def find_node_paths(value):
+    node_paths = []
+    pci_paths = find_all_pci_paths(value)
+    logger.debug(f"pci_paths {pci_paths}")
+    for pci_path in pci_paths:
+        pci_path += '/'
+        logger.debug(f"pci_path {pci_path}")
+        idx = 0
+        node_ids = []
+        while True:
+            idx = pci_path.find('/', idx + 1)
+            if idx < 0:
+                break
+            dirpath = pci_path[:idx]
+            logger.debug(f"dirpath {dirpath}")
+            node_id = astutus.usb.node.node_id_for_dirpath(dirpath)
+            if node_id is not None:
+                node_ids.append(node_id)
+        node_paths.append("/".join(node_ids))
+    logger.debug(f"node_paths {node_paths}")
+    return node_paths
+
+
 def ancestor_passes(check, dirpath):
     """ Checks if any ancestor of a node matches the specified check. """
     logger.info(f"In ancestor_passes, with dirpath: {dirpath} and check {check}")
@@ -167,7 +182,7 @@ def ancestor_passes(check, dirpath):
     operator, value = check
     # Only implementing equality operator now.
     assert operator == "=="
-    ilk, vendor, device = parse_value(value)
+    ilk, vendor, device = astutus.usb.node.parse_value(value)
     logger.debug(f"dirpath: {dirpath}")
     a_dirpath, current = dirpath.rsplit('/', 1)
     while a_dirpath != '/sys/devices':
@@ -189,7 +204,7 @@ def child_passes(check, dirpath, skip_dirpaths=[]):
     operator, value = check
     # Only implementing equality operator now.
     assert operator == "=="
-    ilk, vendor, device = parse_value(value)
+    ilk, vendor, device = astutus.usb.node.parse_value(value)
     root, dirs, _ = next(os.walk(dirpath))
     for dir in dirs:
         subdirpath = os.path.join(root, dir)
@@ -211,7 +226,7 @@ def sibling_passes(check, dirpath):
     operator, value = check
     # Only implementing equality operator now.
     assert operator == "=="
-    ilk, vendor, device = parse_value(value)
+    ilk, vendor, device = astutus.usb.node.parse_value(value)
     parent_dirpath, current = dirpath.rsplit('/', 1)
     logger.debug(f"parent_dirpath: {parent_dirpath}")
     if child_passes(check, parent_dirpath, skip_dirpaths=[dirpath]):
@@ -307,45 +322,45 @@ class DeviceAliases:
             aliases[checks] = raw_aliases[selector]
         return aliases
 
-    def get(self, id, dirpath):
+    def get(self, nodepath):
         """ Get the alias of highest priority that matches the specified node.
 
         Note:  id is probably not needed, since dirpath should uniquely specify the
         node.  Opportunity for refactoring???
         """
-        filtered_aliases = []
-        # Filter on current check first of all, with an exact match required.
-        for checks in self.aliases.keys():
-            logger.debug(f"checks: {checks}")
-            if id == checks[1][1]:
-                # Only equality supported for current access
-                assert checks[1][0] == '=='
-                filtered_aliases.append((checks, self.aliases[checks]))
+        # filtered_aliases = []
+        # # Filter on current check first of all, with an exact match required.
+        # for checks in self.aliases.keys():
+        #     logger.debug(f"checks: {checks}")
+        #     if id == checks[1][1]:
+        #         # Only equality supported for current access
+        #         assert checks[1][0] == '=='
+        #         filtered_aliases.append((checks, self.aliases[checks]))
 
-        if len(filtered_aliases) > 0:
-            logger.debug(f"id: {id}")
-            logger.debug(f"tests: {len(filtered_aliases)}")
-            # Sort by priority, so that first passed test is the most desirable one.
+        # if len(filtered_aliases) > 0:
+        #     logger.debug(f"id: {id}")
+        #     logger.debug(f"tests: {len(filtered_aliases)}")
+        #     # Sort by priority, so that first passed test is the most desirable one.
 
-            def by_priority_key(item):
-                return item[1].get('priority', '00')
+        #     def by_priority_key(item):
+        #         return item[1].get('priority', '00')
 
-            # TODO:  Should just sort them initially, rather than redoing each time.
-            prioritized_aliases = sorted(filtered_aliases, key=by_priority_key, reverse=True)
+        #     # TODO:  Should just sort them initially, rather than redoing each time.
+        #     prioritized_aliases = sorted(filtered_aliases, key=by_priority_key, reverse=True)
 
-            for alias in prioritized_aliases:
-                checks, alias_value = alias
-                logger.debug(f"checks: {checks}")
-                logger.debug(f"alias_value: {alias_value}")
-                # Parent test already been applied, no need to retest now.
-                ancestor_check, _, child_check, sibling_check = checks
-                if not ancestor_passes(ancestor_check, dirpath):
-                    continue
-                if not child_passes(child_check, dirpath):
-                    continue
-                if not sibling_passes(sibling_check, dirpath):
-                    continue
-                return alias_value
+        #     for alias in prioritized_aliases:
+        #         checks, alias_value = alias
+        #         logger.debug(f"checks: {checks}")
+        #         logger.debug(f"alias_value: {alias_value}")
+        #         # Parent test already been applied, no need to retest now.
+        #         ancestor_check, _, child_check, sibling_check = checks
+        #         if not ancestor_passes(ancestor_check, dirpath):
+        #             continue
+        #         if not child_passes(child_check, dirpath):
+        #             continue
+        #         if not sibling_passes(sibling_check, dirpath):
+        #             continue
+        #         return alias_value
         return None
 
     def label(self, name):

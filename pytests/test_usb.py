@@ -3,6 +3,7 @@ import time
 import pathlib
 
 import astutus.usb
+import astutus.usb.device_aliases
 import pytest
 
 
@@ -115,6 +116,11 @@ def test_print_tree():
         verbose=True,
         test=False
     )
+
+
+def test_find_node_paths():
+    node_paths = astutus.usb.device_aliases.find_node_paths('usb(1a86:7523)')
+    logger.info(f"node_paths: {node_paths}")
 
 
 def test_parse_args():
