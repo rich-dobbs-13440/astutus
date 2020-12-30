@@ -31,7 +31,7 @@ package_data.append("usb/device_configurations.json")
 
 setuptools.setup(
     long_description=long_description,
-    long_description_content_type="text/rst",
+    long_description_content_type="text/x-rst",
     package_dir={'': "../src/"},
     packages=[
         'astutus',
