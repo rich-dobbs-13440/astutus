@@ -1,3 +1,66 @@
+"""
+
+Device aliases allow the USB device tree to identify a node with a
+label associated with the physical device.
+
+
+This module provides the capabilities to identify particular
+nodes for visualization as well as selection of nodes as
+needed for device control.
+
+The selectors implement here are influenced by XPath.
+
+Conceptually, the directory hierarch for sys/devices could
+be mapped into an XML document.  Then XPath could be directly
+applied to this.  This approach might be used in a second
+implementation of this system. But for know, the initial
+implementation will be driven by the needs to identify
+particular USB relays plugged into the current computer.
+
+To do this, four axes are considered:
+
+    * Current node axis
+    * Ancestor axis
+    * Child axis
+    * Sibling axis
+
+In looking at the tree there are two distinct ilk of nodes:
+
+    * PCI nodes identified by **vendor** and **device**
+    * USB noded identified by **idVendor** and **idProduct**
+
+The nodes are identified as:
+
+    * pci(*{vendor}*:*{device}*)
+    * usb(*{idVendor}*:*{idProduct}*)
+
+The axis checks are implemented using this pattern:
+
+    [ *{axis}* *{operator}* *{node}* ]
+
+A bare node is implicitly the current node axis and operator is implicitly
+equality.
+
+For ancestor, the equality operator means that some ancestor matches the equality
+operator and specified node value.
+
+For sibling or child, the equality operator means that some sibling or child
+matches the equality operator and node value.
+
+Here are some examples of validly formated selectors:
+
+    * usb(1a86:7523)
+    * [ancestor==usb(05e3:0610)]usb(1a86:7523)[sibling==usb(0bda:8153)]
+    * [ancestor==pci(0x1002:0x5a19)]usb(1a86:7523)[child=usb(0bda:8153)]
+    * [ancestor==pci(0x1002:0x5a19)]usb(1a86:7523)
+
+This module contains two key public features:
+
+    * The **find_pci_paths(selector)** function for use in automation.
+    * The **DeviceAliases** class used by the **astutus-usb-tree** command.
+
+
+"""
 import json
 import logging
 import os
@@ -9,7 +72,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_selector(selector):
-    # Parse the key into ancestor, current, and child axes:
+    """ Parse the selector into ancestor, current, sibling and child axes."""
     child_pattern = r'\[child(==|!=)([^\]]+)]'
     ancestor_pattern = r'\[ancestor(==|!=)([^\]]+)]'
     sibling_pattern = r'\[sibling(==|!=)([^\]]+)]'
@@ -70,6 +133,7 @@ def matches_as_node(dirpath, ilk, vendor, device):
 
 
 def parse_value(value):
+    """ Given a value break it down by the ilk of node (usb or pci), the vendor, and the device or product."""
     value_pattern = r'^(usb|pci)\(([^:]{4}):([^:]{4})\)$'
     matches = re.match(value_pattern, value)
     assert matches, value
@@ -78,6 +142,10 @@ def parse_value(value):
 
 
 def find_all_pci_paths(value):
+    """ Find all that terminate with a node that matches the value.
+
+    The value is something like usb(1a86:7523) or pci(0x1002:0x5a19)
+    """
     logger.info(f"In find_all_pci_paths with value: {value}")
     ilk, vendor, device = parse_value(value)
     device_paths = []
@@ -92,6 +160,7 @@ def find_all_pci_paths(value):
 
 
 def ancestor_passes(check, dirpath):
+    """ Checks if any ancestor of a node matches the specified check. """
     logger.info(f"In ancestor_passes, with dirpath: {dirpath} and check {check}")
     if check is None:
         return True
@@ -111,6 +180,7 @@ def ancestor_passes(check, dirpath):
 
 
 def child_passes(check, dirpath, skip_dirpaths=[]):
+    """ Checks if any immediate child of a node matches the specified check. """
     # skip_dirpaths is for sibling checks, to avoid having current
     # being considered a sibling of itself
     logger.info(f"In child_passes, with dirpath: {dirpath} and check {check}")
@@ -134,6 +204,7 @@ def child_passes(check, dirpath, skip_dirpaths=[]):
 
 
 def sibling_passes(check, dirpath):
+    """ Checks if any immediate sibling of a node matches the specified check. """
     logger.info(f"In sibling_passes, with dirpath: {dirpath} and check {check}")
     if check is None:
         return True
@@ -151,6 +222,7 @@ def sibling_passes(check, dirpath):
 
 
 def find_pci_paths(selector):
+    """ Find all paths in the sys/devices tree that matches a selector. """
     logger.info(f"In find_pci_paths with selector: {selector}")
     ancestor_check, current_check, child_check, sibling_check = parse_selector(selector)
     operator, value = current_check
@@ -169,6 +241,40 @@ def find_pci_paths(selector):
 
 
 class DeviceAliases:
+    """ The device aliases class provides a dictionary between selectors and aliases for a node.
+
+    The aliases should have the following attributes:
+
+        * "color"
+        * "label"
+        * "order"
+        * "priority"
+
+    Each of these attributes are string values.
+
+    Color should be as defined in astutus.util.term_color.py.
+
+    The order and priority values should be two character values, such as "44".
+
+    Aliases with higher priority are selected over other potential aliases
+    of lesser priority for a particular node.
+
+    Order is used in sorting the nodes in the USB tree for display.
+
+    Here is structure of the raw aliases file:
+
+    .. code-block:: json
+
+        {
+            "[ancestor==usb(05e3:0610)]usb(1a86:7523)[sibling==usb(0bda:8153)]": {
+                "color": "fushia",
+                "label": "SMAKIN Relay into TECKNET USB 2.0",
+                "order": "40",
+                "priority": 98
+            },
+        }
+
+    """
 
     def __init__(self, *, filepath):
         logger.info("Initializing AliasPaths")
@@ -202,6 +308,11 @@ class DeviceAliases:
         return aliases
 
     def get(self, id, dirpath):
+        """ Get the alias of highest priority that matches the specified node.
+
+        Note:  id is probably not needed, since dirpath should uniquely specify the
+        node.  Opportunity for refactoring???
+        """
         filtered_aliases = []
         # Filter on current check first of all, with an exact match required.
         for checks in self.aliases.keys():
@@ -238,6 +349,7 @@ class DeviceAliases:
         return None
 
     def label(self, name):
+        """ Returns a simple label for the specified name.  Only checks the current axis for equality."""
         for checks in self.aliases.keys():
             ancestor_check, current_check, child_check = checks
             current_check_value = current_check[1]

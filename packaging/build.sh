@@ -7,6 +7,8 @@ this_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "${this_dir}/utilities.sh"
 export REPOPATH=$( cd ${this_dir}/.. ; pwd )
 
+source "${this_dir}/clean.sh"
+
 mark_section "Start Building"
 
 if [ ! -d "${REPOPATH}/venv/bin/" ]; then

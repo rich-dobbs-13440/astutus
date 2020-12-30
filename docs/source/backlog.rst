@@ -3,7 +3,7 @@ Backlog
 
 Backlog:
 
-  * Task: Update for autodocs for all all modules.
+  * Task: Create the docstring for the DeviceAliases class.
   * Story: As a user, I can configure my own aliases for physical USB
     devices in the USB tree.
   * Story: As a developer, I can view documentation from RPi
@@ -19,6 +19,10 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2020-12-29 14:51 Task: Create an initial pass for module docstring for astutus.usb.tree
+
+    * |done| 2020-12-29 12:00 Task: Update for autodocs for all modules.
 
     * |done| 2020-12-29 09:16 Story: As a user, I can run a command to view the USB tree.
 
