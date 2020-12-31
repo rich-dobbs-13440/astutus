@@ -1,5 +1,5 @@
-Astutus
-=======
+Astutus Readme
+==============
 
 Astutus is a portofolio to demonstrate the range and depth of my
 python development skills.  It also serves as a useful codebase

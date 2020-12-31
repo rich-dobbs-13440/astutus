@@ -1,5 +1,5 @@
-astutus
-=======
+Modules in the **astutus** package
+==================================
 
 .. toctree::
    :maxdepth: 6

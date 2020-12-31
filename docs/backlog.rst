@@ -3,12 +3,14 @@ Backlog
 
 Backlog:
 
+  * Spike: Try to use Sphinx to generate a styled base for a Jinja2 template.
   * Task: Display USB tree in browser, to enable a better user interface for
     configuring aliases.  Command line + editing files to complicated and confusing!
   * Story: As a user, I can configure my own aliases for physical USB devices
     devices in the USB tree.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
+  * Task: Single source version number between code, package, and documentation.
   * Task: Get color sensor working on RPi.
   * Task: Write test with relays controlling lights and monitored by color sensor.
   * Story: Implement a USB print tree command for package.
