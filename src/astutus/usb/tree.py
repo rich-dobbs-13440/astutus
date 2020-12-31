@@ -109,8 +109,7 @@ def generate_alias_json_snippet(node_ids, tree_dirpaths, data_by_dirpath, device
 def assemble_tree(
         *,
         device_aliases,
-        device_configurations,
-        verbose=False):
+        device_configurations):
     logger.info("assemble_tree")
     basepath = '/sys/devices/pci0000:00'
 
@@ -150,23 +149,20 @@ def assemble_tree(
                 dirpath=dirpath,
                 data=data,
                 config=device_config,
-                alias=alias,
-                verbose=verbose)
+                alias=alias)
         elif ilk == 'pci':
             node_data = astutus.usb.node.PciDeviceNodeData(
                 dirpath=dirpath,
                 data=data,
                 config=device_config,
-                alias=alias,
-                verbose=verbose)
+                alias=alias)
         elif ilk == 'other':
             data['node_id'] = basepath
             node_data = astutus.usb.node.PciDeviceNodeData(
                 dirpath=dirpath,
                 data=data,
                 config=device_config,
-                alias=alias,
-                verbose=verbose)
+                alias=alias)
         if parent_dirpath == basepath:
             pass
         if parent_dirpath == rootpath:
@@ -239,12 +235,11 @@ def main(raw_args=None):
     aliases = astutus.usb.device_aliases.DeviceAliases(filepath=args.device_aliases_filepath)
     device_configurations = astutus.usb.device_configurations.DeviceConfigurations(
         filepath=args.default_device_configurations_filepath)
-
     tree, tree_dirpaths, data_by_dirpath, = assemble_tree(
         device_aliases=aliases,
         device_configurations=device_configurations,
-        verbose=args.verbose,
     )
+    astutus.usb.node.DeviceNode.verbose = args.verbose
     tree.show(data_property="colorized", key=key_by_node_data_key)
     if node_ids is not None:
         generate_alias_json_snippet(node_ids, tree_dirpaths, data_by_dirpath, device_configurations)

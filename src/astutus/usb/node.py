@@ -7,8 +7,11 @@ logger = logging.getLogger(__name__)
 
 
 class DeviceNode(object):
+    """ Base class for particular device nodes """
 
-    def __init__(self, dirpath, data, config, alias, cls_order, verbose):
+    verbose = False
+
+    def __init__(self, dirpath, data, config, alias, cls_order):
         self.dirpath = dirpath
         self.data = data
         self.node_color = 'pink'
@@ -19,7 +22,6 @@ class DeviceNode(object):
         else:
             self.order = self.alias['order']
         self.cls_order = cls_order
-        self.verbose = verbose
 
     def key(self):
         key_value = f"{self.cls_order} - {self.order} - {self.data['dirname']}"
@@ -65,11 +67,11 @@ class PciDeviceNodeData(DeviceNode):
         data['ilk'] = 'pci'
         return data
 
-    def __init__(self, *, dirpath, data, config, alias, verbose):
+    def __init__(self, *, dirpath, data, config, alias):
         # TODO:  "Use lspci to get description"
         data["description"] = data['node_id']
         # logger.debug(f'alias: {alias}')
-        super(PciDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order, verbose)
+        super(PciDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order)
 
 
 class UsbDeviceNodeData(DeviceNode):
@@ -88,7 +90,7 @@ class UsbDeviceNodeData(DeviceNode):
         logger
         return data
 
-    def __init__(self, *, dirpath, data, config, alias, verbose):
+    def __init__(self, *, dirpath, data, config, alias):
         busnum = int(data['busnum'])
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
@@ -96,7 +98,7 @@ class UsbDeviceNodeData(DeviceNode):
         if config.find_tty():
             tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
             data['tty'] = tty
-        super(UsbDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order, verbose)
+        super(UsbDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order)
 
 
 def node_id_for_dirpath(dirpath):
