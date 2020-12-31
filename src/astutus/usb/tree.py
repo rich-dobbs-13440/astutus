@@ -3,7 +3,6 @@ import json
 import logging
 import os
 import os.path
-import shutil
 import sys
 
 import astutus.log
@@ -19,73 +18,6 @@ logger = logging.getLogger(__name__)
 
 def key_by_node_data_key(node):
     return node.data.key()
-
-
-class DeviceConfigurations(object):
-
-    def __init__(self, filepath=None):
-        logger.info("Initializing device configurations")
-        self.device_map = None
-        self.read_from_json(filepath)
-        logger.info("Done initializing device configurations")
-
-    def find_configuration(self, data):
-        if data['ilk'] == 'usb':
-            return self.find_usb_configuration(data)
-        elif data['ilk'] == 'pci':
-            return {
-                "color": "cyan",
-                "description_template": None,
-                'name_of_config': 'Generic PCI',
-            }
-        else:
-            return {
-                "color": "cyan",
-                "description_template": None,
-                'name_of_config': 'Generic Other',
-            }
-
-    def find_usb_configuration(self, data):
-        if data.get('idVendor') is None:
-            return None
-        key = f"{data['idVendor']}:{data['idProduct']}"
-        characteristics = self.device_map.get(key)
-        if characteristics is None:
-            if data.get('busnum') and data.get('devnum'):
-                characteristics = {
-                    'name_of_config': 'Generic USB',
-                    'color': 'blue',
-                    'description_template': None,
-                }
-        return characteristics
-
-    def find_usb_configuration_for_node(self, node):
-        ilk, vendor, device = astutus.usb.node.parse_value(node)
-        assert ilk == "usb"
-        data = {
-            'idVendor': vendor,
-            'idProduct': device
-        }
-        return self.find_usb_configuration(data)
-
-    def write_as_json(self, filepath):
-        with open(filepath, 'w') as config_file:
-            json.dump(self.device_map, config_file, indent=4, sort_keys=True)
-
-    def read_from_json(self, filepath=None):
-        if filepath is None:
-            filepath = os.path.join(astutus.util.get_user_data_path(), 'device_configurations.json')
-            if not os.path.isfile(filepath):
-                # If the file doesn't exist in the user's data dir, copy the one default
-                # one from this directory into the user's data dir.  This will allow the
-                # user to customize it if necessary.
-                astutus.util.create_user_data_dir_if_needed()
-                logger.error(f"astutus.usb.__path__[0]: {astutus.usb.__path__[0]}")
-                source_path = os.path.join(astutus.usb.__path__[0], 'device_configurations.json')
-                shutil.copyfile(source_path, filepath)
-        with open(filepath, 'r') as config_file:
-            device_map = json.load(config_file)
-        self.device_map = device_map
 
 
 def walk_basepath_for_usb(basepath):
@@ -106,13 +38,14 @@ def find_tree_dirpaths(basepath, device_paths):
     tree_dirpaths = []
     dirpath_set = set()
     for device_path in device_paths:
+        slashed_device_path = device_path + "/"
         idx = len(basepath)
         while idx > 0:
-            dirpath = device_path[:idx]
+            dirpath = slashed_device_path[:idx]
             if dirpath not in dirpath_set:
                 tree_dirpaths.append(dirpath)
                 dirpath_set.add(dirpath)
-            idx = device_path.find("/", idx + 1)
+            idx = slashed_device_path.find("/", idx + 1)
     return tree_dirpaths
 
 
@@ -125,7 +58,8 @@ def find_data_for_paths(ilk_by_dirpath, dirpaths):
         elif ilk == 'pci':
             data = astutus.usb.node.PciDeviceNodeData.extract_data(dirpath)
         else:
-            data = {}
+            _, dirname = dirpath.rsplit("/", 1)
+            data = {'ilk': ilk, 'dirpath': dirpath, 'dirname': dirname}
         data_by_dirpath[dirpath] = data
     return data_by_dirpath
 
@@ -151,7 +85,7 @@ def print_tree(
         *,
         device_aliases_filepath,
         device_configurations_filepath,
-        generate_aliases_for_node_id=None,
+        node_id_to_generate_aliases=None,
         verbose=False):
     logger.info("Start print_tree")
     basepath = '/sys/devices/pci0000:00'
@@ -164,10 +98,12 @@ def print_tree(
         logger.debug(f"dirpath: {dirpath} ilk: {ilk_by_dirpath[dirpath]}")
 
     tree_dirpaths = find_tree_dirpaths(basepath, usb_device_dirpaths)
-    logger.info(f"Unique dirpaths: {len(tree_dirpaths)}")
+    logger.info(f"treepaths count: {len(tree_dirpaths)}")
+    logger.debug("show ilks for all tree path:")
     for dirpath in tree_dirpaths:
         logger.debug(f"dirpath: {dirpath} ilk: {ilk_by_dirpath[dirpath]}")
 
+    logger.debug("show data for all tree path:")
     data_by_dirpath = find_data_for_paths(ilk_by_dirpath, tree_dirpaths)
     for dirpath in tree_dirpaths:
         logger.debug(f"dirpath: {dirpath} data: {data_by_dirpath[dirpath]}")
@@ -177,7 +113,8 @@ def print_tree(
         logger.debug(f"dirpath: {dirpath} nodepath: {data_by_dirpath[dirpath]['nodepath']}")
 
     aliases = astutus.usb.device_aliases.DeviceAliases(filepath=device_aliases_filepath)
-    device_configurations = DeviceConfigurations(filepath=device_configurations_filepath)
+    device_configurations = astutus.usb.device_configurations.DeviceConfigurations(
+        filepath=device_configurations_filepath)
     tree = treelib.Tree()
     rootpath, tag = basepath.rsplit('/', 1)
     for dirpath in tree_dirpaths:
@@ -186,9 +123,8 @@ def print_tree(
         ilk = ilk_by_dirpath[dirpath]
         nodepath = data.get('nodepath')
         alias = aliases.get(nodepath)
-        alias = None
+        device_config = device_configurations.find_configuration(data)
         if ilk == 'usb':
-            device_config = device_configurations.find_usb_configuration(data)
             node_data = astutus.usb.node.UsbDeviceNodeData(
                 dirpath=dirpath,
                 data=data,
@@ -196,18 +132,14 @@ def print_tree(
                 alias=alias,
                 verbose=verbose)
         elif ilk == 'pci':
-            device_config = {'color': 'cyan'}
             node_data = astutus.usb.node.PciDeviceNodeData(
                 dirpath=dirpath,
                 data=data,
                 config=device_config,
                 alias=alias,
                 verbose=verbose)
-        else:
-            device_config = {'color': 'cyan'}
+        elif ilk == 'other':
             data['node_id'] = basepath
-            data['dirname'] = dirname
-            data['ilk'] = 'other'
             node_data = astutus.usb.node.PciDeviceNodeData(
                 dirpath=dirpath,
                 data=data,
@@ -234,37 +166,28 @@ def print_tree(
         config = device_configurations.find_configuration(data)
         nodepath = data.get('nodepath')
         if nodepath is not None:
-            value = alias_map.get(nodepath)
-            if value is None:
-                dirpaths = [dirpath]
-            else:
-                dirpaths = value['dirpaths']
-                dirpaths.append(dirpath)
-            alias_map[nodepath] = {
-                "color": config["color"],
-                "label": "label",
-                "description_template": config["description_template"],
-                "name_of_config": config["name_of_config"],
+            values = alias_map.get(nodepath)
+            if values is None:
+                values = []
+            values.append({
+                "color": config.get_color(),
+                "description_template": config.find_description_template(dirpath),
+                "name_of_config": config.get_name(),
                 "order": "00",
                 "priority": 50,
-                "dirpaths": dirpaths,
-            }
-    print(json.dumps(alias_map, indent=4, sort_keys=True))
+                "dirpath": dirpath,
+            })
+            alias_map[nodepath] = values
 
-    if generate_aliases_for_node_id is not None:
-        node_id = generate_aliases_for_node_id
-        config = device_configurations.find_usb_configuration_for_node(node_id)
-        node_paths = astutus.usb.device_aliases.find_node_paths(node_id)
+    # print(json.dumps(alias_map, indent=4, sort_keys=True))
 
-        for node_path in node_paths:
-            alias_map[node_path] = {
-                "color": config["color"],
-                "label": config["name_of_config"],
-                "order": "00",
-                "priority": 50,
-            }
-
-        print(json.dumps(alias_map, indent=4, sort_keys=True))
+    subset_alias_map = {}
+    if node_id_to_generate_aliases is not None:
+        node_id = node_id_to_generate_aliases
+        for nodepath in alias_map.keys():
+            if nodepath.endswith(node_id):
+                subset_alias_map[nodepath] = alias_map[nodepath]
+        print(json.dumps(subset_alias_map, indent=4, sort_keys=True))
 
 
 def parse_args(raw_args):
@@ -312,7 +235,7 @@ def main(raw_args=None):
     astutus.usb.tree.print_tree(
         device_aliases_filepath=args.device_aliases_filepath,
         device_configurations_filepath=args.default_device_configurations_filepath,
-        generate_aliases_for_node_id=args.node_id,
+        node_id_to_generate_aliases=args.node_id,
         verbose=args.verbose,
     )
 

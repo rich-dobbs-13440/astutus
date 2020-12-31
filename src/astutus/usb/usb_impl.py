@@ -120,7 +120,6 @@ def find_tty_description_from_pci_path(pci_path):
 
 
 def extract_specified_data(dirpath, filenames):
-    logger.error(f"dirpath: {dirpath}")
     parent_dirpath, dirname = dirpath.rsplit('/', 1)
     data = {
         'dirpath': dirpath,

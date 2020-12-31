@@ -107,8 +107,7 @@ def parse_selector(selector):
 
 
 def matches_as_usb_node(dirpath, vendor, product):
-    data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['idVendor', 'idProduct'])
-    data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['idVendor', 'idProduct'])
+    data = astutus.usb.usb_impl.extract_specified_data(dirpath, ['idVendor', 'idProduct'])
     if data.get('idVendor') == vendor and data.get('idProduct') == product:
         return True
     return False
@@ -276,7 +275,7 @@ class DeviceAliases:
 
     Order is used in sorting the nodes in the USB tree for display.
 
-    Here is structure of the raw aliases file:
+    Here is structure of the **old** raw aliases file:
 
     .. code-block:: json
 
@@ -316,10 +315,7 @@ class DeviceAliases:
 
     @staticmethod
     def parse_raw_aliases(raw_aliases):
-        aliases = {}
-        for selector in raw_aliases.keys():
-            checks = parse_selector(selector)
-            aliases[checks] = raw_aliases[selector]
+        aliases = raw_aliases
         return aliases
 
     def get(self, nodepath):
@@ -328,6 +324,12 @@ class DeviceAliases:
         Note:  id is probably not needed, since dirpath should uniquely specify the
         node.  Opportunity for refactoring???
         """
+        logger.error(self.aliases.keys())
+        value = self.aliases.get(nodepath)
+        if value is None:
+            return None
+        else:
+            return value[0]
         # filtered_aliases = []
         # # Filter on current check first of all, with an exact match required.
         # for checks in self.aliases.keys():

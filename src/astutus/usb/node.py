@@ -27,46 +27,17 @@ class DeviceNode(object):
         return key_value
 
     def get_description(self):
-        description_template = self.find_description_template()
-        description = description_template.format_map(self.data)
-        if description == "<built-in function id>":
-            logger.error(description_template)
-            logger.error(self.data)
-            raise AssertionError()
-        return description
-
-    def find_description_template(self):
-        # The config may directly have a simple template, or something that
-        # can select or generate a template.
-        template_thing = self.config.get('description_template')
-        if callable(template_thing):
-            template_generator = template_thing
-            description_template = template_generator(self.dirpath, self.data)
-        elif isinstance([], type(template_thing)):
-            # If it is a list, then currently it contain selectors.
-            for item in self.config['description_template']:
-                if item.get('test') == 'value_in_stdout':
-                    cmd = item.get('cmd')
-                    if cmd is None:
-                        raise ValueError('cmd must be given for test value_in_stdout')
-                    _, stdout, stderr = astutus.util.run_cmd(cmd, cwd=self.dirpath)
-                    if item.get('value') in stdout:
-                        description_template = item.get('description_template')
-                        break
-        else:
-            # If none of the above, the template thing is just a template.
-            description_template = template_thing
-        if description_template is None:
-            description_template = "{description}"
-        return description_template
+        return self.config.generate_description(self.dirpath, self.data)
 
     @property
     def colorized(self):
         if self.alias is None:
             label = self.get_description()
-            color = self.config['color']
+            color = self.config.get_color()
         else:
-            label = self.alias['label']
+            description_template = self.alias['description_template']
+            description = description_template.format_map(self.data)
+            label = description
             color = self.alias['color']
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
@@ -74,7 +45,8 @@ class DeviceNode(object):
         colored_label = f"{start(color)}{label}{end(color)}"
         if self.verbose:
             node_label = f"{start(self.node_color)}{self.data['node_id']}{end(self.node_color)}"
-            return f"{self.data['dirname']}  - {node_label} - {colored_label}"
+
+            return f"{self.data['dirname']}  - {node_label} - {self.config.get_name()}  - {colored_label}"
         return f"{self.data['dirname']} - {colored_label}"
 
 
@@ -121,14 +93,14 @@ class UsbDeviceNodeData(DeviceNode):
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
         data["description"] = description
-        if config.get('find_tty'):
+        if config.find_tty():
             tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
             data['tty'] = tty
         super(UsbDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order, verbose)
 
 
 def node_id_for_dirpath(dirpath):
-    data = UsbDeviceNodeData.extract_data('', dirpath)
+    data = UsbDeviceNodeData.extract_data(dirpath)
     if data.get("busnum") is not None:
         return UsbDeviceNodeData.node_id_from_data(data)
     data = PciDeviceNodeData.extract_data('', dirpath)
