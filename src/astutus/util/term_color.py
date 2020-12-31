@@ -1,12 +1,8 @@
 import colorama
 import logging
-# import astutus.log
 
 logger = logging.getLogger(__name__)
-# Which is better?
-logger.setLevel(logging.DEBUG)
-# logging.basicConfig(level=logging.DEBUG)
-# logger.setFormatter(astutus.log.standard_formatter)
+
 
 attribute_map = {
     'red': colorama.Fore.RED,

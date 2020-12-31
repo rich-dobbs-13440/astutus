@@ -324,46 +324,13 @@ class DeviceAliases:
         Note:  id is probably not needed, since dirpath should uniquely specify the
         node.  Opportunity for refactoring???
         """
-        logger.error(self.aliases.keys())
+        logger.debug(self.aliases.keys())
         value = self.aliases.get(nodepath)
         if value is None:
             return None
         else:
+            # TODO:  Prioritize based on value. Or is this no longer needed
             return value[0]
-        # filtered_aliases = []
-        # # Filter on current check first of all, with an exact match required.
-        # for checks in self.aliases.keys():
-        #     logger.debug(f"checks: {checks}")
-        #     if id == checks[1][1]:
-        #         # Only equality supported for current access
-        #         assert checks[1][0] == '=='
-        #         filtered_aliases.append((checks, self.aliases[checks]))
-
-        # if len(filtered_aliases) > 0:
-        #     logger.debug(f"id: {id}")
-        #     logger.debug(f"tests: {len(filtered_aliases)}")
-        #     # Sort by priority, so that first passed test is the most desirable one.
-
-        #     def by_priority_key(item):
-        #         return item[1].get('priority', '00')
-
-        #     # TODO:  Should just sort them initially, rather than redoing each time.
-        #     prioritized_aliases = sorted(filtered_aliases, key=by_priority_key, reverse=True)
-
-        #     for alias in prioritized_aliases:
-        #         checks, alias_value = alias
-        #         logger.debug(f"checks: {checks}")
-        #         logger.debug(f"alias_value: {alias_value}")
-        #         # Parent test already been applied, no need to retest now.
-        #         ancestor_check, _, child_check, sibling_check = checks
-        #         if not ancestor_passes(ancestor_check, dirpath):
-        #             continue
-        #         if not child_passes(child_check, dirpath):
-        #             continue
-        #         if not sibling_passes(sibling_check, dirpath):
-        #             continue
-        #         return alias_value
-        return None
 
     def label(self, name):
         """ Returns a simple label for the specified name.  Only checks the current axis for equality."""

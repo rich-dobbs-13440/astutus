@@ -5,7 +5,6 @@ import shutil
 
 import astutus.log
 
-logging.basicConfig(format=astutus.log.standard_format, level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
