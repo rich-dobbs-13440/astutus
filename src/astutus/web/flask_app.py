@@ -93,7 +93,14 @@ def handle_usb():
         basepath=None,
         device_aliases_filepath=None,
         to_dict=True)
-    return tree_dict
+    render_as_json = False
+    if render_as_json:
+        return tree_dict
+    static_base = "/static/_docs/_static"
+    return flask.render_template(
+        'transformed_dyn_usb.html',
+        static_base=static_base,
+        tree=tree_dict)
 
 
 def process_raspi_find_form(form):
