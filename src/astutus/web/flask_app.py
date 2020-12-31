@@ -27,6 +27,7 @@ import astutus.raspi
 import astutus.web.flask_app
 import astutus.db
 import astutus.log
+import astutus.usb
 import flask
 import flask.logging
 
@@ -77,11 +78,22 @@ def handle_astutus():
     links = {
         "astutus/doc/index.html",
         "astutus/raspi",
+        "astutus/usb"
     }
     return flask.render_template(
         'generic_rest_page.html',
         page_data=page_data,
         links=links)
+
+
+@app.route('/astutus/usb', methods=['GET'])
+def handle_usb():
+    """ app.route('/astutus/usb', methods=['GET']) """
+    tree_dict = astutus.usb.execute_tree_cmd(
+        basepath=None,
+        device_aliases_filepath=None,
+        to_dict=True)
+    return tree_dict
 
 
 def process_raspi_find_form(form):

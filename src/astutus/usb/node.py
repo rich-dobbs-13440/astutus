@@ -1,3 +1,4 @@
+import json
 import logging
 import re
 
@@ -6,7 +7,7 @@ import astutus.util
 logger = logging.getLogger(__name__)
 
 
-class DeviceNode(object):
+class DeviceNode(dict):
     """ Base class for particular device nodes """
 
     verbose = False
@@ -22,6 +23,7 @@ class DeviceNode(object):
         else:
             self.order = self.alias['order']
         self.cls_order = cls_order
+        super(DeviceNode, self).__init__(data)
 
     def key(self):
         key_value = f"{self.cls_order} - {self.order} - {self.data['dirname']}"
@@ -30,6 +32,9 @@ class DeviceNode(object):
 
     def get_description(self):
         return self.config.generate_description(self.dirpath, self.data)
+
+    def toJSON(self):
+        return json.dumps(self.data)
 
     @property
     def colorized(self):
@@ -73,6 +78,9 @@ class PciDeviceNodeData(DeviceNode):
         # logger.debug(f'alias: {alias}')
         super(PciDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order)
 
+    def toJSON(self):
+        return super(PciDeviceNodeData, self).toJSON()
+
 
 class UsbDeviceNodeData(DeviceNode):
 
@@ -95,10 +103,13 @@ class UsbDeviceNodeData(DeviceNode):
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
         data["description"] = description
-        if config.find_tty():
+        if config is not None and config.find_tty():
             tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
             data['tty'] = tty
         super(UsbDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order)
+
+    def toJson(self):
+        return json.dumps(self.data)
 
 
 def node_id_for_dirpath(dirpath):

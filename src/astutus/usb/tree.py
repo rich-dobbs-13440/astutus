@@ -14,6 +14,10 @@ import treelib
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_BASEPATH = "/sys/devices/pci0000:00"
+DEFAULT_DEVICE_ALIASES_FILEPATH = "~/.astutus/device_aliases.json"
+DEFAULT_DEVICE_CONFIGURATIONS_FILEPATH = "~/.astutus/device_configurations.json"
+
 
 def key_by_node_data_key(node):
     return node.data.key()
@@ -185,10 +189,54 @@ def assemble_tree(
     return tree, tree_dirpaths, data_by_dirpath
 
 
+def execute_tree_cmd(
+        *,
+        basepath,
+        device_aliases_filepath,
+        device_configurations_filepath=None,
+        verbose=False,
+        node_ids=[],
+        show_tree=False,
+        to_dict=False,
+        ):
+
+    if basepath is None:
+        basepath = DEFAULT_BASEPATH
+
+    aliases = astutus.usb.device_aliases.DeviceAliases(filepath=device_aliases_filepath)
+
+    device_configurations = astutus.usb.device_configurations.DeviceConfigurations(
+        filepath=device_configurations_filepath)
+
+    tree_dirpaths, data_by_dirpath, ilk_by_dirpath = extract_tree_data(basepath=basepath)
+
+    tree, tree_dirpaths, data_by_dirpath, = assemble_tree(
+        basepath=basepath,
+        tree_dirpaths=tree_dirpaths,
+        data_by_dirpath=data_by_dirpath,
+        ilk_by_dirpath=ilk_by_dirpath,
+        device_aliases=aliases,
+        device_configurations=device_configurations,
+    )
+    if show_tree:
+        astutus.usb.node.DeviceNode.verbose = verbose
+        tree.show(data_property="colorized", key=key_by_node_data_key)
+
+    if to_dict:
+        return tree.to_dict(with_data=True)
+
+    if len(node_ids) > 0:
+        generate_alias_json_snippet(
+            node_ids=node_ids,
+            tree_dirpaths=tree_dirpaths,
+            data_by_dirpath=data_by_dirpath,
+            device_configurations=device_configurations
+        )
+
+
 def parse_arguments(raw_args):
     # TODO:  Move this to astutus.util to avoid breaking DRY principle.
-    default_device_aliases_filepath = "~/.astutus/device_aliases.json"
-    default_device_configurations_filepath = "~/.astutus/device_configurations.json"
+
     parser = argparse.ArgumentParser(
         description="Output a tree of USB devices attached to computer. "
     )
@@ -225,21 +273,21 @@ def parse_arguments(raw_args):
         "-a", "--device-aliases",
         default=None,
         dest="device_aliases_filepath",
-        help=f"specify device aliases file - defaults to {default_device_aliases_filepath}")
+        help=f"specify device aliases file - defaults to {DEFAULT_DEVICE_ALIASES_FILEPATH}")
 
     # TODO: pull basepath from user data, so it can be configured one time.
     parser.add_argument(
         "-b", "--basepath",
-        default="/sys/devices/pci0000:00",
+        default=None,
         dest="basepath",
-        help='set the basepath for the PCI bus - defaults to "/sys/devices/pci0000:00"'
+        help=f'set the basepath for the PCI bus - defaults to "{DEFAULT_BASEPATH}"'
     )
 
     parser.add_argument(
         "-c", "--device-configurations",
         default=None,
         dest="device_configurations_filepath",
-        help=f"specify device configurations file - defaults to {default_device_configurations_filepath}")
+        help=f"specify device configurations file - defaults to {DEFAULT_DEVICE_CONFIGURATIONS_FILEPATH}")
 
     args = parser.parse_args(args=raw_args)
     return args
@@ -259,36 +307,9 @@ def main(raw_args=None):
         device_aliases_filepath=args.device_aliases_filepath,
         device_configurations_filepath=args.device_configurations_filepath,
         verbose=args.verbose,
-        node_ids=args.node_id_list)
-
-
-def execute_tree_cmd(*, basepath, device_aliases_filepath, device_configurations_filepath, verbose, node_ids):
-
-    aliases = astutus.usb.device_aliases.DeviceAliases(filepath=device_aliases_filepath)
-
-    device_configurations = astutus.usb.device_configurations.DeviceConfigurations(
-        filepath=device_configurations_filepath)
-
-    tree_dirpaths, data_by_dirpath, ilk_by_dirpath = extract_tree_data(basepath=basepath)
-
-    tree, tree_dirpaths, data_by_dirpath, = assemble_tree(
-        basepath=basepath,
-        tree_dirpaths=tree_dirpaths,
-        data_by_dirpath=data_by_dirpath,
-        ilk_by_dirpath=ilk_by_dirpath,
-        device_aliases=aliases,
-        device_configurations=device_configurations,
-    )
-
-    astutus.usb.node.DeviceNode.verbose = verbose
-    tree.show(data_property="colorized", key=key_by_node_data_key)
-
-    if len(node_ids) > 0:
-        generate_alias_json_snippet(
-            node_ids=node_ids,
-            tree_dirpaths=tree_dirpaths,
-            data_by_dirpath=data_by_dirpath,
-            device_configurations=device_configurations
+        node_ids=args.node_id_list,
+        show_tree=True,
+        to_dict=False,
         )
 
 
