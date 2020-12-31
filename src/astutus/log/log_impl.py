@@ -1,4 +1,5 @@
 import logging
 
+console_format = "File \"%(pathname)s:%(lineno)d\" : \n    %(asctime)s [%(levelname)8s] %(message)s"
 
-standard_formatter = logging.Formatter("%(asctime)s [%(levelname)8s] File \"%(pathname)s:%(lineno)d\" %(message)s")
+standard_formatter = logging.Formatter(console_format)

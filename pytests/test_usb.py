@@ -1,10 +1,11 @@
+import json
 import logging
-import time
 import pathlib
+import time
 
 import astutus.usb
+import astutus.usb.device_aliases
 import pytest
-
 
 logger = logging.getLogger(__name__)
 
@@ -49,31 +50,6 @@ def logger_info_pci_paths(pci_paths):
     logger.info(f"pci_paths: {indent}{lines}")
 
 
-def test_sibling_selector():
-    selector = 'usb(1a86:7523)[sibling==usb(0bda:8153)]'
-    pci_paths = astutus.usb.find_pci_paths(selector)
-    logger_info_pci_paths(pci_paths)
-    assert len(pci_paths) == 1
-
-
-def test_ancestor_selector():
-    selector = '[ancestor==usb(05e3:0610)]usb(1a86:7523)'
-    pci_paths = astutus.usb.find_pci_paths(selector)
-    if len(pci_paths) == 0:
-        msg = "No relays plugged into Genesys Logic, Inc. 4-port hubs found in system at this time"
-        logger.warning(msg)
-        logger.info("These hubs are used in various products such as ONN hubs and TECKNET USB Ethernet adapters.")
-        pytest.skip(msg)
-    logger_info_pci_paths(pci_paths)
-
-
-def test_ancestor_sibling_selector():
-    smakin_relay_in_tecknet_selector = '[ancestor==usb(05e3:0610)]usb(1a86:7523)[sibling==usb(0bda:8153)]'
-    pci_paths = astutus.usb.find_pci_paths(smakin_relay_in_tecknet_selector)
-    assert len(pci_paths) == 1
-    logger_info_pci_paths(pci_paths)
-
-
 def test_usb_relay():
     smakin_relay_in_tecknet_selector = '[ancestor==usb(05e3:0610)]usb(1a86:7523)[sibling==usb(0bda:8153)]'
     pci_paths = astutus.usb.find_pci_paths(smakin_relay_in_tecknet_selector)
@@ -112,7 +88,28 @@ def test_print_tree():
     astutus.usb.print_tree(
         device_aliases_filepath=device_aliases_filepath,
         device_configurations_filepath=None,
+        verbose=True,
+        test=False
     )
+
+
+def test_find_node_paths():
+    node_paths = astutus.usb.device_aliases.find_node_paths('usb(1a86:7523)')
+    logger.info(f"node_paths: {node_paths}")
+
+
+def test_parse_args():
+    raw_args = ['-a', 'Joe']
+    args = astutus.usb.tree.parse_args(raw_args)
+    assert args.device_aliases_filepath == "Joe"
+
+    raw_args = ['--verbose']
+    args = astutus.usb.tree.parse_args(raw_args)
+    assert args.verbose is True
+
+
+def test_tree_main():
+    astutus.usb.tree.main(["--test"])
 
 
 def test_device_configuration_write_to_file():
@@ -144,3 +141,13 @@ def test_device_aliases_write_raw_as_json():
     }
     # TODO: Write this to temporary directory
     astutus.usb.DeviceAliases.write_raw_as_json('device_aliases.json', sample_hardcoded_aliases)
+
+
+def test_usb_device_node_data_json_serializable():
+    # TODO:  Come up with a non-fragile way to test this.
+    node = astutus.usb.node.UsbDeviceNodeData(
+        dirpath="asfdfsda",
+        data={"idVendor": "Joe", "busnum": "04", "devnum": "02"},
+        config=None,
+        alias=None)
+    json.dumps(node)
