@@ -6,6 +6,8 @@ Collapsable Tree Display
 
 USB_TREE_DISPLAY_PLACEHOLDER
 
+<JINJ2_INCLUDE>usb_tree_display_section.html</JINJ2_INCLUDE>
+
 Device Configurations
 ---------------------
 

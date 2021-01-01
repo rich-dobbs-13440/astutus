@@ -115,7 +115,8 @@ with open(input_path, "r") as input_file:
 replacements = [
     ("../_static/", "{{ static_base }}/"),
     ("../index.html", "/astutus/doc/index.html"),
-    ("USB_TREE_DISPLAY_PLACEHOLDER", "{% include 'usb_tree_display_section.html' %}"),
+    ("<JINJ2_INCLUDE>", "{% include '"),
+    ("</JINJ2_INCLUDE>", "' %}"),
 ]
 
 for replacement in replacements:
