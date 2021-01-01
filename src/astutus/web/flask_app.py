@@ -100,7 +100,7 @@ def handle_usb():
     return flask.render_template(
         'transformed_dyn_usb.html',
         static_base=static_base,
-        tree=tree_dict)
+        tree=json.dumps(tree_dict))
 
 
 def process_raspi_find_form(form):

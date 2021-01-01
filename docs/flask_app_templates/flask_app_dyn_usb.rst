@@ -4,7 +4,7 @@ USB Tree
 Collapsable Tree Display
 -------------------------
 
-TREE_DISPLAY_PLACEHOLDER
+USB_TREE_DISPLAY_PLACEHOLDER
 
 Device Configurations
 ---------------------

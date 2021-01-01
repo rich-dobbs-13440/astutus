@@ -3,7 +3,7 @@ Backlog
 
 Backlog:
 
-  * Spike: Try to use Sphinx to generate a styled base for a Jinja2 template.
+  * Task: First pass at displaying USB device tree with Jinja2 template include.
   * Task: Display USB tree in browser, to enable a better user interface for
     configuring aliases.  Command line + editing files to complicated and confusing!
   * Story: As a user, I can configure my own aliases for physical USB devices
@@ -22,6 +22,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2020-12-31 19:30 Spike: Try to use Sphinx to generate a styled base for a Jinja2 template.
 
     * |done| 2020-12-30 20:13 Task: Create a verbose mode for the astutus-usb-tree, to give user info necessary to
       specify selectors for aliases.
