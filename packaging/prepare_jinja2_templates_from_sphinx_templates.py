@@ -48,6 +48,40 @@ def prepare_wy_menu_vertical(html_text):
     return "\n".join(output_lines)
 
 
+def prepare_breadcrumbs_navigation(html):
+    output_lines = []
+
+    # Create a closure to produce output
+    def add_to_output(line):
+        # Strip all whitespace from lines, since the sphinx generated pages are completely inconsistent.
+        # Probably should pretty print html at the end.
+        stripped_line = line.strip()
+        # print(f"stripped_line: {stripped_line}")
+        if stripped_line != "":
+            output_lines.append(stripped_line)
+
+    state = 'before'
+    for line in html_text.splitlines():
+        if state == 'before':
+            if '<div role="navigation" aria-label="breadcrumbs navigation">' in line:
+                state = 'in'
+            add_to_output(line)
+        elif state == 'in':
+            if '<ul class="wy-breadcrumbs">' in line:
+                add_to_output(line)
+                add_to_output('{{ breadcrumbs_list_items }}')
+            elif '/<ul>' in line:
+                add_to_output(line)
+            elif '<hr/>' in line:
+                add_to_output(line)
+            elif '</div>' in line:
+                add_to_output
+                state = 'after'
+        elif state == 'after':
+            add_to_output(line)
+    return "\n".join(output_lines)
+
+
 def apply_line_oriented_replacements(html_text):
     output_lines = []
 
@@ -65,6 +99,8 @@ def apply_line_oriented_replacements(html_text):
             pass  # Remove the next link and button
         elif 'rel="prev"' in line:
             pass  # Remove the previous link and button
+        elif 'View page source' in line:
+            pass
         else:
             add_to_output(line)
     return "\n".join(output_lines)
@@ -86,7 +122,7 @@ for replacement in replacements:
     html_text = html_text.replace(old, new)
 
 html_text = prepare_wy_menu_vertical(html_text)
-
+html_text = prepare_breadcrumbs_navigation(html_text)
 html_text = apply_line_oriented_replacements(html_text)
 
 # TODO: Pretty print the HTML

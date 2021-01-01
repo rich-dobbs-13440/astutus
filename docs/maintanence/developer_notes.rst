@@ -329,3 +329,19 @@ Preparing the side menu navigation
     </li>
     <li class="toctree-l1"><a class="reference internal" href="../source/modules.html">Modules in the <strong>astutus</strong> package</a></li>
     </ul>
+
+
+.. code-block::  html
+
+    <div role="navigation" aria-label="breadcrumbs navigation">
+    <ul class="wy-breadcrumbs">
+    <li><a href="/astutus/doc/index.html" class="icon icon-home"></a> &raquo;</li>
+    <li><a href="../maintanence/guidelines.html">Guidelines for Maintaining the System</a> &raquo;</li>
+    <li><a href="template_index.html">Flask Application Templates</a> &raquo;</li>
+    <li>USB Tree</li>
+    <li class="wy-breadcrumbs-aside">
+    <a href="../_sources/flask_app_templates/flask_app_dyn_usb.rst.txt" rel="nofollow"> View page source</a>
+    </li>
+    </ul>
+    <hr/>
+    </div>
