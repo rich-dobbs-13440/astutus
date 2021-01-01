@@ -96,11 +96,22 @@ def handle_usb():
     render_as_json = False
     if render_as_json:
         return tree_dict
+    tree_html = astutus.usb.execute_tree_cmd(
+        basepath=None,
+        device_aliases_filepath=None,
+        to_html=True)
     static_base = "/static/_docs/_static"
+    breadcrumbs_list_items = [
+        '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+        '<li><a href="/astutus">/astutus</a> &raquo;</li>'
+        '<li>/usb</li>',
+    ]
     return flask.render_template(
         'transformed_dyn_usb.html',
         static_base=static_base,
-        tree=json.dumps(tree_dict))
+        breadcrumbs_list_items="\n".join(breadcrumbs_list_items),
+        tree=json.dumps(tree_dict),
+        tree_html=tree_html)
 
 
 def process_raspi_find_form(form):

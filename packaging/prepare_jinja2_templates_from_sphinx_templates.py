@@ -69,7 +69,7 @@ def prepare_breadcrumbs_navigation(html):
         elif state == 'in':
             if '<ul class="wy-breadcrumbs">' in line:
                 add_to_output(line)
-                add_to_output('{{ breadcrumbs_list_items }}')
+                add_to_output('{{ breadcrumbs_list_items | safe }}')
             elif '/<ul>' in line:
                 add_to_output(line)
             elif '<hr/>' in line:
@@ -101,6 +101,14 @@ def apply_line_oriented_replacements(html_text):
             pass  # Remove the previous link and button
         elif 'View page source' in line:
             pass
+        elif '</head>' in line:
+            # Add additional head material
+            # Should this be hosted locally to avoid issues with Raspi not connected to internet?
+            cdn = '//cdnjs.cloudflare.com/ajax/libs'
+            add_to_output(f'<script src="{cdn}/jquery/3.1.1/jquery.min.js"></script>')
+            add_to_output(f'<link rel="stylesheet" href="{cdn}/jstree/3.3.8/themes/default/style.min.css" />')
+            add_to_output(f'<script src="{cdn}/jstree/3.3.8/jstree.min.js"></script>')
+            add_to_output(line)
         else:
             add_to_output(line)
     return "\n".join(output_lines)
@@ -115,8 +123,8 @@ with open(input_path, "r") as input_file:
 replacements = [
     ("../_static/", "{{ static_base }}/"),
     ("../index.html", "/astutus/doc/index.html"),
-    ("<JINJ2_INCLUDE>", "{% include '"),
-    ("</JINJ2_INCLUDE>", "' %}"),
+    ("START_JINJ2_INCLUDE ", "{% include '"),
+    (" END_JINJ2_INCLUDE", "' %}"),
 ]
 
 for replacement in replacements:

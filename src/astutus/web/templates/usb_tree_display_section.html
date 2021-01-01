@@ -1,3 +1,16 @@
-<div>
-<pre>{{ tree | tojson_pretty }}</pre>
+
+<!--
+<div class="tree_json">
+<pre>
+{{ tree | tojson_pretty }}
+</pre>
 </div>
+-->
+<div class="tree_html" id="tree_html_container_no">
+{{ tree_html | safe }}
+</div>
+<script>
+    $(function() {
+      $('#tree_html_container').jstree();
+    });
+</script>

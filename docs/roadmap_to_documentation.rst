@@ -69,7 +69,24 @@ Software Development Books:
     - The Java Programming Language, 2nd Edition, 1998
       Ken Arnold, James Gosling
 
+    - Scaling Software Agility: Best Practices for Large Enterprises, 2007,
+      Dean Leffingwell
+
+    - Agile Software Requirements Lean Requirements Practices for Teams Programs and the Enterprise,
+      Dean Leffingwell
+
+    - Object Oriented Design, 1991, Peter Coad and Ed Yourdon
+
+    - Object Oriented Analysis, 2nd Edition, 1990, Peter Coad and Ed Yourdon
+
+    - The Cathedral and the Bazaar: Musings on Linux and Open Source by an Accidental Revolutionary,
+      Eric S. Raymond (Did I read book, or only essay???)
+
     - Java 2 Certification
+
+    - Numerical Recipes Example Book (FORTRAN) 2nd Edition
+
+    - Programming Perl, 1991 (double check that this is book that I used!!!)
 
 Planning Books:
 
@@ -82,10 +99,10 @@ Planning Books:
     - The Blind Watchmaker: Why the Evidence of Evolution Reveals a Universe without Design
     - The Greatest Show on Earth: The Evidence for Evolution
     - The Drunkard's Walk - How Randomness Rules Our Livers, Leonard Mlodinow
-    - How We Decide, Jonah Lehrer
     - Guns, Germs, and Steel, Jared Diamond
     - Collapse: How Societies Choose to Fail or Succeed: Revised, Jared Diamond
     - The Long Tail, Chris Anderson
+    - How We Decide, Jonah Lehrer
     - The 7 Habits of Highly Effective People, Stephen R. Covey
     - Principle-Center Leadership, Stephen R. Covey
 

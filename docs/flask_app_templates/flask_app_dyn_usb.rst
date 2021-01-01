@@ -4,14 +4,12 @@ USB Tree
 Collapsable Tree Display
 -------------------------
 
-USB_TREE_DISPLAY_PLACEHOLDER
-
-<JINJ2_INCLUDE>usb_tree_display_section.html</JINJ2_INCLUDE>
+START_JINJ2_INCLUDE usb_tree_display_section.html END_JINJ2_INCLUDE
 
 Device Configurations
 ---------------------
 
-DEVICE_CONFIGURATIONS_PLACEHOLDER
+{{INCLUDE}} DEVICE_CONFIGURATIONS_PLACEHOLDER {{END_INCLUDE}}
 
 Device Aliases
 --------------

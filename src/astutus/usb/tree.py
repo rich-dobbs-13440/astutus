@@ -188,7 +188,52 @@ def assemble_tree(
             parent=parent,
             data=node_data)
 
-    return tree, tree_dirpaths, data_by_dirpath
+    return tree
+
+
+def traverse_element(element):
+    if isinstance(element, dict):
+        children = element.get("children")
+        if children is not None:
+            lines = []
+            lines.extend(traverse_element(children))
+            return lines
+        data = element.get("data")
+        if data is not None:
+            lines = []
+            # Data is a dictionary, but we want to display it as a table
+            lines.append("<table>")
+            for key, value in data.items():
+                lines.append(f"<tr><td>{key}</td><td>{value}</td></tr>")
+            lines.append("</table>")
+            return lines
+        lines = []
+        # lines.append("start_dict")
+        for key, value in element.items():
+            lines.append(f"key: {key}")
+            lines.extend(traverse_element(value))
+            lines.append(f"end_key: {key}")
+        # lines.append("end_dict")
+        return lines
+    elif isinstance(element, list):
+        lines = []
+        lines.append("<ul>")
+        for value in element:
+            lines.append("<li>")
+            # lines.append(f"list_element type: {type(value)}")
+            lines.extend(traverse_element(value))
+            lines.append("</li>")
+        lines.append("<ul>")
+        return lines
+    else:
+        return [f'Got to something unhandled {type(element)}']
+
+
+def traverse_tree_dict_to_html(tree_dict: dict) -> str:
+    lines = []
+    items = tree_dict
+    lines.extend(traverse_element(items))
+    return "\n".join(lines)
 
 
 def execute_tree_cmd(
@@ -200,6 +245,7 @@ def execute_tree_cmd(
         node_ids=[],
         show_tree=False,
         to_dict=False,
+        to_html=False,
         ):
 
     if basepath is None:
@@ -212,20 +258,25 @@ def execute_tree_cmd(
 
     tree_dirpaths, data_by_dirpath, ilk_by_dirpath = extract_tree_data(basepath=basepath)
 
-    tree, tree_dirpaths, data_by_dirpath, = assemble_tree(
-        basepath=basepath,
-        tree_dirpaths=tree_dirpaths,
-        data_by_dirpath=data_by_dirpath,
-        ilk_by_dirpath=ilk_by_dirpath,
-        device_aliases=aliases,
-        device_configurations=device_configurations,
-    )
-    if show_tree:
-        astutus.usb.node.DeviceNode.verbose = verbose
-        tree.show(data_property="colorized", key=key_by_node_data_key)
+    if show_tree or to_dict or to_html:
+        tree = assemble_tree(
+            basepath=basepath,
+            tree_dirpaths=tree_dirpaths,
+            data_by_dirpath=data_by_dirpath,
+            ilk_by_dirpath=ilk_by_dirpath,
+            device_aliases=aliases,
+            device_configurations=device_configurations,
+        )
+        if show_tree:
+            astutus.usb.node.DeviceNode.verbose = verbose
+            tree.show(data_property="colorized", key=key_by_node_data_key)
 
-    if to_dict:
-        return tree.to_dict(with_data=True)
+        if to_dict:
+            return tree.to_dict(with_data=True)
+
+        if to_html:
+            tree_dict = tree.to_dict(with_data=True)
+            return traverse_tree_dict_to_html(tree_dict)
 
     if len(node_ids) > 0:
         generate_alias_json_snippet(
