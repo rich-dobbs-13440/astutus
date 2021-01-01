@@ -101,15 +101,23 @@ def handle_usb():
         device_aliases_filepath=None,
         to_html=True)
     static_base = "/static/_docs/_static"
-    breadcrumbs_list_items = [
+    breadcrumbs_list = [
         '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
         '<li><a href="/astutus">/astutus</a> &raquo;</li>'
         '<li>/usb</li>',
     ]
+    breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+    wy_menu_vertical_list = [
+        '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
+        '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
+        '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
+    ]
+    wy_menu_vertical = "\n".join(wy_menu_vertical_list)
     return flask.render_template(
         'transformed_dyn_usb.html',
         static_base=static_base,
-        breadcrumbs_list_items="\n".join(breadcrumbs_list_items),
+        breadcrumbs_list_items=breadcrumbs_list_items,
+        wy_menu_vertical=wy_menu_vertical,
         tree=json.dumps(tree_dict),
         tree_html=tree_html)
 

@@ -41,7 +41,7 @@ def prepare_wy_menu_vertical(html_text):
             print(f"skipped line: {line}")
             if nesting <= 0:
                 state = "done_with_menu"
-                add_to_output("{{ wy_menu_vertical }}")
+                add_to_output("{{ wy_menu_vertical | safe }}")
                 add_to_output("</ul>")
         elif state == "done_with_menu":
             add_to_output(line)
