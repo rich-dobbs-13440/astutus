@@ -70,19 +70,45 @@ def handle_top():
 
 @app.route('/astutus')
 def handle_astutus():
+
     """ app.route('/astutus') """
-    page_data = {
-        'title': "Astutus",
-        'show_links_section': True,
-    }
-    links = {
-        "astutus/doc/index.html",
-        "astutus/raspi",
-        "astutus/usb"
-    }
+    old_style = False
+    if old_style:
+        page_data = {
+            'title': "Astutus",
+            'show_links_section': True,
+        }
+        links = {
+            "astutus/doc/index.html",
+            "astutus/raspi",
+            "astutus/usb"
+        }
+        return flask.render_template(
+            'generic_rest_page.html',
+            page_data=page_data,
+            links=links)
+    static_base = "/static/_docs/_static"
+    breadcrumbs_list = [
+        '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+        '<li>/astutus</li>',
+    ]
+    breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+    wy_menu_vertical_list = [
+        '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
+        '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
+        '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
+    ]
+    wy_menu_vertical = "\n".join(wy_menu_vertical_list)
+    links_list = [
+        '<li><p>See <a class="reference internal" href="/astutus/raspi"><span class="doc">Raspberry Pi</span></a></p></li>',  # noqa
+        '<li><p>See <a class="reference internal" href="/astutus/usb"><span class="doc">USB</span></a></p></li>',  # noqa
+    ]
+    links = "\n".join(links_list)
     return flask.render_template(
-        'generic_rest_page.html',
-        page_data=page_data,
+        'transformed_dyn_astutus.html',
+        static_base=static_base,
+        breadcrumbs_list_items=breadcrumbs_list_items,
+        wy_menu_vertical=wy_menu_vertical,
         links=links)
 
 

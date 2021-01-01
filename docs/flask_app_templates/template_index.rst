@@ -12,3 +12,4 @@ stored as templates to be used by the Flask application.
     :caption: Contents:
 
     flask_app_dyn_usb
+    flask_app_dyn_astutus

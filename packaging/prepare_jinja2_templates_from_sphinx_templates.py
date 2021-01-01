@@ -2,6 +2,7 @@
 
 # Since the Jinja2 templates may not be legal HTML5, this process will be based
 # on text manipulation, rather than DOM transformation or XSLT transformations.
+import re
 
 
 def prepare_wy_menu_vertical(html_text):
@@ -48,7 +49,7 @@ def prepare_wy_menu_vertical(html_text):
     return "\n".join(output_lines)
 
 
-def prepare_breadcrumbs_navigation(html):
+def prepare_breadcrumbs_navigation(html_text):
     output_lines = []
 
     # Create a closure to produce output
@@ -109,33 +110,68 @@ def apply_line_oriented_replacements(html_text):
             add_to_output(f'<link rel="stylesheet" href="{cdn}/jstree/3.3.8/themes/default/style.min.css" />')
             add_to_output(f'<script src="{cdn}/jstree/3.3.8/jstree.min.js"></script>')
             add_to_output(line)
+        elif '{{INCLUDE}}' in line:
+            pattern = r"{{INCLUDE}}\s*([\w,\.]+)\s*{{END_INCLUDE}}"
+            matches = re.search(pattern, line)
+            if not matches:
+                assert False, line
+            filename = matches.group(1)
+            add_to_output('{% include "' + filename + '" %}')
         else:
             add_to_output(line)
     return "\n".join(output_lines)
 
 
-input_path = "../docs/_build/html/flask_app_templates/flask_app_dyn_usb.html"
-output_path = "../src/astutus/web/templates/transformed_dyn_usb.html"
+def indent_html_text(html_text):
+    """ Attempts to indent html in a somewhat meaningful fashion.
 
-with open(input_path, "r") as input_file:
-    html_text = input_file.read()
+    Doesn't work perfectly, since Sphinx doesn't produce perfect HTML.
+    For example, there are no closing element for <meta> tags.
+    """
+    output_chunks = []
+    nesting = 0
+    indent = "  "
+    for line in html_text.splitlines():
+        if nesting > 0:
+            output_chunks.append(indent * nesting)
+        output_chunks.append(line)
+        output_chunks.append("\n")
+        nesting += line.count("<")
+        nesting -= line.count("</") * 2
+        nesting -= line.count("/>")
+    return "".join(output_chunks)
 
-replacements = [
-    ("../_static/", "{{ static_base }}/"),
-    ("../index.html", "/astutus/doc/index.html"),
-    ("START_JINJ2_INCLUDE ", "{% include '"),
-    (" END_JINJ2_INCLUDE", "' %}"),
+
+def process_dynamic_template(input_path, output_path):
+
+    with open(input_path, "r") as input_file:
+        html_text = input_file.read()
+
+    replacements = [
+        ("../_static/", "{{ static_base }}/"),
+        ("../index.html", "/astutus/doc/index.html"),
+    ]
+
+    for replacement in replacements:
+        old, new = replacement
+        html_text = html_text.replace(old, new)
+
+    html_text = prepare_wy_menu_vertical(html_text)
+    html_text = prepare_breadcrumbs_navigation(html_text)
+    html_text = apply_line_oriented_replacements(html_text)
+    html_text = indent_html_text(html_text)
+
+    # TODO: Pretty print the HTML
+    with open(output_path, "w") as output_file:
+        output_file.write(html_text)
+
+
+input_filenames = [
+    "flask_app_dyn_usb.html",
+    "flask_app_dyn_astutus.html",
 ]
-
-for replacement in replacements:
-    old, new = replacement
-    html_text = html_text.replace(old, new)
-
-html_text = prepare_wy_menu_vertical(html_text)
-html_text = prepare_breadcrumbs_navigation(html_text)
-html_text = apply_line_oriented_replacements(html_text)
-
-# TODO: Pretty print the HTML
-
-with open(output_path, "w") as output_file:
-    output_file.write(html_text)
+for input_filename in input_filenames:
+    input_path = f"../docs/_build/html/flask_app_templates/{input_filename}"
+    output_filename = input_filename.replace("flask_app_dyn", "transformed_dyn")
+    output_path = f"../src/astutus/web/templates/{output_filename}"
+    process_dynamic_template(input_path, output_path)
