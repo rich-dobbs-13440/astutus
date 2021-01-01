@@ -71,12 +71,15 @@ def prepare_breadcrumbs_navigation(html_text):
             if '<ul class="wy-breadcrumbs">' in line:
                 add_to_output(line)
                 add_to_output('{{ breadcrumbs_list_items | safe }}')
+                add_to_output('</ul>')
             elif '/<ul>' in line:
-                add_to_output(line)
+                pass
+                # add_to_output(line)
             elif '<hr/>' in line:
-                add_to_output(line)
+                # add_to_output(line)
+                pass
             elif '</div>' in line:
-                add_to_output
+                add_to_output(line)
                 state = 'after'
         elif state == 'after':
             add_to_output(line)
@@ -132,6 +135,8 @@ def indent_html_text(html_text):
     nesting = 0
     indent = "  "
     for line in html_text.splitlines():
+        if '<body' in line:
+            nesting = 1
         if nesting > 0:
             output_chunks.append(indent * nesting)
         output_chunks.append(line)
@@ -139,6 +144,8 @@ def indent_html_text(html_text):
         nesting += line.count("<")
         nesting -= line.count("</") * 2
         nesting -= line.count("/>")
+        if '<!DOCTYPE html>' in line:
+            nesting = 0
     return "".join(output_chunks)
 
 

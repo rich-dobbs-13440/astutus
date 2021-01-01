@@ -70,23 +70,7 @@ def handle_top():
 
 @app.route('/astutus')
 def handle_astutus():
-
     """ app.route('/astutus') """
-    old_style = False
-    if old_style:
-        page_data = {
-            'title': "Astutus",
-            'show_links_section': True,
-        }
-        links = {
-            "astutus/doc/index.html",
-            "astutus/raspi",
-            "astutus/usb"
-        }
-        return flask.render_template(
-            'generic_rest_page.html',
-            page_data=page_data,
-            links=links)
     static_base = "/static/_docs/_static"
     breadcrumbs_list = [
         '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',

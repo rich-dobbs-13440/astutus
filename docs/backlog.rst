@@ -3,7 +3,9 @@ Backlog
 
 Backlog:
 
-  * Task: Style /astutus page.
+  * Task: Style /astutus/raspi page.
+  * Task: Style /astutus/raspi/id page.
+  * Task: Style /astutus/raspi find page.
   * Task: Display USB tree in browser, to enable a better user interface for
     configuring aliases.  Command line + editing files to complicated and confusing!
   * Story: As a user, I can configure my own aliases for physical USB devices
@@ -22,6 +24,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2021-01-01 15:10 Task: Style /astutus page.
 
     * |done| 2021-01-01 11:22 Task: First pass at displaying USB device tree with Jinja2 template include.
 
