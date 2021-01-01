@@ -27,9 +27,11 @@ make html
 cd "${REPOPATH}"
 rm -rf src/astutus/web/static/_docs
 cp -r docs/_build/html src/astutus/web/static/_docs
-./packaging/prepare_jinja2_templates_from_sphinx_templates.py
+cd "$this_dir"
+./prepare_jinja2_templates_from_sphinx_templates.py
 
 mark_sub_section "Build Package"
+cd "${REPOPATH}"
 python -m pep517.build packaging/
 
 
