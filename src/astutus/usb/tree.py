@@ -191,6 +191,39 @@ def assemble_tree(
     return tree
 
 
+def formulate_data_as_table(data):
+    lines = []
+    # Data is a dictionary, but we want to display it as a table
+    lines.append("<table>")
+    sorted_keys = sorted([key for key in data.keys()])
+    for key in sorted_keys:
+        if key.startswith('terminal_colored_'):
+            # Skip these attributes because they are not needed for HTML.
+            continue
+        value = data[key]
+        lines.append(f"<tr><td>{key}</td><td>{value}</td></tr>")
+    lines.append("</table>")
+    return lines
+
+
+def formulate_data_consisely(data):
+    lines = []
+    lines.append("<ul>")
+    lines.append("<li>")
+    lines.append(data['dirname'])
+    lines.append("<ul>")
+    lines.append("<li>")
+    lines.append("<table>")
+    lines.append(data.get('node_id'))
+    lines.append(f"<tr><td>label</td><td>{data.get('label')}</td></tr>")
+    lines.append("</table>")
+    lines.append("</li>")
+    lines.append("</ul>")
+    lines.append("</li>")
+    lines.append("</ul>")
+    return lines
+
+
 def traverse_element(element):
     if isinstance(element, dict):
         children = element.get("children")
@@ -200,30 +233,21 @@ def traverse_element(element):
             return lines
         data = element.get("data")
         if data is not None:
-            lines = []
-            # Data is a dictionary, but we want to display it as a table
-            lines.append("<table>")
-            for key, value in data.items():
-                lines.append(f"<tr><td>{key}</td><td>{value}</td></tr>")
-            lines.append("</table>")
-            return lines
+            return formulate_data_as_table(data)
+            # return formulate_data_consisely(data)
         lines = []
-        # lines.append("start_dict")
         for key, value in element.items():
-            lines.append(f"key: {key}")
+            lines.append(key)
             lines.extend(traverse_element(value))
-            lines.append(f"end_key: {key}")
-        # lines.append("end_dict")
         return lines
     elif isinstance(element, list):
         lines = []
         lines.append("<ul>")
         for value in element:
             lines.append("<li>")
-            # lines.append(f"list_element type: {type(value)}")
             lines.extend(traverse_element(value))
             lines.append("</li>")
-        lines.append("<ul>")
+        lines.append("</ul>")
         return lines
     else:
         return [f'Got to something unhandled {type(element)}']
@@ -269,7 +293,7 @@ def execute_tree_cmd(
         )
         if show_tree:
             astutus.usb.node.DeviceNode.verbose = verbose
-            tree.show(data_property="colorized", key=key_by_node_data_key)
+            tree.show(data_property="colorized_node_label_for_terminal", key=key_by_node_data_key)
 
         if to_dict:
             return tree.to_dict(with_data=True)
@@ -299,7 +323,6 @@ def parse_arguments(raw_args):
     #        So it is probably best to list them in decreasing order of value to
     #        the end user for the important ones, and then alphabetically
     #        for rarely used options.
-
     parser.add_argument(
         "-v", "--verbose",
         default=False,
@@ -310,10 +333,9 @@ def parse_arguments(raw_args):
     example = ', for example --node-id "usb(1a86:7523)" "pci(0x1b21:0x1042)"'
     parser.add_argument(
         "-n", "--node-id",
-        nargs='+',  # So takes a list of arguments.  Does it need to be last?
+        nargs='+',  # Takes a list of arguments.  Does not need to be last.
         default="",
         dest="node_id_list",
-        # help='generated alias template(s) for a specified node ids, for example "usb(1a86:7523), pci(0x1b21:0x1042)"'
         help=f'generated alias template(s) for a specified node ids{example}')
 
     parser.add_argument(

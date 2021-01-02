@@ -1,4 +1,3 @@
-import json
 import logging
 import re
 
@@ -14,15 +13,32 @@ class DeviceNode(dict):
 
     def __init__(self, dirpath, data, config, alias, cls_order):
         self.dirpath = dirpath
-        self.data = data
+
         self.node_color = 'pink'
-        self.config = config
-        self.alias = alias
-        if self.alias is None:
+        if alias is None:
             self.order = '50'
         else:
-            self.order = self.alias['order']
+            self.order = alias['order']
         self.cls_order = cls_order
+        if alias is None:
+            label = config.generate_description(dirpath, data)
+            color = config.get_color()
+        else:
+            description_template = alias['description_template']
+            description = description_template.format_map(data)
+            label = description
+            color = alias['color']
+        data['label'] = label
+        data['color'] = color
+        ansi = astutus.util.AnsiSequenceStack()
+        start = ansi.push
+        end = ansi.end
+        colored_label = f"{start(color)}{label}{end(color)}"
+        data['terminal_colored_label'] = colored_label
+        data['terminal_colored_node_label_verbose'] = f"{start(self.node_color)}{data['node_id']}{end(self.node_color)}"
+        data['terminal_colored_node_label_concise'] = f"{data['dirname']} - {colored_label}"
+        self.data = data
+        # Inititialize super to support JSON serialization.
         super(DeviceNode, self).__init__(data)
 
     def key(self):
@@ -30,31 +46,11 @@ class DeviceNode(dict):
         logger.debug(f"key_value: {key_value}")
         return key_value
 
-    def get_description(self):
-        return self.config.generate_description(self.dirpath, self.data)
-
-    def toJSON(self):
-        return json.dumps(self.data)
-
     @property
-    def colorized(self):
-        if self.alias is None:
-            label = self.get_description()
-            color = self.config.get_color()
-        else:
-            description_template = self.alias['description_template']
-            description = description_template.format_map(self.data)
-            label = description
-            color = self.alias['color']
-        ansi = astutus.util.AnsiSequenceStack()
-        start = ansi.push
-        end = ansi.end
-        colored_label = f"{start(color)}{label}{end(color)}"
+    def colorized_node_label_for_terminal(self):
         if self.verbose:
-            node_label = f"{start(self.node_color)}{self.data['node_id']}{end(self.node_color)}"
-
-            return f"{self.data['dirname']}  - {node_label} - {self.config.get_name()}  - {colored_label}"
-        return f"{self.data['dirname']} - {colored_label}"
+            return self.data['terminal_colored_node_label_verbose']
+        return self.data['terminal_colored_node_label_concise']
 
 
 class PciDeviceNodeData(DeviceNode):
@@ -77,9 +73,6 @@ class PciDeviceNodeData(DeviceNode):
         data["description"] = data['node_id']
         # logger.debug(f'alias: {alias}')
         super(PciDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order)
-
-    def toJSON(self):
-        return super(PciDeviceNodeData, self).toJSON()
 
 
 class UsbDeviceNodeData(DeviceNode):
@@ -108,8 +101,8 @@ class UsbDeviceNodeData(DeviceNode):
             data['tty'] = tty
         super(UsbDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order)
 
-    def toJson(self):
-        return json.dumps(self.data)
+    # def toJson(self):
+    #     return json.dumps(self.data)
 
 
 def node_id_for_dirpath(dirpath):

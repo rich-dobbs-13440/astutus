@@ -15,8 +15,8 @@ processes the files.
     :maxdepth: 1
     :caption: Dynamic Templates:
 
-    flask_app_dyn_usb
     flask_app_dyn_astutus
+    flask_app_dyn_usb
     flask_app_dyn_raspi
     flask_app_dyn_raspi_find
     flask_app_dyn_raspi_item
