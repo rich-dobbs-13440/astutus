@@ -19,6 +19,7 @@ processes the files.
     flask_app_dyn_astutus
     flask_app_dyn_raspi
     flask_app_dyn_raspi_find
+    flask_app_dyn_raspi_item
 
 
 To create a new dynamic page, here are some steps that you'll need to do:
