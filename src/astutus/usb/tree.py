@@ -163,20 +163,17 @@ def assemble_tree(
         device_config = device_configurations.find_configuration(data)
         if ilk == 'usb':
             node_data = astutus.usb.node.UsbDeviceNodeData(
-                dirpath=dirpath,
                 data=data,
                 config=device_config,
                 alias=alias)
         elif ilk == 'pci':
             node_data = astutus.usb.node.PciDeviceNodeData(
-                dirpath=dirpath,
                 data=data,
                 config=device_config,
                 alias=alias)
         elif ilk == 'other':
             data['node_id'] = basepath
             node_data = astutus.usb.node.PciDeviceNodeData(
-                dirpath=dirpath,
                 data=data,
                 config=device_config,
                 alias=alias)
@@ -231,25 +228,28 @@ def formulate_data_consisely(data):
     return lines
 
 
+def make_button(data):
+    dirpath = data.get('dirpath')
+    idx = f"'{dirpath}'"
+    dirname = data['dirname']
+    return f'<button onclick="handle_tree_item_click({idx})" id="{dirpath}">{dirname}</button>'
+
+
 def traverse_element(element):
     if isinstance(element, dict):
+        data = element.get("data")
         children = element.get("children")
         if children is not None:
             lines = []
+            if data is not None:
+                lines.append(make_button(data))
             lines.extend(traverse_element(children))
             return lines
-        data = element.get("data")
         if data is not None:
             return formulate_data_as_table(data)
             # return formulate_data_consisely(data)
         lines = []
         for key, value in element.items():
-            dirpath = value.get('dirpath')
-            if dirpath is not None:
-                idx = f"'{dirpath}'"
-                lines.append(f'<button onclick="handle_tree_item_click({idx}) id="{dirpath}">{key}</button>')
-            else:
-                lines.append(key)
             lines.extend(traverse_element(value))
         return lines
     elif isinstance(element, list):
