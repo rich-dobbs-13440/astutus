@@ -176,6 +176,7 @@ def process_dynamic_template(input_path, output_path):
 input_filenames = [
     "flask_app_dyn_usb.html",
     "flask_app_dyn_astutus.html",
+    "flask_app_dyn_raspi.html",
 ]
 for input_filename in input_filenames:
     input_path = f"../docs/_build/html/flask_app_templates/{input_filename}"

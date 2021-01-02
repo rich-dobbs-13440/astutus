@@ -13,3 +13,4 @@ stored as templates to be used by the Flask application.
 
     flask_app_dyn_usb
     flask_app_dyn_astutus
+    flask_app_dyn_raspi

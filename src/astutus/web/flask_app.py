@@ -55,6 +55,13 @@ astutus.raspi.find.logger.addHandler(flask.logging.default_handler)
 astutus.raspi.raspi_impl.logger.addHandler(flask.logging.default_handler)
 logger.addHandler(flask.logging.default_handler)
 
+wy_menu_vertical_list = [
+    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
+    '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
+    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
+]
+wy_menu_vertical = "\n".join(wy_menu_vertical_list)
+
 
 @app.template_filter('tojson_pretty')
 def tojson_pretty_jinja2_template_file(json_text):
@@ -70,6 +77,7 @@ def handle_top():
 
 @app.route('/astutus')
 def handle_astutus():
+
     """ app.route('/astutus') """
     static_base = "/static/_docs/_static"
     breadcrumbs_list = [
@@ -77,12 +85,6 @@ def handle_astutus():
         '<li>/astutus</li>',
     ]
     breadcrumbs_list_items = "\n".join(breadcrumbs_list)
-    wy_menu_vertical_list = [
-        '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
-        '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
-        '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
-    ]
-    wy_menu_vertical = "\n".join(wy_menu_vertical_list)
     links_list = [
         '<li><p>See <a class="reference internal" href="/astutus/raspi"><span class="doc">Raspberry Pi</span></a></p></li>',  # noqa
         '<li><p>See <a class="reference internal" href="/astutus/usb"><span class="doc">USB</span></a></p></li>',  # noqa
@@ -117,12 +119,6 @@ def handle_usb():
         '<li>/usb</li>',
     ]
     breadcrumbs_list_items = "\n".join(breadcrumbs_list)
-    wy_menu_vertical_list = [
-        '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
-        '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
-        '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
-    ]
-    wy_menu_vertical = "\n".join(wy_menu_vertical_list)
     return flask.render_template(
         'transformed_dyn_usb.html',
         static_base=static_base,
@@ -150,17 +146,26 @@ def handle_raspi():
         if flask.request.args.get('find') is not None:
             return flask.render_template('raspi_find.html', search_result=None, filter=['Raspberry'])
         items = astutus.db.RaspberryPi.query.all()
-        page_data = {
-            'title': "Astutus/Raspberry Pi's",
-            'show_links_section': True,
-            "show_post_section": True,
-        }
-        links = [f"raspi/{item.id}" for item in items]
-        links.append('raspi?find=nmap')
+        # links.append('raspi?find=nmap')
+        links_list = []
+        for item in items:
+            link = f'<li><p>See <a class="reference internal" href="/astutus/raspi/{item.id}"><span class="doc">{item.id}</span></a></p></li>',  # noqa
+            link.append(link)
+        links = "\n".join(links_list)
+        static_base = "/static/_docs/_static"
+        breadcrumbs_list = [
+            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus">/astutus</a> &raquo;</li>'
+            '<li>/raspi</li>',
+        ]
+        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         return flask.render_template(
-            'generic_rest_page.html',
-            page_data=page_data,
+            'transformed_dyn_raspi.html',
+            static_base=static_base,
+            breadcrumbs_list_items=breadcrumbs_list_items,
+            wy_menu_vertical=wy_menu_vertical,
             links=links)
+
     if flask.request.method == 'POST':
         form = flask.request.form
         if form.get("action") == "seach_using_nmap":
