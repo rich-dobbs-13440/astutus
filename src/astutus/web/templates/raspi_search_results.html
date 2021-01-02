@@ -1,0 +1,14 @@
+{% if search_result is not none %}
+    <h2>Results</h2>
+    {% for section in search_result %}
+        <pre>
+{{ section.content }}
+        </pre>
+        <form method="POST">
+            <input id="raspi_ipvr" name="raspi_ipv4" type="text" value="{{ section.ipv4}}" />
+            <input id="raspi_mac_addr" name="raspi_mac_addr" type="text" value="{{ section.mac_addr}}" />
+            <input type="hidden" name="action" value="create" />
+            <input type="submit" value="Adopt"/>
+        </form>
+    {% endfor %}
+{%endif %}

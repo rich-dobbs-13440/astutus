@@ -2,6 +2,8 @@
 
 # Since the Jinja2 templates may not be legal HTML5, this process will be based
 # on text manipulation, rather than DOM transformation or XSLT transformations.
+import os
+import os.path
 import re
 
 
@@ -173,13 +175,14 @@ def process_dynamic_template(input_path, output_path):
         output_file.write(html_text)
 
 
-input_filenames = [
-    "flask_app_dyn_usb.html",
-    "flask_app_dyn_astutus.html",
-    "flask_app_dyn_raspi.html",
-]
-for input_filename in input_filenames:
-    input_path = f"../docs/_build/html/flask_app_templates/{input_filename}"
-    output_filename = input_filename.replace("flask_app_dyn", "transformed_dyn")
-    output_path = f"../src/astutus/web/templates/{output_filename}"
-    process_dynamic_template(input_path, output_path)
+for dirpath, dirnames, filenames in os.walk('../docs/_build/html/flask_app_templates'):
+    print(f"dirpath: {dirpath}")
+    # /flask_app_dyn*.html
+    for filename in filenames:
+        if filename.startswith("flask_app_dyn"):
+            input_path = os.path.join(dirpath, filename)
+            print(f"input_path: {input_path}")
+            output_filename = filename.replace("flask_app_dyn", "transformed_dyn")
+            output_path = os.path.join("../src/astutus/web/templates/", output_filename)
+            print(f"output_path: {output_path}")
+            process_dynamic_template(input_path, output_path)

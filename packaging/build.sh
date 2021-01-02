@@ -28,7 +28,8 @@ cd "${REPOPATH}"
 rm -rf src/astutus/web/static/_docs
 cp -r docs/_build/html src/astutus/web/static/_docs
 cd "$this_dir"
-./prepare_jinja2_templates_from_sphinx_templates.py
+./prepare_dyn_jinja2_templates.py
+
 
 mark_sub_section "Build Package"
 cd "${REPOPATH}"

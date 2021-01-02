@@ -74,10 +74,10 @@ def test_find_some_summary():
         print(f"device: {device}")
     print(f"Count of devices: {count}")
 
-        # print(f"manufacturer: {device.manufacturer}")
-        # print(f"product: {device.product}")
-        # print(f"serial_number: {device.serial_number}")
-        # print("===========================================")
+# print(f"manufacturer: {device.manufacturer}")
+# print(f"product: {device.product}")
+# print(f"serial_number: {device.serial_number}")
+# print("===========================================")
 
 # def test_usbpy():
 #     # find our device

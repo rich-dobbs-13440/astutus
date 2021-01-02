@@ -62,6 +62,8 @@ wy_menu_vertical_list = [
 ]
 wy_menu_vertical = "\n".join(wy_menu_vertical_list)
 
+static_base = "/static/_docs/_static"
+
 
 @app.template_filter('tojson_pretty')
 def tojson_pretty_jinja2_template_file(json_text):
@@ -79,7 +81,6 @@ def handle_top():
 def handle_astutus():
 
     """ app.route('/astutus') """
-    static_base = "/static/_docs/_static"
     breadcrumbs_list = [
         '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
         '<li>/astutus</li>',
@@ -112,10 +113,9 @@ def handle_usb():
         basepath=None,
         device_aliases_filepath=None,
         to_html=True)
-    static_base = "/static/_docs/_static"
     breadcrumbs_list = [
         '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-        '<li><a href="/astutus">/astutus</a> &raquo;</li>'
+        '<li><a href="/astutus">/astutus</a> &raquo;</li>',
         '<li>/usb</li>',
     ]
     breadcrumbs_list_items = "\n".join(breadcrumbs_list)
@@ -128,34 +128,54 @@ def handle_usb():
         tree_html=tree_html)
 
 
-def process_raspi_find_form(form):
-    ipv4 = form.get("ipv4")
+def process_raspi_search_using_nmap(args):
+    ipv4 = args.get("ipv4")
     logger.debug(f"ipv4: {ipv4}")
-    mask = flask.request.form.get("mask")
+    mask = args.get("mask")
     logger.debug(f"mask: {mask}")
-    filter = form.getlist("filter")
+    filter = args.getlist("filter")
     logger.debug(f"filter: {filter}")
     search_result = astutus.raspi.search_using_nmap(ipv4, mask, filter)
-    return flask.render_template('raspi_find.html', search_result=search_result, filter=filter)
+    # return flask.render_template('raspi_find.html', search_result=search_result, filter=filter)
+    return display_raspi_find(search_result=search_result)
+
+
+def display_raspi_find(*, search_result):
+    breadcrumbs_list = [
+        '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+        '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+        '<li><a href="/astutus/raspi">/raspi</a> &raquo;</li>',
+        '<li>find=nmap</li>',
+    ]
+    breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+    return flask.render_template(
+        'transformed_dyn_raspi_find.html',
+        static_base=static_base,
+        breadcrumbs_list_items=breadcrumbs_list_items,
+        wy_menu_vertical=wy_menu_vertical,
+        search_result=search_result)
 
 
 @app.route('/astutus/raspi', methods=['POST', 'GET'])
 def handle_raspi():
     """ app.route('/astutus/raspi', methods=['POST', 'GET']) """
     if flask.request.method == 'GET':
+        if flask.request.args.get("action") == "seach_using_nmap":
+            logger.error("Go to process_raspi_find_form")
+            return process_raspi_search_using_nmap(flask.request.args)
         if flask.request.args.get('find') is not None:
-            return flask.render_template('raspi_find.html', search_result=None, filter=['Raspberry'])
+            logger.error("Go to display_raspi_find")
+            return display_raspi_find(search_result=None)
+        logger.error("Just display base form")
         items = astutus.db.RaspberryPi.query.all()
-        # links.append('raspi?find=nmap')
         links_list = []
         for item in items:
             link = f'<li><p>See <a class="reference internal" href="/astutus/raspi/{item.id}"><span class="doc">{item.id}</span></a></p></li>',  # noqa
             link.append(link)
         links = "\n".join(links_list)
-        static_base = "/static/_docs/_static"
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus">/astutus</a> &raquo;</li>'
+            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
             '<li>/raspi</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
@@ -168,8 +188,8 @@ def handle_raspi():
 
     if flask.request.method == 'POST':
         form = flask.request.form
-        if form.get("action") == "seach_using_nmap":
-            return process_raspi_find_form(form)
+        # if form.get("action") == "seach_using_nmap":
+        #     return process_raspi_find_form(form)
         if form.get("action") == "create":
             raspi_ipv4 = form.get("raspi_ipv4")
             raspi_mac_addr = form.get("raspi_mac_addr")

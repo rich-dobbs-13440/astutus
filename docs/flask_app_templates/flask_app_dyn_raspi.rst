@@ -11,4 +11,4 @@ Use these links to work with Raspberry Pi's from the browser:
 Search for Raspberry Pi's
 -------------------------
 
-{{INCLUDE}} raspi_search_form.html {{END_INCLUDE}}
+{{INCLUDE}} raspi_nmap_search_form.html {{END_INCLUDE}}
