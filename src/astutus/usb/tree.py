@@ -60,11 +60,14 @@ def find_data_for_paths(ilk_by_dirpath, dirpaths):
         ilk = ilk_by_dirpath[dirpath]
         if ilk == 'usb':
             data = astutus.usb.node.UsbDeviceNodeData.extract_data(dirpath)
+            assert data.get('dirpath') is not None, data
         elif ilk == 'pci':
             data = astutus.usb.node.PciDeviceNodeData.extract_data(dirpath)
+            assert data.get('dirpath') is not None, data
         else:
             _, dirname = dirpath.rsplit("/", 1)
             data = {'ilk': ilk, 'dirpath': dirpath, 'dirname': dirname}
+            assert data.get('dirpath') is not None, data
         data_by_dirpath[dirpath] = data
     return data_by_dirpath
 
@@ -152,6 +155,7 @@ def assemble_tree(
     rootpath, tag = basepath.rsplit('/', 1)
     for dirpath in tree_dirpaths:
         data = data_by_dirpath[dirpath]
+        assert dirpath == data['dirpath']
         parent_dirpath, dirname = dirpath.rsplit('/', 1)
         ilk = ilk_by_dirpath[dirpath]
         nodepath = data.get('nodepath')
@@ -194,6 +198,9 @@ def assemble_tree(
 def formulate_data_as_table(data):
     lines = []
     # Data is a dictionary, but we want to display it as a table
+    dirpath = data.get('dirpath')
+    idx = f"'{dirpath}'"
+    lines.append(f'<button onclick="handle_tree_item_click({idx})" id="{dirpath}">{data["dirname"]}</button>')
     lines.append("<table>")
     sorted_keys = sorted([key for key in data.keys()])
     for key in sorted_keys:
@@ -237,7 +244,12 @@ def traverse_element(element):
             # return formulate_data_consisely(data)
         lines = []
         for key, value in element.items():
-            lines.append(key)
+            dirpath = value.get('dirpath')
+            if dirpath is not None:
+                idx = f"'{dirpath}'"
+                lines.append(f'<button onclick="handle_tree_item_click({idx}) id="{dirpath}">{key}</button>')
+            else:
+                lines.append(key)
             lines.extend(traverse_element(value))
         return lines
     elif isinstance(element, list):

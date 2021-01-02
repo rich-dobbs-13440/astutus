@@ -11,8 +11,22 @@ class DeviceNode(dict):
 
     verbose = False
 
-    def __init__(self, dirpath, data, config, alias, cls_order):
-        self.dirpath = dirpath
+    def __init__(self, data, config, alias, cls_order):
+        dirpath = data['dirpath']
+        data['config_description'] = config.generate_description(dirpath, data)
+        data['config_color'] = config.get_color()
+        if alias is not None:
+            description_template = alias['description_template']
+            description = description_template.format_map(data)
+            data['alias_description'] = description
+            data['alias_color'] = alias['color']
+            data['description'] = data['alias_description']
+            data['color'] = data['alias_color']
+        else:
+            data['alias_description'] = ''
+            data['alias_color'] = ''
+            data['description'] = data['config_description']
+            data['color'] = data['config_color']
 
         self.node_color = 'pink'
         if alias is None:
@@ -20,23 +34,17 @@ class DeviceNode(dict):
         else:
             self.order = alias['order']
         self.cls_order = cls_order
-        if alias is None:
-            label = config.generate_description(dirpath, data)
-            color = config.get_color()
-        else:
-            description_template = alias['description_template']
-            description = description_template.format_map(data)
-            label = description
-            color = alias['color']
-        data['label'] = label
-        data['color'] = color
+
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
-        colored_label = f"{start(color)}{label}{end(color)}"
-        data['terminal_colored_label'] = colored_label
-        data['terminal_colored_node_label_verbose'] = f"{start(self.node_color)}{data['node_id']}{end(self.node_color)}"
-        data['terminal_colored_node_label_concise'] = f"{data['dirname']} - {colored_label}"
+        color = data['color']
+        colored_description = f"{start(color)}{data['description'] }{end(color)}"
+        data['terminal_colored_description'] = colored_description
+        data['terminal_colored_node_label_concise'] = f"{data['dirname']} - {colored_description}"
+        colored_node_id = f"{start(self.node_color)}{data['node_id']}{end(self.node_color)}"
+        data['terminal_colored_node_label_verbose'] = f"{data['dirname']} - {colored_node_id} - {colored_description}"
+
         self.data = data
         # Inititialize super to support JSON serialization.
         super(DeviceNode, self).__init__(data)
@@ -70,9 +78,10 @@ class PciDeviceNodeData(DeviceNode):
 
     def __init__(self, *, dirpath, data, config, alias):
         # TODO:  "Use lspci to get description"
+        assert dirpath == data['dirpath']
         data["description"] = data['node_id']
         # logger.debug(f'alias: {alias}')
-        super(PciDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order)
+        super(PciDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
 
 
 class UsbDeviceNodeData(DeviceNode):
@@ -92,6 +101,7 @@ class UsbDeviceNodeData(DeviceNode):
         return data
 
     def __init__(self, *, dirpath, data, config, alias):
+        assert dirpath == data['dirpath']
         busnum = int(data['busnum'])
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
@@ -99,10 +109,7 @@ class UsbDeviceNodeData(DeviceNode):
         if config is not None and config.find_tty():
             tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
             data['tty'] = tty
-        super(UsbDeviceNodeData, self).__init__(dirpath, data, config, alias, self.cls_order)
-
-    # def toJson(self):
-    #     return json.dumps(self.data)
+        super(UsbDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
 
 
 def node_id_for_dirpath(dirpath):

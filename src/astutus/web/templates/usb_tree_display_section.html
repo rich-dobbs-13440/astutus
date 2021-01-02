@@ -1,16 +1,15 @@
 
-<!--
-<div class="tree_json">
-<pre>
-{{ tree | tojson_pretty }}
-</pre>
-</div>
--->
+
+<script>
+function handle_tree_item_click(idx) {
+  window.alert("You clicked me! dirpath: " + idx);
+}
+</script>
 <div class="tree_html" id="tree_html_container_no">
 {{ tree_html | safe }}
 </div>
 <script>
-    $(function() {
-      $('#tree_html_container').jstree();
-    });
+  $(function() {
+    $('#tree_html_container').jstree();
+  });
 </script>
