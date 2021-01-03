@@ -3,10 +3,10 @@ Backlog
 
 Backlog:
 
+  * Task: Implement Cancel function for add alias form.
   * Task: Style /astutus/raspi page.
   * Task: Handle error cases more elegantly.
-  * Task: Display USB tree in browser, to enable a better user interface for
-    configuring aliases.  Command line + editing files to complicated and confusing!
+
   * Story: As a user, I can configure my own aliases for physical USB devices
     devices in the USB tree.
   * Story: As a developer, I can view documentation from RPi
@@ -23,6 +23,9 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2021-01-03 01:56 Task: Display USB tree in browser, to enable a better user interface for
+      configuring aliases.  Command line + editing files too complicated and confusing!
 
     * |done| 2021-01-01 23:49 Task: Style /astutus/raspi/item page.
 

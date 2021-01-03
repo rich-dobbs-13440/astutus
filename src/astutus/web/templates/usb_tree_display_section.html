@@ -49,7 +49,9 @@
       <select name="color_select" id="color_select" >
         <option value="blue">Blue</option>
         <option value="cyan">Cyan</option>
-        <option value="purple">Pink</option>
+        <option value="green">Green</option>
+        <option value="magenta">Magenta</option>
+        <option value="pink">Pink</option>
         <option value="purple">Purple</option>
         <option value="yellow">Yellow</option>
       </select>
@@ -57,20 +59,56 @@
     <input name="action" id="action" type="hidden" value="add_alias" />
     <div id="add_alias_form_button_div">
       <input type="submit" value="Add" id="add_alias_form_add_button" />
-      <input type="submit" value="Cancel"/>
+      <input type="button" value="Cancel" onclick="handle_add_alias_form_cancel()"/>
     </div>
   </form>
 </div>
 <script>
   function handle_tree_item_click(data) {
-    // window.alert(data["alias_color"]);
-    var buttonId = "#" + data["idx"];
-    var buttonOffset = $(buttonId).offset();
-    window.alert(buttonOffset.top);
-    $("#add_alias_form").css("top", buttonOffset.top + 100);
-    $("#add_alias_form").css("left", buttonOffset.left + 100);
-    $("#add_alias_form").show();
+    var container = $("#add_alias_form")
+
+    var nodeButton = $("#" + data["idx"])
+
+    var buttonOffset = nodeButton.offset();
+    // window.alert(buttonOffset.top);
+    container.css("top", buttonOffset.top + 30);
+    container.css("left", buttonOffset.left + 30);
+    container.show();
+
     $("#nodepath").val(data["nodepath"]);
     $("#template").val(data["alias_description_template"]);
+    var color = data["alias_color"];
+    if (color != "") {
+      $("#color_select").val(color);
+    }
+    if (!isElementInViewport(container)) {
+      // Form will be below button
+      console.log("Scrolling element into view.")
+      var domDivElement = container[0];
+      domDivElement.scrollIntoView(false);
+    }
   }
+
+  function handle_add_alias_form_cancel() {
+    $("#add_alias_form").hide();
+  }
+
+  function isElementInViewport (el) {
+
+    // Special bonus for those using jQuery
+    if (typeof jQuery === "function" && el instanceof jQuery) {
+        el = el[0];
+    }
+
+    var rect = el.getBoundingClientRect();
+
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* or $(window).width() */
+    );
+  }
+
+
 </script>
