@@ -113,6 +113,8 @@ def handle_usb():
         basepath=None,
         device_aliases_filepath=None,
         to_html=True)
+    device_configurations = astutus.usb.DeviceConfigurations()
+    aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
     breadcrumbs_list = [
         '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
         '<li><a href="/astutus">/astutus</a> &raquo;</li>',
@@ -125,7 +127,9 @@ def handle_usb():
         breadcrumbs_list_items=breadcrumbs_list_items,
         wy_menu_vertical=wy_menu_vertical,
         tree=json.dumps(tree_dict),
-        tree_html=tree_html)
+        tree_html=tree_html,
+        device_configurations=device_configurations,
+        aliases=aliases)
 
 
 def process_raspi_search_using_nmap(args):

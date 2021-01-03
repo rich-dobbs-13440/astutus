@@ -1,12 +1,5 @@
 
- <pre>
-{{ tree | tojson_pretty }}
-</pre>
-<script>
-function handle_tree_item_click(idx) {
-  window.alert("You clicked me! dirpath: " + idx);
-}
-</script>
+
 <div class="tree_html" id="tree_html_container_no">
 {{ tree_html | safe }}
 </div>
@@ -14,4 +7,70 @@ function handle_tree_item_click(idx) {
   $(function() {
     $('#tree_html_container').jstree();
   });
+</script>
+<style>
+  #add_alias_form {
+    background-color: rgb(212, 229, 241);
+    padding: 3ch;
+    display: none;
+    position: absolute;
+    left: 200px;
+    top: 150px;
+    width: 700px;
+    height: 330px;
+    z-index: 11000;
+
+  }
+  /* #add_alias_form.form.p {
+    padding-bottom: 1ch;
+  } */
+  #nodepath {
+    width: 100%;
+  }
+  #template {
+    width: 100%;
+  }
+  #add_alias_form_button_div {
+    padding-top: 1ch;
+  }
+</style>
+<div id="add_alias_form" name=>
+  <form>
+    <p>
+      <label for="nodepath">Node path:</label>
+      <input name="nodepath" id="nodepath" type="text" value="need to populated ..." />
+    </p>
+    <p>
+      <label for="template">Template:</label>
+      <input name="template" id="template" type="text" value="need to populated ..." />
+    </p>
+    <p>
+      <label for="color_select">Choose a color:</label>
+      <select name="color_select" id="color_select" >
+        <option value="blue">Blue</option>
+        <option value="cyan">Cyan</option>
+        <option value="purple">Pink</option>
+        <option value="purple">Purple</option>
+        <option value="yellow">Yellow</option>
+      </select>
+    </p>
+    <input name="action" id="action" type="hidden" value="add_alias" />
+    <div id="add_alias_form_button_div">
+      <input type="submit" value="Add" id="add_alias_form_add_button" />
+      <input type="submit" value="Cancel"/>
+    </div>
+  </form>
+</div>
+<script>
+  function handle_tree_item_click(data) {
+    // window.alert(data["alias_color"]);
+    var buttonId = "#" + data["idx"];
+    var buttonOffset = $(buttonId).offset();
+    window.alert(buttonOffset.top);
+    $("#add_alias_form").css("top", buttonOffset.top + 100);
+    $("#add_alias_form").css("left", buttonOffset.left + 100);
+    $("#add_alias_form").show();
+    $("#nodepath").val(data["nodepath"]);
+    $("#template").val(data["alias_description_template"]);
+  }
 </script>

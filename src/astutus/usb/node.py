@@ -13,17 +13,23 @@ class DeviceNode(dict):
 
     def __init__(self, data, config, alias, cls_order):
         dirpath = data['dirpath']
+        # Sanitize dirpath to an acceptable CSS selector:
+        idx = dirpath.replace(':', '_C_')
+        idx = idx.replace('.', '_P_')
+        idx = idx.replace('/', '_S_')
+        idx = idx.replace('-', '_D_')
+        data['idx'] = idx
         assert dirpath is not None, data
         data['config_description'] = config.generate_description(dirpath, data)
         data['config_color'] = config.get_color()
         if alias is not None:
-            description_template = alias['description_template']
-            description = description_template.format_map(data)
-            data['alias_description'] = description
+            data['alias_description_template'] = alias['description_template']
+            data['alias_description'] = data['alias_description_template'].format_map(data)
             data['alias_color'] = alias['color']
             data['resolved_description'] = data['alias_description']
             data['resolved_color'] = data['alias_color']
         else:
+            data['alias_description_template'] = ''
             data['alias_description'] = ''
             data['alias_color'] = ''
             data['resolved_description'] = data['config_description']

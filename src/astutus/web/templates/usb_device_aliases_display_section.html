@@ -1,0 +1,12 @@
+Display aliases here.
+<ul>
+    {% for alias in aliases %}
+        <li>An alias should be shown here.</li>
+    {% endfor %}
+</ul>
+
+<ul>
+    {% for key, value in aliases.items() %}
+        <li>{{ key }}</li>
+    {% endfor %}
+</ul>

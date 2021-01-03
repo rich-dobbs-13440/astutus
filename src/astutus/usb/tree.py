@@ -111,7 +111,6 @@ def generate_alias_json_snippet(*, node_ids, tree_dirpaths, data_by_dirpath, dev
                     "dirpath": dirpath,
                 })
                 alias_map[nodepath] = values
-
     print(json.dumps(alias_map, indent=4, sort_keys=True))
 
 
@@ -195,9 +194,7 @@ def assemble_tree(
 def formulate_data_as_table(data):
     lines = []
     # Data is a dictionary, but we want to display it as a table
-    dirpath = data.get('dirpath')
-    idx = f"'{dirpath}'"
-    lines.append(f'<button onclick="handle_tree_item_click({idx})" id="{dirpath}">{data["dirname"]}</button>')
+    lines.append(make_button(data))
     lines.append("<table>")
     sorted_keys = sorted([key for key in data.keys()])
     for key in sorted_keys:
@@ -229,10 +226,10 @@ def formulate_data_consisely(data):
 
 
 def make_button(data):
-    dirpath = data.get('dirpath')
-    idx = f"'{dirpath}'"
+    idx = data['idx']
     dirname = data['dirname']
-    return f'<button onclick="handle_tree_item_click({idx})" id="{dirpath}">{dirname}</button>'
+    data_json = json.dumps(data)
+    return f"<button onclick='handle_tree_item_click({data_json})' id='{idx}'>{dirname}</button>"
 
 
 def traverse_element(element):
