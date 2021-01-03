@@ -3,26 +3,30 @@ Backlog
 
 Backlog:
 
-  * Task: Implement Cancel function for add alias form.
+
+  * Task: Handle form submission add or update alias and rewrite file.
+  * Task: Show alias contents on USB page.
+  * Task: Apply alias, styling to USB page, and get rid of unneed data attributes.
+  * Story: As a user, I can configure my own aliases for physical USB devices.
+    devices in the USB tree.
   * Task: Style /astutus/raspi page.
   * Task: Handle error cases more elegantly.
-
-  * Story: As a user, I can configure my own aliases for physical USB devices
-    devices in the USB tree.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
   * Task: Single source version number between code, package, and documentation.
   * Task: Get color sensor working on RPi.
   * Task: Write test with relays controlling lights and monitored by color sensor.
   * Story: Implement a USB print tree command for package.
-
   * Next Epic: Get repository good enough to be publically visible.
+
 
 .. |done| raw:: html
 
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2021-01-03 12:15 Task: Implement Cancel function for add alias form.
 
     * |done| 2021-01-03 01:56 Task: Display USB tree in browser, to enable a better user interface for
       configuring aliases.  Command line + editing files too complicated and confusing!
