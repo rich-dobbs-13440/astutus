@@ -291,14 +291,15 @@ class DeviceAliases(dict):
     """
 
     def __init__(self, *, filepath):
-        logger.info("Initializing AliasPaths")
+        logger.info("Initializing DeviceAliases")
+        super(DeviceAliases, self).__init__()
         raw_aliases = self.read_raw_from_json(filepath)
-        # self.aliases =
-        # super(dict, self)
         self.update(self.parse_raw_aliases(raw_aliases))
 
     @staticmethod
     def write_raw_as_json(filepath, raw_aliases):
+        if filepath is None:
+            filepath = os.path.join(astutus.util.get_user_data_path(), 'device_aliases.json')
         with open(filepath, 'w') as aliases_file:
             json.dump(raw_aliases, aliases_file, indent=4, sort_keys=True)
 

@@ -99,37 +99,57 @@ def handle_astutus():
         links=links)
 
 
-@app.route('/astutus/usb', methods=['GET'])
+@app.route('/astutus/usb', methods=['GET', 'POST'])
 def handle_usb():
     """ app.route('/astutus/usb', methods=['GET']) """
-    tree_dict = astutus.usb.execute_tree_cmd(
-        basepath=None,
-        device_aliases_filepath=None,
-        to_dict=True)
-    render_as_json = False
-    if render_as_json:
-        return tree_dict
-    tree_html = astutus.usb.execute_tree_cmd(
-        basepath=None,
-        device_aliases_filepath=None,
-        to_html=True)
-    device_configurations = astutus.usb.DeviceConfigurations()
-    aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-    breadcrumbs_list = [
-        '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-        '<li><a href="/astutus">/astutus</a> &raquo;</li>',
-        '<li>/usb</li>',
-    ]
-    breadcrumbs_list_items = "\n".join(breadcrumbs_list)
-    return flask.render_template(
-        'transformed_dyn_usb.html',
-        static_base=static_base,
-        breadcrumbs_list_items=breadcrumbs_list_items,
-        wy_menu_vertical=wy_menu_vertical,
-        tree=json.dumps(tree_dict),
-        tree_html=tree_html,
-        device_configurations=device_configurations,
-        aliases=aliases)
+    if flask.request.method == 'GET':
+        tree_dict = astutus.usb.execute_tree_cmd(
+            basepath=None,
+            device_aliases_filepath=None,
+            to_dict=True)
+        render_as_json = False
+        if render_as_json:
+            return tree_dict
+        tree_html = astutus.usb.execute_tree_cmd(
+            basepath=None,
+            device_aliases_filepath=None,
+            to_html=True)
+        device_configurations = astutus.usb.DeviceConfigurations()
+        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+        breadcrumbs_list = [
+            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+            '<li>/usb</li>',
+        ]
+        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        return flask.render_template(
+            'transformed_dyn_usb.html',
+            static_base=static_base,
+            breadcrumbs_list_items=breadcrumbs_list_items,
+            wy_menu_vertical=wy_menu_vertical,
+            tree=json.dumps(tree_dict),
+            tree_html=tree_html,
+            device_configurations=device_configurations,
+            aliases=aliases)
+    if flask.request.method == 'POST':
+        form = flask.request.form
+        if form.get("action") == "add_or_update_alias":
+            nodepath = form.get('nodepath')
+            logger.debug(f"nodepath: {nodepath}")
+            template = form.get('template')
+            logger.debug(f"template: {template}")
+            color = form.get('color_select')
+            logger.debug(f"color: {color}")
+            aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+            aliases[nodepath] = [{
+                "color": f"{color}",
+                "description_template": f"{template}",
+                "order": "00",
+                "priority": 50
+            }]
+            astutus.usb.device_aliases.DeviceAliases.write_raw_as_json(filepath=None, raw_aliases=aliases)
+            return flask.redirect(flask.url_for('handle_usb'))
+        return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
 
 
 def process_raspi_search_using_nmap(args):
@@ -165,10 +185,10 @@ def handle_raspi():
     """ app.route('/astutus/raspi', methods=['POST', 'GET']) """
     if flask.request.method == 'GET':
         if flask.request.args.get("action") == "seach_using_nmap":
-            logger.error("Go to process_raspi_find_form")
+            logger.debug("Go to process_raspi_find_form")
             return process_raspi_search_using_nmap(flask.request.args)
         if flask.request.args.get('find') is not None:
-            logger.error("Go to display_raspi_find")
+            logger.debug("Go to display_raspi_find")
             return display_raspi_find(search_result=None, filter=["Raspberry"])
         logger.error("Just display base form")
         items = astutus.db.RaspberryPi.query.all()

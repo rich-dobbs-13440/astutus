@@ -34,8 +34,8 @@
     padding-top: 1ch;
   }
 </style>
-<div id="add_alias_form" name=>
-  <form>
+<div id="add_alias_form" >
+  <form method="POST">
     <p>
       <label for="nodepath">Node path:</label>
       <input name="nodepath" id="nodepath" type="text" value="need to populated ..." />
@@ -56,7 +56,7 @@
         <option value="yellow">Yellow</option>
       </select>
     </p>
-    <input name="action" id="action" type="hidden" value="add_alias" />
+    <input name="action" id="action" type="hidden" value="add_or_update_alias" />
     <div id="add_alias_form_button_div">
       <input type="submit" value="Add" id="add_alias_form_add_button" />
       <input type="button" value="Cancel" onclick="handle_add_alias_form_cancel()"/>

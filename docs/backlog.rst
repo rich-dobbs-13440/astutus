@@ -3,8 +3,6 @@ Backlog
 
 Backlog:
 
-
-  * Task: Handle form submission add or update alias and rewrite file.
   * Task: Show alias contents on USB page.
   * Task: Apply alias, styling to USB page, and get rid of unneed data attributes.
   * Story: As a user, I can configure my own aliases for physical USB devices.
@@ -25,6 +23,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2021-01-03 02:05 Task: Handle form submission add or update alias and rewrite file.
 
     * |done| 2021-01-03 12:15 Task: Implement Cancel function for add alias form.
 
