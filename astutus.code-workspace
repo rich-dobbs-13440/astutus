@@ -20,6 +20,13 @@
 	"files.watcherExclude": {
 		"**/.git/objects/**": true,
 		"**/.git/subtree-cache/**": true,
-		"**/__pycache__/*/**": true
+		"**/__pycache__/*/**": true,
+		"packaging/build/**": true,
+		"packaging/dist/**": true,
+		"packaging/src/**": true,
+		"packaging/wheels/**": true,
+		"docs/_build/**": true,
+		"src/astutus/web/static/_docs/**": true,
+		"src/astutus/wheels/**": true,
 	  },
 }

@@ -1,0 +1,143 @@
+<p>
+  <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
+  <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node Id</input>
+  <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)">Background</input>
+</p>
+<div class="tree_html" id="tree_html_container_no">
+{{ tree_html | safe }}
+</div>
+<script>
+  $(function() {
+    $('#tree_html_container').jstree();
+  });
+</script>
+<style>
+  #add_alias_form {
+    background-color: rgb(212, 229, 241);
+    padding: 3ch;
+    display: none;
+    position: absolute;
+    left: 200px;
+    top: 150px;
+    width: 700px;
+    height: 330px;
+    z-index: 11000;
+
+  }
+  #nodepath {
+    width: 100%;
+  }
+  #template {
+    width: 100%;
+  }
+  #add_alias_form_button_div {
+    padding-top: 1ch;
+  }
+  .dirname_class {
+    display: none;
+  }
+  .node_id_class {
+    display: none;
+  }
+  .node_attr_table_class {
+    display: none;
+  }
+  .tree_html {
+    padding: 1ch;
+    background-color: {{ tree_html_background_color }};
+  }
+</style>
+<div id="add_alias_form" >
+  <form method="POST">
+    <p>
+      <label for="nodepath">Node path:</label>
+      <input name="nodepath" id="nodepath" type="text" value="need to populated ..." />
+    </p>
+    <p>
+      <label for="template">Template:</label>
+      <input name="template" id="template" type="text" value="need to populated ..." />
+    </p>
+    <p>
+      <label for="color_select">Choose a color:</label>
+      <select name="color_select" id="color_select" >
+        <option value="blue">Blue</option>
+        <option value="cyan">Cyan</option>
+        <option value="green">Green</option>
+        <option value="magenta">Magenta</option>
+        <option value="pink">Pink</option>
+        <option value="purple">Purple</option>
+        <option value="yellow">Yellow</option>
+      </select>
+    </p>
+    <input name="action" id="action" type="hidden" value="add_or_update_alias" />
+    <div id="add_alias_form_button_div">
+      <input type="submit" value="Add" id="add_alias_form_add_button" />
+      <input type="button" value="Cancel" onclick="handleAddAliasFormCancel()"/>
+    </div>
+  </form>
+</div>
+<script>
+  function handleTreeItemClick(data) {
+    var container = $("#add_alias_form")
+
+    var nodeButton = $("#" + data["idx"])
+
+    var buttonOffset = nodeButton.offset();
+    // window.alert(buttonOffset.top);
+    container.css("top", buttonOffset.top + 30);
+    container.css("left", buttonOffset.left + 30);
+    container.show();
+
+    $("#nodepath").val(data["nodepath"]);
+    $("#template").val(data["alias_description_template"]);
+    var color = data["alias_color"];
+    if (color != "") {
+      $("#color_select").val(color);
+    }
+    if (!isElementInViewport(container)) {
+      // Form will be below button
+      console.log("Scrolling element into view.")
+      var domDivElement = container[0];
+      domDivElement.scrollIntoView(false);
+    }
+  }
+
+  function handleAddAliasFormCancel() {
+    $("#add_alias_form").hide();
+  }
+
+  function isElementInViewport(el) {
+
+    // Special bonus for those using jQuery
+    if (typeof jQuery === "function" && el instanceof jQuery) {
+        el = el[0];
+    }
+
+    var rect = el.getBoundingClientRect();
+
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* or $(window).width() */
+    );
+  }
+
+  function toggleVisibility(checkbox, cssClass, displayValue) {
+    if (checkbox.checked) {
+      $(cssClass).css("display" , displayValue);
+    } else {
+      $(cssClass).css("display" , "none");
+    }
+  }
+
+  function onBackgroundColorChange(colorInput) {
+    $(".tree_html").css("background-color", colorInput.value)
+    data = {
+      "background-color": colorInput.value
+    }
+    $.post('/astutus/usb/settings', data)
+      .fail(function(jqxhr, settings, ex) { alert('failed, ' + ex); });
+  }
+
+</script>

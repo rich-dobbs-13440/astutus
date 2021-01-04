@@ -60,11 +60,14 @@ def find_data_for_paths(ilk_by_dirpath, dirpaths):
         ilk = ilk_by_dirpath[dirpath]
         if ilk == 'usb':
             data = astutus.usb.node.UsbDeviceNodeData.extract_data(dirpath)
+            assert data.get('dirpath') is not None, data
         elif ilk == 'pci':
             data = astutus.usb.node.PciDeviceNodeData.extract_data(dirpath)
+            assert data.get('dirpath') is not None, data
         else:
             _, dirname = dirpath.rsplit("/", 1)
             data = {'ilk': ilk, 'dirpath': dirpath, 'dirname': dirname}
+            assert data.get('dirpath') is not None, data
         data_by_dirpath[dirpath] = data
     return data_by_dirpath
 
@@ -108,7 +111,6 @@ def generate_alias_json_snippet(*, node_ids, tree_dirpaths, data_by_dirpath, dev
                     "dirpath": dirpath,
                 })
                 alias_map[nodepath] = values
-
     print(json.dumps(alias_map, indent=4, sort_keys=True))
 
 
@@ -152,6 +154,7 @@ def assemble_tree(
     rootpath, tag = basepath.rsplit('/', 1)
     for dirpath in tree_dirpaths:
         data = data_by_dirpath[dirpath]
+        assert dirpath == data['dirpath']
         parent_dirpath, dirname = dirpath.rsplit('/', 1)
         ilk = ilk_by_dirpath[dirpath]
         nodepath = data.get('nodepath')
@@ -159,20 +162,17 @@ def assemble_tree(
         device_config = device_configurations.find_configuration(data)
         if ilk == 'usb':
             node_data = astutus.usb.node.UsbDeviceNodeData(
-                dirpath=dirpath,
                 data=data,
                 config=device_config,
                 alias=alias)
         elif ilk == 'pci':
             node_data = astutus.usb.node.PciDeviceNodeData(
-                dirpath=dirpath,
                 data=data,
                 config=device_config,
                 alias=alias)
         elif ilk == 'other':
             data['node_id'] = basepath
             node_data = astutus.usb.node.PciDeviceNodeData(
-                dirpath=dirpath,
                 data=data,
                 config=device_config,
                 alias=alias)
@@ -188,7 +188,98 @@ def assemble_tree(
             parent=parent,
             data=node_data)
 
-    return tree, tree_dirpaths, data_by_dirpath
+    return tree
+
+
+def formulate_data_as_table(data):
+    lines = []
+    # Data is a dictionary, but we want to display it as a table
+    lines.extend(make_button(data))
+    lines.append('<table class="node_attr_table_class" >')
+    # sorted_keys = sorted([key for key in data.keys()])
+    retained_keys = [
+        'html_label',
+        'manufacturer',
+        'product',
+        'serial',
+        'tty',
+        'nodepath',
+        'resolved_color',
+    ]
+    for key in retained_keys:
+        if key.startswith('terminal_colored_'):
+            # Skip these attributes because they are not needed for HTML.
+            continue
+        value = data.get(key)
+        if value is not None:
+            lines.append(f'<tr><td>{key}</td><td>{value}</td></tr>')
+    lines.append('</table>')
+    return lines
+
+
+def formulate_data_consisely(data):
+    lines = []
+    lines.append("<ul>")
+    lines.append("<li>")
+    lines.append(data['dirname'])
+    lines.append("<ul>")
+    lines.append("<li>")
+    lines.append('<table class="node_attr_table_class">')
+    lines.append(data.get('node_id'))
+    lines.append(f"<tr><td>label</td><td>{data.get('label')}</td></tr>")
+    lines.append("</table>")
+    lines.append("</li>")
+    lines.append("</ul>")
+    lines.append("</li>")
+    lines.append("</ul>")
+    return lines
+
+
+def make_button(data):
+    idx = data['idx']
+    dirname = data['dirname']
+    data_json = json.dumps(data)
+    return [
+        f"<button onclick='handleTreeItemClick({data_json})' id='{idx}'>{dirname}</button>",
+        data['html_label']
+    ]
+
+
+def traverse_element(element):
+    if isinstance(element, dict):
+        data = element.get("data")
+        children = element.get("children")
+        if children is not None:
+            lines = []
+            if data is not None:
+                lines.extend(make_button(data))
+            lines.extend(traverse_element(children))
+            return lines
+        if data is not None:
+            return formulate_data_as_table(data)
+            # return formulate_data_consisely(data)
+        lines = []
+        for key, value in element.items():
+            lines.extend(traverse_element(value))
+        return lines
+    elif isinstance(element, list):
+        lines = []
+        lines.append("<ul>")
+        for value in element:
+            lines.append("<li>")
+            lines.extend(traverse_element(value))
+            lines.append("</li>")
+        lines.append("</ul>")
+        return lines
+    else:
+        return [f'Got to something unhandled {type(element)}']
+
+
+def traverse_tree_dict_to_html(tree_dict: dict) -> str:
+    lines = []
+    items = tree_dict
+    lines.extend(traverse_element(items))
+    return "\n".join(lines)
 
 
 def execute_tree_cmd(
@@ -200,6 +291,7 @@ def execute_tree_cmd(
         node_ids=[],
         show_tree=False,
         to_dict=False,
+        to_html=False,
         ):
 
     if basepath is None:
@@ -212,20 +304,25 @@ def execute_tree_cmd(
 
     tree_dirpaths, data_by_dirpath, ilk_by_dirpath = extract_tree_data(basepath=basepath)
 
-    tree, tree_dirpaths, data_by_dirpath, = assemble_tree(
-        basepath=basepath,
-        tree_dirpaths=tree_dirpaths,
-        data_by_dirpath=data_by_dirpath,
-        ilk_by_dirpath=ilk_by_dirpath,
-        device_aliases=aliases,
-        device_configurations=device_configurations,
-    )
-    if show_tree:
-        astutus.usb.node.DeviceNode.verbose = verbose
-        tree.show(data_property="colorized", key=key_by_node_data_key)
+    if show_tree or to_dict or to_html:
+        tree = assemble_tree(
+            basepath=basepath,
+            tree_dirpaths=tree_dirpaths,
+            data_by_dirpath=data_by_dirpath,
+            ilk_by_dirpath=ilk_by_dirpath,
+            device_aliases=aliases,
+            device_configurations=device_configurations,
+        )
+        if show_tree:
+            astutus.usb.node.DeviceNode.verbose = verbose
+            tree.show(data_property="colorized_node_label_for_terminal", key=key_by_node_data_key)
 
-    if to_dict:
-        return tree.to_dict(with_data=True)
+        if to_dict:
+            return tree.to_dict(with_data=True)
+
+        if to_html:
+            tree_dict = tree.to_dict(with_data=True)
+            return traverse_tree_dict_to_html(tree_dict)
 
     if len(node_ids) > 0:
         generate_alias_json_snippet(
@@ -248,7 +345,6 @@ def parse_arguments(raw_args):
     #        So it is probably best to list them in decreasing order of value to
     #        the end user for the important ones, and then alphabetically
     #        for rarely used options.
-
     parser.add_argument(
         "-v", "--verbose",
         default=False,
@@ -259,10 +355,9 @@ def parse_arguments(raw_args):
     example = ', for example --node-id "usb(1a86:7523)" "pci(0x1b21:0x1042)"'
     parser.add_argument(
         "-n", "--node-id",
-        nargs='+',  # So takes a list of arguments.  Does it need to be last?
+        nargs='+',  # Takes a list of arguments.  Does not need to be last.
         default="",
         dest="node_id_list",
-        # help='generated alias template(s) for a specified node ids, for example "usb(1a86:7523), pci(0x1b21:0x1042)"'
         help=f'generated alias template(s) for a specified node ids{example}')
 
     parser.add_argument(

@@ -299,3 +299,49 @@ Do a match based on that.
 Add a capability to astutus-usb-tree to list out paths for a selected node.
 
 Do it in JSON format, that can be plopped into aliases and then modified.
+
+Preparing the side menu navigation
+----------------------------------
+
+.. code-block::  html
+
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+  <ul class="current">
+    <li class="toctree-l1"><a class="reference internal" href="../readme.html">Astutus Readme</a></li>
+    <li class="toctree-l1"><a class="reference internal" href="../roadmap_to_documentation.html">Roadmap to Documentation</a></li>
+    <li class="toctree-l1"><a class="reference internal" href="../backlog.html">Backlog</a></li>
+    <li class="toctree-l1 current"><a class="reference internal" href="../maintanence/guidelines.html">Guidelines for Maintaining the System</a><ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="../maintanence/packaging.html">Packaging</a></li>
+    <li class="toctree-l2"><a class="reference internal" href="../maintanence/documenting.html">Documenting</a></li>
+    <li class="toctree-l2"><a class="reference internal" href="../maintanence/developer_notes.html">Developer Notes</a></li>
+    <li class="toctree-l2 current"><a class="reference internal" href="template_index.html">Flask Application Templates</a><ul class="current">
+    <li class="toctree-l3 current"><a class="current reference internal" href="#">USB Tree</a><ul>
+    <li class="toctree-l4"><a class="reference internal" href="#collapsable-tree-display">Collapsable Tree Display</a></li>
+    <li class="toctree-l4"><a class="reference internal" href="#device-configurations">Device Configurations</a></li>
+    <li class="toctree-l4"><a class="reference internal" href="#device-aliases">Device Aliases</a></li>
+    </ul>
+    </li>
+    </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="../maintanence/macosx.html">Working with Macintosh OSX</a></li>
+    <li class="toctree-l2"><a class="reference internal" href="../maintanence/smakn_usb_relay.html">SMAKN LCUS-1 USB Relay</a></li>
+    </ul>
+    </li>
+    <li class="toctree-l1"><a class="reference internal" href="../source/modules.html">Modules in the <strong>astutus</strong> package</a></li>
+    </ul>
+
+
+.. code-block::  html
+
+    <div role="navigation" aria-label="breadcrumbs navigation">
+    <ul class="wy-breadcrumbs">
+    <li><a href="/astutus/doc/index.html" class="icon icon-home"></a> &raquo;</li>
+    <li><a href="../maintanence/guidelines.html">Guidelines for Maintaining the System</a> &raquo;</li>
+    <li><a href="template_index.html">Flask Application Templates</a> &raquo;</li>
+    <li>USB Tree</li>
+    <li class="wy-breadcrumbs-aside">
+    <a href="../_sources/flask_app_templates/flask_app_dyn_usb.rst.txt" rel="nofollow"> View page source</a>
+    </li>
+    </ul>
+    <hr/>
+    </div>

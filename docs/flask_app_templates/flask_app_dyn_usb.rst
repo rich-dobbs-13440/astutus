@@ -1,17 +1,21 @@
 USB Tree
 ========
 
+{{DESTINATION}} usb/dyn_usb.html {{END_DESTINATION}}
+
 Collapsable Tree Display
 -------------------------
 
-TREE_DISPLAY_PLACEHOLDER
+{{INCLUDE}} usb/usb_tree_display_section.html {{END_INCLUDE}}
+
 
 Device Configurations
 ---------------------
 
-DEVICE_CONFIGURATIONS_PLACEHOLDER
+{{INCLUDE}} usb/usb_device_config_display_section.html {{END_INCLUDE}}
+
 
 Device Aliases
 --------------
 
-DEVICE_ALIASES_PLACEHOLDER
+{{INCLUDE}} usb/usb_device_aliases_display_section.html {{END_INCLUDE}}

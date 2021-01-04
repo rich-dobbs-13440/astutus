@@ -21,13 +21,14 @@ Maintainence note:
 import json
 import logging
 import os
-from http import HTTPStatus
 
 import astutus.raspi
 import astutus.web.flask_app
 import astutus.db
 import astutus.log
-import astutus.usb
+import astutus.util
+import astutus.web.usb_pages
+import astutus.web.raspi_pages
 import flask
 import flask.logging
 
@@ -44,6 +45,9 @@ def create_app_and_db():
     db.init_app(app)
     with app.app_context():
         astutus.db.initialize_db_if_needed()
+    app.register_blueprint(astutus.web.raspi_pages.raspi_page)
+    astutus.web.raspi_pages.db = db
+    app.register_blueprint(astutus.web.usb_pages.usb_page)
     return app, db
 
 
@@ -55,6 +59,15 @@ astutus.raspi.find.logger.addHandler(flask.logging.default_handler)
 astutus.raspi.raspi_impl.logger.addHandler(flask.logging.default_handler)
 logger.addHandler(flask.logging.default_handler)
 
+wy_menu_vertical_list = [
+    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
+    '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
+    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
+]
+wy_menu_vertical = "\n".join(wy_menu_vertical_list)
+
+static_base = "/static/_docs/_static"
+
 
 @app.template_filter('tojson_pretty')
 def tojson_pretty_jinja2_template_file(json_text):
@@ -65,135 +78,29 @@ def tojson_pretty_jinja2_template_file(json_text):
 @app.route('/')
 def handle_top():
     """ app.route('/') """
-    return "TODO: redirect to /astutus"
+    return flask.redirect(flask.url_for("handle_astutus"))
 
 
 @app.route('/astutus')
 def handle_astutus():
+
     """ app.route('/astutus') """
-    page_data = {
-        'title': "Astutus",
-        'show_links_section': True,
-    }
-    links = {
-        "astutus/doc/index.html",
-        "astutus/raspi",
-        "astutus/usb"
-    }
+    breadcrumbs_list = [
+        '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+        '<li>/astutus</li>',
+    ]
+    breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+    links_list = [
+        '<li><p>See <a class="reference internal" href="/astutus/raspi"><span class="doc">Raspberry Pi</span></a></p></li>',  # noqa
+        '<li><p>See <a class="reference internal" href="/astutus/usb"><span class="doc">USB</span></a></p></li>',  # noqa
+    ]
+    links = "\n".join(links_list)
     return flask.render_template(
-        'generic_rest_page.html',
-        page_data=page_data,
-        links=links)
-
-
-@app.route('/astutus/usb', methods=['GET'])
-def handle_usb():
-    """ app.route('/astutus/usb', methods=['GET']) """
-    tree_dict = astutus.usb.execute_tree_cmd(
-        basepath=None,
-        device_aliases_filepath=None,
-        to_dict=True)
-    render_as_json = False
-    if render_as_json:
-        return tree_dict
-    static_base = "/static/_docs/_static"
-    return flask.render_template(
-        'transformed_dyn_usb.html',
+        'transformed_dyn_astutus.html',
         static_base=static_base,
-        tree=tree_dict)
-
-
-def process_raspi_find_form(form):
-    ipv4 = form.get("ipv4")
-    logger.debug(f"ipv4: {ipv4}")
-    mask = flask.request.form.get("mask")
-    logger.debug(f"mask: {mask}")
-    filter = form.getlist("filter")
-    logger.debug(f"filter: {filter}")
-    search_result = astutus.raspi.search_using_nmap(ipv4, mask, filter)
-    return flask.render_template('raspi_find.html', search_result=search_result, filter=filter)
-
-
-@app.route('/astutus/raspi', methods=['POST', 'GET'])
-def handle_raspi():
-    """ app.route('/astutus/raspi', methods=['POST', 'GET']) """
-    if flask.request.method == 'GET':
-        if flask.request.args.get('find') is not None:
-            return flask.render_template('raspi_find.html', search_result=None, filter=['Raspberry'])
-        items = astutus.db.RaspberryPi.query.all()
-        page_data = {
-            'title': "Astutus/Raspberry Pi's",
-            'show_links_section': True,
-            "show_post_section": True,
-        }
-        links = [f"raspi/{item.id}" for item in items]
-        links.append('raspi?find=nmap')
-        return flask.render_template(
-            'generic_rest_page.html',
-            page_data=page_data,
-            links=links)
-    if flask.request.method == 'POST':
-        form = flask.request.form
-        if form.get("action") == "seach_using_nmap":
-            return process_raspi_find_form(form)
-        if form.get("action") == "create":
-            raspi_ipv4 = form.get("raspi_ipv4")
-            raspi_mac_addr = form.get("raspi_mac_addr")
-            rpi = astutus.db.RaspberryPi(ipv4=raspi_ipv4, mac_addr=raspi_mac_addr)
-            db.session.add(rpi)
-            db.session.commit()
-            logger.debug(f"rpi: {rpi}")
-            return flask.redirect(flask.url_for('handle_raspi_item', id=rpi.id))
-        return "Case not handled", HTTPStatus.NOT_IMPLEMENTED
-
-
-@app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET', 'DELETE'])
-def handle_raspi_item(id):
-    """ app.route('/astutus/raspi/<int:id>', methods=['POST', 'GET', 'DELETE']) """
-    if flask.request.method == 'POST':
-        return "Got here"
-    if flask.request.method == 'DELETE':
-        item = astutus.db.RaspberryPi.query.get(id)
-        db.session.delete(item)
-        db.session.commit()
-        data = {
-            "redirect_url": "/astutus/raspi"
-        }
-        return data, HTTPStatus.ACCEPTED
-    if flask.request.method == 'GET':
-        item = astutus.db.RaspberryPi.query.get(id)
-        page_data = {
-            'title': "Raspberry Pi's",
-            'show_links_section': False,
-            "show_post_section": True,
-            "show_delete_section": True,
-            "show_raw_json_section": True,
-        }
-        return flask.render_template(
-            'generic_rest_page.html',
-            page_data=page_data,
-            data=item.as_json(),
-            links=None)
-
-
-@app.route('/astutus/raspi/<int:id>/ifconfig', methods=['GET'])
-def handle_raspi_item_ifconfig(id):
-    """" app.route('/astutus/raspi/<int:id>/ifconfig', methods=['GET']) """
-    item = astutus.db.RaspberryPi.query.get(id)
-    raspi = astutus.raspi.RaspberryPi(item)
-    ifconfig = raspi.get_ifconfig()
-    page_data = {
-        'title': "Raspberry Pi - ifconfig",
-        'show_links_section': False,
-        "show_post_section": False,
-        "show_delete_section": False,
-        "show_raw_json_section": True,
-    }
-    return flask.render_template(
-        'generic_rest_page.html',
-        page_data=page_data,
-        data=ifconfig,
-        links=None)
+        breadcrumbs_list_items=breadcrumbs_list_items,
+        wy_menu_vertical=wy_menu_vertical,
+        links=links)
 
 
 @app.route('/astutus/doc')

@@ -151,3 +151,16 @@ def test_usb_device_node_data_json_serializable():
         config=None,
         alias=None)
     json.dumps(node)
+
+
+def test_execute_tree_cmd():
+    tree_html = astutus.usb.execute_tree_cmd(
+        basepath=None,
+        device_aliases_filepath=None,
+        device_configurations_filepath=None,
+        verbose=True,
+        to_html=True
+        )
+    print("Start Tree")
+    print(tree_html)
+    print("End Tree")

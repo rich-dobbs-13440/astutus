@@ -254,7 +254,7 @@ def find_pci_paths(selector):
     return filtered_paths
 
 
-class DeviceAliases:
+class DeviceAliases(dict):
     """ The device aliases class provides a dictionary between selectors and aliases for a node.
 
     The aliases should have the following attributes:
@@ -291,12 +291,15 @@ class DeviceAliases:
     """
 
     def __init__(self, *, filepath):
-        logger.info("Initializing AliasPaths")
+        logger.info("Initializing DeviceAliases")
+        super(DeviceAliases, self).__init__()
         raw_aliases = self.read_raw_from_json(filepath)
-        self.aliases = self.parse_raw_aliases(raw_aliases)
+        self.update(self.parse_raw_aliases(raw_aliases))
 
     @staticmethod
     def write_raw_as_json(filepath, raw_aliases):
+        if filepath is None:
+            filepath = os.path.join(astutus.util.get_user_data_path(), 'device_aliases.json')
         with open(filepath, 'w') as aliases_file:
             json.dump(raw_aliases, aliases_file, indent=4, sort_keys=True)
 
@@ -324,20 +327,19 @@ class DeviceAliases:
         Note:  id is probably not needed, since dirpath should uniquely specify the
         node.  Opportunity for refactoring???
         """
-        logger.debug(self.aliases.keys())
-        value = self.aliases.get(nodepath)
+        value = super().get(nodepath)
         if value is None:
             return None
         else:
             # TODO:  Prioritize based on value. Or is this no longer needed
             return value[0]
 
-    def label(self, name):
-        """ Returns a simple label for the specified name.  Only checks the current axis for equality."""
-        for checks in self.aliases.keys():
-            ancestor_check, current_check, child_check = checks
-            current_check_value = current_check[1]
-            if ancestor_check is None and current_check_value == name and child_check is None:
-                alias = self.aliases[checks]
-                return alias['label']
-        return None
+    # def label(self, name):
+    #     """ Returns a simple label for the specified name.  Only checks the current axis for equality."""
+    #     for checks in self.aliases.keys():
+    #         ancestor_check, current_check, child_check = checks
+    #         current_check_value = current_check[1]
+    #         if ancestor_check is None and current_check_value == name and child_check is None:
+    #             alias = self.get(checks)
+    #             return alias['label']
+    #     return None
