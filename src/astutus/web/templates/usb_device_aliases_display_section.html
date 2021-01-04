@@ -1,12 +1,27 @@
-Display aliases here.
-<ul>
-    {% for alias in aliases %}
-        <li>An alias should be shown here.</li>
-    {% endfor %}
-</ul>
 
-<ul>
-    {% for key, value in aliases.items() %}
-        <li>{{ key }}</li>
-    {% endfor %}
-</ul>
+{% for key, value in aliases.items() %}
+    {% set alias = value[0] %}
+    <div>
+        <table>
+            <tr>
+                <td>Name</td><td>{{ alias.name }}</td>
+            </tr>
+            <tr>
+                <td>Match</td><td>{{ alias.match }}</td>
+            </tr>
+            <tr>
+                <td>Template</td><td>{{ alias.description_template }}</td>
+            </tr>
+            <tr>
+                <td>Color</td><td>{{ alias.color }}</td>
+            </tr>
+            <tr>
+                <td>Order</td><td>{{ alias.order }}</td>
+            </tr>
+            <tr>
+                <td>Priority</td><td>{{ alias.priority }}</td>
+            </tr>
+        </table>
+        <hr/>
+    </div>
+{% endfor %}

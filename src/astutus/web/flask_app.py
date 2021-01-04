@@ -116,6 +116,10 @@ def handle_usb():
             to_html=True)
         device_configurations = astutus.usb.DeviceConfigurations()
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+        # Fix up aliases to be cleaner for Jinja2. (Then propagate back to class!)
+        for key, value in aliases.items():
+            value[0]['match'] = key
+            value[0]['name'] = value[0].get('name_of_config')
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',

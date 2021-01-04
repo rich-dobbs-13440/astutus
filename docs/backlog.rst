@@ -3,8 +3,10 @@ Backlog
 
 Backlog:
 
-  * Task: Show alias contents on USB page.
   * Task: Apply alias, styling to USB page, and get rid of unneed data attributes.
+  * Task: Add ability to delete an alias
+  * Task: Add ability to edit alias.
+  * Task: Rework structure of device aliase file and DeviceAliases class
   * Story: As a user, I can configure my own aliases for physical USB devices.
     devices in the USB tree.
   * Task: Style /astutus/raspi page.
@@ -23,6 +25,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2021-01-03 18:57 Task: Show alias contents on USB page.
 
     * |done| 2021-01-03 02:05 Task: Handle form submission add or update alias and rewrite file.
 
