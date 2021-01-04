@@ -194,16 +194,27 @@ def assemble_tree(
 def formulate_data_as_table(data):
     lines = []
     # Data is a dictionary, but we want to display it as a table
-    lines.append(make_button(data))
-    lines.append("<table>")
-    sorted_keys = sorted([key for key in data.keys()])
-    for key in sorted_keys:
+    lines.extend(make_button(data))
+    lines.append('<table class="node_attr_table_class" >')
+    # sorted_keys = sorted([key for key in data.keys()])
+    retained_keys = [
+        'html_label_concise',
+        'html_label_verbose',
+        'manufacturer',
+        'product',
+        'serial',
+        'tty',
+        'nodepath',
+        'resolved_color',
+    ]
+    for key in retained_keys:
         if key.startswith('terminal_colored_'):
             # Skip these attributes because they are not needed for HTML.
             continue
-        value = data[key]
-        lines.append(f"<tr><td>{key}</td><td>{value}</td></tr>")
-    lines.append("</table>")
+        value = data.get(key)
+        if value is not None:
+            lines.append(f'<tr><td>{key}</td><td>{value}</td></tr>')
+    lines.append('</table>')
     return lines
 
 
@@ -214,7 +225,7 @@ def formulate_data_consisely(data):
     lines.append(data['dirname'])
     lines.append("<ul>")
     lines.append("<li>")
-    lines.append("<table>")
+    lines.append('<table class="node_attr_table_class">')
     lines.append(data.get('node_id'))
     lines.append(f"<tr><td>label</td><td>{data.get('label')}</td></tr>")
     lines.append("</table>")
@@ -229,7 +240,10 @@ def make_button(data):
     idx = data['idx']
     dirname = data['dirname']
     data_json = json.dumps(data)
-    return f"<button onclick='handle_tree_item_click({data_json})' id='{idx}'>{dirname}</button>"
+    return [
+        f"<button onclick='handleTreeItemClick({data_json})' id='{idx}'>{dirname}</button>",
+        data['html_label_verbose']
+    ]
 
 
 def traverse_element(element):
@@ -239,7 +253,7 @@ def traverse_element(element):
         if children is not None:
             lines = []
             if data is not None:
-                lines.append(make_button(data))
+                lines.extend(make_button(data))
             lines.extend(traverse_element(children))
             return lines
         if data is not None:

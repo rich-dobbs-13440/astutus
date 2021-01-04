@@ -1,4 +1,5 @@
 
+<input type="checkbox" onclick="toggleAttributeTableVisibility(this)">Attribute Table</input>
 
 <div class="tree_html" id="tree_html_container_no">
 {{ tree_html | safe }}
@@ -33,6 +34,12 @@
   #add_alias_form_button_div {
     padding-top: 1ch;
   }
+  .dirname_class {
+    display: none;
+  }
+  .node_attr_table_class {
+    display: none;
+  }
 </style>
 <div id="add_alias_form" >
   <form method="POST">
@@ -59,12 +66,12 @@
     <input name="action" id="action" type="hidden" value="add_or_update_alias" />
     <div id="add_alias_form_button_div">
       <input type="submit" value="Add" id="add_alias_form_add_button" />
-      <input type="button" value="Cancel" onclick="handle_add_alias_form_cancel()"/>
+      <input type="button" value="Cancel" onclick="handleAddAliasFormCancel()"/>
     </div>
   </form>
 </div>
 <script>
-  function handle_tree_item_click(data) {
+  function handleTreeItemClick(data) {
     var container = $("#add_alias_form")
 
     var nodeButton = $("#" + data["idx"])
@@ -89,11 +96,11 @@
     }
   }
 
-  function handle_add_alias_form_cancel() {
+  function handleAddAliasFormCancel() {
     $("#add_alias_form").hide();
   }
 
-  function isElementInViewport (el) {
+  function isElementInViewport(el) {
 
     // Special bonus for those using jQuery
     if (typeof jQuery === "function" && el instanceof jQuery) {
@@ -110,5 +117,13 @@
     );
   }
 
+  function toggleAttributeTableVisibility(checkbox) {
+    if (checkbox.checked) {
+      $('.node_attr_table_class').css("display" , "block");
+    } else {
+      $('.node_attr_table_class').css("display" , "none");
+    }
+
+  }
 
 </script>

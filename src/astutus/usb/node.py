@@ -51,8 +51,11 @@ class DeviceNode(dict):
         data['terminal_colored_node_label_concise'] = f"{data['dirname']} - {colored_description}"
         colored_node_id = f"{start(self.node_color)}{data['node_id']}{end(self.node_color)}"
         data['terminal_colored_node_label_verbose'] = f"{data['dirname']} - {colored_node_id} - {colored_description}"
-        data['html_label_concise'] = f"{data['dirname']} - {data['resolved_description']}"
-        data['html_label_verbose'] = f"{data['dirname']} - {data['node_id']} - {data['resolved_description']}"
+        dirname_span = f'<span class="dirname_class">{data["dirname"]}</span>'
+        node_id_span = f'<span class="node_id_class">{data["node_id"]}</span>'
+        description_span = f'<span style="color:{color}">{data["resolved_description"]}</span>'
+        data['html_label_concise'] = f'{data["dirname"]} - {data["resolved_description"]}'
+        data['html_label_verbose'] = f'{dirname_span} {node_id_span} {description_span}'
 
         self.data = data
         # Inititialize super to support JSON serialization.
