@@ -1,6 +1,8 @@
-
-<input type="checkbox" onclick="toggleAttributeTableVisibility(this)">Attribute Table</input>
-
+<p>
+  <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
+  <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node Id</input>
+  <input type="color">Background</input>
+</p>
 <div class="tree_html" id="tree_html_container_no">
 {{ tree_html | safe }}
 </div>
@@ -35,6 +37,9 @@
     padding-top: 1ch;
   }
   .dirname_class {
+    display: none;
+  }
+  .node_id_class {
     display: none;
   }
   .node_attr_table_class {
@@ -117,13 +122,12 @@
     );
   }
 
-  function toggleAttributeTableVisibility(checkbox) {
+  function toggleVisibility(checkbox, css_class, display_value) {
     if (checkbox.checked) {
-      $('.node_attr_table_class').css("display" , "block");
+      $(css_class).css("display" , display_value);
     } else {
-      $('.node_attr_table_class').css("display" , "none");
+      $(css_class).css("display" , "none");
     }
-
   }
 
 </script>
