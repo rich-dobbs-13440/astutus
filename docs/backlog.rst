@@ -25,6 +25,8 @@ Backlog:
 
 Done:
 
+    * |done| 2021-01-04 12:50 Task: Refactor: Move USB and Raspberry Pi to Flask Blueprints.
+
     * |done| 2021-01-04 05:18 Task: Apply alias, styling to USB page, and get rid of unneed data attributes.
 
     * |done| 2021-01-03 18:57 Task: Show alias contents on USB page.
