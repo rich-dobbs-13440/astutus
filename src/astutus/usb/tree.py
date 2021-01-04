@@ -198,8 +198,7 @@ def formulate_data_as_table(data):
     lines.append('<table class="node_attr_table_class" >')
     # sorted_keys = sorted([key for key in data.keys()])
     retained_keys = [
-        'html_label_concise',
-        'html_label_verbose',
+        'html_label',
         'manufacturer',
         'product',
         'serial',
@@ -242,7 +241,7 @@ def make_button(data):
     data_json = json.dumps(data)
     return [
         f"<button onclick='handleTreeItemClick({data_json})' id='{idx}'>{dirname}</button>",
-        data['html_label_verbose']
+        data['html_label']
     ]
 
 
