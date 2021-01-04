@@ -1,7 +1,7 @@
 <p>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node Id</input>
-  <input type="color" onchange="onBackgroundColorChange(this)">Background</input>
+  <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)">Background</input>
 </p>
 <div class="tree_html" id="tree_html_container_no">
 {{ tree_html | safe }}
