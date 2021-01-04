@@ -1,7 +1,7 @@
 <p>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node Id</input>
-  <input type="color">Background</input>
+  <input type="color" onchange="onBackgroundColorChange(this)">Background</input>
 </p>
 <div class="tree_html" id="tree_html_container_no">
 {{ tree_html | safe }}
@@ -24,9 +24,6 @@
     z-index: 11000;
 
   }
-  /* #add_alias_form.form.p {
-    padding-bottom: 1ch;
-  } */
   #nodepath {
     width: 100%;
   }
@@ -44,6 +41,9 @@
   }
   .node_attr_table_class {
     display: none;
+  }
+  .tree_html {
+    padding: 1ch;
   }
 </style>
 <div id="add_alias_form" >
@@ -122,12 +122,16 @@
     );
   }
 
-  function toggleVisibility(checkbox, css_class, display_value) {
+  function toggleVisibility(checkbox, cssClass, displayValue) {
     if (checkbox.checked) {
-      $(css_class).css("display" , display_value);
+      $(cssClass).css("display" , displayValue);
     } else {
-      $(css_class).css("display" , "none");
+      $(cssClass).css("display" , "none");
     }
+  }
+
+  function onBackgroundColorChange(colorInput) {
+    $(".tree_html").css("background-color", colorInput.value)
   }
 
 </script>
