@@ -3,7 +3,6 @@ Backlog
 
 Backlog:
 
-  * Task: Apply alias, styling to USB page, and get rid of unneed data attributes.
   * Task: Add ability to delete an alias
   * Task: Add ability to edit alias.
   * Task: Rework structure of device aliase file and DeviceAliases class
@@ -25,6 +24,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2021-01-04 05:18 Task: Apply alias, styling to USB page, and get rid of unneed data attributes.
 
     * |done| 2021-01-03 18:57 Task: Show alias contents on USB page.
 
