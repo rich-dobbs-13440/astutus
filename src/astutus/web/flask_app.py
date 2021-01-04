@@ -28,6 +28,7 @@ import astutus.web.flask_app
 import astutus.db
 import astutus.log
 import astutus.usb
+import astutus.util
 import flask
 import flask.logging
 
@@ -101,7 +102,7 @@ def handle_astutus():
 
 @app.route('/astutus/usb', methods=['GET', 'POST'])
 def handle_usb():
-    """ app.route('/astutus/usb', methods=['GET']) """
+    """ app.route('/astutus/usb', methods=['GET', 'POST']) """
     if flask.request.method == 'GET':
         tree_dict = astutus.usb.execute_tree_cmd(
             basepath=None,
@@ -126,6 +127,7 @@ def handle_usb():
             '<li>/usb</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        background_color = astutus.util.get_setting('/astutus/usb/settings', 'background_color', "#fcfcfc")
         return flask.render_template(
             'transformed_dyn_usb.html',
             static_base=static_base,
@@ -133,6 +135,7 @@ def handle_usb():
             wy_menu_vertical=wy_menu_vertical,
             tree=json.dumps(tree_dict),
             tree_html=tree_html,
+            tree_html_background_color=background_color,
             device_configurations=device_configurations,
             aliases=aliases)
     if flask.request.method == 'POST':
@@ -154,6 +157,20 @@ def handle_usb():
             astutus.usb.device_aliases.DeviceAliases.write_raw_as_json(filepath=None, raw_aliases=aliases)
             return flask.redirect(flask.url_for('handle_usb'))
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
+
+
+@app.route('/astutus/usb/settings', methods=['GET', 'POST'])
+def handle_usb_settings():
+    """ app.route('/astutus/usb/settings', methods=['GET', 'POST']) """
+    if flask.request.method == 'GET':
+        return "Should return settings here", HTTPStatus.NOT_IMPLEMENTED
+    if flask.request.method == 'POST':
+        background_color = flask.request.form.get('background-color')
+        if background_color is not None:
+            logger.info(f"background_color: {background_color}")
+            astutus.util.persist_setting('/astutus/usb/settings', 'background_color', background_color)
+            return "Setting persisted", HTTPStatus.OK
+        return "Need to persist settings here", HTTPStatus.NOT_IMPLEMENTED
 
 
 def process_raspi_search_using_nmap(args):

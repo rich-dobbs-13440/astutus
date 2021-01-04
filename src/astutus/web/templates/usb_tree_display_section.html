@@ -44,6 +44,7 @@
   }
   .tree_html {
     padding: 1ch;
+    background-color: {{ tree_html_background_color }};
   }
 </style>
 <div id="add_alias_form" >
@@ -132,6 +133,11 @@
 
   function onBackgroundColorChange(colorInput) {
     $(".tree_html").css("background-color", colorInput.value)
+    data = {
+      "background-color": colorInput.value
+    }
+    $.post('/astutus/usb/settings', data)
+      .fail(function(jqxhr, settings, ex) { alert('failed, ' + ex); });
   }
 
 </script>
