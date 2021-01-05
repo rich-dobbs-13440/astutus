@@ -7,7 +7,7 @@ contain placeholders.
 The placeholders are then replaced with Jinja2 dynamic markup, and
 stored as templates to be used by the Flask application.
 
-The names of the templates should all start with "flask_app_dyn_" since
+The names of the templates should all start with "flask_app_dyn" since
 that is used in generating the destination name in script that
 processes the files.
 
@@ -24,6 +24,7 @@ processes the files.
     flask_app_dyn_usb
     flask_app_dyn_usb_alias
     flask_app_dyn_usb_device
+    flask_app_dyn_usb_configuration
 
 
 To create a new dynamic page, here are some steps that you'll need to do:
