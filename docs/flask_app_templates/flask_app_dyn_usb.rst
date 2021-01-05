@@ -6,10 +6,3 @@ USB Capabilities
 Use these links to work with USB devices from the browser:
 
     - {{INCLUDE}} generic_links_display_section.html {{END_INCLUDE}}
-
-
-Device Configurations
----------------------
-
-{{INCLUDE}} usb/usb_device_config_display_section.html {{END_INCLUDE}}
-

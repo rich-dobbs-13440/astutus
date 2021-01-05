@@ -62,12 +62,6 @@ def handle_usb_device():
             basepath=None,
             device_aliases_filepath=None,
             to_html=True)
-        device_configurations = astutus.usb.DeviceConfigurations()
-        # aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-        # # Fix up aliases to be cleaner for Jinja2. (Then propagate back to class!)
-        # for key, value in aliases.items():
-        #     value[0]['match'] = key
-        #     value[0]['name'] = value[0].get('name_of_config')
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',
@@ -83,8 +77,7 @@ def handle_usb_device():
             wy_menu_vertical=wy_menu_vertical,
             tree=json.dumps(tree_dict),
             tree_html=tree_html,
-            tree_html_background_color=background_color,
-            device_configurations=device_configurations)
+            tree_html_background_color=background_color)
     if flask.request.method == 'POST':
         form = flask.request.form
         if form.get("action") == "add_or_update_alias":
@@ -162,11 +155,13 @@ def handle_usb_configuration():
         # for key, value in aliases.items():
         #     value[0]['match'] = key
         #     value[0]['name'] = value[0].get('name_of_config')
+        device_configurations = astutus.usb.DeviceConfigurations()
         return flask.render_template(
             'usb/dyn_usb_configuration.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical)
+            wy_menu_vertical=wy_menu_vertical,
+            device_configurations=device_configurations)
 
 
 @usb_page.route('/astutus/usb/settings', methods=['GET', 'POST'])

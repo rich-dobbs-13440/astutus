@@ -15,7 +15,9 @@
 		"[restructuredtext]": {
 			"editor.quickSuggestions": false
 		},
-		"files.trimTrailingWhitespace": true
+		"files.trimTrailingWhitespace": true,
+		"files.autoSave": "afterDelay",
+		"files.autoSaveDelay": 2000,
 	},
 	"files.watcherExclude": {
 		"**/.git/objects/**": true,

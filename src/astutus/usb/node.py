@@ -21,7 +21,7 @@ class DeviceNode(dict):
         data['idx'] = idx
         assert dirpath is not None, data
         data['config_description'] = config.generate_description(dirpath, data)
-        data['config_color'] = config.get_color()
+        data['config_color'] = config.get_color(dirpath)
         if alias is not None:
             data['alias_description_template'] = alias['description_template']
             data['alias_description'] = data['alias_description_template'].format_map(data)
