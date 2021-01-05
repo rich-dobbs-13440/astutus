@@ -4,9 +4,10 @@ from http import HTTPStatus
 
 import astutus.usb
 import flask
+import flask.logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.addHandler(flask.logging.default_handler)
 
 usb_page = flask.Blueprint('usb', __name__, template_folder='templates')
 
@@ -109,7 +110,7 @@ def handle_usb_alias():
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-        # Fix up aliases to be cleaner for Jinja2. (Then propagate back to class!)
+        # Fix up aliases to be cleaner for Jinja2. (DODO: propagate back to class!)
         for key, value in aliases.items():
             value[0]['match'] = key
             value[0]['name'] = value[0].get('name_of_config')
@@ -119,6 +120,24 @@ def handle_usb_alias():
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
             aliases=aliases)
+
+
+@usb_page.route('/astutus/usb/alias/<path:node_path>', methods=['GET', "DELETE"])
+def handle_usb_alias_item(node_path):
+    if flask.request.method == 'GET':
+        return "TODO", HTTPStatus.NOT_IMPLEMENTED
+    if flask.request.method == 'DELETE':
+        logger.debug(f"Delete the item now: {node_path}")
+        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+        logger.debug(f"aliases: {aliases}")
+        del aliases[node_path]
+        logger.debug(f"After deletion: aliases: {aliases}")
+        aliases.write(filepath=None)
+        logger.debug(f"After write: aliases: {aliases}")
+        data = {
+            "redirect_url": "/astutus/usb/alias"
+        }
+        return data, HTTPStatus.ACCEPTED
 
 
 @usb_page.route('/astutus/usb/settings', methods=['GET', 'POST'])

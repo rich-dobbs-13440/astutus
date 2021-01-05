@@ -3,9 +3,9 @@ Backlog
 
 Backlog:
 
-  * Task: Add ability to delete an alias
+  * Task: Add links to /astutus/usb.
   * Task: Add ability to edit alias.
-  * Task: Rework structure of device aliase file and DeviceAliases class
+  * Task: Rework structure of device aliase file and DeviceAliases class.
   * Story: As a user, I can configure my own aliases for physical USB devices.
     devices in the USB tree.
   * Task: Style /astutus/raspi page.
@@ -24,6 +24,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2021-01-04 19:07 Task: Add ability to delete an alias
 
     * |done| 2021-01-04 12:50 Task: Refactor: Move USB and Raspberry Pi to Flask Blueprints.
 

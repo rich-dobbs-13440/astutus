@@ -1,7 +1,6 @@
 import json
 import logging
 import pathlib
-import time
 
 import astutus.usb
 import astutus.usb.device_aliases
@@ -35,37 +34,37 @@ def test_find_tty_from_busnum_and_devnum():
     assert tty == tty_original
 
 
-def test_current_selector():
-    selector = 'usb(1a86:7523)'
-    pci_paths = astutus.usb.find_pci_paths(selector)
-    assert len(pci_paths) == 2
+# def test_current_selector():
+#     selector = 'usb(1a86:7523)'
+#     pci_paths = astutus.usb.find_pci_paths(selector)
+#     assert len(pci_paths) == 2
 
 
-def logger_info_pci_paths(pci_paths):
-    if len(pci_paths) == 1 or len(pci_paths) == 0:
-        logger.info(f"pci_paths: {pci_paths}")
-        return
-    indent = '\n                               '
-    lines = indent.join(pci_paths)
-    logger.info(f"pci_paths: {indent}{lines}")
+# def logger_info_pci_paths(pci_paths):
+#     if len(pci_paths) == 1 or len(pci_paths) == 0:
+#         logger.info(f"pci_paths: {pci_paths}")
+#         return
+#     indent = '\n                               '
+#     lines = indent.join(pci_paths)
+#     logger.info(f"pci_paths: {indent}{lines}")
 
 
-def test_usb_relay():
-    smakin_relay_in_tecknet_selector = '[ancestor==usb(05e3:0610)]usb(1a86:7523)[sibling==usb(0bda:8153)]'
-    pci_paths = astutus.usb.find_pci_paths(smakin_relay_in_tecknet_selector)
-    logger_info_pci_paths(pci_paths)
-    assert len(pci_paths) == 1
-    tty, _, _, vendorid, productid, _ = astutus.usb.find_tty_description_from_pci_path(pci_paths[0])
-    assert vendorid == '1a86'
-    assert productid == '7523'
-    with astutus.usb.UsbRelayLcus1(tty) as relay:
-        relay.turn_on()
-        time.sleep(3)
-        relay.turn_off()
-        time.sleep(3)
-        relay.turn_on()
-        time.sleep(3)
-        relay.turn_off()
+# def test_usb_relay():
+#     smakin_relay_in_tecknet_selector = '[ancestor==usb(05e3:0610)]usb(1a86:7523)[sibling==usb(0bda:8153)]'
+#     pci_paths = astutus.usb.find_pci_paths(smakin_relay_in_tecknet_selector)
+#     logger_info_pci_paths(pci_paths)
+#     assert len(pci_paths) == 1
+#     tty, _, _, vendorid, productid, _ = astutus.usb.find_tty_description_from_pci_path(pci_paths[0])
+#     assert vendorid == '1a86'
+#     assert productid == '7523'
+#     with astutus.usb.UsbRelayLcus1(tty) as relay:
+#         relay.turn_on()
+#         time.sleep(3)
+#         relay.turn_off()
+#         time.sleep(3)
+#         relay.turn_on()
+#         time.sleep(3)
+#         relay.turn_off()
 
 
 # def test_find_characteristics_from_pci_path():

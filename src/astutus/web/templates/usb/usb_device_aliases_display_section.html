@@ -1,4 +1,5 @@
 
+
 {% for key, value in aliases.items() %}
     {% set alias = value[0] %}
     <div>
@@ -22,6 +23,29 @@
                 <td>Priority</td><td>{{ alias.priority }}</td>
             </tr>
         </table>
+        <form onsubmit="return deleteViaJavascript('{{ alias.match }}' );">
+            <button type="submit">Delete</button>
+        </form>
+
         <hr/>
     </div>
 {% endfor %}
+<script>
+    function deleteViaJavascript(item_id) {
+        if (confirm("Are you sure you want to delete item " + item_id + "?")) {
+            // Dev Note:  Javascript requires backticks for string interpolation:
+            $.ajax(`/astutus/usb/alias/${item_id}`, {
+                method : 'delete',
+                success: function(data, textStatus,  jqXHR) {
+                    if (jqXHR.status == 202) {
+                        redirect_url = data["redirect_url"]
+                        window.location.replace(redirect_url);
+                    }
+                },
+                error: function(xhr) {
+                    alert('Failed to delete item ' + item_id)
+                }
+            })
+        }
+    }
+</script>
