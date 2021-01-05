@@ -33,11 +33,18 @@ def handle_usb():
             '<li>/usb</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        links_list = [
+            '<li><p>See <a class="reference internal" href="/astutus/usb/device"><span class="doc">Devices</span></a></p></li>',  # noqa
+            '<li><p>See <a class="reference internal" href="/astutus/usb/alias"><span class="doc">Device Aliases</span></a></p></li>',  # noqa
+            '<li><p>See <a class="reference internal" href="/astutus/usb/configuration"><span class="doc">Device Configurations</span></a></p></li>',  # noqa
+        ]
+        links = "\n".join(links_list)
         return flask.render_template(
             'usb/dyn_usb.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical)
+            wy_menu_vertical=wy_menu_vertical,
+            links=links)
 
 
 @usb_page.route('/astutus/usb/device', methods=['GET', 'POST'])
@@ -138,6 +145,28 @@ def handle_usb_alias_item(node_path):
             "redirect_url": "/astutus/usb/alias"
         }
         return data, HTTPStatus.ACCEPTED
+
+
+@usb_page.route('/astutus/usb/configuration', methods=['GET'])
+def handle_usb_configuration():
+    if flask.request.method == 'GET':
+        breadcrumbs_list = [
+            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+            '<li><a href="/astutus/usb">/usb</a> &raquo;</li>',
+            '<li>/configuration</li>',
+        ]
+        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        # aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+        # # Fix up aliases to be cleaner for Jinja2. (DODO: propagate back to class!)
+        # for key, value in aliases.items():
+        #     value[0]['match'] = key
+        #     value[0]['name'] = value[0].get('name_of_config')
+        return flask.render_template(
+            'usb/dyn_usb_configuration.html',
+            static_base=static_base,
+            breadcrumbs_list_items=breadcrumbs_list_items,
+            wy_menu_vertical=wy_menu_vertical)
 
 
 @usb_page.route('/astutus/usb/settings', methods=['GET', 'POST'])
