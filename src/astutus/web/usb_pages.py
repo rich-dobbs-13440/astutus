@@ -33,11 +33,18 @@ def handle_usb():
             '<li>/usb</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        links_list = [
+            '<li><p>See <a class="reference internal" href="/astutus/usb/device"><span class="doc">Devices</span></a></p></li>',  # noqa
+            '<li><p>See <a class="reference internal" href="/astutus/usb/alias"><span class="doc">Device Aliases</span></a></p></li>',  # noqa
+            '<li><p>See <a class="reference internal" href="/astutus/usb/configuration"><span class="doc">Device Configurations</span></a></p></li>',  # noqa
+        ]
+        links = "\n".join(links_list)
         return flask.render_template(
             'usb/dyn_usb.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical)
+            wy_menu_vertical=wy_menu_vertical,
+            links=links)
 
 
 @usb_page.route('/astutus/usb/device', methods=['GET', 'POST'])
