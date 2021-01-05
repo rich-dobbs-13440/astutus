@@ -3,7 +3,7 @@ Backlog
 
 Backlog:
 
-  * Task: Add links to /astutus/usb.
+  * Task: Display Device Configurations.
   * Task: Add ability to edit alias.
   * Task: Rework structure of device aliases file and DeviceAliases class.
   * Story: As a user, I can configure my own aliases for physical USB devices.
@@ -24,6 +24,8 @@ Backlog:
     <input checked=""  disabled="" type="checkbox">
 
 Done:
+
+    * |done| 2021-01-04 22:01 Task: Add links to /astutus/usb.
 
     * |done| 2021-01-04 19:07 Task: Add ability to delete an alias.
 
