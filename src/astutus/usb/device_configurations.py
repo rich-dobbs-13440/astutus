@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 import os
@@ -5,9 +6,17 @@ import shutil
 
 import astutus.log
 import astutus.util
-import copy
+import webcolors
 
 logger = logging.getLogger(__name__)
+
+
+def convert_color_for_html_input_type_color(color):
+    # Need to interpret named color into hexidecimal format
+    if not color.startswith("#"):
+        color = webcolors.name_to_hex(color)
+    assert color.startswith("#")
+    return color
 
 
 class DeviceConfiguration(object):
@@ -29,13 +38,18 @@ class DeviceConfiguration(object):
             styler = copy.deepcopy(self.config)
             del styler["name_of_config"]  # A styler is not a config.
             stylers = [styler]
+        # For now, apply color conversion at this point.
+        for styler in stylers:
+            styler['color'] = convert_color_for_html_input_type_color(styler.get('color'))
         return stylers
 
     def get_color(self, dirpath):
+        """ Get color in #rrggbb format suitable for HTML input control. """
         styler = self.find_styler(dirpath)
         color = styler.get('color')
         if color is None:
             color = 'cyan'
+        color = convert_color_for_html_input_type_color(color)
         return color
 
     def get_name(self):
@@ -48,6 +62,7 @@ class DeviceConfiguration(object):
 
     def find_styler(self, dirpath):
         for styler in self.get_stylers():
+            styler['color'] = convert_color_for_html_input_type_color(styler.get('color'))
             if styler.get('test') is None:
                 return styler
             elif styler.get('test') == 'value_in_stdout':
@@ -138,16 +153,19 @@ class DeviceConfigurations(object):
             device_map = json.load(config_file)
         self.device_map = device_map
 
+    def get_item(self, key):
+        config = self.device_map[key]
+        device_config = DeviceConfiguration(config)
+        item = {
+            'id': key,
+            'name': device_config.get_name(),
+            'stylers': device_config.get_stylers()
+        }
+        return item
+
     def items(self):
         item_list = []
         sorted_keys = sorted([key for key in self.device_map.keys()])
         for key in sorted_keys:
-            config = self.device_map[key]
-            device_config = DeviceConfiguration(config)
-            item = {
-                'id': key,
-                'name': device_config.get_name(),
-                'stylers': device_config.get_stylers()
-            }
-            item_list.append(item)
+            item_list.append(self.get_item(key))
         return item_list

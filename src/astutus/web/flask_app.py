@@ -33,7 +33,6 @@ import flask
 import flask.logging
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 def create_app_and_db():
@@ -48,6 +47,8 @@ def create_app_and_db():
     app.register_blueprint(astutus.web.raspi_pages.raspi_page)
     astutus.web.raspi_pages.db = db
     app.register_blueprint(astutus.web.usb_pages.usb_page)
+    logger.setLevel(logging.DEBUG)
+    astutus.web.usb_pages.logger.setLevel(logging.DEBUG)
     return app, db
 
 

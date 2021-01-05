@@ -25,6 +25,7 @@ processes the files.
     flask_app_dyn_usb_alias
     flask_app_dyn_usb_device
     flask_app_dyn_usb_configuration
+    flask_app_dyn_usb_configuration_item
 
 
 To create a new dynamic page, here are some steps that you'll need to do:

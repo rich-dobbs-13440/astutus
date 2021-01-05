@@ -14,7 +14,7 @@
                 {% for styler in device_config.stylers %}
                 <table>
                     {% for key, value in styler.items() %}
-                        <tr><td>{{ key }}</td><td>{{ value }}</td></tr>
+                        <tr><td>{{ key }}</td><td>{{ value.html_editor }}</td></tr>
                     {% endfor %}
                 </table>
                 <hr/>
@@ -22,6 +22,8 @@
             </td>
         </tr>
     </table>
+
+    <button onclick="window.location.href='/astutus/usb/configuration/{{ device_config.id }}'">Edit</button>
     <form onsubmit="return deleteViaJavascript('{{ device_config.id }}' );">
         <button type="submit">Delete</button>
     </form>

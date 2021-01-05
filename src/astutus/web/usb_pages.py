@@ -164,6 +164,42 @@ def handle_usb_configuration():
             device_configurations=device_configurations)
 
 
+@usb_page.route('/astutus/usb/configuration/<node_id>', methods=['GET', "DELETE"])
+def handle_usb_configuration_item(node_id):
+    if flask.request.method == 'GET':
+        logger.debug(f"node_id: {node_id}")
+        breadcrumbs_list = [
+            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+            '<li><a href="/astutus/usb">/usb</a> &raquo;</li>',
+            '<li><a href="/astutus/usb/configuration">/configuration</a> &raquo;</li>',
+            '<li>/configuration</li>',
+        ]
+        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        device_configurations = astutus.usb.DeviceConfigurations()
+        device_config = device_configurations.get_item(node_id)
+        return flask.render_template(
+            'usb/dyn_usb_configuration_item.html',
+            static_base=static_base,
+            breadcrumbs_list_items=breadcrumbs_list_items,
+            wy_menu_vertical=wy_menu_vertical,
+            item=node_id,
+            device_config=device_config)
+    if flask.request.method == 'DELETE':
+        logger.debug(f"Delete the item now: {node_id}")
+        return "TODO", HTTPStatus.NOT_IMPLEMENTED
+        # device_configurations = astutus.usb.DeviceConfigurations()
+        # logger.debug(f"aliases: {aliases}")
+        # del aliases[node_id]
+        # logger.debug(f"After deletion: aliases: {aliases}")
+        # aliases.write(filepath=None)
+        # logger.debug(f"After write: aliases: {aliases}")
+        # data = {
+        #     "redirect_url": "/astutus/usb/alias"
+        # }
+        # return data, HTTPStatus.ACCEPTED
+
+
 @usb_page.route('/astutus/usb/settings', methods=['GET', 'POST'])
 def handle_usb_settings():
     """ usb_page.route('/astutus/usb/settings', methods=['GET', 'POST']) """

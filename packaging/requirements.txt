@@ -12,3 +12,4 @@ SQLAlchemy>=1.3.22
 colorama
 serial
 treelib
+webcolors>=1.11.1
