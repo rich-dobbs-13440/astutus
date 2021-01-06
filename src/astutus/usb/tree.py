@@ -317,8 +317,13 @@ class UsbDeviceTree(object):
 
     def traverse_tree_dict_to_html(self, tree_dict: dict) -> str:
         lines = []
+        # For more uniform styling, the entire tree should be a list with a single item.
+        lines.append("<ul>")
+        lines.append("<li>")
         items = tree_dict
         lines.extend(self.traverse_element(items))
+        lines.append("</li>")
+        lines.append("<ul>")
         return "\n".join(lines)
 
     def get_aliases(self):
@@ -384,8 +389,7 @@ class UsbDeviceTree(object):
             tree.show(data_property="colorized_node_label_for_terminal", key=key_by_node_data_key)
 
         if to_dict:
-
-            return
+            return self.get_tree_as_dict()
 
         if to_html:
             tree = self.get_treelib_tree()
