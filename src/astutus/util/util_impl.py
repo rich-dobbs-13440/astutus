@@ -4,6 +4,8 @@ import os
 import os.path
 import subprocess
 
+import webcolors
+
 logger = logging.getLogger(__name__)
 
 
@@ -59,3 +61,11 @@ def persist_setting(category_as_url, attribute, value):
     categories[category_as_url] = category
     with open(get_settings_filepath(), 'w') as settings_file:
         json.dump(categories, settings_file, indent=4, sort_keys=True)
+
+
+def convert_color_for_html_input_type_color(color):
+    # Need to interpret named color into hexidecimal format
+    if not color.startswith("#"):
+        color = webcolors.name_to_hex(color)
+    assert color.startswith("#")
+    return color

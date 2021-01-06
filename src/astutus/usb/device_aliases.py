@@ -258,7 +258,12 @@ class DeviceAliases(dict):
 
     @staticmethod
     def parse_raw_aliases(raw_aliases):
-        aliases = raw_aliases
+        aliases = {}
+        for pattern, value in raw_aliases.items():
+            alias = value[0]
+            alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
+            alias['pattern'] = pattern
+            aliases[pattern] = value
         return aliases
 
     def __init__(self, *, filepath):
@@ -266,6 +271,7 @@ class DeviceAliases(dict):
         logger.info("Initializing DeviceAliases")
         super(DeviceAliases, self).__init__()
         raw_aliases = self.read_raw_from_json(filepath)
+
         self.update(self.parse_raw_aliases(raw_aliases))
 
     def get(self, nodepath):
@@ -277,8 +283,10 @@ class DeviceAliases(dict):
         if value is None:
             return None
         else:
-            # TODO:  Prioritize based on value. Or is this no longer needed
-            return value[0]
+            # TODO:  Prioritize based on value. Or is this no longer needed?
+            alias = value[0]
+            alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
+            return alias
 
     def write(self, filepath=None):
         """ Writes the aliases to filepath
@@ -287,6 +295,4 @@ class DeviceAliases(dict):
         """
         if filepath is None:
             filepath = self.filepath
-        # aliases = super()
-        # logger.debug(f"aliases: {aliases}")
         self.write_raw_as_json(filepath=filepath, raw_aliases=self)

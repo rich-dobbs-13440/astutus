@@ -8,12 +8,12 @@
                 <td>Name</td><td>{{ alias.name }}</td>
             </tr>
             <tr>
-                <td>Match</td><td>{{ alias.match }}</td>
+                <td>Pattern</td><td>{{ alias.pattern }}</td>
             </tr>
             <tr>
                 <td>Template</td><td>{{ alias.description_template }}</td>
             </tr>
-            <tr>
+            <!-- <tr>
                 <td>Color</td><td>{{ alias.color }}</td>
             </tr>
             <tr>
@@ -21,16 +21,18 @@
             </tr>
             <tr>
                 <td>Priority</td><td>{{ alias.priority }}</td>
-            </tr>
+            </tr> -->
         </table>
-        <form onsubmit="return deleteViaJavascript('{{ alias.match }}' );">
+        <button onclick="window.location.href='/astutus/usb/alias/{{ alias.pattern }}'">Edit</button>
+
+        <!-- <form onsubmit="return deleteViaJavascript('{{ alias.match }}' );">
             <button type="submit">Delete</button>
-        </form>
+        </form> -->
 
         <hr/>
     </div>
 {% endfor %}
-<script>
+<!-- <script>
     function deleteViaJavascript(item_id) {
         if (confirm("Are you sure you want to delete item " + item_id + "?")) {
             // Dev Note:  Javascript requires backticks for string interpolation:
@@ -48,4 +50,4 @@
             })
         }
     }
-</script>
+</script> -->

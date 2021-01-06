@@ -6,17 +6,9 @@ import shutil
 
 import astutus.log
 import astutus.util
-import webcolors
+
 
 logger = logging.getLogger(__name__)
-
-
-def convert_color_for_html_input_type_color(color):
-    # Need to interpret named color into hexidecimal format
-    if not color.startswith("#"):
-        color = webcolors.name_to_hex(color)
-    assert color.startswith("#")
-    return color
 
 
 class DeviceConfiguration(object):
@@ -40,7 +32,7 @@ class DeviceConfiguration(object):
             stylers = [styler]
         # For now, apply color conversion at this point.
         for styler in stylers:
-            styler['color'] = convert_color_for_html_input_type_color(styler.get('color'))
+            styler['color'] = astutus.util.convert_color_for_html_input_type_color(styler.get('color'))
         return stylers
 
     def get_color(self, dirpath):
@@ -49,7 +41,7 @@ class DeviceConfiguration(object):
         color = styler.get('color')
         if color is None:
             color = 'cyan'
-        color = convert_color_for_html_input_type_color(color)
+        color = astutus.util.convert_color_for_html_input_type_color(color)
         return color
 
     def get_name(self):
@@ -62,7 +54,7 @@ class DeviceConfiguration(object):
 
     def find_styler(self, dirpath):
         for styler in self.get_stylers():
-            styler['color'] = convert_color_for_html_input_type_color(styler.get('color'))
+            styler['color'] = astutus.util.convert_color_for_html_input_type_color(styler.get('color'))
             if styler.get('test') is None:
                 return styler
             elif styler.get('test') == 'value_in_stdout':

@@ -23,6 +23,7 @@ processes the files.
 
     flask_app_dyn_usb
     flask_app_dyn_usb_alias
+    flask_app_dyn_usb_alias_item
     flask_app_dyn_usb_device
     flask_app_dyn_usb_configuration
     flask_app_dyn_usb_configuration_item
