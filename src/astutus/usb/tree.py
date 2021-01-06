@@ -172,6 +172,8 @@ def assemble_tree(
                 alias=alias)
         elif ilk == 'other':
             data['node_id'] = basepath
+            data['nodepath'] = data['dirname']
+            assert data['nodepath'], data
             node_data = astutus.usb.node.PciDeviceNodeData(
                 data=data,
                 config=device_config,
@@ -196,7 +198,6 @@ def formulate_data_as_table(data):
     # Data is a dictionary, but we want to display it as a table
     lines.extend(make_button(data))
     lines.append('<table class="node_attr_table_class" >')
-    # sorted_keys = sorted([key for key in data.keys()])
     retained_keys = [
         'html_label',
         'manufacturer',

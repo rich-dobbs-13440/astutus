@@ -118,37 +118,37 @@ def handle_usb_alias():
             aliases=aliases)
 
 
-@usb_page.route('/astutus/usb/alias/<path:node_path>', methods=['GET', "DELETE", "POST"])
-def handle_usb_alias_item(node_path):
+@usb_page.route('/astutus/usb/alias/<path:nodepath>', methods=['GET', "DELETE", "POST"])
+def handle_usb_alias_item(nodepath):
     if flask.request.method == 'GET':
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',
             '<li><a href="/astutus/usb">/usb</a> &raquo;</li>',
             '<li><a href="/astutus/usb/alias">/alias</a> &raquo;</li>',
-            f'<li>/{node_path}</li>',
+            f'<li>/{nodepath}</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         item = {
-            'id': node_path,
+            'id': nodepath,
         }
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-        # Fix up aliases to be cleaner for Jinja2. (TODO: propagate back to class!)
-        value = aliases[node_path]
-        alias = value[0]
-        alias['pattern'] = node_path
-        return flask.render_template(
-            'usb/dyn_alias_item.html',
-            static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
-            item=item,
-            alias=alias)
+
+        alias = aliases.get(nodepath)
+        if alias is not None:
+            return flask.render_template(
+                'usb/dyn_alias_item.html',
+                static_base=static_base,
+                breadcrumbs_list_items=breadcrumbs_list_items,
+                wy_menu_vertical=wy_menu_vertical,
+                item=item,
+                alias=alias)
+        return f"No alias for {nodepath} found.", HTTPStatus.BAD_REQUEST
     if flask.request.method == 'DELETE':
-        logger.debug(f"Delete the item now: {node_path}")
+        logger.debug(f"Delete the item now: {nodepath}")
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         logger.debug(f"aliases: {aliases}")
-        del aliases[node_path]
+        del aliases[nodepath]
         logger.debug(f"After deletion: aliases: {aliases}")
         aliases.write(filepath=None)
         logger.debug(f"After write: aliases: {aliases}")

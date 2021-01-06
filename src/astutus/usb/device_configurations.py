@@ -28,7 +28,10 @@ class DeviceConfiguration(object):
             # So, dynamically create a single styler, with no special selection attributes,
             # and return that as a list
             styler = copy.deepcopy(self.config)
-            del styler["name_of_config"]  # A styler is not a config.
+            if styler.get("name_of_config"):
+                del styler["name_of_config"]  # A styler is not a config.
+            if styler.get("name"):
+                del styler["name"]  # A styler is not a config.
             stylers = [styler]
         # For now, apply color conversion at this point.
         for styler in stylers:
@@ -84,18 +87,14 @@ class DeviceConfigurations(object):
         self.device_map = None
         self.read_from_json(filepath)
         self.command_runner = command_runner
+        self.pci_device_info = None
         logger.info("Done initializing device configurations")
 
     def find_configuration(self, data):
         if data['ilk'] == 'usb':
             return self.find_usb_configuration(data)
         elif data['ilk'] == 'pci':
-            config = {
-                "color": "cyan",
-                "description_template": None,
-                'name_of_config': 'Generic PCI',
-            }
-            return DeviceConfiguration(config, self.command_runner)
+            return self.find_pci_configuration(data)
         else:
             config = {
                 "color": "cyan",
@@ -103,6 +102,70 @@ class DeviceConfigurations(object):
                 'name_of_config': 'Generic Other',
             }
             return DeviceConfiguration(config, self.command_runner)
+
+    @staticmethod
+    def extract_pci_device_info(command_runner) -> dict:
+        """ Find PCI information by running the lspci command and parsing the output.
+
+        Produces a dictionary keyed by slot, with the value being a
+        dictionary of attributes.
+        """
+        # For lspci
+        # -mm             Produce machine-readable output
+        return_code, stdout, stderr = command_runner('lspci -mm -v')
+        # Sample Output with blank lines between devices.
+        # Slot:   04:00.0
+        # Class:  SATA controller
+        # Vendor: ASMedia Technology Inc.
+        # Device: ASM1062 Serial ATA Controller
+        # SVendor:        ASUSTeK Computer Inc.
+        # SDevice:        ASM1062 Serial ATA Controller
+        # Rev:    01
+        # ProgIf: 01
+        # NUMANode:       0
+        assert return_code == 0
+        assert len(stderr) == 0, stderr
+        map_slot_to_device_info = {}
+        device_info = {}
+        for line in stdout.splitlines():
+            if ':' in line:
+                key, value = line.split(':', 1)
+                value = value.strip()
+                device_info[key] = value
+            else:
+                map_slot_to_device_info[device_info['Slot']] = device_info
+                device_info = {}
+        if device_info.get('Slot') is not None:
+            # Add the last item to the map
+            map_slot_to_device_info[device_info['Slot']] = device_info
+            device_info = {}
+        return map_slot_to_device_info
+
+    def find_device_info(self, slot: str) -> dict:
+        if self.pci_device_info is None:
+            self.pci_device_info = self.extract_pci_device_info(self.command_runner)
+        return self.pci_device_info.get(slot)
+
+    def find_pci_configuration(self, data):
+        # PCI configuration is determined from the lspci command, rather
+        # than what is stored in the configuration file.
+        # Not really sure why the /sys/device names append '0000:' before the slot.
+        slot = data['dirname'][5:]  # noqa
+        device_info = self.find_device_info(slot)
+        if device_info is None:
+            config = {
+                "color": "cyan",
+                "description_template": f'No device info available for {slot}',
+                'name': slot,
+            }
+        else:
+            description_template = f"{device_info['Vendor']} {device_info['Device']}"
+            config = {
+                "color": "cyan",
+                "description_template": description_template,
+                'name': slot,
+            }
+        return DeviceConfiguration(config, self.command_runner)
 
     def find_usb_configuration(self, data):
         if data.get('idVendor') is None:

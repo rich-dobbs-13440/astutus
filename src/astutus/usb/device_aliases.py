@@ -285,6 +285,7 @@ class DeviceAliases(dict):
         else:
             # TODO:  Prioritize based on value. Or is this no longer needed?
             alias = value[0]
+            alias['pattern'] = nodepath
             alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
             return alias
 
