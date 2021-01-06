@@ -27,6 +27,17 @@ def key_by_node_data_key(node):
 
 
 class UsbDeviceTree(object):
+    """  Provides a tree of USB devices and the PCI buses and devices that connect them.
+
+    The representation can provide aliases that are meaningful in terms of physical USB devices
+    and ports on the computer.
+
+    The representation can be color-coded as desired by the user.
+
+    To speed up rendering, this code implements caching of intermediate calculations
+    and lazy evaluation.
+
+    """
 
     def __init__(self, basepath, device_aliases_filepath, device_configurations_filepath=None):
         if basepath is None:
@@ -34,8 +45,20 @@ class UsbDeviceTree(object):
         self.basepath = basepath
         self.device_aliases_filepath = device_aliases_filepath
         self.device_configurations_filepath = device_configurations_filepath
-        self.slot_to_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
+        # These
+        self.slot_to_device_info_map = None
         self.treelib_tree = None
+        self.device_configurations = None
+        self.aliases = None
+        self.tree_dirpaths = None
+        self.data_by_dirpath = None
+        self.ilk_by_dirpath = None
+        self.tree_as_dict = None
+
+    def get_device_info_map(self):
+        if self.slot_to_device_info_map is None:
+            self.slot_to_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
+        return self.slot_to_device_info_map
 
     @staticmethod
     def walk_basepath_for_usb(basepath):
@@ -76,8 +99,11 @@ class UsbDeviceTree(object):
             elif ilk == 'pci':
                 data = astutus.usb.node.PciDeviceNodeData.extract_data(dirpath)
                 slot = data['dirname'][5:]  # noqa
-                device_info = self.slot_to_device_info_map[slot]
-                data.update(device_info)
+                device_info = self.get_device_info_map().get(slot)
+                if device_info is not None:
+                    data.update(device_info)
+                else:
+                    assert False, slot
                 assert data.get('dirpath') is not None, data
             else:
                 _, dirname = dirpath.rsplit("/", 1)
@@ -129,7 +155,7 @@ class UsbDeviceTree(object):
         print(json.dumps(alias_map, indent=4, sort_keys=True))
 
     def extract_tree_data(self, *, basepath):
-        logger.info("assemble_tree")
+        logger.info("Start extract_tree_data")
 
         usb_device_dirpaths, ilk_by_dirpath = self.walk_basepath_for_usb(basepath)
         logger.info(f"Number of USB devices found: {len(usb_device_dirpaths)}")
@@ -153,6 +179,7 @@ class UsbDeviceTree(object):
         for dirpath in tree_dirpaths:
             logger.debug(f"dirpath: {dirpath} nodepath: {data_by_dirpath[dirpath]['nodepath']}")
 
+        logger.info("End extract_tree_data")
         return tree_dirpaths, data_by_dirpath, ilk_by_dirpath
 
     def assemble_tree(
@@ -164,6 +191,7 @@ class UsbDeviceTree(object):
             ilk_by_dirpath,
             device_aliases,
             device_configurations):
+        logger.info("Start assemble_tree")
         tree = treelib.Tree()
         rootpath, tag = basepath.rsplit('/', 1)
         for dirpath in tree_dirpaths:
@@ -203,7 +231,7 @@ class UsbDeviceTree(object):
                 identifier=dirpath,
                 parent=parent,
                 data=node_data)
-
+        logger.info("End assemble_tree")
         return tree
 
     def formulate_data_as_table(self, data):
@@ -293,6 +321,53 @@ class UsbDeviceTree(object):
         lines.extend(self.traverse_element(items))
         return "\n".join(lines)
 
+    def get_aliases(self):
+        if self.aliases is None:
+            self.aliases = astutus.usb.device_aliases.DeviceAliases(filepath=self.device_aliases_filepath)
+        return self.aliases
+
+    def get_device_configurations(self):
+        if self.device_configurations is None:
+            self.device_configurations = astutus.usb.device_configurations.DeviceConfigurations(
+                filepath=self.device_configurations_filepath)
+        return self.device_configurations
+
+    def get_tree_dirpaths(self):
+        if self.tree_dirpaths is None:
+            self.tree_dirpaths, self.data_by_dirpath, self.ilk_by_dirpath = self.extract_tree_data(
+                basepath=self.basepath)
+        return self.tree_dirpaths
+
+    def get_data_by_dirpath(self):
+        if self.data_by_dirpath is None:
+            self.tree_dirpaths, self.data_by_dirpath, self.ilk_by_dirpath = self.extract_tree_data(
+                basepath=self.basepath)
+        return self.data_by_dirpath
+
+    def get_ilk_by_dirpath(self):
+        if self.ilk_by_dirpath is None:
+            self.tree_dirpaths, self.data_by_dirpath, self.ilk_by_dirpath = self.extract_tree_data(
+                basepath=self.basepath)
+        return self.ilk_by_dirpath
+
+    def get_treelib_tree(self):
+        if self.treelib_tree is None:
+            self.treelib_tree = self.assemble_tree(
+                basepath=self.basepath,
+                tree_dirpaths=self.get_tree_dirpaths(),
+                data_by_dirpath=self.get_data_by_dirpath(),
+                ilk_by_dirpath=self.get_ilk_by_dirpath(),
+                device_aliases=self.get_aliases(),
+                device_configurations=self.get_device_configurations(),
+            )
+        return self.treelib_tree
+
+    def get_tree_as_dict(self):
+        if self.tree_as_dict is None:
+            tree = self.get_treelib_tree()
+            self.tree_as_dict = tree.to_dict(with_data=True)
+        return self.tree_as_dict
+
     def execute_tree_cmd(
             self,
             *,
@@ -303,39 +378,26 @@ class UsbDeviceTree(object):
             to_html=False,
             ):
 
-        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=self.device_aliases_filepath)
+        if show_tree:
+            astutus.usb.node.DeviceNode.verbose = verbose
+            tree = self.get_treelib_tree()
+            tree.show(data_property="colorized_node_label_for_terminal", key=key_by_node_data_key)
 
-        device_configurations = astutus.usb.device_configurations.DeviceConfigurations(
-            filepath=self.device_configurations_filepath)
+        if to_dict:
 
-        tree_dirpaths, data_by_dirpath, ilk_by_dirpath = self.extract_tree_data(basepath=self.basepath)
+            return
 
-        if show_tree or to_dict or to_html:
-            tree = self.assemble_tree(
-                basepath=self.basepath,
-                tree_dirpaths=tree_dirpaths,
-                data_by_dirpath=data_by_dirpath,
-                ilk_by_dirpath=ilk_by_dirpath,
-                device_aliases=aliases,
-                device_configurations=device_configurations,
-            )
-            if show_tree:
-                astutus.usb.node.DeviceNode.verbose = verbose
-                tree.show(data_property="colorized_node_label_for_terminal", key=key_by_node_data_key)
-
-            if to_dict:
-                return tree.to_dict(with_data=True)
-
-            if to_html:
-                tree_dict = tree.to_dict(with_data=True)
-                return self.traverse_tree_dict_to_html(tree_dict)
+        if to_html:
+            tree = self.get_treelib_tree()
+            tree_dict = tree.to_dict(with_data=True)
+            return self.traverse_tree_dict_to_html(tree_dict)
 
         if len(node_ids) > 0:
             self.generate_alias_json_snippet(
                 node_ids=node_ids,
-                tree_dirpaths=tree_dirpaths,
-                data_by_dirpath=data_by_dirpath,
-                device_configurations=device_configurations
+                tree_dirpaths=self.get_tree_dirpaths(),
+                data_by_dirpath=self.get_data_by_dirpath(),
+                device_configurations=self.get_device_configurations()
             )
 
 

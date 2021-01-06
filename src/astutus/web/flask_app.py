@@ -47,18 +47,24 @@ def create_app_and_db():
     app.register_blueprint(astutus.web.raspi_pages.raspi_page)
     astutus.web.raspi_pages.db = db
     app.register_blueprint(astutus.web.usb_pages.usb_page)
-    logger.setLevel(logging.DEBUG)
-    astutus.web.usb_pages.logger.setLevel(logging.DEBUG)
+
+    flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
+    global logger
+    level_by_logger = {
+        astutus.raspi.find.logger: logging.INFO,
+        astutus.raspi.raspi_impl.logger: logging.INFO,
+        astutus.web.usb_pages.logger: logging.INFO,
+        astutus.usb.tree.logger: logging.INFO,
+        logger: logging.DEBUG,
+    }
+    for logger, level in level_by_logger.items():
+        logger.addHandler(flask.logging.default_handler)
+        logger.setLevel(level)
     return app, db
 
 
 app, db = create_app_and_db()
 
-
-flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
-astutus.raspi.find.logger.addHandler(flask.logging.default_handler)
-astutus.raspi.raspi_impl.logger.addHandler(flask.logging.default_handler)
-logger.addHandler(flask.logging.default_handler)
 
 wy_menu_vertical_list = [
     '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
