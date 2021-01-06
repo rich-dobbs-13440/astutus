@@ -51,18 +51,12 @@ def handle_usb():
 def handle_usb_device():
     """ usb_page.route('/astutus/usb/device', methods=['GET', 'POST']) """
     if flask.request.method == 'GET':
-        device_tree = astutus.usb.UsbDeviceTree()
-        tree_dict = device_tree.execute_tree_cmd(
-            basepath=None,
-            device_aliases_filepath=None,
-            to_dict=True)
+        device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
+        tree_dict = device_tree.execute_tree_cmd(to_dict=True)
         render_as_json = False
         if render_as_json:
             return tree_dict
-        tree_html = device_tree.execute_tree_cmd(
-            basepath=None,
-            device_aliases_filepath=None,
-            to_html=True)
+        tree_html = device_tree.execute_tree_cmd(to_html=True)
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',

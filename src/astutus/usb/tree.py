@@ -28,8 +28,14 @@ def key_by_node_data_key(node):
 
 class UsbDeviceTree(object):
 
-    def __init__(self):
+    def __init__(self, basepath, device_aliases_filepath, device_configurations_filepath=None):
+        if basepath is None:
+            basepath = DEFAULT_BASEPATH
+        self.basepath = basepath
+        self.device_aliases_filepath = device_aliases_filepath
+        self.device_configurations_filepath = device_configurations_filepath
         self.slot_to_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
+        self.treelib_tree = None
 
     @staticmethod
     def walk_basepath_for_usb(basepath):
@@ -290,9 +296,6 @@ class UsbDeviceTree(object):
     def execute_tree_cmd(
             self,
             *,
-            basepath,
-            device_aliases_filepath,
-            device_configurations_filepath=None,
             verbose=False,
             node_ids=[],
             show_tree=False,
@@ -300,19 +303,16 @@ class UsbDeviceTree(object):
             to_html=False,
             ):
 
-        if basepath is None:
-            basepath = DEFAULT_BASEPATH
-
-        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=device_aliases_filepath)
+        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=self.device_aliases_filepath)
 
         device_configurations = astutus.usb.device_configurations.DeviceConfigurations(
-            filepath=device_configurations_filepath)
+            filepath=self.device_configurations_filepath)
 
-        tree_dirpaths, data_by_dirpath, ilk_by_dirpath = self.extract_tree_data(basepath=basepath)
+        tree_dirpaths, data_by_dirpath, ilk_by_dirpath = self.extract_tree_data(basepath=self.basepath)
 
         if show_tree or to_dict or to_html:
             tree = self.assemble_tree(
-                basepath=basepath,
+                basepath=self.basepath,
                 tree_dirpaths=tree_dirpaths,
                 data_by_dirpath=data_by_dirpath,
                 ilk_by_dirpath=ilk_by_dirpath,
@@ -403,17 +403,13 @@ def main(raw_args=None):
     loglevel = getattr(logging, args.loglevel)
     logging.basicConfig(format=astutus.log.console_format, level=loglevel)
 
-    tree = UsbDeviceTree()
-
-    tree.execute_tree_cmd(
+    tree = UsbDeviceTree(
         basepath=args.basepath,
         device_aliases_filepath=args.device_aliases_filepath,
-        device_configurations_filepath=args.device_configurations_filepath,
-        verbose=args.verbose,
-        node_ids=args.node_id_list,
-        show_tree=True,
-        to_dict=False,
-        )
+        device_configurations_filepath=args.device_configurations_filepath
+    )
+
+    tree.execute_tree_cmd(verbose=args.verbose, node_ids=args.node_id_list, show_tree=True, to_dict=False)
 
 
 if __name__ == '__main__':

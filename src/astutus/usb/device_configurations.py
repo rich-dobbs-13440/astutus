@@ -115,20 +115,20 @@ class DeviceConfigurations(object):
         # than what is stored in the configuration file.
         # Not really sure why the /sys/device names append '0000:' before the slot.
         slot = data['dirname'][5:]  # noqa
-        device_info = self.find_device_info(slot)
-        if device_info is None:
-            config = {
-                "color": "cyan",
-                "description_template": f'No device info available for {slot}',
-                'name': slot,
-            }
-        else:
-            description_template = f"{device_info['Vendor']} {device_info['Device']}"
-            config = {
-                "color": "cyan",
-                "description_template": description_template,
-                'name': slot,
-            }
+        # device_info = self.find_device_info(slot)
+        # if device_info is None:
+        #     config = {
+        #         "color": "cyan",
+        #         "description_template": f'No device info available for {slot}',
+        #         'name': slot,
+        #     }
+        # else:
+        #     description_template = f"{device_info['Vendor']} {device_info['Device']}"
+        config = {
+            "color": "cyan",
+            "description_template": '{Device}',
+            'name': slot,
+        }
         return DeviceConfiguration(config, self.command_runner)
 
     def find_usb_configuration(self, data):
