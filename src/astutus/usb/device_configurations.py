@@ -6,6 +6,7 @@ import shutil
 
 import astutus.log
 import astutus.util
+import astutus.util.pci
 
 
 logger = logging.getLogger(__name__)
@@ -103,47 +104,10 @@ class DeviceConfigurations(object):
             }
             return DeviceConfiguration(config, self.command_runner)
 
-    @staticmethod
-    def extract_pci_device_info(command_runner) -> dict:
-        """ Find PCI information by running the lspci command and parsing the output.
-
-        Produces a dictionary keyed by slot, with the value being a
-        dictionary of attributes.
-        """
-        # For lspci
-        # -mm             Produce machine-readable output
-        return_code, stdout, stderr = command_runner('lspci -mm -v')
-        # Sample Output with blank lines between devices.
-        # Slot:   04:00.0
-        # Class:  SATA controller
-        # Vendor: ASMedia Technology Inc.
-        # Device: ASM1062 Serial ATA Controller
-        # SVendor:        ASUSTeK Computer Inc.
-        # SDevice:        ASM1062 Serial ATA Controller
-        # Rev:    01
-        # ProgIf: 01
-        # NUMANode:       0
-        assert return_code == 0
-        assert len(stderr) == 0, stderr
-        map_slot_to_device_info = {}
-        device_info = {}
-        for line in stdout.splitlines():
-            if ':' in line:
-                key, value = line.split(':', 1)
-                value = value.strip()
-                device_info[key] = value
-            else:
-                map_slot_to_device_info[device_info['Slot']] = device_info
-                device_info = {}
-        if device_info.get('Slot') is not None:
-            # Add the last item to the map
-            map_slot_to_device_info[device_info['Slot']] = device_info
-            device_info = {}
-        return map_slot_to_device_info
-
     def find_device_info(self, slot: str) -> dict:
         if self.pci_device_info is None:
-            self.pci_device_info = self.extract_pci_device_info(self.command_runner)
+            self.pci_device_info = astutus.util.pci.get_slot_to_device_info_map_from_lspci(
+                command_runner=self.command_runner)
         return self.pci_device_info.get(slot)
 
     def find_pci_configuration(self, data):

@@ -51,14 +51,15 @@ def handle_usb():
 def handle_usb_device():
     """ usb_page.route('/astutus/usb/device', methods=['GET', 'POST']) """
     if flask.request.method == 'GET':
-        tree_dict = astutus.usb.execute_tree_cmd(
+        device_tree = astutus.usb.UsbDeviceTree()
+        tree_dict = device_tree.execute_tree_cmd(
             basepath=None,
             device_aliases_filepath=None,
             to_dict=True)
         render_as_json = False
         if render_as_json:
             return tree_dict
-        tree_html = astutus.usb.execute_tree_cmd(
+        tree_html = device_tree.execute_tree_cmd(
             basepath=None,
             device_aliases_filepath=None,
             to_html=True)
