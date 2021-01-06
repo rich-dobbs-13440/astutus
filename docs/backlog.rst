@@ -3,12 +3,10 @@ Backlog
 
 Backlog:
 
-  * Task: Get rid of Colorama; replace with webcolors.
-  * Task: Add ability to edit alias.
+  * Task: Clean up handling of top of tree.  Visual layout + adding, deleting aliases.
+  * Task: Polish browser presentation of USB tree.
+  * Task: Add data and instructions to Add alias dialog in tree display.
   * Task: Rework structure of device aliases file and DeviceAliases class.
-  * Story: As a user, I can configure my own aliases for physical USB devices.
-    devices in the USB tree.
-  * Story: Implement a USB print tree command for package.
   * Task: Style /astutus/raspi page.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
@@ -24,6 +22,10 @@ Backlog:
 
 Done:
 
+    * |done| 2021-01-06 14:54 Story: Implement a USB print tree command for package.
+    * |done| 2021-01-06 14:54 Story: As a user, I can configure my own aliases for physical USB devices.
+    * |done| 2021-01-06 14:54 Task: Add ability to edit alias.
+    * |done| 2021-01-06 14:54 Task: Get rid of Colorama; replace with webcolors.
     * |done| 2021-01-05 12:36 Task: Display Device Configurations.
     * |done| 2021-01-04 22:01 Task: Add links to /astutus/usb.
     * |done| 2021-01-04 19:07 Task: Add ability to delete an alias.
@@ -34,7 +36,7 @@ Done:
     * |done| 2021-01-03 12:15 Task: Implement Cancel function for add alias form.
     * |done| 2021-01-03 01:56 Task: Display USB tree in browser.
     * |done| 2021-01-01 23:49 Task: Style /astutus/raspi/item page.
-    * |done| 2021-01-01 22:17 Task: Style /astutus/raspi find page.
+    * |done| 2021-01-01 22:17 Task: Style /astutus/raspi find page.g
     * |done| 2021-01-01 15:10 Task: Style /astutus page.
     * |done| 2021-01-01 11:22 Task: First pass at displaying USB device tree with Jinja2 template include.
     * |done| 2020-12-31 19:30 Spike: Try to use Sphinx to generate a styled base for a Jinja2 template.

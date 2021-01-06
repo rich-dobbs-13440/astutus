@@ -49,13 +49,13 @@ def create_app_and_db():
     app.register_blueprint(astutus.web.usb_pages.usb_page)
 
     flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
-    global logger
     level_by_logger = {
+        astutus.web.flask_app.logger: logging.DEBUG,
+        astutus.web.usb_pages.logger: logging.INFO,
         astutus.raspi.find.logger: logging.INFO,
         astutus.raspi.raspi_impl.logger: logging.INFO,
-        astutus.web.usb_pages.logger: logging.INFO,
         astutus.usb.tree.logger: logging.INFO,
-        logger: logging.DEBUG,
+        astutus.util.term_color.logger: logging.DEBUG,
     }
     for logger, level in level_by_logger.items():
         logger.addHandler(flask.logging.default_handler)
