@@ -208,15 +208,17 @@ def process_dynamic_template(input_path, output_basepath, auto_output_filename):
 
     with open(output_path, "w") as output_file:
         output_file.write(html_text)
+    print(f"INFO: Wrote out file output_path: {output_path}\n")
 
 
 # Here is the actual processing:
+print("INFO: Process all dynamic templates.\n")
 for dirpath, dirnames, filenames in os.walk('../docs/_build/html/flask_app_templates'):
-    print(f"dirpath: {dirpath}")
-    # /flask_app_dyn*.html
+    print(f"dirpath: {dirpath}\n")
     for filename in filenames:
         if filename.startswith("flask_app_dyn"):
             input_path = os.path.join(dirpath, filename)
             print(f"input_path: {input_path}")
             auto_output_filename = filename.replace("flask_app_dyn", "transformed_dyn")
             process_dynamic_template(input_path, "../src/astutus/web/templates/", auto_output_filename)
+print("INFO: Done processing all dynamic templates.\n")

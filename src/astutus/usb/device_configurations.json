@@ -5,37 +5,40 @@
         "name_of_config": "Logitech HD Webcam C615"
     },
     "046d:c52b": {
-        "color": "magenta",
-        "description_template": [
+        "stylers": [
             {
                 "cmd": "grep -r . -e \"mouse\" 2>/dev/null",
                 "description_template": "{manufacturer} {product} mouse",
                 "test": "value_in_stdout",
-                "value": "mouse"
+                "value": "mouse",
+                "color": "magenta"
             },
             {
                 "cmd": "grep -r . -e \"numlock\" 2>/dev/null",
                 "description_template": "{manufacturer} {product} keyboard",
                 "test": "value_in_stdout",
-                "value": "numlock"
+                "value": "numlock",
+                "color": "magenta"
             }
         ],
         "name_of_config": "Logitech, Inc. Unifying Receiver - 046d:c52b"
     },
     "046d:c52f": {
         "color": "magenta",
-        "description_template": [
+        "stylers": [
             {
                 "cmd": "grep -r . -e \"mouse\" 2>/dev/null",
                 "description_template": "{manufacturer} {product} mouse",
                 "test": "value_in_stdout",
-                "value": "mouse"
+                "value": "mouse",
+                "color": "magenta"
             },
             {
                 "cmd": "grep -r . -e \"numlock\" 2>/dev/null",
                 "description_template": "{manufacturer} {product} keyboard",
                 "test": "value_in_stdout",
-                "value": "numlock"
+                "value": "numlock",
+                "color": "magenta"
             }
         ],
         "name_of_config": "Logitech, Inc. Unifying Receiver - 046d:c52f"

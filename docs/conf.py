@@ -18,11 +18,12 @@ sys.path.insert(0, os.path.abspath('../src'))
 # -- Project information -----------------------------------------------------
 
 project = 'Astutus'
-copyright = '2020, Rich Dobbs'
+copyright = '2021, Rich Dobbs'
 author = 'Rich Dobbs'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+version = '0.1.4'
+release = version
 
 
 # -- General configuration ---------------------------------------------------

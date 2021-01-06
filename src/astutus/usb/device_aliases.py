@@ -56,7 +56,7 @@ Here are some examples of validly formated selectors:
 
 This module contains two key public features:
 
-    * The **find_pci_paths(selector)** function for use in automation.
+    * TODO:  Reimplement this sort of feature: The **find_pci_paths(selector)** function for use in automation.
     * The **DeviceAliases** class used by the **astutus-usb-tree** command.
 
 
@@ -64,46 +64,11 @@ This module contains two key public features:
 import json
 import logging
 import os
-import re
 
-import astutus.usb.usb_impl
 import astutus.usb.node
+import astutus.usb.usb_impl
 
 logger = logging.getLogger(__name__)
-
-
-def parse_selector(selector):
-    """ Parse the selector into ancestor, current, sibling and child axes."""
-    child_pattern = r'\[child(==|!=)([^\]]+)]'
-    ancestor_pattern = r'\[ancestor(==|!=)([^\]]+)]'
-    sibling_pattern = r'\[sibling(==|!=)([^\]]+)]'
-
-    check_str = selector
-    child_check = None
-    if "[child" in check_str:
-        logger.debug(f"child_pattern: {child_pattern}")
-        matches = re.search(child_pattern, check_str)
-        child_check = (matches.group(1), matches.group(2))
-        # Remove the child axes from the check string
-        check_str = re.sub(child_pattern, '', check_str, 0, re.MULTILINE)
-    ancestor_check = None
-    if "[ancestor" in check_str:
-        matches = re.search(ancestor_pattern, check_str)
-        ancestor_check = (matches.group(1), matches.group(2))
-        # Remove the ancestor axes from the key
-        check_str = re.sub(ancestor_pattern, '', check_str, 0, re.MULTILINE)
-    sibling_check = None
-    if "[sibling" in check_str:
-        matches = re.search(sibling_pattern, check_str)
-        sibling_check = (matches.group(1), matches.group(2))
-        # Remove the ancestor axes from the key
-        check_str = re.sub(sibling_pattern, '', check_str, 0, re.MULTILINE)
-    # After removing the other axes, will be just left with the current key, which
-    # implicitly has the equality operator.
-    current_check = ('==', check_str)
-    result = ancestor_check, current_check, child_check, sibling_check
-    logger.info(f"Parsed selector to : {result}")
-    return result
 
 
 def matches_as_usb_node(dirpath, vendor, product):
@@ -173,85 +138,66 @@ def find_node_paths(value):
     return node_paths
 
 
-def ancestor_passes(check, dirpath):
-    """ Checks if any ancestor of a node matches the specified check. """
-    logger.info(f"In ancestor_passes, with dirpath: {dirpath} and check {check}")
-    if check is None:
-        return True
-    operator, value = check
-    # Only implementing equality operator now.
-    assert operator == "=="
-    ilk, vendor, device = astutus.usb.node.parse_value(value)
-    logger.debug(f"dirpath: {dirpath}")
-    a_dirpath, current = dirpath.rsplit('/', 1)
-    while a_dirpath != '/sys/devices':
-        if matches_as_node(a_dirpath, ilk, vendor, device):
-            logger.info(f"Match for ancestor: {a_dirpath}")
-            return True
-        a_dirpath, current = a_dirpath.rsplit('/', 1)
-    logger.info(f"No match for any ancestor of: {dirpath}")
-    return False
+# def ancestor_passes(check, dirpath):
+#     """ Checks if any ancestor of a node matches the specified check. """
+#     logger.info(f"In ancestor_passes, with dirpath: {dirpath} and check {check}")
+#     if check is None:
+#         return True
+#     operator, value = check
+#     # Only implementing equality operator now.
+#     assert operator == "=="
+#     ilk, vendor, device = astutus.usb.node.parse_value(value)
+#     logger.debug(f"dirpath: {dirpath}")
+#     a_dirpath, current = dirpath.rsplit('/', 1)
+#     while a_dirpath != '/sys/devices':
+#         if matches_as_node(a_dirpath, ilk, vendor, device):
+#             logger.info(f"Match for ancestor: {a_dirpath}")
+#             return True
+#         a_dirpath, current = a_dirpath.rsplit('/', 1)
+#     logger.info(f"No match for any ancestor of: {dirpath}")
+#     return False
 
 
-def child_passes(check, dirpath, skip_dirpaths=[]):
-    """ Checks if any immediate child of a node matches the specified check. """
-    # skip_dirpaths is for sibling checks, to avoid having current
-    # being considered a sibling of itself
-    logger.info(f"In child_passes, with dirpath: {dirpath} and check {check}")
-    if check is None:
-        return True
-    operator, value = check
-    # Only implementing equality operator now.
-    assert operator == "=="
-    ilk, vendor, device = astutus.usb.node.parse_value(value)
-    root, dirs, _ = next(os.walk(dirpath))
-    for dir in dirs:
-        subdirpath = os.path.join(root, dir)
-        if subdirpath in skip_dirpaths:
-            logger.info(f"Skipping subdirpath: {subdirpath}")
-            continue
-        if matches_as_node(subdirpath, ilk, vendor, device):
-            logger.info(f"Match for: {subdirpath}")
-            return True
-        logger.info(f"No match for: {subdirpath}")
-    return False
+# def child_passes(check, dirpath, skip_dirpaths=[]):
+#     """ Checks if any immediate child of a node matches the specified check. """
+#     # skip_dirpaths is for sibling checks, to avoid having current
+#     # being considered a sibling of itself
+#     logger.info(f"In child_passes, with dirpath: {dirpath} and check {check}")
+#     if check is None:
+#         return True
+#     operator, value = check
+#     # Only implementing equality operator now.
+#     assert operator == "=="
+#     ilk, vendor, device = astutus.usb.node.parse_value(value)
+#     root, dirs, _ = next(os.walk(dirpath))
+#     for dir in dirs:
+#         subdirpath = os.path.join(root, dir)
+#         if subdirpath in skip_dirpaths:
+#             logger.info(f"Skipping subdirpath: {subdirpath}")
+#             continue
+#         if matches_as_node(subdirpath, ilk, vendor, device):
+#             logger.info(f"Match for: {subdirpath}")
+#             return True
+#         logger.info(f"No match for: {subdirpath}")
+#     return False
 
 
-def sibling_passes(check, dirpath):
-    """ Checks if any immediate sibling of a node matches the specified check. """
-    logger.info(f"In sibling_passes, with dirpath: {dirpath} and check {check}")
-    if check is None:
-        return True
-    operator, value = check
-    # Only implementing equality operator now.
-    assert operator == "=="
-    ilk, vendor, device = astutus.usb.node.parse_value(value)
-    parent_dirpath, current = dirpath.rsplit('/', 1)
-    logger.debug(f"parent_dirpath: {parent_dirpath}")
-    if child_passes(check, parent_dirpath, skip_dirpaths=[dirpath]):
-        logger.info(f"Passed check: {check}")
-        return True
-    logger.info(f"Didn't passed with check: {check}")
-    return False
-
-
-def find_pci_paths(selector):
-    """ Find all paths in the sys/devices tree that matches a selector. """
-    logger.info(f"In find_pci_paths with selector: {selector}")
-    ancestor_check, current_check, child_check, sibling_check = parse_selector(selector)
-    operator, value = current_check
-    assert operator == "=="
-    all_paths = find_all_pci_paths(value)
-    filtered_paths = []
-    for dirpath in all_paths:
-        if not ancestor_passes(ancestor_check, dirpath):
-            continue
-        if not child_passes(child_check, dirpath):
-            continue
-        if not sibling_passes(sibling_check, dirpath):
-            continue
-        filtered_paths.append(dirpath)
-    return filtered_paths
+# def sibling_passes(check, dirpath):
+#     """ Checks if any immediate sibling of a node matches the specified check. """
+#     logger.info(f"In sibling_passes, with dirpath: {dirpath} and check {check}")
+#     if check is None:
+#         return True
+#     operator, value = check
+#     # Only implementing equality operator now.
+#     assert operator == "=="
+#     ilk, vendor, device = astutus.usb.node.parse_value(value)
+#     parent_dirpath, current = dirpath.rsplit('/', 1)
+#     logger.debug(f"parent_dirpath: {parent_dirpath}")
+#     if child_passes(check, parent_dirpath, skip_dirpaths=[dirpath]):
+#         logger.info(f"Passed check: {check}")
+#         return True
+#     logger.info(f"Didn't passed with check: {check}")
+#     return False
 
 
 class DeviceAliases(dict):
@@ -290,12 +236,6 @@ class DeviceAliases(dict):
 
     """
 
-    def __init__(self, *, filepath):
-        logger.info("Initializing DeviceAliases")
-        super(DeviceAliases, self).__init__()
-        raw_aliases = self.read_raw_from_json(filepath)
-        self.update(self.parse_raw_aliases(raw_aliases))
-
     @staticmethod
     def write_raw_as_json(filepath, raw_aliases):
         if filepath is None:
@@ -318,28 +258,42 @@ class DeviceAliases(dict):
 
     @staticmethod
     def parse_raw_aliases(raw_aliases):
-        aliases = raw_aliases
+        aliases = {}
+        for pattern, value in raw_aliases.items():
+            alias = value[0]
+            alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
+            alias['pattern'] = pattern
+            aliases[pattern] = value
         return aliases
+
+    def __init__(self, *, filepath):
+        self.filepath = filepath
+        logger.info("Initializing DeviceAliases")
+        super(DeviceAliases, self).__init__()
+        raw_aliases = self.read_raw_from_json(filepath)
+
+        self.update(self.parse_raw_aliases(raw_aliases))
 
     def get(self, nodepath):
         """ Get the alias of highest priority that matches the specified node.
 
-        Note:  id is probably not needed, since dirpath should uniquely specify the
-        node.  Opportunity for refactoring???
+        Note:  Is priority needed now?
         """
         value = super().get(nodepath)
         if value is None:
             return None
         else:
-            # TODO:  Prioritize based on value. Or is this no longer needed
-            return value[0]
+            # TODO:  Prioritize based on value. Or is this no longer needed?
+            alias = value[0]
+            alias['pattern'] = nodepath
+            alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
+            return alias
 
-    # def label(self, name):
-    #     """ Returns a simple label for the specified name.  Only checks the current axis for equality."""
-    #     for checks in self.aliases.keys():
-    #         ancestor_check, current_check, child_check = checks
-    #         current_check_value = current_check[1]
-    #         if ancestor_check is None and current_check_value == name and child_check is None:
-    #             alias = self.get(checks)
-    #             return alias['label']
-    #     return None
+    def write(self, filepath=None):
+        """ Writes the aliases to filepath
+
+        if filepath is None, then write to original path
+        """
+        if filepath is None:
+            filepath = self.filepath
+        self.write_raw_as_json(filepath=filepath, raw_aliases=self)

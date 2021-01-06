@@ -12,6 +12,7 @@
   });
 </script>
 <style>
+
   #add_alias_form {
     background-color: rgb(212, 229, 241);
     padding: 3ch;
@@ -19,10 +20,9 @@
     position: absolute;
     left: 200px;
     top: 150px;
-    width: 700px;
     height: 330px;
     z-index: 11000;
-
+    width: 500px;
   }
   #nodepath {
     width: 100%;
@@ -42,58 +42,73 @@
   .node_attr_table_class {
     display: none;
   }
-  .tree_html {
+    .tree_html {
     padding: 1ch;
-    background-color: {{ tree_html_background_color }};
+  }
+  table#astutus_add_alias_table {
+    width: 100%
+  }
+  #astutus_add_alias_table td:nth-child(1) {
+    width: 20%;
+  }
+  #astutus_add_alias_table td:nth-child(2) {
+    width: 80%;
+  }
+  #astutus_add_alias_table input[type=text] {
+    width: 100%;
+  }
+  #astutus_add_alias_table input[type=number] {
+    width: 8ch;
+  }
+  input[type=color].astutus_color {
+    height: 26px;
+    width: 26px;
+    padding: 1px;
   }
 </style>
 <div id="add_alias_form" >
   <form method="POST">
-    <p>
-      <label for="nodepath">Node path:</label>
-      <input name="nodepath" id="nodepath" type="text" value="need to populated ..." />
-    </p>
-    <p>
-      <label for="template">Template:</label>
-      <input name="template" id="template" type="text" value="need to populated ..." />
-    </p>
-    <p>
-      <label for="color_select">Choose a color:</label>
-      <select name="color_select" id="color_select" >
-        <option value="blue">Blue</option>
-        <option value="cyan">Cyan</option>
-        <option value="green">Green</option>
-        <option value="magenta">Magenta</option>
-        <option value="pink">Pink</option>
-        <option value="purple">Purple</option>
-        <option value="yellow">Yellow</option>
-      </select>
-    </p>
-    <input name="action" id="action" type="hidden" value="add_or_update_alias" />
-    <div id="add_alias_form_button_div">
-      <input type="submit" value="Add" id="add_alias_form_add_button" />
-      <input type="button" value="Cancel" onclick="handleAddAliasFormCancel()"/>
-    </div>
+    <table id="astutus_add_alias_table">
+    <tr>
+      <td><label for="nodepath">Node path:</label></td>
+      <td>
+        <textarea name="nodepath" id="nodepath" rows="3" cols="50" wrap="soft"></textarea>
+        <!-- <input name="nodepath" id="nodepath" type="text" value="need to populate ..." /> -->
+      </td>
+    </tr>
+    <tr>
+      <td><label for="template">Template:</label></td>
+      <td><input name="template" id="template" type="text" value="need to populate ..." /></td>
+    </tr>
+    <tr>
+      <td><label for="color">Choose a color:</label></td>
+      <td><input name="color" id="color" type="color" class="astutus_color"/></td>
+    </tr>
+    <tr>
+      <td><input name="action" id="action" type="hidden" value="add_or_update_alias" /></td>
+    </tr>
+    <tr>
+      <td><input type="submit" value="Add" id="add_alias_form_add_button" /></td>
+      <td><input type="button" value="Cancel" onclick="handleAddAliasFormCancel()"/></td>
+    </tr>
+    </table>
   </form>
 </div>
 <script>
   function handleTreeItemClick(data) {
+    $("#nodepath").val(data["nodepath"]);
+    $("#template").val(data["alias_description_template"]);
+    var color = data["alias_color"];
+    if (color != "") {
+      $("#color").val(color);
+    }
     var container = $("#add_alias_form")
-
     var nodeButton = $("#" + data["idx"])
-
     var buttonOffset = nodeButton.offset();
     // window.alert(buttonOffset.top);
     container.css("top", buttonOffset.top + 30);
     container.css("left", buttonOffset.left + 30);
     container.show();
-
-    $("#nodepath").val(data["nodepath"]);
-    $("#template").val(data["alias_description_template"]);
-    var color = data["alias_color"];
-    if (color != "") {
-      $("#color_select").val(color);
-    }
     if (!isElementInViewport(container)) {
       // Form will be below button
       console.log("Scrolling element into view.")
@@ -139,5 +154,8 @@
     $.post('/astutus/usb/settings', data)
       .fail(function(jqxhr, settings, ex) { alert('failed, ' + ex); });
   }
+
+  // Set the background color upon loading
+  $(".tree_html").css("background-color", '{{ tree_html_background_color }}');
 
 </script>

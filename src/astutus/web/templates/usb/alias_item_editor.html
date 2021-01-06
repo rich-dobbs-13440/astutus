@@ -1,0 +1,46 @@
+<style>
+    input[type=color].astutus_color {
+        height: 26px;
+        width: 26px;
+        padding: 1px;
+    }
+    table#astutus_alias_table {
+        width: 100%
+    }
+    #astutus_alias_table td:nth-child(1) {
+        width: 20%;
+    }
+    #astutus_alias_table td:nth-child(2) {
+        width: 80%;
+    }
+    #astutus_alias_table input[type=text] {
+        width: 100%;
+    }
+    #astutus_alias_table input[type=number] {
+        width: 8ch;
+    }
+</style>
+<form method="POST">
+    <table id="astutus_alias_table">
+        <tr>
+            <td>Name</td><td><input name="name" id="name" type="text" value="{{ alias.name }}" /></td>
+        </tr>
+        <tr>
+            <td>Pattern</td><td><input name="pattern" id="pattern" type="text" value="{{ alias.pattern }}" /></td>
+        </tr>
+        <tr>
+            <td>Template</td><td><input name="template" id="template" type="text" value="{{ alias.description_template }}" /></td>
+        </tr>
+        <tr>
+            <td>Color</td><td><input name="color" id="color" type="color" value="{{ alias.color }}" class="astutus_color" /></td>
+        </tr>
+        <tr>
+            <td>Order</td><td><input name="order" id="order" type="number" value="{{ alias.order }}" min="0" max="100" step="5"/></td>
+        </tr>
+        <tr>
+            <td>Priority</td><td><input name="priority" id="priority" type="number" value="{{ alias.priority }}" min="0" max="100" step="5"/></td>
+        </tr>
+    </table>
+    <input type="hidden" name="original_pattern" id="original_pattern" value="{{ alias.pattern }}" />
+    <input type="submit" name="update" id="update" value="Update"/>
+</form>
