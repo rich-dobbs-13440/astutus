@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import copy
 import json
 import logging
 import os
@@ -277,10 +278,26 @@ class UsbDeviceTree(object):
         return lines
 
     @staticmethod
-    def make_button(data):
+    def sanitize_for_html(data):
+        sanitized_data = copy.deepcopy(data)
+        keys_to_remove = [
+            'resolved_description',
+            'resolved_color',
+            'terminal_colored_node_label_verbose',
+            'terminal_colored_node_label_concise',
+            'terminal_colored_description',
+        ]
+        for key in keys_to_remove:
+            if sanitized_data.get(key) is not None:
+                del sanitized_data[key]
+
+        return sanitized_data
+
+    def make_button(self, data):
         idx = data['idx']
         dirname = data['dirname']
-        data_json = json.dumps(data)
+        sanitized_data = self.sanitize_for_html(data)
+        data_json = json.dumps(sanitized_data)
         return [
             f"<button onclick='handleTreeItemClick({data_json})' id='{idx}' class='astutus_tree_item_button'>{dirname}</button>",  # noqa
             data['html_label']

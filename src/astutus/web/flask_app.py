@@ -56,7 +56,7 @@ def create_app_and_db():
         astutus.web.usb_pages.logger: logging.INFO,
         astutus.raspi.find.logger: logging.INFO,
         astutus.raspi.raspi_impl.logger: logging.INFO,
-        astutus.usb.tree.logger: logging.INFO,
+        astutus.usb.tree.logger: logging.DEBUG,
         astutus.util.term_color.logger: logging.INFO,
     }
     for logger, level in level_by_logger.items():
