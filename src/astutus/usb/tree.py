@@ -282,7 +282,7 @@ class UsbDeviceTree(object):
         dirname = data['dirname']
         data_json = json.dumps(data)
         return [
-            f"<button onclick='handleTreeItemClick({data_json})' id='{idx}'>{dirname}</button>",
+            f"<button onclick='handleTreeItemClick({data_json})' id='{idx}' class='astutus_tree_item_button'>{dirname}</button>",  # noqa
             data['html_label']
         ]
 
@@ -305,7 +305,7 @@ class UsbDeviceTree(object):
             return lines
         elif isinstance(element, list):
             lines = []
-            lines.append("<ul>")
+            lines.append('<ul class="ast">')
             for value in element:
                 lines.append("<li>")
                 lines.extend(self.traverse_element(value))
@@ -318,12 +318,12 @@ class UsbDeviceTree(object):
     def traverse_tree_dict_to_html(self, tree_dict: dict) -> str:
         lines = []
         # For more uniform styling, the entire tree should be a list with a single item.
-        lines.append("<ul>")
+        lines.append('<ul class="ast">')
         lines.append("<li>")
         items = tree_dict
         lines.extend(self.traverse_element(items))
         lines.append("</li>")
-        lines.append("<ul>")
+        lines.append("</ul>")
         return "\n".join(lines)
 
     def get_aliases(self):

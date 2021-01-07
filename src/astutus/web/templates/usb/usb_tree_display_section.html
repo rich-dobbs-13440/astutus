@@ -3,14 +3,6 @@
   <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node Id</input>
   <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)">Background</input>
 </p>
-<div class="tree_html" id="tree_html_container_no">
-{{ tree_html | safe }}
-</div>
-<script>
-  $(function() {
-    $('#tree_html_container').jstree();
-  });
-</script>
 <style>
 
   #add_alias_form {
@@ -65,7 +57,36 @@
     width: 26px;
     padding: 1px;
   }
+  button.astutus_tree_item_button {
+
+    border-radius: 40px;
+  }
+  .rst-content .section #tree_html_container ul.ast li>* {
+    /* background-color: rgb(187, 84, 105); */
+    line-height: 12px;
+    margin-bottom: 1px;
+    margin-top: 1px
+  }
+  /* .rst-content .section #tree_html_container ul.ast>* {
+    background-color: rgb(58, 31, 36);
+    line-height: 12px;
+    margin-bottom: 1px;
+    margin-top: 1px
+  } */
+  /* button.astutus_tree_item_button {
+    line-height: 12px;
+    margin-bottom: 1px;
+    margin-top: 1px
+  } */
 </style>
+<div class="tree_html" id="tree_html_container">
+  {{ tree_html | safe }}
+</div>
+  <!-- <script>
+    $(function() {
+      $('#tree_html_container').jstree();
+    });
+  </script> -->
 <div id="add_alias_form" >
   <form method="POST">
     <table id="astutus_add_alias_table">
