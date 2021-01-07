@@ -8,31 +8,46 @@
     width: 900px;
     resize: both;
     overflow: auto;
-    /* left: 200px;
-    top: 150px; */
     z-index: 11000;
   }
   #astutus-table-scroll {
     height:150px;
     width: 100%;
-    /* overflow-y: scroll; */
     overflow: auto;
     background-color: rgb(119, 23, 23);
   }
+  #astutus-table-wrapper {
+    margin-bottom: 2ch;
+  }
   #astutus-table-wrapper table {
-    width: 500px;
+    width: 100%;
   }
   div.astutus-placeholder {
-    width: 150px;
     text-overflow: ellipsis;
+    background-color: rgb(160, 113, 180);
   }
   div.astutus-current-value {
-    width: 200px;
     text-overflow: ellipsis;
+    background-color: darkgoldenrod;
   }
   div.astutus-insert-placeholder {
-    width: 80px;
+    padding-right: 10px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 0 px;
+    margin: 0px;
+    background-color: khaki;
   }
+  #alias_placeholder_table td:nth-child(1) {
+    background-color: rgb(122, 112, 14);
+    width: 65px;
+  }
+  /* #alias_placeholder_table td:nth-child(2) {
+    background-color: rgb(160, 113, 180);
+  } */
+  /* #alias_placeholder_table td:nth-child(3) {
+    background-color: darkgoldenrod;
+  } */
   #nodepath {
     width: 100%;
   }
@@ -86,15 +101,7 @@
     margin-bottom: 2px;
     margin-top: 2px
   }
-  #alias_placeholder_table td:nth-child(1) {
-    background-color: khaki;
-  }
-  #alias_placeholder_table td:nth-child(2) {
-    background-color: rgb(160, 113, 180);
-  }
-  #alias_placeholder_table td:nth-child(3) {
-    background-color: darkgoldenrod;
-  }
+
 
 
 </style>
@@ -236,7 +243,7 @@
         // Want literal braces for placeholder, so don't bother with string interpolation:
         tdPlaceholder = '<td><div class="astutus-placeholder">{' + key + '}</div></td>';
         tdCurrentValue = `<td><div class="astutus-current-value">${value}</div></td>`;
-        tdbutton = '<td><button class="astutus-insert-placeholder">Insert</button></td>'
+        tdbutton = '<td><div class="astutus-insert-placeholder"><button>Insert</button></div></td>'
         rowText = `<tr>${tdbutton}${tdPlaceholder}${tdCurrentValue}</tr>`;
         $(table_id).append(rowText)
       }
