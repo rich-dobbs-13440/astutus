@@ -4,7 +4,6 @@ Backlog
 Backlog:
 
   * Task: Clean up handling of top of tree.  Visual layout + adding, deleting aliases.
-  * Task: Polish browser presentation of USB tree.
   * Task: Add data and instructions to Add alias dialog in tree display.
   * Task: Rework structure of device aliases file and DeviceAliases class.
   * Task: Style /astutus/raspi page.
@@ -22,6 +21,7 @@ Backlog:
 
 Done:
 
+    * |done| 2021-01-06 20:05 Task: Polish browser presentation of USB tree.
     * |done| 2021-01-06 14:54 Story: Implement a USB print tree command for package.
     * |done| 2021-01-06 14:54 Story: As a user, I can configure my own aliases for physical USB devices.
     * |done| 2021-01-06 14:54 Task: Add ability to edit alias.

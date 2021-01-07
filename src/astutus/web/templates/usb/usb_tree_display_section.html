@@ -1,10 +1,4 @@
-<p>
-  <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
-  <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node Id</input>
-  <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)">Background</input>
-</p>
 <style>
-
   #add_alias_form {
     background-color: rgb(212, 229, 241);
     padding: 3ch;
@@ -57,28 +51,24 @@
     width: 26px;
     padding: 1px;
   }
-  button.astutus_tree_item_button {
-
+  .rst-content .section #tree_html_container ul.ast li button.astutus_tree_item_button {
     border-radius: 40px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-right: 10px;
+    padding-left: 10px;
   }
   .rst-content .section #tree_html_container ul.ast li>* {
-    /* background-color: rgb(187, 84, 105); */
-    line-height: 12px;
-    margin-bottom: 1px;
-    margin-top: 1px
+    line-height: 14px;
+    margin-bottom: 2px;
+    margin-top: 2px
   }
-  /* .rst-content .section #tree_html_container ul.ast>* {
-    background-color: rgb(58, 31, 36);
-    line-height: 12px;
-    margin-bottom: 1px;
-    margin-top: 1px
-  } */
-  /* button.astutus_tree_item_button {
-    line-height: 12px;
-    margin-bottom: 1px;
-    margin-top: 1px
-  } */
 </style>
+<p>
+  <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
+  <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node ID</input>
+  <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)" class="astutus_color">Background Color</input>
+</p>
 <div class="tree_html" id="tree_html_container">
   {{ tree_html | safe }}
 </div>
