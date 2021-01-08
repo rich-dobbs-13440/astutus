@@ -119,6 +119,10 @@ def apply_line_oriented_replacements(html_text):
             pass
         elif '</head>' in line:
             # Add additional head material
+            add_to_output('<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">')
+            add_to_output('<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">')
+            add_to_output('<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">')
+            add_to_output('<link rel="manifest" href="static/site.webmanifest">')
             # Should this be hosted locally to avoid issues with Raspi not connected to internet?
             cdn = '//cdnjs.cloudflare.com/ajax/libs'
             add_to_output(f'<script src="{cdn}/jquery/3.1.1/jquery.min.js"></script>')

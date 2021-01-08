@@ -21,6 +21,7 @@ Backlog:
 
 Done:
 
+    * |done| 2021-01-07 22:49 Task: Add an initial favicon to website.  Mechanics working.  Image needs work.
     * |done| 2021-01-07 22:49 Task: Clean up add alias form on device tree. Background colors and padding.
     * |done| 2021-01-07 22:02 Task: Get basic placeholder insertion to work.
     * |done| 2021-01-06 20:05 Task: Polish browser presentation of USB tree.
