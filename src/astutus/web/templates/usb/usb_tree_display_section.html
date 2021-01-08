@@ -4,23 +4,27 @@
     padding: 3ch;
     display: none;
     position: absolute;
-    height: 800px;
+    height: 405px;
     width: 900px;
     resize: both;
     overflow: auto;
     z-index: 11000;
   }
   #astutus-table-scroll {
-    height:150px;
+    /* height:150px; */
+    height: 100%;
     width: 100%;
     overflow: auto;
     background-color: rgb(119, 23, 23);
   }
   #astutus-table-wrapper {
-    margin-bottom: 2ch;
+    margin-top: 2ch;
+    background-color:rgb(246, 133, 4);
+    height: calc(100% - 170px);
   }
   #astutus-table-wrapper table {
     width: 100%;
+    height: 100%;
   }
   div.astutus-placeholder {
     text-overflow: ellipsis;
@@ -42,12 +46,6 @@
     background-color: rgb(122, 112, 14);
     width: 65px;
   }
-  /* #alias_placeholder_table td:nth-child(2) {
-    background-color: rgb(160, 113, 180);
-  } */
-  /* #alias_placeholder_table td:nth-child(3) {
-    background-color: darkgoldenrod;
-  } */
   #nodepath {
     width: 100%;
   }
@@ -66,7 +64,7 @@
   .node_attr_table_class {
     display: none;
   }
-    .tree_html {
+  .tree_html {
     padding: 1ch;
   }
   table#astutus_add_alias_table {
@@ -101,9 +99,6 @@
     margin-bottom: 2px;
     margin-top: 2px
   }
-
-
-
 </style>
 <p>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
