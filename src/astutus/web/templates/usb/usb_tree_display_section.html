@@ -1,6 +1,10 @@
 <style>
-  #add_alias_form_container {
-    background-color: rgb(212, 229, 241);
+  :root {
+    --read-the-docs-background-color:#fcfcfc;
+    --popup-dialog-background-color: rgb(212, 229, 241);
+  }
+  #add-alias-form-container {
+    background-color: var(--popup-dialog-background-color);
     padding: 3ch;
     display: none;
     position: absolute;
@@ -11,39 +15,40 @@
     z-index: 11000;
   }
   #astutus-table-scroll {
-    /* height:150px; */
     height: 100%;
     width: 100%;
     overflow: auto;
-    background-color: rgb(119, 23, 23);
+    background-color: var(--read-the-docs-background-color);
   }
   #astutus-table-wrapper {
     margin-top: 2ch;
-    background-color:rgb(246, 133, 4);
     height: calc(100% - 170px);
+    border-style: solid;
+    border-width: thin;
   }
   #astutus-table-wrapper table {
     width: 100%;
     height: 100%;
+    /* background-color: var(--read-the-docs-background-color); */
   }
   div.astutus-placeholder {
     text-overflow: ellipsis;
-    background-color: rgb(160, 113, 180);
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
   div.astutus-current-value {
     text-overflow: ellipsis;
-    background-color: darkgoldenrod;
+    padding-top: 4px;
+    padding-bottom: 4px;
   }
   div.astutus-insert-placeholder {
     padding-right: 10px;
     padding-top: 4px;
     padding-bottom: 4px;
-    padding-left: 0 px;
+    padding-left: 4px;
     margin: 0px;
-    background-color: khaki;
   }
-  #alias_placeholder_table td:nth-child(1) {
-    background-color: rgb(122, 112, 14);
+  #alias-placeholder-table td:nth-child(1) {
     width: 65px;
   }
   #nodepath {
@@ -67,34 +72,34 @@
   .tree_html {
     padding: 1ch;
   }
-  table#astutus_add_alias_table {
+  table#astutus-add-alias-table {
     width: 100%
   }
-  #astutus_add_alias_table td:nth-child(1) {
+  #astutus-add-alias-table td:nth-child(1) {
     width: 20%;
   }
-  #astutus_add_alias_table td:nth-child(2) {
+  #astutus-add-alias-table td:nth-child(2) {
     width: 80%;
   }
-  #astutus_add_alias_table input[type=text] {
+  #astutus-add-alias-table input[type=text] {
     width: 100%;
   }
-  #astutus_add_alias_table input[type=number] {
+  #astutus-add-alias-table input[type=number] {
     width: 8ch;
   }
-  input[type=color].astutus_color {
+  input[type=color].astutus-color {
     height: 26px;
     width: 26px;
     padding: 1px;
   }
-  .rst-content .section #tree_html_container ul.ast li button.astutus_tree_item_button {
+  .rst-content .section #tree-html-container ul.ast li button.astutus-tree-item-button {
     border-radius: 40px;
     padding-top: 6px;
     padding-bottom: 6px;
     padding-right: 10px;
     padding-left: 10px;
   }
-  .rst-content .section #tree_html_container ul.ast li>* {
+  .rst-content .section #tree-html-container ul.ast li>* {
     line-height: 14px;
     margin-bottom: 2px;
     margin-top: 2px
@@ -104,20 +109,20 @@
   <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node ID</input>
   <span>
-  <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)" class="astutus_color">Background Color</input>
+  <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)" class="astutus-color">Background Color</input>
   </span>
 </p>
-<div class="tree_html" id="tree_html_container">
+<div class="tree_html" id="tree-html-container">
   {{ tree_html | safe }}
 </div>
   <!-- <script>
     $(function() {
-      $('#tree_html_container').jstree();
+      $('#tree-html-container').jstree();
     });
   </script> -->
-<div id="add_alias_form_container" >
+<div id="add-alias-form-container" >
   <form method="POST">
-    <table id="astutus_add_alias_table">
+    <table id="astutus-add-alias-table">
     <tr>
       <td><label for="nodepath">Node path:</label></td>
       <td>
@@ -140,7 +145,7 @@
     <tr>
       <td><label for="color">Choose a color:</label></td>
       <td>
-        <input name="color" id="color" type="color" class="astutus_color"/>
+        <input name="color" id="color" type="color" class="astutus-color"/>
       </td>
     </tr>
     <tr>
@@ -154,7 +159,7 @@
   </form>
   <div id="astutus-table-wrapper">
     <div id="astutus-table-scroll">
-      <table id="alias_placeholder_table">
+      <table id="alias-placeholder-table">
         <tr><td>Placeholder</td><td>Current Value</td><td></td></tr>
       </table>
     </div>
@@ -169,13 +174,13 @@
       $("#color").val(color);
     }
 
-    var container = $("#add_alias_form_container");
+    var container = $("#add-alias-form-container");
     var nodeButton = $("#" + data["idx"]);
     var buttonOffset = nodeButton.offset();
     container.css("top", buttonOffset.top + 30);
     container.css("left", buttonOffset.left + 30);
 
-    updatePlaceholderTable('#alias_placeholder_table', data);
+    updatePlaceholderTable('#alias-placeholder-table', data);
 
 
     container.show();
@@ -189,7 +194,7 @@
   }
 
   function handleAddAliasFormCancel() {
-    $("#add_alias_form_container").hide();
+    $("#add-alias-form-container").hide();
   }
 
   function isElementInViewport(el) {
@@ -261,8 +266,6 @@
     templateSelectionStart = selectionStart;
     templateSelectionEnd = selectionEnd;
   }
-
-
 
   function handleInsertButtonClick(value) {
     console.log("Need to handle inserting " + value + ' at (' + templateSelectionStart + ', ' +  templateSelectionEnd + ')');

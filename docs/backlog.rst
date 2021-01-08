@@ -21,6 +21,8 @@ Backlog:
 
 Done:
 
+    * |done| 2021-01-07 22:49 Task: Clean up add alias form on device tree. Background colors and padding.
+    * |done| 2021-01-07 22:02 Task: Get basic placeholder insertion to work.
     * |done| 2021-01-06 20:05 Task: Polish browser presentation of USB tree.
     * |done| 2021-01-06 14:54 Story: Implement a USB print tree command for package.
     * |done| 2021-01-06 14:54 Story: As a user, I can configure my own aliases for physical USB devices.

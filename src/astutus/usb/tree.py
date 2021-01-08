@@ -299,7 +299,7 @@ class UsbDeviceTree(object):
         sanitized_data = self.sanitize_for_html(data)
         data_json = json.dumps(sanitized_data)
         return [
-            f"<button onclick='handleTreeItemClick({data_json})' id='{idx}' class='astutus_tree_item_button'>{dirname}</button>",  # noqa
+            f"<button onclick='handleTreeItemClick({data_json})' id='{idx}' class='astutus-tree-item-button'>{dirname}</button>",  # noqa
             data['html_label']
         ]
 
