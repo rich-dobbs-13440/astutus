@@ -103,7 +103,9 @@
 <p>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node ID</input>
+  <span>
   <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)" class="astutus_color">Background Color</input>
+  </span>
 </p>
 <div class="tree_html" id="tree_html_container">
   {{ tree_html | safe }}
@@ -125,11 +127,21 @@
     </tr>
     <tr>
       <td><label for="template">Template:</label></td>
-      <td><input name="template" id="template" type="text" value="need to populate ..." /></td>
+      <td><input
+          name="template"
+          id="template"
+          type="text"
+          value="need to populate ..."
+          onselect="console.log('onselect: ' + Date.now())"
+          oninput="console.log('oninput: ' + Date.now())"
+          onblur="rememberTemplateSelection(this.selectionStart, this.selectionEnd)"
+          onchange="console.log('onchange: ' + Date.now())"/></td>
     </tr>
     <tr>
       <td><label for="color">Choose a color:</label></td>
-      <td><input name="color" id="color" type="color" class="astutus_color"/></td>
+      <td>
+        <input name="color" id="color" type="color" class="astutus_color"/>
+      </td>
     </tr>
     <tr>
       <td><input name="action" id="action" type="hidden" value="add_or_update_alias" /></td>
@@ -223,7 +235,6 @@
     $(table_id).empty();
 
     var dataKeys = getSortedKeys(data);
-    console.log("dataKeys: " + dataKeys)
     var idx;
     var key;
     var value;
@@ -233,14 +244,43 @@
       key = dataKeys[idx];
       if (key != 'idx') {
         value = data[key];
-        // Want literal braces for placeholder, so don't bother with string interpolation:
-        tdPlaceholder = '<td><div class="astutus-placeholder">{' + key + '}</div></td>';
+        placeholder = `{${key}}`
+        tdPlaceholder = `<td><div class="astutus-placeholder">${placeholder}</div></td>`;
         tdCurrentValue = `<td><div class="astutus-current-value">${value}</div></td>`;
-        tdbutton = '<td><div class="astutus-insert-placeholder"><button>Insert</button></div></td>'
+        onClickText = `handleInsertButtonClick('${placeholder}')`
+        tdbutton = `<td><div class="astutus-insert-placeholder"><button onclick="${onClickText}">Insert</button></div></td>`
         rowText = `<tr>${tdbutton}${tdPlaceholder}${tdCurrentValue}</tr>`;
         $(table_id).append(rowText)
       }
     }
+
+  }
+  var templateSelectionStart;
+  var templateSelectionEnd
+  function rememberTemplateSelection( selectionStart, selectionEnd) {
+    templateSelectionStart = selectionStart;
+    templateSelectionEnd = selectionEnd;
+  }
+
+
+
+  function handleInsertButtonClick(value) {
+    console.log("Need to handle inserting " + value + ' at (' + templateSelectionStart + ', ' +  templateSelectionEnd + ')');
+    console.log("The entire string: " + $("#template").val());
+    var templateValue = $("#template").val();
+    var startStr = templateValue.substring(0, templateSelectionStart);
+    console.log("startStr: " + startStr);
+    var endStr = templateValue.substring(templateSelectionEnd);
+    console.log("endStr: " + endStr);
+    var replacementStr = startStr + value + endStr
+    console.log("replacementStr: " + replacementStr);
+    $("#template").val(replacementStr)
+    var currentInsert = templateSelectionStart + value.length
+    console.log('Desired current insert: ' + currentInsert)
+    templateSelectionStart = currentInsert
+    templateSelectionEnd = currentInsert
+    $("#template")[0].selectionStart = currentInsert
+    $("#template")[0].selectionEnd = currentInsert
   }
 
   // Set the background color upon loading
