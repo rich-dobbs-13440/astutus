@@ -15,18 +15,7 @@ processes the files.
     :maxdepth: 1
     :caption: Dynamic Templates:
 
-    flask_app_dyn_astutus
-
-    flask_app_dyn_raspi
-    flask_app_dyn_raspi_find
-    flask_app_dyn_raspi_item
-
-    flask_app_dyn_usb
-    flask_app_dyn_usb_alias
-    flask_app_dyn_usb_alias_item
-    flask_app_dyn_usb_device
-    flask_app_dyn_usb_configuration
-    flask_app_dyn_usb_configuration_item
+    *
 
 
 To create a new dynamic page, here are some steps that you'll need to do:

@@ -29,6 +29,7 @@ import astutus.log
 import astutus.util
 import astutus.web.usb_pages
 import astutus.web.raspi_pages
+import astutus.web.log_pages
 import flask
 import flask.logging
 
@@ -47,6 +48,7 @@ def create_app_and_db():
     app.register_blueprint(astutus.web.raspi_pages.raspi_page)
     astutus.web.raspi_pages.db = db
     app.register_blueprint(astutus.web.usb_pages.usb_page)
+    app.register_blueprint(astutus.web.log_pages.log_page)
 
     flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
     global logger
@@ -54,6 +56,7 @@ def create_app_and_db():
     level_by_logger = {
         astutus_web_flask_app_logger: logging.DEBUG,
         astutus.web.usb_pages.logger: logging.DEBUG,
+        astutus.web.log_pages.logger: logging.DEBUG,
         astutus.raspi.find.logger: logging.INFO,
         astutus.raspi.raspi_impl.logger: logging.INFO,
         astutus.usb.tree.logger: logging.INFO,

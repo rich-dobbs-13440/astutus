@@ -22,7 +22,7 @@ copyright = '2021, Rich Dobbs'
 author = 'Rich Dobbs'
 
 # The full version, including alpha/beta/rc tags
-version = '0.1.4'
+version = '0.1.5'
 release = version
 
 

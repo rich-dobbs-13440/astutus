@@ -41,7 +41,16 @@ As a bonus:  Here is the meaning in Latin:  https://en.wiktionary.org/wiki/astut
 
 Meaning:  shrewd, sagacious, expert, astute.
 
-**Sounds wonderful.**
+**I like that!**
+
+
+Accessing Dynamic Pages
+-----------------------
+
+.. raw:: html
+
+   <p><a href="/astutus">Top of tree for dynamic pages</a></p>
+
 
 
 .. toctree::
