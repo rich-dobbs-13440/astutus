@@ -1,6 +1,6 @@
 {
     "046d:082c": {
-        "color": "magenta",
+        "color": "purple",
         "description_template": "Logitech {product}",
         "name_of_config": "Logitech HD Webcam C615"
     },
@@ -11,34 +11,34 @@
                 "description_template": "{manufacturer} {product} mouse",
                 "test": "value_in_stdout",
                 "value": "mouse",
-                "color": "magenta"
+                "color": "purple"
             },
             {
                 "cmd": "grep -r . -e \"numlock\" 2>/dev/null",
                 "description_template": "{manufacturer} {product} keyboard",
                 "test": "value_in_stdout",
                 "value": "numlock",
-                "color": "magenta"
+                "color": "purple"
             }
         ],
         "name_of_config": "Logitech, Inc. Unifying Receiver - 046d:c52b"
     },
     "046d:c52f": {
-        "color": "magenta",
+        "color": "purple",
         "stylers": [
             {
                 "cmd": "grep -r . -e \"mouse\" 2>/dev/null",
                 "description_template": "{manufacturer} {product} mouse",
                 "test": "value_in_stdout",
                 "value": "mouse",
-                "color": "magenta"
+                "color": "purple"
             },
             {
                 "cmd": "grep -r . -e \"numlock\" 2>/dev/null",
                 "description_template": "{manufacturer} {product} keyboard",
                 "test": "value_in_stdout",
                 "value": "numlock",
-                "color": "magenta"
+                "color": "purple"
             }
         ],
         "name_of_config": "Logitech, Inc. Unifying Receiver - 046d:c52f"
@@ -59,7 +59,7 @@
         "name_of_config": "Realtek USB 10/100/1000 LAN"
     },
     "0e6f:0232": {
-        "color": "magenta",
+        "color": "purple",
         "description_template": "{product}",
         "name_of_config": "PDPGaming LVL50 Wireless Headset"
     },

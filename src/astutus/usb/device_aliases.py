@@ -138,68 +138,6 @@ def find_node_paths(value):
     return node_paths
 
 
-# def ancestor_passes(check, dirpath):
-#     """ Checks if any ancestor of a node matches the specified check. """
-#     logger.info(f"In ancestor_passes, with dirpath: {dirpath} and check {check}")
-#     if check is None:
-#         return True
-#     operator, value = check
-#     # Only implementing equality operator now.
-#     assert operator == "=="
-#     ilk, vendor, device = astutus.usb.node.parse_value(value)
-#     logger.debug(f"dirpath: {dirpath}")
-#     a_dirpath, current = dirpath.rsplit('/', 1)
-#     while a_dirpath != '/sys/devices':
-#         if matches_as_node(a_dirpath, ilk, vendor, device):
-#             logger.info(f"Match for ancestor: {a_dirpath}")
-#             return True
-#         a_dirpath, current = a_dirpath.rsplit('/', 1)
-#     logger.info(f"No match for any ancestor of: {dirpath}")
-#     return False
-
-
-# def child_passes(check, dirpath, skip_dirpaths=[]):
-#     """ Checks if any immediate child of a node matches the specified check. """
-#     # skip_dirpaths is for sibling checks, to avoid having current
-#     # being considered a sibling of itself
-#     logger.info(f"In child_passes, with dirpath: {dirpath} and check {check}")
-#     if check is None:
-#         return True
-#     operator, value = check
-#     # Only implementing equality operator now.
-#     assert operator == "=="
-#     ilk, vendor, device = astutus.usb.node.parse_value(value)
-#     root, dirs, _ = next(os.walk(dirpath))
-#     for dir in dirs:
-#         subdirpath = os.path.join(root, dir)
-#         if subdirpath in skip_dirpaths:
-#             logger.info(f"Skipping subdirpath: {subdirpath}")
-#             continue
-#         if matches_as_node(subdirpath, ilk, vendor, device):
-#             logger.info(f"Match for: {subdirpath}")
-#             return True
-#         logger.info(f"No match for: {subdirpath}")
-#     return False
-
-
-# def sibling_passes(check, dirpath):
-#     """ Checks if any immediate sibling of a node matches the specified check. """
-#     logger.info(f"In sibling_passes, with dirpath: {dirpath} and check {check}")
-#     if check is None:
-#         return True
-#     operator, value = check
-#     # Only implementing equality operator now.
-#     assert operator == "=="
-#     ilk, vendor, device = astutus.usb.node.parse_value(value)
-#     parent_dirpath, current = dirpath.rsplit('/', 1)
-#     logger.debug(f"parent_dirpath: {parent_dirpath}")
-#     if child_passes(check, parent_dirpath, skip_dirpaths=[dirpath]):
-#         logger.info(f"Passed check: {check}")
-#         return True
-#     logger.info(f"Didn't passed with check: {check}")
-#     return False
-
-
 class DeviceAliases(dict):
     """ The device aliases class provides a dictionary between selectors and aliases for a node.
 
@@ -274,20 +212,39 @@ class DeviceAliases(dict):
 
         self.update(self.parse_raw_aliases(raw_aliases))
 
-    def get(self, nodepath):
-        """ Get the alias of highest priority that matches the specified node.
+    def find(self, nodepath: str) -> [dict]:
+        """ Find all aliases that partially match the nodepath.  """
+        logger.debug(f"nodepath: {nodepath}")
+        aliases = []
+        for pattern, value in super().items():
+            if nodepath.endswith(pattern):
+                aliases.append(value[0])
+        logger.debug(f"aliases: {aliases}")
+        return aliases
 
-        Note:  Is priority needed now?
-        """
-        value = super().get(nodepath)
+    def find_highest_priority(self, nodepath: str) -> dict:
+        aliases = self.find(nodepath)
+        highest = None
+        for alias in aliases:
+            if highest is None:
+                highest = alias
+            else:
+                if alias['priority'] > highest['priority']:
+                    highest = alias
+        return highest
+
+    def get(self, pattern):
+        """ Get the alias that exactly matches the pattern"""
+        logger.debug(f'pattern: {pattern}')
+        value = super().get(pattern)
         if value is None:
-            return None
+            alias = None
         else:
-            # TODO:  Prioritize based on value. Or is this no longer needed?
             alias = value[0]
-            alias['pattern'] = nodepath
+            alias['pattern'] = pattern
             alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
-            return alias
+        logger.debug(f'alias: {alias}')
+        return alias
 
     def write(self, filepath=None):
         """ Writes the aliases to filepath

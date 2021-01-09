@@ -21,11 +21,17 @@ Install and update using `pip`_:
 
     pip install -U astutus
 
+At this time, this code is Alpha quality, having only been used
+on the development machine.
+
 
 Technologies
 ------------
 
-Here are the technologies some of the technologies I've used in past:
+Here are some of the technologies I've used in the past and will
+be incorporating into this code base.
+
+Full-stack web developer skills:
 
 - Flask
 - Flask-SQLAlchemy
@@ -33,21 +39,34 @@ Here are the technologies some of the technologies I've used in past:
 - HTML5
 - CSS
 - SQL
+- Javascript
+- JQuery
 - Sphinx
 - Restructured Text
+- REST API's
+
+
+Python Technologies:
+
 - Integrated Documentation
 - Setuptools
 - Pytest
-- REST API's
+
+Productivity Technologies:
+
+- Test Driven Development
 - Continuous Improvement
 - Automation
 - Continuous Integration
 - Continuous Deployment
-- Docker
-- Raspbery Pi
 - Semantic Versioning
 - Agile Planning
 - Bias for Action
+
+Other Technologies:
+
+- Docker
+- Raspbery Pi
 
 Not all of these are yet incorporated into this code base.
 This is a work-in-progress.  As time passes more of these

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import copy
 import json
 import logging
 import os
@@ -17,7 +18,8 @@ import treelib
 logger = logging.getLogger(__name__)
 
 # TODO:  Move this to astutus.util to avoid breaking DRY principle.
-DEFAULT_BASEPATH = "/sys/devices/pci0000:00"
+# DEFAULT_BASEPATH = "/sys/devices/pci0000:00"
+DEFAULT_BASEPATH = "/sys/devices"
 DEFAULT_DEVICE_ALIASES_FILEPATH = "~/.astutus/device_aliases.json"
 DEFAULT_DEVICE_CONFIGURATIONS_FILEPATH = "~/.astutus/device_configurations.json"
 
@@ -45,7 +47,7 @@ class UsbDeviceTree(object):
         self.basepath = basepath
         self.device_aliases_filepath = device_aliases_filepath
         self.device_configurations_filepath = device_configurations_filepath
-        # These
+        # These items for lazy evaluation.
         self.slot_to_device_info_map = None
         self.treelib_tree = None
         self.device_configurations = None
@@ -62,6 +64,7 @@ class UsbDeviceTree(object):
 
     @staticmethod
     def walk_basepath_for_usb(basepath):
+        logger.info(f"Start walk for {basepath}")
         ilk_by_dirpath = {}
         usb_device_paths = []
         for dirpath, dirnames, filenames in os.walk(basepath):
@@ -72,6 +75,7 @@ class UsbDeviceTree(object):
                 ilk_by_dirpath[dirpath] = "pci"
             else:
                 ilk_by_dirpath[dirpath] = "other"
+        logger.info(f"End walk for {basepath}")
         return usb_device_paths, ilk_by_dirpath
 
     @staticmethod
@@ -98,7 +102,7 @@ class UsbDeviceTree(object):
                 assert data.get('dirpath') is not None, data
             elif ilk == 'pci':
                 data = astutus.usb.node.PciDeviceNodeData.extract_data(dirpath)
-                slot = data['dirname'][5:]  # noqa
+                slot = data['dirname'][5:]
                 device_info = self.get_device_info_map().get(slot)
                 if device_info is not None:
                     data.update(device_info)
@@ -107,8 +111,10 @@ class UsbDeviceTree(object):
                 assert data.get('dirpath') is not None, data
             else:
                 _, dirname = dirpath.rsplit("/", 1)
-                data = {'ilk': ilk, 'dirpath': dirpath, 'dirname': dirname}
-                assert data.get('dirpath') is not None, data
+                data = astutus.usb.node.OtherDeviceNodeData.extract_data(dirpath)
+                logger.debug(f'ilk: {data.get("ilk")}')
+                logger.debug(f'dirpath: {data.get("dirpath")}')
+                logger.debug(f'dirname: {data.get("dirname")}')
             data_by_dirpath[dirpath] = data
         return data_by_dirpath
 
@@ -200,7 +206,7 @@ class UsbDeviceTree(object):
             parent_dirpath, dirname = dirpath.rsplit('/', 1)
             ilk = ilk_by_dirpath[dirpath]
             nodepath = data.get('nodepath')
-            alias = device_aliases.get(nodepath)
+            alias = device_aliases.find_highest_priority(nodepath)
             device_config = device_configurations.find_configuration(data)
             if ilk == 'usb':
                 node_data = astutus.usb.node.UsbDeviceNodeData(
@@ -213,10 +219,8 @@ class UsbDeviceTree(object):
                     config=device_config,
                     alias=alias)
             elif ilk == 'other':
-                data['node_id'] = basepath
-                data['nodepath'] = data['dirname']
-                assert data['nodepath'], data
-                node_data = astutus.usb.node.PciDeviceNodeData(
+                logger.error(f'alias: {alias} nodepath: {nodepath}  data: {data}')
+                node_data = astutus.usb.node.OtherDeviceNodeData(
                     data=data,
                     config=device_config,
                     alias=alias)
@@ -277,12 +281,28 @@ class UsbDeviceTree(object):
         return lines
 
     @staticmethod
-    def make_button(data):
+    def sanitize_for_html(data):
+        sanitized_data = copy.deepcopy(data)
+        keys_to_remove = [
+            'resolved_description',
+            'resolved_color',
+            'terminal_colored_node_label_verbose',
+            'terminal_colored_node_label_concise',
+            'terminal_colored_description',
+        ]
+        for key in keys_to_remove:
+            if sanitized_data.get(key) is not None:
+                del sanitized_data[key]
+
+        return sanitized_data
+
+    def make_button(self, data):
         idx = data['idx']
         dirname = data['dirname']
-        data_json = json.dumps(data)
+        sanitized_data = self.sanitize_for_html(data)
+        data_json = json.dumps(sanitized_data)
         return [
-            f"<button onclick='handleTreeItemClick({data_json})' id='{idx}'>{dirname}</button>",
+            f"<button onclick='handleTreeItemClick({data_json})' id='{idx}' class='astutus-tree-item-button'>{dirname}</button>",  # noqa
             data['html_label']
         ]
 
@@ -305,7 +325,7 @@ class UsbDeviceTree(object):
             return lines
         elif isinstance(element, list):
             lines = []
-            lines.append("<ul>")
+            lines.append('<ul class="ast">')
             for value in element:
                 lines.append("<li>")
                 lines.extend(self.traverse_element(value))
@@ -317,8 +337,13 @@ class UsbDeviceTree(object):
 
     def traverse_tree_dict_to_html(self, tree_dict: dict) -> str:
         lines = []
+        # For more uniform styling, the entire tree should be a list with a single item.
+        lines.append('<ul class="ast">')
+        lines.append("<li>")
         items = tree_dict
         lines.extend(self.traverse_element(items))
+        lines.append("</li>")
+        lines.append("</ul>")
         return "\n".join(lines)
 
     def get_aliases(self):
@@ -384,8 +409,7 @@ class UsbDeviceTree(object):
             tree.show(data_property="colorized_node_label_for_terminal", key=key_by_node_data_key)
 
         if to_dict:
-
-            return
+            return self.get_tree_as_dict()
 
         if to_html:
             tree = self.get_treelib_tree()

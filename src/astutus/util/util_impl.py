@@ -65,7 +65,12 @@ def persist_setting(category_as_url, attribute, value):
 
 def convert_color_for_html_input_type_color(color):
     # Need to interpret named color into hexidecimal format
-    if not color.startswith("#"):
+    if color is None:
+        # Pick a color that works against either black or white
+        color = webcolors.name_to_hex('green')
+    elif color == 'None':
+        color = webcolors.name_to_hex('green')
+    elif not color.startswith("#"):
         color = webcolors.name_to_hex(color)
     assert color.startswith("#")
     return color

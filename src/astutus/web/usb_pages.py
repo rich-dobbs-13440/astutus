@@ -80,11 +80,12 @@ def handle_usb_device():
     if flask.request.method == 'POST':
         form = flask.request.form
         if form.get("action") == "add_or_update_alias":
+            logger.info("Handle add_or_update_alias")
             nodepath = form.get('nodepath')
             logger.debug(f"nodepath: {nodepath}")
             template = form.get('template')
             logger.debug(f"template: {template}")
-            color = form.get('color_select')
+            color = form.get('color')
             logger.debug(f"color: {color}")
             aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
             aliases[nodepath] = [{

@@ -72,6 +72,27 @@ class DeviceNode(dict):
         return self.data['terminal_colored_node_label_concise']
 
 
+class OtherDeviceNodeData(DeviceNode):
+
+    cls_order = "05"
+
+    @staticmethod
+    def node_id_from_data(data):
+        return f'other({data.get("dirname", "???")})'
+
+    @classmethod
+    def extract_data(cls, dirpath):
+        data = astutus.usb.usb_impl.extract_specified_data(dirpath, astutus.usb.usb_impl.PCI_KEY_ATTRIBUTES)
+        data['node_id'] = cls.node_id_from_data(data)
+        data['ilk'] = 'other'
+        return data
+
+    def __init__(self, *, data, config, alias):
+        assert data.get('dirpath') is not None, data
+        data["description"] = data['dirpath']
+        super(OtherDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
+
+
 class PciDeviceNodeData(DeviceNode):
 
     cls_order = "10"
@@ -88,10 +109,8 @@ class PciDeviceNodeData(DeviceNode):
         return data
 
     def __init__(self, *, data, config, alias):
-        # TODO:  "Use lspci to get description"
         assert data.get('dirpath') is not None, data
-        data["description"] = 'use lspci'  # data['node_id']
-        # logger.debug(f'alias: {alias}')
+        data["description"] = "{Device}"  # f"data: {data}"
         super(PciDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
 
 

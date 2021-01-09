@@ -1,5 +1,5 @@
 <style>
-    input[type=color].astutus_color {
+    input[type=color].astutus-color {
         height: 26px;
         width: 26px;
         padding: 1px;
@@ -19,7 +19,7 @@
             <table>
                 {% for key, value in styler.items() %}
                     {% if key == 'color' %}
-                        <tr><td>{{ key }}</td><td><input type="color" value="{{ value }}" class="astutus_color"/></td></tr>
+                        <tr><td>{{ key }}</td><td><input type="color" value="{{ value }}" class="astutus-color"/></td></tr>
                     {% else %}
                         <tr><td>{{ key }}</td><td><input type="text" value="{{ value }}"/></td></tr>
                     {% endif %}
