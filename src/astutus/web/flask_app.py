@@ -53,10 +53,11 @@ def create_app_and_db():
     astutus_web_flask_app_logger = logger
     level_by_logger = {
         astutus_web_flask_app_logger: logging.DEBUG,
-        astutus.web.usb_pages.logger: logging.INFO,
+        astutus.web.usb_pages.logger: logging.DEBUG,
         astutus.raspi.find.logger: logging.INFO,
         astutus.raspi.raspi_impl.logger: logging.INFO,
-        astutus.usb.tree.logger: logging.DEBUG,
+        astutus.usb.tree.logger: logging.INFO,
+        astutus.usb.device_aliases.logger: logging.DEBUG,
         astutus.util.term_color.logger: logging.INFO,
     }
     for logger, level in level_by_logger.items():
