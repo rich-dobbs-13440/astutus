@@ -1,5 +1,7 @@
 Logging
 =======
 
+{{DESTINATION}} log/dyn_log.html {{END_DESTINATION}}
 
-Enumerate modules that contain loggers here.
+
+{{INCLUDE}} log/loggers.html {{END_INCLUDE}}

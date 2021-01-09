@@ -21,7 +21,7 @@ wy_menu_vertical_list = [
 ]
 wy_menu_vertical = "\n".join(wy_menu_vertical_list)
 
-static_base = "/static/_docs/_static"
+static_base = None  # Will be set when pages are registered.
 
 
 @usb_page.route('/astutus/usb', methods=['GET'])
