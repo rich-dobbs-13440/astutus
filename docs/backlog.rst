@@ -3,7 +3,7 @@ Backlog
 
 Backlog:
 
-  * Task: Refactor popup dialog templating for better reuse.
+  * Task: Speedup rendering of device tree page.
   * Task: Rework structure of device aliases file and DeviceAliases class.
   * Task: Style /astutus/raspi page.
   * Story: As a developer, I can view documentation from RPi
@@ -19,6 +19,7 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-10 10:01 Task: Refactor popup dialog templating for better reuse.
   * |done| 2021-01-10 08:07 Task: Add data and instructions to Add alias dialog in tree display.
   * |done| 2021-01-09 22:28 Task: Single source version number between code, package, and documentation.
   * |done| 2021-01-09 20:28 Story: As a Flask developer, I need to be able to control logging by module at runtime.
