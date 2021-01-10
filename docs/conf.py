@@ -13,6 +13,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../src'))
+import astutus  # noqa
 
 
 # -- Project information -----------------------------------------------------
@@ -22,8 +23,8 @@ copyright = '2021, Rich Dobbs'
 author = 'Rich Dobbs'
 
 # The full version, including alpha/beta/rc tags
-version = '0.1.5'
-release = version
+version = astutus.__version__
+release = version + "a2021.01.09.22.19"
 
 
 # -- General configuration ---------------------------------------------------

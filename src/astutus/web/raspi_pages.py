@@ -57,7 +57,6 @@ def handle_raspi():
         if flask.request.args.get('find') is not None:
             logger.debug("Go to display_raspi_find")
             return display_raspi_find(search_result=None, filter=["Raspberry"])
-        logger.error("Just display base form")
         items = astutus.db.RaspberryPi.query.all()
         links_list = []
         for item in items:

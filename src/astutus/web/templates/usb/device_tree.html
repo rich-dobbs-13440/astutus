@@ -2,17 +2,25 @@
   :root {
     --read-the-docs-background-color:#fcfcfc;
     --popup-dialog-background-color: rgb(212, 229, 241);
+    --alias-editor-height: 170px;
+    --placeholder-instructions-height: 30px;
+    --popup-dialog-initial-height: 405px;
+    --popup-dialog-initial-width: 900px;
+    --popup-dialog-static-height: calc(var(--alias-editor-height) + var(--placeholder-instructions-height))
   }
   #add-alias-form-container {
     background-color: var(--popup-dialog-background-color);
     padding: 3ch;
     display: none;
     position: absolute;
-    height: 405px;
-    width: 900px;
+    height: var(--popup-dialog-initial-height);
+    width: var(--popup-dialog-initial-width);
     resize: both;
     overflow: auto;
     z-index: 11000;
+  }
+  div.add-alias-form {
+    margin-bottom: 2ch;
   }
   #astutus-table-scroll {
     height: 100%;
@@ -21,15 +29,13 @@
     background-color: var(--read-the-docs-background-color);
   }
   #astutus-table-wrapper {
-    margin-top: 2ch;
-    height: calc(100% - 170px);
+    height: calc(100% - var(--popup-dialog-static-height));
     border-style: solid;
     border-width: thin;
   }
   #astutus-table-wrapper table {
     width: 100%;
     height: 100%;
-    /* background-color: var(--read-the-docs-background-color); */
   }
   div.astutus-placeholder {
     text-overflow: ellipsis;
@@ -72,12 +78,15 @@
   .tree_html {
     padding: 1ch;
   }
+  table.astutus-table-scroll-header,
   table#astutus-add-alias-table {
     width: 100%
   }
+  table.astutus-table-scroll-header td:nth-child(1),
   #astutus-add-alias-table td:nth-child(1) {
     width: 20%;
   }
+  table.astutus-table-scroll-header td:nth-child(2),
   #astutus-add-alias-table td:nth-child(2) {
     width: 80%;
   }
@@ -115,48 +124,56 @@
 <div class="tree_html" id="tree-html-container">
   {{ tree_html | safe }}
 </div>
-  <!-- <script>
+  <!-- TODO: Add in collapsing feature without bringing the ugly styling
+    <script>
     $(function() {
       $('#tree-html-container').jstree();
     });
   </script> -->
 <div id="add-alias-form-container" >
-  <form method="POST">
-    <table id="astutus-add-alias-table">
-    <tr>
-      <td><label for="nodepath">Node path:</label></td>
-      <td>
-        <textarea name="nodepath" id="nodepath" rows="3" cols="50" wrap="soft"></textarea>
-        <!-- <input name="nodepath" id="nodepath" type="text" value="need to populate ..." /> -->
-      </td>
-    </tr>
-    <tr>
-      <td><label for="template">Template:</label></td>
-      <td><input
-          name="template"
-          id="template"
-          type="text"
-          value="need to populate ..."
-          onselect="console.log('onselect: ' + Date.now())"
-          oninput="console.log('oninput: ' + Date.now())"
-          onblur="rememberTemplateSelection(this.selectionStart, this.selectionEnd)"
-          onchange="console.log('onchange: ' + Date.now())"/></td>
-    </tr>
-    <tr>
-      <td><label for="color">Choose a color:</label></td>
-      <td>
-        <input name="color" id="color" type="color" class="astutus-color"/>
-      </td>
-    </tr>
-    <tr>
-      <td><input name="action" id="action" type="hidden" value="add_or_update_alias" /></td>
-    </tr>
-    <tr>
-      <td><input type="submit" value="Add" id="add_alias_form_add_button" /></td>
-      <td><input type="button" value="Cancel" onclick="handleAddAliasFormCancel()"/></td>
-    </tr>
+  <div class="add-alias-form">
+    <form method="POST">
+      <table id="astutus-add-alias-table">
+      <tr>
+        <td><label for="nodepath">Node path:</label></td>
+        <td>
+          <textarea name="nodepath" id="nodepath" rows="3" cols="50" wrap="soft"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <td><label for="template">Template:</label></td>
+        <td><input
+            name="template"
+            id="template"
+            type="text"
+            value="need to populate ..."
+            onselect="console.log('onselect: ' + Date.now())"
+            oninput="console.log('oninput: ' + Date.now())"
+            onblur="rememberTemplateSelection(this.selectionStart, this.selectionEnd)"
+            onchange="console.log('onchange: ' + Date.now())"/></td>
+      </tr>
+      <tr>
+        <td><label for="color">Choose a color:</label></td>
+        <td>
+          <input name="color" id="color" type="color" class="astutus-color"/>
+        </td>
+      </tr>
+      <tr>
+        <td><input name="action" id="action" type="hidden" value="add_or_update_alias" /></td>
+      </tr>
+      <tr>
+        <td><input type="submit" value="Add" id="add_alias_form_add_button" /></td>
+        <td><input type="button" value="Cancel" onclick="handleAddAliasFormCancel()"/></td>
+      </tr>
+      </table>
+    </form>
+  </div>
+  <div id="placeholder-instructions">
+    The following placeholders can be inserted into the template by clicking its Insert button.
+    <table class="astutus-table-scroll-header">
+      <thead><tr><th></th><th>Placeholder</th><th>Current Value</th></tr></thead>
     </table>
-  </form>
+  </div>
   <div id="astutus-table-wrapper">
     <div id="astutus-table-scroll">
       <table id="alias-placeholder-table">
@@ -199,7 +216,6 @@
 
   function isElementInViewport(el) {
 
-    // Special bonus for those using jQuery
     if (typeof jQuery === "function" && el instanceof jQuery) {
         el = el[0];
     }
@@ -209,8 +225,8 @@
     return (
         rect.top >= 0 &&
         rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /* or $(window).height() */
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth) /* or $(window).width() */
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
     );
   }
 
@@ -227,6 +243,7 @@
     data = {
       "background-color": colorInput.value
     }
+    // TODO: should be patch, not post.
     $.post('/astutus/usb/settings', data)
       .fail(function(jqxhr, settings, ex) { alert('failed, ' + ex); });
   }
@@ -268,6 +285,7 @@
   }
 
   function handleInsertButtonClick(value) {
+    // Insert a placeholder into the template.
     console.log("Need to handle inserting " + value + ' at (' + templateSelectionStart + ', ' +  templateSelectionEnd + ')');
     console.log("The entire string: " + $("#template").val());
     var templateValue = $("#template").val();

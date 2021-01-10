@@ -193,7 +193,7 @@ def handle_usb_configuration():
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         device_configurations = astutus.usb.DeviceConfigurations()
         return flask.render_template(
-            'usb/dyn_usb_configuration.html',
+            'usb/dyn_device_configurations.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
@@ -215,7 +215,7 @@ def handle_usb_configuration_item(node_id):
         device_configurations = astutus.usb.DeviceConfigurations()
         device_config = device_configurations.get_item(node_id)
         return flask.render_template(
-            'usb/dyn_usb_configuration_item.html',
+            'usb/dyn_configuration_item.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,

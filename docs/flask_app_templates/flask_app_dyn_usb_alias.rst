@@ -18,4 +18,4 @@ the challenges of the USB implementation:
 Device Aliases
 --------------
 
-{{INCLUDE}} usb/usb_device_aliases_display_section.html {{END_INCLUDE}}
+{{INCLUDE}} usb/device_aliases.html {{END_INCLUDE}}

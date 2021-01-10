@@ -3,10 +3,20 @@ import setuptools.command.install
 import setuptools.command.develop
 import os
 import os.path
+import re
 
 
 with open("../README.rst", "r") as fh:
     long_description = fh.read()
+
+# Version is in this format:  __version__ = '0.1.5'
+
+with open("../src/astutus/version.py") as fh:
+    version_content = fh.read()
+
+pattern = r"__version__\s*=\s*'([^']+)'"
+matches = re.search(pattern, version_content)
+version_string = matches.group(1)
 
 
 # Create list for package data manually, since wildcard are not universally supported
@@ -30,6 +40,7 @@ package_data.append("usb/device_configurations.json")
 
 
 setuptools.setup(
+    version=version_string,
     long_description=long_description,
     long_description_content_type="text/x-rst",
     package_dir={'': "../src/"},
