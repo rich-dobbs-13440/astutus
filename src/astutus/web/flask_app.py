@@ -21,15 +21,16 @@ Maintainence note:
 import json
 import logging
 import os
+import sqlite3
 
-import astutus.raspi
-import astutus.web.flask_app
 import astutus.db
 import astutus.log
+import astutus.raspi
 import astutus.util
-import astutus.web.usb_pages
-import astutus.web.raspi_pages
+import astutus.web.flask_app
 import astutus.web.log_pages
+import astutus.web.raspi_pages
+import astutus.web.usb_pages
 import flask
 import flask.logging
 
@@ -38,31 +39,36 @@ logger = logging.getLogger(__name__)
 
 def create_app_and_db(static_base):
 
-    app = flask.Flask('astutus.web.flask_app', template_folder='templates')
-    app.config["SQLALCHEMY_DATABASE_URI"] = astutus.db.get_url()
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db = astutus.db.get_instance()
-    db.init_app(app)
-    with app.app_context():
-        astutus.db.initialize_db_if_needed()
-        app.register_blueprint(astutus.web.raspi_pages.raspi_page)
-        astutus.web.raspi_pages.db = db
-        astutus.web.raspi_pages.static_base = static_base
-        app.register_blueprint(astutus.web.usb_pages.usb_page)
-        astutus.web.usb_pages.static_base = static_base
-        app.register_blueprint(astutus.web.log_pages.log_page)
-        astutus.web.log_pages.static_base = static_base
-        astutus.web.log_pages.db = db
-        # Handle logging configuration
-        flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
-        level_by_logger_name = {}
-        for item in astutus.db.Logger.query.all():
-            level_by_logger_name[item.name] = item.level
-        for logger in astutus.log.get_loggers():
-            logger.addHandler(flask.logging.default_handler)
-            level = level_by_logger_name.get(logger.name, logging.WARNING)
-            logger.setLevel(level)
-        return app, db
+    try:
+        app = flask.Flask('astutus.web.flask_app', template_folder='templates')
+        app.config["SQLALCHEMY_DATABASE_URI"] = astutus.db.get_url()
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        db = astutus.db.get_instance()
+        db.init_app(app)
+        with app.app_context():
+            astutus.db.initialize_db_if_needed()
+            app.register_blueprint(astutus.web.raspi_pages.raspi_page)
+            astutus.web.raspi_pages.db = db
+            astutus.web.raspi_pages.static_base = static_base
+            app.register_blueprint(astutus.web.usb_pages.usb_page)
+            astutus.web.usb_pages.static_base = static_base
+            app.register_blueprint(astutus.web.log_pages.log_page)
+            astutus.web.log_pages.static_base = static_base
+            astutus.web.log_pages.db = db
+            # Handle logging configuration
+            flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
+            level_by_logger_name = {}
+            for item in astutus.db.Logger.query.all():
+                level_by_logger_name[item.name] = item.level
+            for logger in astutus.log.get_loggers():
+                logger.addHandler(flask.logging.default_handler)
+                level = level_by_logger_name.get(logger.name, logging.WARNING)
+                logger.setLevel(level)
+            return app, db
+    except sqlite3.OperationalError as exception:
+        logger.error(exception)
+    raise RuntimeError("Please delete out-of-date database.")
+
 
 
 static_base = "/static/_docs/_static"

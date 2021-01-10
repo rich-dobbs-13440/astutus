@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 from http import HTTPStatus
 
 import astutus.usb
@@ -47,16 +48,51 @@ def handle_usb():
             links=links)
 
 
+@usb_page.route('/astutus/usb/device_with_ajax', methods=['GET'])
+def handle_usb_device_with_ajax():
+    if flask.request.method == 'GET':
+        begin = datetime.now()
+        logger.info("Start device tree data creation")
+        device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
+        # tree_dict = device_tree.execute_tree_cmd(to_dict=True)
+        # render_as_json = False
+        # if render_as_json:
+        #     return tree_dict
+        logger.info("Obtained tree_dict")
+        tree_dirpaths = device_tree.execute_tree_cmd(to_tree_dirpaths=True)
+        logger.info("Obtained tree_html")
+        breadcrumbs_list = [
+            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+            '<li><a href="/astutus/usb">/usb</a> &raquo;</li>',
+            '<li>/device</li>',
+        ]
+        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        background_color = astutus.util.get_setting('/astutus/usb/settings', 'background_color', "#fcfcfc")
+        delta = datetime.now() - begin
+        logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
+
+        return flask.render_template(
+            'usb/dyn_usb_device.html',
+            static_base=static_base,
+            breadcrumbs_list_items=breadcrumbs_list_items,
+            wy_menu_vertical=wy_menu_vertical,
+            tree_dirpaths=tree_dirpaths,
+            tree_html=None,
+            tree_html_background_color=background_color)
+
+
 @usb_page.route('/astutus/usb/device', methods=['GET', 'POST'])
 def handle_usb_device():
     """ usb_page.route('/astutus/usb/device', methods=['GET', 'POST']) """
     if flask.request.method == 'GET':
+        begin = datetime.now()
         logger.info("Start device tree data creation")
         device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
-        tree_dict = device_tree.execute_tree_cmd(to_dict=True)
-        render_as_json = False
-        if render_as_json:
-            return tree_dict
+        # tree_dict = device_tree.execute_tree_cmd(to_dict=True)
+        # render_as_json = False
+        # if render_as_json:
+        #     return tree_dict
         logger.info("Obtained tree_dict")
         tree_html = device_tree.execute_tree_cmd(to_html=True)
         logger.info("Obtained tree_html")
@@ -68,13 +104,15 @@ def handle_usb_device():
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         background_color = astutus.util.get_setting('/astutus/usb/settings', 'background_color', "#fcfcfc")
-        logger.info("Start rendering template for device tree")
+        delta = datetime.now() - begin
+        logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
+
         return flask.render_template(
             'usb/dyn_usb_device.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
-            tree=json.dumps(tree_dict),
+            # tree=json.dumps(tree_dict),
             tree_html=tree_html,
             tree_html_background_color=background_color)
     if flask.request.method == 'POST':

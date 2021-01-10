@@ -1,0 +1,77 @@
+:root {
+    --alias-editor-height: 170px;
+    --placeholder-instructions-height: 30px;
+    --other-height: 20px;
+    --astutus-table-scroll-static-height: calc(var(--alias-editor-height) + var(--placeholder-instructions-height) + var(--other-height));
+  }
+  div.add-alias-form {
+    margin-bottom: 2ch;
+  }
+  div.astutus-placeholder {
+    text-overflow: ellipsis;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  div.astutus-current-value {
+    text-overflow: ellipsis;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+  div.astutus-insert-placeholder {
+    padding-right: 10px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 4px;
+    margin: 0px;
+  }
+  #nodepath {
+    width: 100%;
+  }
+  #template {
+    width: 100%;
+  }
+  #add_alias_form_button_div {
+    padding-top: 1ch;
+  }
+  .dirname_class {
+    display: none;
+  }
+  .node_id_class {
+    display: none;
+  }
+  .node_attr_table_class {
+    display: none;
+  }
+  .tree_html {
+    padding: 1ch;
+  }
+  table.astutus-table-scroll-header td:nth-child(1),
+  table.astutus-table-scroll td:nth-child(1) {
+    width: 65px;
+  }
+  table.astutus-table-scroll-header td:nth-child(1),
+  table.astutus-table-scroll td:nth-child(1) {
+    width: 20%;
+  }
+  table.astutus-table-scroll-header td:nth-child(2),
+  table.astutus-table-scroll td:nth-child(2) {
+    width: 80%;
+  }
+  #astutus-add-alias-table input[type=text] {
+    width: 100%;
+  }
+  #astutus-add-alias-table input[type=number] {
+    width: 8ch;
+  }
+  .rst-content .section #tree-html-container ul.ast li button.astutus-tree-item-button {
+    border-radius: 40px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+  .rst-content .section #tree-html-container ul.ast li>* {
+    line-height: 14px;
+    margin-bottom: 2px;
+    margin-top: 2px
+  }
