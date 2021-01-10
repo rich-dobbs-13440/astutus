@@ -29,13 +29,14 @@ import astutus.log
 import astutus.util
 import astutus.web.usb_pages
 import astutus.web.raspi_pages
+import astutus.web.log_pages
 import flask
 import flask.logging
 
 logger = logging.getLogger(__name__)
 
 
-def create_app_and_db():
+def create_app_and_db(static_base):
 
     app = flask.Flask('astutus.web.flask_app', template_folder='templates')
     app.config["SQLALCHEMY_DATABASE_URI"] = astutus.db.get_url()
@@ -44,30 +45,28 @@ def create_app_and_db():
     db.init_app(app)
     with app.app_context():
         astutus.db.initialize_db_if_needed()
-    app.register_blueprint(astutus.web.raspi_pages.raspi_page)
-    astutus.web.raspi_pages.db = db
-    app.register_blueprint(astutus.web.usb_pages.usb_page)
-
-    flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
-    global logger
-    astutus_web_flask_app_logger = logger
-    level_by_logger = {
-        astutus_web_flask_app_logger: logging.DEBUG,
-        astutus.web.usb_pages.logger: logging.DEBUG,
-        astutus.raspi.find.logger: logging.INFO,
-        astutus.raspi.raspi_impl.logger: logging.INFO,
-        astutus.usb.tree.logger: logging.INFO,
-        astutus.usb.device_aliases.logger: logging.DEBUG,
-        astutus.util.term_color.logger: logging.INFO,
-    }
-    for logger, level in level_by_logger.items():
-        logger.addHandler(flask.logging.default_handler)
-        logger.setLevel(level)
-    return app, db
+        app.register_blueprint(astutus.web.raspi_pages.raspi_page)
+        astutus.web.raspi_pages.db = db
+        astutus.web.raspi_pages.static_base = static_base
+        app.register_blueprint(astutus.web.usb_pages.usb_page)
+        astutus.web.usb_pages.static_base = static_base
+        app.register_blueprint(astutus.web.log_pages.log_page)
+        astutus.web.log_pages.static_base = static_base
+        astutus.web.log_pages.db = db
+        # Handle logging configuration
+        flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
+        level_by_logger_name = {}
+        for item in astutus.db.Logger.query.all():
+            level_by_logger_name[item.name] = item.level
+        for logger in astutus.log.get_loggers():
+            logger.addHandler(flask.logging.default_handler)
+            level = level_by_logger_name.get(logger.name, logging.WARNING)
+            logger.setLevel(level)
+        return app, db
 
 
-app, db = create_app_and_db()
-
+static_base = "/static/_docs/_static"
+app, db = create_app_and_db(static_base=static_base)
 
 wy_menu_vertical_list = [
     '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
@@ -75,8 +74,6 @@ wy_menu_vertical_list = [
     '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
 ]
 wy_menu_vertical = "\n".join(wy_menu_vertical_list)
-
-static_base = "/static/_docs/_static"
 
 
 @app.template_filter('tojson_pretty')
@@ -101,8 +98,9 @@ def handle_astutus():
     ]
     breadcrumbs_list_items = "\n".join(breadcrumbs_list)
     links_list = [
-        '<li><p>See <a class="reference internal" href="/astutus/raspi"><span class="doc">Raspberry Pi</span></a></p></li>',  # noqa
-        '<li><p>See <a class="reference internal" href="/astutus/usb"><span class="doc">USB</span></a></p></li>',  # noqa
+        '<li><p>Control the <a class="reference internal" href="/astutus/log">logging</a> in the web application.</p></li>'  # noqa
+        '<li><p>Discover and work with <a class="reference internal" href="/astutus/raspi"><span class="doc">Raspberry Pi\'s</span> on your system</a></p></li>',  # noqa
+        '<li><p>Understand the <a class="reference internal" href="/astutus/usb"><span class="doc">USB devices</span></a> on you system</p></li>',  # noqa
     ]
     links = "\n".join(links_list)
     return flask.render_template(

@@ -5,7 +5,6 @@ from astutus.db.sqlite_db import db
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class RaspberryPi(db.Model):

@@ -12,6 +12,33 @@ from which I can search and reuse code as needed. Finally, it
 serves as repository of things that I've learned and want to be
 able to efficiently reuse.
 
+Using the Astutus Web Application
+---------------------------------
+
+If you are viewing this documentation by running the web application,
+just click this link:
+
+.. raw:: html
+
+   <p><a href="/astutus">Astutus From the Browser</a></p>
+
+If that link doesn't work, you will need to install the Python
+package and run the web application:
+
+.. code-block:: console
+
+   python3 -m venv astutus_venv
+   source astutus_venv/bin/activate
+   pip install astutus
+   astutus-web-app
+
+After that, open up your browser to:
+
+.. raw:: html
+
+   <p><a href="http://localhost:5000/astutus/doc/index.html">Welcome to Astutus</a></p>
+
+
 Git repository
 --------------
 
@@ -41,7 +68,11 @@ As a bonus:  Here is the meaning in Latin:  https://en.wiktionary.org/wiki/astut
 
 Meaning:  shrewd, sagacious, expert, astute.
 
-**Sounds wonderful.**
+**I like that!**
+
+
+
+
 
 
 .. toctree::

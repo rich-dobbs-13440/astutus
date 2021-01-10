@@ -5,7 +5,6 @@ import astutus.raspi
 import flask
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 raspi_page = flask.Blueprint('raspi', __name__, template_folder='templates')
 db = None

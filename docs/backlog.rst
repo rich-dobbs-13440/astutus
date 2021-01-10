@@ -3,14 +3,12 @@ Backlog
 
 Backlog:
 
-  * Task: Create an /astutus/log page that lists the modules with loggers.
-  * Story: As a Flask developer, I need to be able to control logging by module at runtime.
+  * Task: Single source version number between code, package, and documentation.
   * Task: Add data and instructions to Add alias dialog in tree display.
   * Task: Rework structure of device aliases file and DeviceAliases class.
   * Task: Style /astutus/raspi page.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
-  * Task: Single source version number between code, package, and documentation.
   * Task: Get color sensor working on RPi.
   * Task: Write test with relays controlling lights and monitored by color sensor.
   * Next Epic: Get repository good enough to be publically visible.
@@ -22,6 +20,11 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-09 20:28 Story: As a Flask developer, I need to be able to control logging by module at runtime.
+  * |done| 2021-01-09 20:28 Task: In flask_app, connect up with loggers enumerated by module, and set log level.
+  * |done| 2021-01-09 20:28 Task: Persist desired level of loggers in database.
+  * |done| 2021-01-09 17:21 Task: Handle dynamic changing of log levels via web page.
+  * |done| 2021-01-09 12:47 Task: Create an /astutus/log page that lists the modules with loggers.
   * |done| 2021-01-09 07:34 Task: Clean up handling of top of tree.  Visual layout + adding, deleting aliases.
   * |done| 2021-01-08 08:22 Task: Add an initial favicon to website.  Mechanics working.  Image needs work.
   * |done| 2021-01-07 22:49 Task: Clean up add alias form on device tree. Background colors and padding.
