@@ -1,41 +1,12 @@
 <style>
   :root {
-    --read-the-docs-background-color:#fcfcfc;
-    --popup-dialog-background-color: rgb(212, 229, 241);
     --alias-editor-height: 170px;
     --placeholder-instructions-height: 30px;
-    --popup-dialog-initial-height: 405px;
-    --popup-dialog-initial-width: 900px;
-    --popup-dialog-static-height: calc(var(--alias-editor-height) + var(--placeholder-instructions-height))
-  }
-  #add-alias-form-container {
-    background-color: var(--popup-dialog-background-color);
-    padding: 3ch;
-    display: none;
-    position: absolute;
-    height: var(--popup-dialog-initial-height);
-    width: var(--popup-dialog-initial-width);
-    resize: both;
-    overflow: auto;
-    z-index: 11000;
+    --other-height: 20px;
+    --astutus-table-scroll-static-height: calc(var(--alias-editor-height) + var(--placeholder-instructions-height) + var(--other-height));
   }
   div.add-alias-form {
     margin-bottom: 2ch;
-  }
-  #astutus-table-scroll {
-    height: 100%;
-    width: 100%;
-    overflow: auto;
-    background-color: var(--read-the-docs-background-color);
-  }
-  #astutus-table-wrapper {
-    height: calc(100% - var(--popup-dialog-static-height));
-    border-style: solid;
-    border-width: thin;
-  }
-  #astutus-table-wrapper table {
-    width: 100%;
-    height: 100%;
   }
   div.astutus-placeholder {
     text-overflow: ellipsis;
@@ -53,9 +24,6 @@
     padding-bottom: 4px;
     padding-left: 4px;
     margin: 0px;
-  }
-  #alias-placeholder-table td:nth-child(1) {
-    width: 65px;
   }
   #nodepath {
     width: 100%;
@@ -78,16 +46,16 @@
   .tree_html {
     padding: 1ch;
   }
-  table.astutus-table-scroll-header,
-  table#astutus-add-alias-table {
-    width: 100%
+  table.astutus-table-scroll-header td:nth-child(1),
+  table.astutus-table-scroll td:nth-child(1) {
+    width: 65px;
   }
   table.astutus-table-scroll-header td:nth-child(1),
-  #astutus-add-alias-table td:nth-child(1) {
+  table.astutus-table-scroll td:nth-child(1) {
     width: 20%;
   }
   table.astutus-table-scroll-header td:nth-child(2),
-  #astutus-add-alias-table td:nth-child(2) {
+  table.astutus-table-scroll td:nth-child(2) {
     width: 80%;
   }
   #astutus-add-alias-table input[type=text] {
@@ -95,11 +63,6 @@
   }
   #astutus-add-alias-table input[type=number] {
     width: 8ch;
-  }
-  input[type=color].astutus-color {
-    height: 26px;
-    width: 26px;
-    padding: 1px;
   }
   .rst-content .section #tree-html-container ul.ast li button.astutus-tree-item-button {
     border-radius: 40px;
@@ -130,7 +93,7 @@
       $('#tree-html-container').jstree();
     });
   </script> -->
-<div id="add-alias-form-container" >
+<div id="add-alias-form-container" class="astutus-popup">
   <div class="add-alias-form">
     <form method="POST">
       <table id="astutus-add-alias-table">
@@ -174,9 +137,9 @@
       <thead><tr><th></th><th>Placeholder</th><th>Current Value</th></tr></thead>
     </table>
   </div>
-  <div id="astutus-table-wrapper">
-    <div id="astutus-table-scroll">
-      <table id="alias-placeholder-table">
+  <div class="astutus-table-scroll-wrapper">
+    <div class="astutus-table-scroll">
+      <table id="alias-placeholder-table" class="astutus-table-scroll">
         <tr><td>Placeholder</td><td>Current Value</td><td></td></tr>
       </table>
     </div>

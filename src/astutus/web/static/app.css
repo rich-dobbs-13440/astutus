@@ -1,0 +1,38 @@
+:root {
+    --read-the-docs-background-color:#fcfcfc;
+    --popup-dialog-background-color: rgb(212, 229, 241);
+    --popup-dialog-initial-height: 405px;
+    --popup-dialog-initial-width: 900px;
+    --astutus-table-scroll-static-height: 0px;
+}
+div.astutus-popup {
+    background-color: var(--popup-dialog-background-color);
+    padding: 3ch;
+    display: none;
+    position: absolute;
+    height: var(--popup-dialog-initial-height);
+    width: var(--popup-dialog-initial-width);
+    resize: both;
+    overflow: auto;
+    z-index: 11000;
+}
+div.astutus-table-scroll-wrapper {
+    height: calc(100% - var(--astutus-table-scroll-static-height));
+    border-style: solid;
+    border-width: thin;
+}
+div.astutus-table-scroll {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    background-color: var(--read-the-docs-background-color);
+}
+table.astutus-table-scroll-header,
+table.astutus-table-scroll {
+  width: 100%
+}
+input[type=color].astutus-color {
+    height: 26px;
+    width: 26px;
+    padding: 1px;
+}
