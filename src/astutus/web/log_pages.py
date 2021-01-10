@@ -61,5 +61,5 @@ def handle_log_item(logger_name):
             item.level = level
         db.session.commit()
         items = astutus.db.Logger.query.all()
-        logger.error(f"logger items: {items}")
+        logger.debug(f"logger items: {items}")
         return f"PATCH method - logger: {logger_name} level: {level}", HTTPStatus.OK

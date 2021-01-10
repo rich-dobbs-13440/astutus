@@ -219,7 +219,7 @@ class UsbDeviceTree(object):
                     config=device_config,
                     alias=alias)
             elif ilk == 'other':
-                logger.error(f'alias: {alias} nodepath: {nodepath}  data: {data}')
+                logger.debug(f'alias: {alias} nodepath: {nodepath}  data: {data}')
                 node_data = astutus.usb.node.OtherDeviceNodeData(
                     data=data,
                     config=device_config,
