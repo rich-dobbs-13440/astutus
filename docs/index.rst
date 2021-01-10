@@ -93,3 +93,6 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+This documentation for |release| was produced at |today|.

@@ -3,7 +3,6 @@ Backlog
 
 Backlog:
 
-  * Task: Single source version number between code, package, and documentation.
   * Task: Add data and instructions to Add alias dialog in tree display.
   * Task: Rework structure of device aliases file and DeviceAliases class.
   * Task: Style /astutus/raspi page.
@@ -20,6 +19,7 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-09 22:28 Task: Single source version number between code, package, and documentation.
   * |done| 2021-01-09 20:28 Story: As a Flask developer, I need to be able to control logging by module at runtime.
   * |done| 2021-01-09 20:28 Task: In flask_app, connect up with loggers enumerated by module, and set log level.
   * |done| 2021-01-09 20:28 Task: Persist desired level of loggers in database.
