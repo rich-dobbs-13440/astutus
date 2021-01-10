@@ -5,9 +5,6 @@ import subprocess
 import pathlib
 
 logger = logging.getLogger(__name__)
-# Which is better?
-logger.setLevel(logging.DEBUG)
-# logging.basicConfig(level=logging.DEBUG)
 
 
 class RaspberryPiRuntimeError(RuntimeError):

@@ -4,7 +4,6 @@ import re
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 def parse_section_to_dictionary(section: str) -> {}:

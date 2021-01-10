@@ -6,11 +6,9 @@ import flask
 import flask.logging
 
 logger = logging.getLogger(__name__)
-logger.addHandler(flask.logging.default_handler)
-
-log_page = flask.Blueprint('log', __name__, template_folder='templates')
-
+db = None
 static_base = None
+log_page = flask.Blueprint('log', __name__, template_folder='templates')
 
 wy_menu_vertical_list = [
     '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>',
@@ -52,7 +50,16 @@ def handle_log_item(logger_name):
         logger.debug(f"logger_name: {logger_name}")
         logger.debug(f"flask.request.data: {flask.request.data}")
         form = flask.request.form
-        level = form.get('level')
+        level = int(form.get('level'))
         logger.debug(f"level: {level}")
         astutus.log.set_level(logger_name, level)
+        item = astutus.db.Logger.query.get(logger_name)
+        if item is None:
+            item = astutus.db.Logger(name=logger_name, level=level)
+            db.session.add(item)
+        else:
+            item.level = level
+        db.session.commit()
+        items = astutus.db.Logger.query.all()
+        logger.error(f"logger items: {items}")
         return f"PATCH method - logger: {logger_name} level: {level}", HTTPStatus.OK
