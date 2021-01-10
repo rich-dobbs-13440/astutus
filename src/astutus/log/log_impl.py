@@ -21,3 +21,12 @@ def get_loggers():
             logger_for_module = logging.getLogger(module_name)
             loggers.append(logger_for_module)
     return loggers
+
+
+def set_level(logger_name, level):
+    for logger_for_module in get_loggers():
+        if logger_for_module.name == logger_name:
+            logger.debug(f"logger_for_module: {logger_for_module.name} was found. ")
+            logger_for_module.setLevel(int(level))
+            return
+    assert False, (logger_name, level)

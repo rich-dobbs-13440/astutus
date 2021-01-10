@@ -43,3 +43,16 @@ def handle_log():
     if flask.request.method == 'POST':
         # loglevel = getattr(logging, args.loglevel)
         return "POST method not implemented", HTTPStatus.NOT_IMPLEMENTED
+
+
+@log_page.route('/astutus/log/<logger_name>', methods=['PATCH'])
+def handle_log_item(logger_name):
+    """ log_page.route('/astutus/log/<logger_name>', methods=['PATCH']) """
+    if flask.request.method == 'PATCH':
+        logger.debug(f"logger_name: {logger_name}")
+        logger.debug(f"flask.request.data: {flask.request.data}")
+        form = flask.request.form
+        level = form.get('level')
+        logger.debug(f"level: {level}")
+        astutus.log.set_level(logger_name, level)
+        return f"PATCH method - logger: {logger_name} level: {level}", HTTPStatus.OK

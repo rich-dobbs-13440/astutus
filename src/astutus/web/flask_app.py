@@ -107,7 +107,7 @@ def handle_astutus():
     breadcrumbs_list_items = "\n".join(breadcrumbs_list)
     links_list = [
         '<li><p>Control the <a class="reference internal" href="/astutus/log">logging</a> in the web application.</p></li>'  # noqa
-        '<li><p>Discover and work with <a class="reference internal" href="/astutus/raspi"><span class="doc">Raspberry Pi\'s</span>on your system</a></p></li>',  # noqa
+        '<li><p>Discover and work with <a class="reference internal" href="/astutus/raspi"><span class="doc">Raspberry Pi\'s</span> on your system</a></p></li>',  # noqa
         '<li><p>Understand the <a class="reference internal" href="/astutus/usb"><span class="doc">USB devices</span></a> on you system</p></li>',  # noqa
     ]
     links = "\n".join(links_list)
