@@ -70,7 +70,6 @@ def create_app_and_db(static_base):
     raise RuntimeError("Please delete out-of-date database.")
 
 
-
 static_base = "/static/_docs/_static"
 app, db = create_app_and_db(static_base=static_base)
 

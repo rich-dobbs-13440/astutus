@@ -16,6 +16,10 @@
       <p>{{ dirpath }}</p>
     {% endfor %}
   {% endif %}
+  {% if bare_tree is not none %}
+    {{ bare_tree | safe }}
+  {% endif %}
+
 </div>
   <!-- TODO: Add in collapsing feature without bringing the ugly styling
     <script>
@@ -77,7 +81,89 @@
 </div>
 <script src="/static/device_tree.js"></script>
 <script>
+
+  function processRawButton(index, button) {
+    var dirpath = button.dataset['dirpath'];
+    var deviceInfo = button.dataset['info'];
+    if (deviceInfo == undefined) {
+      deviceInfo = "Nothing!"
+    }
+    data_for_patch = {
+      'info': deviceInfo,
+    };
+    var ajax = $.ajax('/astutus/usb' + dirpath, {
+      method: 'PATCH',
+      data: data_for_patch,
+      success: function(data, textStatus,  jqXHR) {
+          // button.innerHTML = data['innerHTML'];
+          console.log("data_for_dir: " + JSON.stringify(data['data_for_dir']));
+          button.dataset['data_for_dir'] = JSON.stringify(data['data_for_dir']);
+      },
+      error: function(xhr) {
+          alert('Failed')
+      }
+    });
+    // button.innerHTML = button.innerHTML + ' ' + dirpath;
+    console.log('button: ' + dirpath + ' ' + index + deviceInfo)
+    return ajax
+  }
+
+  function getButtonData(button) {
+    var dirpath = button.dataset['dirpath'];
+    console.log("dirpath: ", dirpath)
+    var deviceInfo = button.dataset['info'];
+    if (deviceInfo == undefined) {
+      deviceInfo = "Nothing!"
+    }
+    data = {
+      'info': deviceInfo,
+    };
+    var buttonData;
+    $.ajax('/astutus/usb' + dirpath, {
+      method: 'PATCH',
+      data: data,
+      async: false,
+      success: function(data, textStatus,  jqXHR) {
+        buttonData = data['data_for_dir']
+        console.log("buttonData: ", buttonData)
+      },
+      error: function(xhr) {
+          alert('Failed')
+      }
+    });
+    return buttonData
+  }
+
+  function updateAllLabels(){
+    var allDeviceButtons = $('[data-dirpath]');
+    var nodePathByDirPath = {}
+    function handleButton(index, button) {
+      var dirpath = button.dataset['dirpath'];
+      var buttonData = getButtonData(button);
+      var nodepath
+      if ('top_of_tree' in  buttonData) {
+        nodepath = buttonData['node_id'];
+      } else {
+        nodepath = nodePathByDirPath[buttonData['parent_dirpath']] + "/" + buttonData['node_id'];
+      }
+      nodePathByDirPath[dirpath] = nodepath
+      buttonData['nodepath'] = nodepath
+      console.log("buttonData:", JSON.stringify(buttonData))
+    }
+
+    allDeviceButtons.each(handleButton);
+    console.log("After each");
+  }
+
+
   // Set the background color upon loading
   $(".tree_html").css("background-color", '{{ tree_html_background_color }}');
+
+  // Still give warning $(document).ready(updateAllLabels);
+  setTimeout( updateAllLabels, 0 );
+
+
+
+
 
 </script>

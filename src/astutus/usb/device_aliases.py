@@ -215,6 +215,8 @@ class DeviceAliases(dict):
     def find(self, nodepath: str) -> [dict]:
         """ Find all aliases that partially match the nodepath.  """
         logger.debug(f"nodepath: {nodepath}")
+        if nodepath is None:
+            assert False
         aliases = []
         for pattern, value in super().items():
             if nodepath.endswith(pattern):
