@@ -48,6 +48,7 @@ def get_data_for_dirpath(ilk, dirpath, device_info):
 
 
 def get_node_data(data, device_config, alias):
+    assert data is not None
     ilk = data['ilk']
     if ilk == 'usb':
         node_data = astutus.usb.node.UsbDeviceNodeData(
@@ -166,7 +167,6 @@ class UsbDeviceTree(object):
                 nodepath = parent_nodepath + "/" + node_id
             nodepath_by_dirpath[dirpath] = nodepath
             data['nodepath'] = nodepath
-
 
     @staticmethod
     def generate_alias_json_snippet(*, node_ids, tree_dirpaths, data_by_dirpath, device_configurations):

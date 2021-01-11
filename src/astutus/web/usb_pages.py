@@ -87,38 +87,27 @@ def tree_to_html(tree_dict, device_info_map):
     return '\n' + '\n'.join(lines)
 
 
-@usb_page.route('/astutus/usb/sys/devices', methods=['GET', 'PATCH'])
-def handle_device_tree():
-    node_id = "other(devices)"
+@usb_page.route('/astutus/usb/node/sys/<path:path>', methods=['GET'])
+def handle_device_node_item(path):
+    args = flask.request.args
     data = {
-        'innerHTML': 'get styled html for node for /sys/devices',
-        'data_for_dir': {
-            'node_id': node_id,
-            'top_of_tree': True
-        },
+        'dirname': args.get('dirname'),
+        'dirpath': args.get('dirpath'),
+        'ilk': args.get('ilk'),
+        'node_id': args.get('node_id'),
+        'Device': args.get('Device'),
+        'busnum': args.get('busnum'),
+        'devnum': args.get('devnum'),
+        'idVendor': args.get('idVendor'),
+        'idProduct': args.get('idProduct'),
+        'manufacturer': args.get('manufacturer'),
+        'product': args.get('product'),
     }
-    return data, HTTPStatus.OK
-
-
-@usb_page.route('/astutus/usb/sys/devices/<path:path>', methods=['GET', 'PATCH'])
-def handle_device_tree_item(path):
-    logger.info('Start handle_device_tree_item')
-    sys_devices_path = '/sys/devices/' + path
-    logger.debug(f'sys_devices_path: {sys_devices_path}')
-    logger.debug(f'flask.request.method: {flask.request.method}')
-    form = flask.request.form
-    device_info_arg = form.get('info')
-    logger.debug(f'device_info_arg: {device_info_arg}')
-    if path == 'pci0000:00':
-        device_info = None
-        ilk = "other"
-    elif device_info_arg == "Nothing!":
-        device_info = None
-        ilk = "usb"
-    else:
-        device_info = json.loads(device_info_arg.replace("'", '"'))
-        ilk = "pci"
-    data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path, device_info)
+    device_configurations = astutus.usb.DeviceConfigurations()
+    device_config = device_configurations.find_configuration(data)
+    if device_config is None:
+        assert False, data
+    alias = None
     # nodepath = data.get('nodepath')
     # if nodepath is not None:
     #     aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
@@ -129,6 +118,56 @@ def handle_device_tree_item(path):
     #     logger.error(f'node_data: {node_data}')
     # else:
     #     logger.error(f'With nodepath none, data: {data}')
+    node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+    result = {
+        "node_data": node_data
+    }
+    return result, HTTPStatus.OK
+
+
+# @usb_page.route('/astutus/usb/sys/devices', methods=['GET', 'PATCH'])
+# def handle_device_tree():
+#     node_id = "other(devices)"
+#     data = {
+#         'innerHTML': 'get styled html for node for /sys/devices',
+#         'data_for_dir': {
+#             'node_id': node_id,
+#             'top_of_tree': True
+#         },
+#     }
+#     return data, HTTPStatus.OK
+
+
+@usb_page.route('/astutus/usb/sys/<path:path>', methods=['GET', 'PATCH'])
+def handle_device_tree_item(path):
+    logger.info('Start handle_device_tree_item')
+    sys_devices_path = '/sys/' + path
+    logger.debug(f'sys_devices_path: {sys_devices_path}')
+    if sys_devices_path == '/sys/devices':
+        data = {
+            'innerHTML': 'get styled html for node for /sys/devices',
+            'data_for_dir': {
+                'node_id': 'other(devices)',
+                'top_of_tree': True,
+                'dirpath': '/sys/devices',
+                'dirname': 'devices',
+                'ilk': 'other',
+            },
+        }
+        return data, HTTPStatus.OK
+    form = flask.request.form
+    device_info_arg = form.get('info')
+    logger.debug(f'device_info_arg: {device_info_arg}')
+    if path == 'devices/pci0000:00':
+        device_info = None
+        ilk = "other"
+    elif device_info_arg == "Nothing!":
+        device_info = None
+        ilk = "usb"
+    else:
+        device_info = json.loads(device_info_arg.replace("'", '"'))
+        ilk = "pci"
+    data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path, device_info)
     innerHTML = data.get('product')
     if innerHTML is None:
         innerHTML = data.get('Device')

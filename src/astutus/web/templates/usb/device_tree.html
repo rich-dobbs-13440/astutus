@@ -125,7 +125,7 @@
       async: false,
       success: function(data, textStatus,  jqXHR) {
         buttonData = data['data_for_dir']
-        console.log("buttonData: ", buttonData)
+        // console.log("buttonData: ", buttonData)
       },
       error: function(xhr) {
           alert('Failed')
@@ -134,21 +134,53 @@
     return buttonData
   }
 
+  function getNodeData(data, device_config, alias) {
+    // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+    var dirpath = data['dirpath'];
+    var nodeData;
+    $.ajax('/astutus/usb/node' + dirpath, {
+      method: 'GET',
+      data: data,
+      async: false,
+      success: function(data, textStatus,  jqXHR) {
+        nodeData = data['node_data']
+        // console.log("nodeData: ", nodeData)
+      },
+      error: function(xhr) {
+          // throw new Error("getNodeData failed.")
+          return null
+      }
+    });
+    return nodeData
+  }
+
   function updateAllLabels(){
     var allDeviceButtons = $('[data-dirpath]');
     var nodePathByDirPath = {}
     function handleButton(index, button) {
-      var dirpath = button.dataset['dirpath'];
-      var buttonData = getButtonData(button);
-      var nodepath
-      if ('top_of_tree' in  buttonData) {
-        nodepath = buttonData['node_id'];
-      } else {
-        nodepath = nodePathByDirPath[buttonData['parent_dirpath']] + "/" + buttonData['node_id'];
+      try {
+        var dirpath = button.dataset['dirpath'];
+        var buttonData = getButtonData(button);
+        var nodepath
+        if ('top_of_tree' in  buttonData) {
+          nodepath = buttonData['node_id'];
+        } else {
+          nodepath = nodePathByDirPath[buttonData['parent_dirpath']] + "/" + buttonData['node_id'];
+        }
+        nodePathByDirPath[dirpath] = nodepath
+        buttonData['nodepath'] = nodepath
+        console.log("buttonData:", JSON.stringify(buttonData))
+
+        nodeData = getNodeData(buttonData, null, null)
+        if (nodeData == null) {
+          return false;
+        }
+        console.log("nodeData:", JSON.stringify(nodeData))
+        button.innerHTML = nodeData["html_label"]
+      } catch(e) {
+        return false;
       }
-      nodePathByDirPath[dirpath] = nodepath
-      buttonData['nodepath'] = nodepath
-      console.log("buttonData:", JSON.stringify(buttonData))
+
     }
 
     allDeviceButtons.each(handleButton);
