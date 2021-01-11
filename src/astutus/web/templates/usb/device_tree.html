@@ -143,8 +143,7 @@
       success: function(data, textStatus,  jqXHR) {
         nodeData = data['node_data'];
         button.dataset['nodedata'] = JSON.stringify(nodeData);
-        button.innerHTML = nodeData["html_label"]
-        // console.log("nodeData: ", nodeData);
+        button.nextElementSibling.innerHTML = nodeData["html_label"]
       },
       error: function(xhr) {
           throw new Error("updateNodeData failed.")

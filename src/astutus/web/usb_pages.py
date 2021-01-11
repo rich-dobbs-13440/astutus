@@ -69,9 +69,12 @@ def item_to_html(item, device_info_map):
                 maybe_slot = dirname[5:]
                 device_info = device_info_map.get(maybe_slot)
                 if device_info is not None:
-                    lines.append(f'<button data-dirpath="{dirpath}" data-info="{device_info}">{dirname}</button>')
+                    data_info = f' data-info="{device_info}"'
                 else:
-                    lines.append(f'<button style="color: red" data-dirpath="{dirpath}">{dirname}</button>')
+                    data_info = ""
+                button_class = 'class="astutus-tree-item-button"'
+                lines.append(f'<button data-dirpath="{dirpath}" {button_class}{data_info}>{dirname}</button>')
+                lines.append(f'<span {button_class}>replace me!</span>')
                 lines.extend(item_to_html(value, device_info_map))
         return lines
     elif isinstance(item, list):
@@ -81,9 +84,9 @@ def item_to_html(item, device_info_map):
 
 def tree_to_html(tree_dict, device_info_map):
     lines = []
-    lines.append('<ul class="ast">')
+    lines.append('<ul class="ast"><li>')
     lines.extend(item_to_html(tree_dict, device_info_map))
-    lines.append('</ul>')
+    lines.append('</li></ul>')
     return '\n' + '\n'.join(lines)
 
 
