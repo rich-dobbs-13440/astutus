@@ -65,6 +65,8 @@ def get_node_data(data, device_config, alias):
             data=data,
             config=device_config,
             alias=alias)
+    else:
+        raise NotImplementedError()
     return node_data
 
 

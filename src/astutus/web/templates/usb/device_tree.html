@@ -134,24 +134,22 @@
     return buttonData
   }
 
-  function getNodeData(data, device_config, alias) {
+  function updateNodeData(button, buttonData) {
     // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
-    var dirpath = data['dirpath'];
-    var nodeData;
+    var dirpath = button.dataset['dirpath'];
     $.ajax('/astutus/usb/node' + dirpath, {
       method: 'GET',
-      data: data,
-      async: false,
+      data: buttonData,
       success: function(data, textStatus,  jqXHR) {
-        nodeData = data['node_data']
-        // console.log("nodeData: ", nodeData)
+        nodeData = data['node_data'];
+        button.dataset['nodedata'] = JSON.stringify(nodeData);
+        button.innerHTML = nodeData["html_label"]
+        // console.log("nodeData: ", nodeData);
       },
       error: function(xhr) {
-          // throw new Error("getNodeData failed.")
-          return null
+          throw new Error("updateNodeData failed.")
       }
     });
-    return nodeData
   }
 
   function updateAllLabels(){
@@ -170,13 +168,15 @@
         nodePathByDirPath[dirpath] = nodepath
         buttonData['nodepath'] = nodepath
         console.log("buttonData:", JSON.stringify(buttonData))
+        button.dataset['buttondata'] = JSON.stringify(buttonData)
+        updateNodeData(button, buttonData)
 
-        nodeData = getNodeData(buttonData, null, null)
-        if (nodeData == null) {
-          return false;
-        }
-        console.log("nodeData:", JSON.stringify(nodeData))
-        button.innerHTML = nodeData["html_label"]
+        // nodeData = getNodeData(buttonData, null, null)
+        // if (nodeData == null) {
+        //   return false;
+        // }
+        // console.log("nodeData:", JSON.stringify(nodeData))
+        // button.innerHTML = nodeData["html_label"]
       } catch(e) {
         return false;
       }
@@ -192,10 +192,7 @@
   $(".tree_html").css("background-color", '{{ tree_html_background_color }}');
 
   // Still give warning $(document).ready(updateAllLabels);
-  setTimeout( updateAllLabels, 0 );
-
-
-
+  setTimeout( updateAllLabels, 0);
 
 
 </script>

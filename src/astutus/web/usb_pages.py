@@ -81,7 +81,7 @@ def item_to_html(item, device_info_map):
 
 def tree_to_html(tree_dict, device_info_map):
     lines = []
-    lines.append('<ul>')
+    lines.append('<ul class="ast">')
     lines.extend(item_to_html(tree_dict, device_info_map))
     lines.append('</ul>')
     return '\n' + '\n'.join(lines)
@@ -123,19 +123,6 @@ def handle_device_node_item(path):
         "node_data": node_data
     }
     return result, HTTPStatus.OK
-
-
-# @usb_page.route('/astutus/usb/sys/devices', methods=['GET', 'PATCH'])
-# def handle_device_tree():
-#     node_id = "other(devices)"
-#     data = {
-#         'innerHTML': 'get styled html for node for /sys/devices',
-#         'data_for_dir': {
-#             'node_id': node_id,
-#             'top_of_tree': True
-#         },
-#     }
-#     return data, HTTPStatus.OK
 
 
 @usb_page.route('/astutus/usb/sys/<path:path>', methods=['GET', 'PATCH'])
