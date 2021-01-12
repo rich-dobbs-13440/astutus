@@ -74,7 +74,7 @@ def item_to_html(item, device_info_map):
                     data_info = ""
                 button_class = 'class="astutus-tree-item-button"'
                 lines.append(f'<button data-dirpath="{dirpath}" {button_class}{data_info}>{dirname}</button>')
-                lines.append(f'<span {button_class}>replace me!</span>')
+                lines.append('<span></span>')
                 lines.extend(item_to_html(value, device_info_map))
         return lines
     elif isinstance(item, list):
