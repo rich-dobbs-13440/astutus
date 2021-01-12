@@ -108,31 +108,31 @@
     return ajax
   }
 
-  function getButtonData(button) {
-    var dirpath = button.dataset['dirpath'];
-    console.log("dirpath: ", dirpath)
-    var deviceInfo = button.dataset['info'];
-    if (deviceInfo == undefined) {
-      deviceInfo = "Nothing!"
-    }
-    data = {
-      'info': deviceInfo,
-    };
-    var buttonData;
-    $.ajax('/astutus/usb' + dirpath, {
-      method: 'PATCH',
-      data: data,
-      async: false,
-      success: function(data, textStatus,  jqXHR) {
-        buttonData = data['data_for_dir']
-        // console.log("buttonData: ", buttonData)
-      },
-      error: function(xhr) {
-          alert('Failed')
-      }
-    });
-    return buttonData
-  }
+  // function getButtonData(button) {
+  //   var dirpath = button.dataset['dirpath'];
+  //   console.log("dirpath: ", dirpath)
+  //   var deviceInfo = button.dataset['info'];
+  //   if (deviceInfo == undefined) {
+  //     deviceInfo = "Nothing!"
+  //   }
+  //   data = {
+  //     'info': deviceInfo,
+  //   };
+  //   var buttonData;
+  //   $.ajax('/astutus/usb' + dirpath, {
+  //     method: 'PATCH',
+  //     data: data,
+  //     async: false,
+  //     success: function(data, textStatus,  jqXHR) {
+  //       buttonData = data['data_for_dir']
+  //       // console.log("buttonData: ", buttonData)
+  //     },
+  //     error: function(xhr) {
+  //         alert('Failed')
+  //     }
+  //   });
+  //   return buttonData
+  // }
 
   function forceRedraw(element){
     var disp = element.style.display;
@@ -152,13 +152,15 @@
         nodeData = data['node_data'];
         button.dataset['nodedata'] = JSON.stringify(nodeData);
         span.innerHTML = nodeData["html_label"];
-        forceRedraw(span);
       },
       error: function(xhr) {
           throw new Error("updateNodeData failed.")
       }
     });
   }
+
+
+
 
   function updateAllLabels(){
     var allDeviceButtons = $('[data-dirpath]');
@@ -194,16 +196,53 @@
     console.log("After each");
   }
 
+  function updateButtonData(button) {
+    var dirpath = button.dataset['dirpath'];
+    console.log("dirpath: ", dirpath)
+    var deviceInfo = button.dataset['info'];
+    if (deviceInfo == undefined) {
+      deviceInfo = "Nothing!"
+    }
+    data = {
+      'info': deviceInfo,
+    };
+    $.ajax('/astutus/usb' + dirpath, {
+      method: 'PATCH',
+      data: data,
+      success: function(data, textStatus,  jqXHR) {
+        buttonData = data['data_for_dir'];
+        button.dataset['data_for_dir'] = JSON.stringify(buttonData);
+        updateNodeData(button, buttonData);
+        buttonIdx++;
+        updateDescription(buttonIdx);
+      },
+      error: function(xhr) {
+          alert('Failed')
+      }
+    });
+  }
+
+  function updateDescription(buttonIdx) {
+    // Do something asynchonously, which updated button index
+    // updates page, and then calls itself to handle the next one.
+    updateButtonData(buttons[buttonIdx])
+  }
+
+  var nodePathByDirPath = {}
+  var buttons;
+  var buttonIdx;
+  function updateAllDescriptions() {
+    buttons = document.querySelectorAll("button.astutus-tree-item-button");
+    buttonIdx = 1
+    updateDescription(buttonIdx);
+  }
+
 
   // Set the background color upon loading
   $(".tree_html").css("background-color", '{{ tree_html_background_color }}');
 
-  // Still give warning $(document).ready(updateAllLabels);
-  //updateAllLabels();
-  //$(document).ready(updateAllLabels);
+  updateAllDescriptions();
 
-
-  // this didn't work. window.onload = alert('You are loaded')
 
 
 </script>
