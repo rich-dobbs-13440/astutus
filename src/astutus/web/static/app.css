@@ -10,6 +10,9 @@ div.astutus-popup {
     padding: 3ch;
     display: none;
     position: absolute;
+    /* Specify top and left to give units for vanilla JS: */
+    top: 30px;
+    left: 30px;
     height: var(--popup-dialog-initial-height);
     width: var(--popup-dialog-initial-width);
     resize: both;

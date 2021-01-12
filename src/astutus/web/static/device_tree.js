@@ -1,4 +1,12 @@
 function handleTreeItemClick(data) {
+    var nodeButtonJquery = $("#" + data["idx"]);
+    nodeButton = nodeButtonJquery[0];
+    handleAliasAddForm(nodeButton, data)
+}
+
+
+function handleAliasAddForm(placementElement, data) {
+
     $("#nodepath").val(data["nodepath"]);
     $("#template").val(data["alias_description_template"]);
     var color = data["alias_color"];
@@ -6,34 +14,28 @@ function handleTreeItemClick(data) {
         $("#color").val(color);
     }
 
-    var container = $("#add-alias-form-container");
-    var nodeButton = $("#" + data["idx"]);
-    var buttonOffset = nodeButton.offset();
-    container.css("top", buttonOffset.top + 30);
-    container.css("left", buttonOffset.left + 30);
+    var rect = placementElement.getBoundingClientRect();
+    var container = document.querySelector("#add-alias-form-container");
+    container.style.top = `${rect.top + window.scrollY + 30}px`;
+    container.style.left = `${rect.left + window.scrollX + 30}px`;
 
     updatePlaceholderTable('#alias-placeholder-table', data);
 
-
-    container.show();
+    container.style.display = "block";
 
     if (!isElementInViewport(container)) {
       // Form will be below button
       console.log("Scrolling element into view.")
-      var domDivElement = container[0];
-      domDivElement.scrollIntoView(false);
+      container.scrollIntoView(false);
     }
 }
 
 function handleAddAliasFormCancel() {
-    $("#add-alias-form-container").hide();
+    var container = document.querySelector("#add-alias-form-container");
+    container.style.display = "none";
 }
 
 function isElementInViewport(el) {
-
-    if (typeof jQuery === "function" && el instanceof jQuery) {
-        el = el[0];
-    }
 
     var rect = el.getBoundingClientRect();
 
@@ -59,6 +61,7 @@ function onBackgroundColorChange(colorInput) {
         "background-color": colorInput.value
     }
     // TODO: should be patch, not post.
+    // TODO: Move away from jquery for ajax.
     $.post('/astutus/usb/settings', data)
         .fail(function(jqxhr, settings, ex) { alert('failed, ' + ex); });
 }

@@ -83,7 +83,17 @@
 <script>
 
   function onTreeButtonClick(button) {
-    alert("Ya got here! " + button.dataset['dirpath'])
+    data = {};
+    nodedata = JSON.parse(button.dataset['nodedata']);
+    Object.assign(data, nodedata);
+    dataForDir = JSON.parse(button.dataset['data_for_dir']);
+    Object.assign(data, dataForDir);
+    // Currently button.dataset['info'] uses single quotes, not double
+    // quotes, so this might be the cause of the problem.
+    // In any case, disable for now.
+    // deviceInfo = JSON.parse(button.dataset['info'])
+    // Object.assign(data, deviceInfo);
+    handleAliasAddForm(button, data);
   }
 
   function updateNodeData(button, buttonData) {
@@ -98,7 +108,6 @@
         button.dataset['nodedata'] = JSON.stringify(nodeData);
         span.innerHTML = nodeData["html_label"];
         button.onclick = function(){onTreeButtonClick(button)}
-        console.log(button.onclick)
       },
       error: function(xhr) {
           throw new Error("updateNodeData failed.")
