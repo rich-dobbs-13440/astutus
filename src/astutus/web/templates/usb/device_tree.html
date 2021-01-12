@@ -82,65 +82,6 @@
 <script src="/static/device_tree.js"></script>
 <script>
 
-  function processRawButton(index, button) {
-    var dirpath = button.dataset['dirpath'];
-    var deviceInfo = button.dataset['info'];
-    if (deviceInfo == undefined) {
-      deviceInfo = "Nothing!"
-    }
-    data_for_patch = {
-      'info': deviceInfo,
-    };
-    var ajax = $.ajax('/astutus/usb' + dirpath, {
-      method: 'PATCH',
-      data: data_for_patch,
-      success: function(data, textStatus,  jqXHR) {
-          // button.innerHTML = data['innerHTML'];
-          console.log("data_for_dir: " + JSON.stringify(data['data_for_dir']));
-          button.dataset['data_for_dir'] = JSON.stringify(data['data_for_dir']);
-      },
-      error: function(xhr) {
-          alert('Failed')
-      }
-    });
-    // button.innerHTML = button.innerHTML + ' ' + dirpath;
-    console.log('button: ' + dirpath + ' ' + index + deviceInfo)
-    return ajax
-  }
-
-  // function getButtonData(button) {
-  //   var dirpath = button.dataset['dirpath'];
-  //   console.log("dirpath: ", dirpath)
-  //   var deviceInfo = button.dataset['info'];
-  //   if (deviceInfo == undefined) {
-  //     deviceInfo = "Nothing!"
-  //   }
-  //   data = {
-  //     'info': deviceInfo,
-  //   };
-  //   var buttonData;
-  //   $.ajax('/astutus/usb' + dirpath, {
-  //     method: 'PATCH',
-  //     data: data,
-  //     async: false,
-  //     success: function(data, textStatus,  jqXHR) {
-  //       buttonData = data['data_for_dir']
-  //       // console.log("buttonData: ", buttonData)
-  //     },
-  //     error: function(xhr) {
-  //         alert('Failed')
-  //     }
-  //   });
-  //   return buttonData
-  // }
-
-  function forceRedraw(element){
-    var disp = element.style.display;
-    element.style.display = 'none';
-    var trick = element.offsetHeight;
-    element.style.display = disp;
-  }
-
   function updateNodeData(button, buttonData) {
     // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
     var dirpath = button.dataset['dirpath'];
@@ -157,43 +98,6 @@
           throw new Error("updateNodeData failed.")
       }
     });
-  }
-
-
-
-
-  function updateAllLabels(){
-    var allDeviceButtons = $('[data-dirpath]');
-    var nodePathByDirPath = {}
-    function handleButton(index, button) {
-      try {
-        var dirpath = button.dataset['dirpath'];
-        var buttonData = getButtonData(button);
-        var nodepath
-        if ('top_of_tree' in  buttonData) {
-          nodepath = buttonData['node_id'];
-        } else {
-          nodepath = nodePathByDirPath[buttonData['parent_dirpath']] + "/" + buttonData['node_id'];
-        }
-        nodePathByDirPath[dirpath] = nodepath
-        buttonData['nodepath'] = nodepath
-        console.log("buttonData:", JSON.stringify(buttonData))
-        button.dataset['buttondata'] = JSON.stringify(buttonData)
-        // updateNodeData(button, buttonData)
-        // nodeData = getNodeData(buttonData, null, null)
-        // if (nodeData == null) {
-        //   return false;
-        // }
-        // console.log("nodeData:", JSON.stringify(nodeData))
-        // button.innerHTML = nodeData["html_label"]
-      } catch(e) {
-        return false;
-      }
-
-    }
-
-    allDeviceButtons.each(handleButton);
-    console.log("After each");
   }
 
   function updateButtonData(button) {
@@ -223,8 +127,7 @@
   }
 
   function updateDescription(buttonIdx) {
-    // Do something asynchonously, which updated button index
-    // updates page, and then calls itself to handle the next one.
+    // Start with the first button, and eventually process all buttons asynchronously.
     updateButtonData(buttons[buttonIdx])
   }
 
@@ -237,12 +140,8 @@
     updateDescription(buttonIdx);
   }
 
-
   // Set the background color upon loading
   $(".tree_html").css("background-color", '{{ tree_html_background_color }}');
-
   updateAllDescriptions();
-
-
 
 </script>
