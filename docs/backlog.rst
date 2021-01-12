@@ -3,6 +3,7 @@ Backlog
 
 Backlog:
 
+  * Task: Implement OnClick for device with ajax page.
   * Task: Speedup rendering of device tree page.
   * Task: Rework structure of device aliases file and DeviceAliases class.
   * Task: Style /astutus/raspi page.
