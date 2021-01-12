@@ -82,6 +82,10 @@
 <script src="/static/device_tree.js"></script>
 <script>
 
+  function onTreeButtonClick(button) {
+    alert("Ya got here! " + button.dataset['dirpath'])
+  }
+
   function updateNodeData(button, buttonData) {
     // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
     var dirpath = button.dataset['dirpath'];
@@ -93,6 +97,8 @@
         nodeData = data['node_data'];
         button.dataset['nodedata'] = JSON.stringify(nodeData);
         span.innerHTML = nodeData["html_label"];
+        button.onclick = function(){onTreeButtonClick(button)}
+        console.log(button.onclick)
       },
       error: function(xhr) {
           throw new Error("updateNodeData failed.")
