@@ -105,10 +105,17 @@ def handle_label(path):
         data = request_data.get('data')
         # TODO: Pass configuration from web page.  Maybe security risk.  Need to consider protection from
         #       running arbitrary code.
-        device_configurations = astutus.usb.DeviceConfigurations()
-        device_config = device_configurations.find_configuration(data)
+        config_data = request_data.get('device_config')
+        if config_data is not None:
+            device_config = astutus.usb.DeviceConfiguration(config_data)
+        else:
+            if data.get('ilk') == 'pci':
+                device_config = astutus.usb.DeviceConfigurations.make_pci_configuration(data)
+            elif data.get('ilk') == 'usb':
+                device_config = astutus.usb.DeviceConfigurations.make_generic_usb_configuration(data)
+        logger.debug(f"device_config: {device_config}")
         node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
-        logger.info(f"node_data: {node_data}")
+        logger.debug(f"node_data: {node_data}")
         result = {
             'html_label': node_data.get('html_label'),
             'sys_devices_path': sys_devices_path,
@@ -198,6 +205,7 @@ def handle_usb_device_with_ajax():
         device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
         logger.debug(f"device_info_map: {device_info_map}")
         device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
+        device_configurations = astutus.usb.DeviceConfigurations()
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
         bare_tree_html = tree_to_html(bare_tree_dict, device_info_map)
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
@@ -219,6 +227,7 @@ def handle_usb_device_with_ajax():
             wy_menu_vertical=wy_menu_vertical,
             bare_tree=bare_tree_html,
             aliases_javascript=aliases.to_javascript(),
+            configurations_javascript=device_configurations.to_javascript(),
             tree_html=None,
             tree_html_background_color=background_color)
 

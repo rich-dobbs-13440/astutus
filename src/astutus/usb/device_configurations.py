@@ -19,6 +19,9 @@ class DeviceConfiguration(object):
         # Command runner is a dependency injection point to make code more testable
         self.command_runner = command_runner
 
+    def __repr__(self):
+        return f"DeviceConfiguration(config={self.config})"
+
     def find_tty(self):
         return self.config.get('find_tty')
 
@@ -53,8 +56,11 @@ class DeviceConfiguration(object):
 
     def generate_description(self, dirpath, data):
         description_template = self.find_description_template(dirpath)
-        description = description_template.format_map(data)
-        return description
+        try:
+            description = description_template.format_map(data)
+            return description
+        except KeyError as exception:
+            return f"exception: {exception}, description_template{description_template}, data{data}"
 
     def find_styler(self, dirpath):
         for styler in self.get_stylers():
@@ -82,6 +88,28 @@ class DeviceConfiguration(object):
 
 
 class DeviceConfigurations(object):
+
+    @staticmethod
+    def make_pci_configuration(data, command_runner=astutus.util.run_cmd):
+        # PCI configuration is determined from the lspci command, rather
+        # than what is stored in the configuration file.
+        # Not really sure why the /sys/device names append '0000:' before the slot.
+        slot = data['dirname'][5:]
+        config = {
+            "color": "cyan",
+            "description_template": '{Device}',
+            'name': slot,
+        }
+        return DeviceConfiguration(config, command_runner)
+
+    @staticmethod
+    def make_generic_usb_configuration(data, command_runner=astutus.util.run_cmd):
+        config = {
+            'name_of_config': 'Generic USB',
+            'color': 'blue',
+            'description_template': None,
+        }
+        return DeviceConfiguration(config, command_runner)
 
     def __init__(self, filepath=None, command_runner=astutus.util.run_cmd):
         logger.info("Initializing device configurations")
@@ -111,25 +139,7 @@ class DeviceConfigurations(object):
         return self.pci_device_info.get(slot)
 
     def find_pci_configuration(self, data):
-        # PCI configuration is determined from the lspci command, rather
-        # than what is stored in the configuration file.
-        # Not really sure why the /sys/device names append '0000:' before the slot.
-        slot = data['dirname'][5:]  # noqa
-        # device_info = self.find_device_info(slot)
-        # if device_info is None:
-        #     config = {
-        #         "color": "cyan",
-        #         "description_template": f'No device info available for {slot}',
-        #         'name': slot,
-        #     }
-        # else:
-        #     description_template = f"{device_info['Vendor']} {device_info['Device']}"
-        config = {
-            "color": "cyan",
-            "description_template": '{Device}',
-            'name': slot,
-        }
-        return DeviceConfiguration(config, self.command_runner)
+        return self.make_pci_configuration(data, self.command_runner)
 
     def find_usb_configuration(self, data):
         if data.get('idVendor') is None:
@@ -137,12 +147,7 @@ class DeviceConfigurations(object):
         key = f"{data['idVendor']}:{data['idProduct']}"
         config = self.device_map.get(key)
         if config is None:
-            if data.get('busnum') and data.get('devnum'):
-                config = {
-                    'name_of_config': 'Generic USB',
-                    'color': 'blue',
-                    'description_template': None,
-                }
+            return self.make_generic_usb_configuration(data, self.command_runner)
         return DeviceConfiguration(config, self.command_runner)
 
     def find_usb_configuration_for_node(self, node):
@@ -188,3 +193,24 @@ class DeviceConfigurations(object):
         for key in sorted_keys:
             item_list.append(self.get_item(key))
         return item_list
+
+    def to_javascript(self):
+        # Want the configurations to be assessible in terms of nodeid's.
+        # For now, patch it up here, and then back port to configuration file.
+        # Also, need to add all of the configurations from slots.
+        device_configurations = {}
+        for key, value in self.device_map.items():
+            device_configurations[f"usb({key})"] = value
+        chunks = []
+        chunks.append("<script>")
+        chunks.append("var device_configurations = ")
+        chunks.append(json.dumps(device_configurations, indent=4, sort_keys=True))
+        chunks.append('''
+        device_configurations.get = function(nodeid) {
+            return this[nodeid];
+        };
+        ''')
+        # Try it out
+        chunks.append("console.log('device_configurations.get(): ', device_configurations.get('usb(1d6b:0002)'));")  # noqa
+        chunks.append("</script>")
+        return "\n".join(chunks)

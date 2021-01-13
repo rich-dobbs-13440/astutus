@@ -83,6 +83,9 @@
 {% if aliases_javascript is not none %}
 {{ aliases_javascript | safe }}
 {% endif %}
+{% if configurations_javascript is not none %}
+{{ configurations_javascript | safe }}
+{% endif %}
 <script>
 
   function onTreeButtonClick(button) {
@@ -108,44 +111,33 @@
     var dirpath = button.dataset['dirpath'];
     var nodepath = button.dataset['nodepath'];
     var alias = aliases.findLongest(nodepath)
+    var device_configuration = device_configurations.get(buttonData['node_id'])
     var span = button.nextElementSibling
+    data = {
+      'data': buttonData,
+      'device_config': device_configuration,
+      'alias': alias,
+    }
     // Start work on using vanilla Javascript to Get using query passed in JSON.
     const xhr = new XMLHttpRequest();
     // listen for `load` event
     xhr.onload = () => {
-      // print JSON response
       if (xhr.status >= 200 && xhr.status < 300) {
-          // parse JSON
           const response = JSON.parse(xhr.responseText);
-          console.log(response);
+          // console.log(response);
           span.innerHTML = response["html_label"];
           button.onclick = function(){onTreeButtonClick(button)}
           nodeData = response['node_data'];
           button.dataset['nodedata'] = JSON.stringify(nodeData);
+      } else {
+          console.log('Failure in updateNodeData.  xhr:', xhr);
+          console.log('Request data:', data);
       }
     };
     xhr.open('PUT', '/astutus/usb/label' + dirpath);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    data = {
-      'data': buttonData,
-      'device_config': 'device_config_goes_here',
-      'alias': alias,
-    }
+    console.log('data:', data)
     xhr.send(JSON.stringify(data));
-
-    // $.ajax('/astutus/usb/node' + dirpath, {
-    //   method: 'GET',
-    //   data: buttonData,
-    //   success: function(data, textStatus,  jqXHR) {
-    //     nodeData = data['node_data'];
-    //     button.dataset['nodedata'] = JSON.stringify(nodeData);
-    //     span.innerHTML = nodeData["html_label"];
-    //     button.onclick = function(){onTreeButtonClick(button)}
-    //   },
-    //   error: function(xhr) {
-    //       throw new Error("updateNodeData failed.")
-    //   }
-    // });
   }
 
   function updateButtonData(button) {
