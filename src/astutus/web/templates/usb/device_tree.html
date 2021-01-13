@@ -91,11 +91,15 @@
     Object.assign(data, nodedata);
     dataForDir = JSON.parse(button.dataset['data_for_dir']);
     Object.assign(data, dataForDir);
-    // Currently button.dataset['info'] uses single quotes, not double
-    // quotes, so this might be the cause of the problem.
-    // In any case, disable for now.
-    // deviceInfo = JSON.parse(button.dataset['info'])
-    // Object.assign(data, deviceInfo);
+    data["nodepath"] = button.dataset['nodepath'];
+    // Currently button.dataset['info'] uses single quotes, but the JSON parser wants double quotes.
+    info = button.dataset['info']
+    if (info) {
+      info = info.replace("'", '"')
+      console.log('info: ', info)
+      deviceInfo = JSON.parse()
+      Object.assign(data, deviceInfo);
+    }
     handleAliasAddForm(button, data);
   }
 
@@ -115,6 +119,9 @@
           const response = JSON.parse(xhr.responseText);
           console.log(response);
           span.innerHTML = response["html_label"];
+          button.onclick = function(){onTreeButtonClick(button)}
+          nodeData = response['node_data'];
+          button.dataset['nodedata'] = JSON.stringify(nodeData);
       }
     };
     xhr.open('PUT', '/astutus/usb/label' + dirpath);

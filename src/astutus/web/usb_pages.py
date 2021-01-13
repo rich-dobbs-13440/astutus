@@ -103,6 +103,8 @@ def handle_label(path):
         alias = request_data.get('alias')
         sys_devices_path = '/sys/' + path
         data = request_data.get('data')
+        # TODO: Pass configuration from web page.  Maybe security risk.  Need to consider protection from
+        #       running arbitrary code.
         device_configurations = astutus.usb.DeviceConfigurations()
         device_config = device_configurations.find_configuration(data)
         node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
@@ -110,6 +112,7 @@ def handle_label(path):
         result = {
             'html_label': node_data.get('html_label'),
             'sys_devices_path': sys_devices_path,
+            'node_data': node_data,
         }
         return result, HTTPStatus.OK
 
