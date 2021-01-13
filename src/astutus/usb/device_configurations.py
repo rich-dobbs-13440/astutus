@@ -111,6 +111,15 @@ class DeviceConfigurations(object):
         }
         return DeviceConfiguration(config, command_runner)
 
+    @staticmethod
+    def make_generic_other_configuration(data, command_runner=astutus.util.run_cmd):
+        config = {
+            "color": "cyan",
+            "description_template": None,
+            'name_of_config': 'Generic Other',
+        }
+        return DeviceConfiguration(config, command_runner)
+
     def __init__(self, filepath=None, command_runner=astutus.util.run_cmd):
         logger.info("Initializing device configurations")
         self.device_map = None
@@ -125,12 +134,7 @@ class DeviceConfigurations(object):
         elif data['ilk'] == 'pci':
             return self.find_pci_configuration(data)
         else:
-            config = {
-                "color": "cyan",
-                "description_template": None,
-                'name_of_config': 'Generic Other',
-            }
-            return DeviceConfiguration(config, self.command_runner)
+            return self.make_generic_other_configuration(data, self.command_runner)
 
     def find_device_info(self, slot: str) -> dict:
         if self.pci_device_info is None:

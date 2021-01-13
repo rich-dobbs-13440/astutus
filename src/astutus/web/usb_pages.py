@@ -113,6 +113,10 @@ def handle_label(path):
                 device_config = astutus.usb.DeviceConfigurations.make_pci_configuration(data)
             elif data.get('ilk') == 'usb':
                 device_config = astutus.usb.DeviceConfigurations.make_generic_usb_configuration(data)
+            elif data.get('ilk') == 'other':
+                device_config = astutus.usb.DeviceConfigurations.make_generic_other_configuration(data)
+            else:
+                raise NotImplementedError(f"Unhandled ilk: {data.get('ilk')}")
         logger.debug(f"device_config: {device_config}")
         node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
         logger.debug(f"node_data: {node_data}")
