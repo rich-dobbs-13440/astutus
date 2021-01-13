@@ -3,9 +3,7 @@ Backlog
 
 Backlog:
 
-  * Task: Implement OnClick for device with ajax page.
-  * Task: Speedup rendering of device tree page.
-  * Task: Rework structure of device aliases file and DeviceAliases class.
+  * Task: Fix regressions with devices page.
   * Task: Style /astutus/raspi page.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
@@ -20,6 +18,9 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-13 12:33 Task: Implement OnClick for device with ajax page.
+  * |done| 2021-01-13 12:33 Task: Speedup rendering of device tree page.
+  * |done| 2021-01-13 12:33 Task: Rework structure of device aliases file and DeviceAliases class.
   * |done| 2021-01-10 10:01 Task: Refactor popup dialog templating for better reuse.
   * |done| 2021-01-10 08:07 Task: Add data and instructions to Add alias dialog in tree display.
   * |done| 2021-01-09 22:28 Task: Single source version number between code, package, and documentation.
