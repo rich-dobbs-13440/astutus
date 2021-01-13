@@ -90,6 +90,30 @@ def tree_to_html(tree_dict, device_info_map):
     return '\n' + '\n'.join(lines)
 
 
+@usb_page.route('/astutus/usb/label/sys/<path:path>', methods=['PUT'])
+def handle_label(path):
+    # Intent is to get JSON here, rather than form data.
+    # logger.info(f"flask.request.data: {flask.request.data}")
+    # logger.info(f"flask.request.headers: {flask.request.headers}")
+    # logger.info(f"flask.request.is_json: {flask.request.is_json}")
+    if flask.request.is_json:
+        request_data = flask.request.get_json(force=True)
+        logger.debug(f"request_data: {request_data}")
+        # logger.info(f"request_data.get('alias'): {request_data.get('alias')}")
+        alias = request_data.get('alias')
+        sys_devices_path = '/sys/' + path
+        data = request_data.get('data')
+        device_configurations = astutus.usb.DeviceConfigurations()
+        device_config = device_configurations.find_configuration(data)
+        node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+        logger.info(f"node_data: {node_data}")
+        result = {
+            'html_label': node_data.get('html_label'),
+            'sys_devices_path': sys_devices_path,
+        }
+        return result, HTTPStatus.OK
+
+
 @usb_page.route('/astutus/usb/node/sys/<path:path>', methods=['GET'])
 def handle_device_node_item(path):
     args = flask.request.args
@@ -135,7 +159,6 @@ def handle_device_tree_item(path):
     logger.debug(f'sys_devices_path: {sys_devices_path}')
     if sys_devices_path == '/sys/devices':
         data = {
-            'innerHTML': 'get styled html for node for /sys/devices',
             'data_for_dir': {
                 'node_id': 'other(devices)',
                 'top_of_tree': True,
@@ -158,13 +181,7 @@ def handle_device_tree_item(path):
         device_info = json.loads(device_info_arg.replace("'", '"'))
         ilk = "pci"
     data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path, device_info)
-    innerHTML = data.get('product')
-    if innerHTML is None:
-        innerHTML = data.get('Device')
-    if innerHTML is None:
-        innerHTML = data.get('dirname')
     data_for_return = {
-        'innerHTML': innerHTML,
         'data_for_dir': data,
     }
     return data_for_return, HTTPStatus.OK
@@ -180,6 +197,7 @@ def handle_usb_device_with_ajax():
         device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
         bare_tree_html = tree_to_html(bare_tree_dict, device_info_map)
+        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',
@@ -197,6 +215,7 @@ def handle_usb_device_with_ajax():
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
             bare_tree=bare_tree_html,
+            aliases_javascript=aliases.to_javascript(),
             tree_html=None,
             tree_html_background_color=background_color)
 

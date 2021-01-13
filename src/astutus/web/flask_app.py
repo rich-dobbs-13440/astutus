@@ -83,8 +83,9 @@ wy_menu_vertical = "\n".join(wy_menu_vertical_list)
 
 @app.template_filter('tojson_pretty')
 def tojson_pretty_jinja2_template_file(json_text):
+    logger.debug(f"json_text: {json_text}")
     parsed_json = json.loads(json_text)
-    return json.dumps(parsed_json, indent=4, sort_keys=True)
+    return json.dumps(parsed_json, indent=2, sort_keys=True)
 
 
 @app.route('/')
