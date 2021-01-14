@@ -1,6 +1,7 @@
 function handleTreeItemClick(data) {
     var nodeButtonJquery = $("#" + data["idx"]);
     nodeButton = nodeButtonJquery[0];
+    
     handleAliasAddForm(nodeButton, data)
 }
 

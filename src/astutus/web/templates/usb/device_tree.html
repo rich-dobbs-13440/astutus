@@ -7,16 +7,16 @@
   </span>
 </p>
 <div class="tree_html" id="tree-html-container">
-  {% if tree_html is not none %}
+  {% if tree_html is defined %}
     {{ tree_html | safe }}
   {% endif %}
 
-  {% if tree_dirpaths is not none %}
+  {% if tree_dirpaths is defined %}
     {% for dirpath in tree_dirpaths %}
       <p>{{ dirpath }}</p>
     {% endfor %}
   {% endif %}
-  {% if bare_tree is not none %}
+  {% if bare_tree is defined %}
     {{ bare_tree | safe }}
   {% endif %}
 
@@ -108,6 +108,13 @@
 
   function updateNodeData(button, buttonData) {
     // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+    var deviceInfo = button.dataset['info'];
+    if (deviceInfo == undefined) {
+      deviceInfo = "Nothing!"
+    }
+    data = {
+      'info': deviceInfo,
+    };
     var dirpath = button.dataset['dirpath'];
     var nodepath = button.dataset['nodepath'];
     var alias = aliases.findLongest(nodepath)
@@ -115,6 +122,7 @@
     var span = button.nextElementSibling
     data = {
       'data': buttonData,
+      'info': deviceInfo,
       'device_config': device_configuration,
       'alias': alias,
     }
@@ -140,6 +148,21 @@
     xhr.send(JSON.stringify(data));
   }
 
+  function updateNodepath(button, dataForDirPath) {
+    console.log("button: ", button)
+    parentDirpath = dataForDirPath["parent_dirpath"];
+    nodeId = dataForDirPath["node_id"];
+    if (parentDirpath in  nodePathByDirPath) {
+      parentNodePath = nodePathByDirPath[parentDirpath];
+      nodePath = parentNodePath + "/" + nodeId;
+    } else {
+      nodePath = nodeId;
+    }
+    button.dataset['nodepath'] = nodePath;
+    return nodePath
+  }
+
+
   function updateButtonData(button) {
     var dirpath = button.dataset['dirpath'];
     console.log("dirpath: ", dirpath)
@@ -147,34 +170,68 @@
     if (deviceInfo == undefined) {
       deviceInfo = "Nothing!"
     }
+    dataForDirPath = JSON.parse(button.dataset['data_for_dirpath']);
+    var nodepath = updateNodepath(button, dataForDirPath)
+    var alias = aliases.findLongest(nodepath)
+    var device_configuration = device_configurations.get(dataForDirPath['node_id'])
+    var span = button.nextElementSibling
     data = {
+      'data': dataForDirPath,
       'info': deviceInfo,
-    };
-    $.ajax('/astutus/usb' + dirpath, {
-      method: 'PATCH',
-      data: data,
-      success: function(data, textStatus,  jqXHR) {
-        buttonData = data['data_for_dir'];
-        button.dataset['data_for_dir'] = JSON.stringify(buttonData);
-        nodeId = buttonData['node_id'];
-        parentDirpath = buttonData["parent_dirpath"];
-        if (parentDirpath in  nodePathByDirPath) {
-          parentNodePath = nodePathByDirPath[parentDirpath];
-          nodePath = parentNodePath + "/" + nodeId;
-        } else {
-          nodePath = nodeId;
-        }
-        nodePathByDirPath[buttonData["dirpath"]] = nodePath;
-        button.dataset['nodepath'] = nodePath;
-
-        updateNodeData(button, buttonData);
-        buttonIdx++;
-        updateDescription(buttonIdx);
-      },
-      error: function(xhr) {
-          alert('Failed')
+      'device_config': device_configuration,
+      'alias': alias,
+    }
+    // Start work on using vanilla Javascript to Get using query passed in JSON.
+    const xhr = new XMLHttpRequest();
+    // listen for load event
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+          const response = JSON.parse(xhr.responseText);
+          // console.log(response);
+          span.innerHTML = response["html_label"];
+          button.onclick = function(){onTreeButtonClick(button)}
+          nodeData = response['node_data'];
+          button.dataset['nodedata'] = JSON.stringify(nodeData);
+          buttonIdx++;
+          updateButtonData(buttons[buttonIdx])
+      } else {
+          console.log('Failure in updateNodeData.  xhr:', xhr);
+          console.log('Request data:', data);
+          alert('Failed', xhr)
       }
-    });
+    };
+    xhr.open('PUT', '/astutus/usb/label' + dirpath);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    console.log('data:', data)
+    xhr.send(JSON.stringify(data));
+    // data = {
+    //   'info': deviceInfo,
+    // };
+    // $.ajax('/astutus/usb' + dirpath, {
+    //   method: 'PATCH',
+    //   data: data,
+    //   success: function(data, textStatus,  jqXHR) {
+    //     buttonData = data['data_for_dir'];
+    //     button.dataset['data_for_dir'] = JSON.stringify(buttonData);
+    //     nodeId = buttonData['node_id'];
+    //     parentDirpath = buttonData["parent_dirpath"];
+    //     if (parentDirpath in  nodePathByDirPath) {
+    //       parentNodePath = nodePathByDirPath[parentDirpath];
+    //       nodePath = parentNodePath + "/" + nodeId;
+    //     } else {
+    //       nodePath = nodeId;
+    //     }
+    //     nodePathByDirPath[buttonData["dirpath"]] = nodePath;
+    //     button.dataset['nodepath'] = nodePath;
+
+    //     updateNodeData(button, buttonData);
+    //     buttonIdx++;
+    //     updateDescription(buttonIdx);
+    //   },
+    //   error: function(xhr) {
+    //       alert('Failed')
+    //   }
+    // });
   }
 
   function updateDescription(buttonIdx) {
@@ -193,6 +250,10 @@
 
   // Set the background color upon loading
   $(".tree_html").css("background-color", '{{ tree_html_background_color }}');
-  updateAllDescriptions();
 
 </script>
+{% if bare_tree is defined %}
+<script>
+  updateAllDescriptions();
+</script>
+{% endif %}

@@ -48,7 +48,7 @@ def handle_usb():
             links=links)
 
 
-def item_to_html(item, device_info_map):
+def item_to_html(item):
     if isinstance(item, str):
         return [item]
     elif isinstance(item, dict):
@@ -58,7 +58,7 @@ def item_to_html(item, device_info_map):
                 lines.append('<ul>')
                 for child in item['children']:
                     lines.append('<li>')
-                    lines.extend(item_to_html(child, device_info_map))
+                    lines.extend(item_to_html(child))
                     lines.append('</li>')
                 lines.append('</ul>')
             elif key == 'data':
@@ -66,37 +66,44 @@ def item_to_html(item, device_info_map):
             else:
                 dirpath = value['data']['dirpath']
                 dirname = value['data']['dirname']
-                maybe_slot = dirname[5:]
-                device_info = device_info_map.get(maybe_slot)
-                if device_info is not None:
-                    data_info = f' data-info="{device_info}"'
+                ilk = value['data']['ilk']
+                info = value['data']['device_info']
+                if info is not None:
+                    data_info = f' data-info="{info}"'
                 else:
                     data_info = ""
-                button_class = 'class="astutus-tree-item-button"'
-                lines.append(f'<button data-dirpath="{dirpath}" {button_class}{data_info}>{dirname}</button>')
+                data_for_dirpath = astutus.usb.tree.get_data_for_dirpath(ilk, dirpath, info)
+                double_quoted_data_for_dirpath = f"{data_for_dirpath}".replace("'", '"')
+                data_data_for_dirpath = f" data-data_for_dirpath='{double_quoted_data_for_dirpath}'"
+                data_dirpath = f' data-dirpath="{dirpath}"'
+                data_definitions = f"{data_dirpath}{data_data_for_dirpath}{data_info}"
+                button_class = ' class="astutus-tree-item-button"'
+                lines.append(f'<button{button_class}{data_definitions}>{dirname}</button>')
                 lines.append('<span></span>')
-                lines.extend(item_to_html(value, device_info_map))
+                lines.extend(item_to_html(value))
         return lines
     elif isinstance(item, list):
         assert False, item
     assert False, type(item)
 
 
-def tree_to_html(tree_dict, device_info_map):
+def tree_to_html(tree_dict):
     lines = []
     lines.append('<ul class="ast"><li>')
-    lines.extend(item_to_html(tree_dict, device_info_map))
+    lines.extend(item_to_html(tree_dict))
     lines.append('</li></ul>')
     return '\n' + '\n'.join(lines)
 
 
 @usb_page.route('/astutus/usb/label/sys/<path:path>', methods=['PUT'])
 def handle_label(path):
+
     # Intent is to get JSON here, rather than form data.
     # logger.info(f"flask.request.data: {flask.request.data}")
     # logger.info(f"flask.request.headers: {flask.request.headers}")
     # logger.info(f"flask.request.is_json: {flask.request.is_json}")
     if flask.request.is_json:
+        start_time = datetime.now()
         request_data = flask.request.get_json(force=True)
         logger.debug(f"request_data: {request_data}")
         # logger.info(f"request_data.get('alias'): {request_data.get('alias')}")
@@ -125,45 +132,46 @@ def handle_label(path):
             'sys_devices_path': sys_devices_path,
             'node_data': node_data,
         }
+        logger.info(f"duration: {(datetime.now() - start_time).total_seconds()}")
         return result, HTTPStatus.OK
 
 
-@usb_page.route('/astutus/usb/node/sys/<path:path>', methods=['GET'])
-def handle_device_node_item(path):
-    args = flask.request.args
-    data = {
-        'dirname': args.get('dirname'),
-        'dirpath': args.get('dirpath'),
-        'ilk': args.get('ilk'),
-        'node_id': args.get('node_id'),
-        'Device': args.get('Device'),
-        'busnum': args.get('busnum'),
-        'devnum': args.get('devnum'),
-        'idVendor': args.get('idVendor'),
-        'idProduct': args.get('idProduct'),
-        'manufacturer': args.get('manufacturer'),
-        'product': args.get('product'),
-    }
-    device_configurations = astutus.usb.DeviceConfigurations()
-    device_config = device_configurations.find_configuration(data)
-    if device_config is None:
-        assert False, data
-    alias = None
-    # nodepath = data.get('nodepath')
-    # if nodepath is not None:
-    #     aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-    #     alias = aliases.find_highest_priority(nodepath)
-    #     device_configurations = astutus.usb.DeviceConfigurations()
-    #     device_config = device_configurations.find_configuration(data)
-    #     node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
-    #     logger.error(f'node_data: {node_data}')
-    # else:
-    #     logger.error(f'With nodepath none, data: {data}')
-    node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
-    result = {
-        "node_data": node_data
-    }
-    return result, HTTPStatus.OK
+# @usb_page.route('/astutus/usb/node/sys/<path:path>', methods=['GET'])
+# def handle_device_node_item(path):
+#     args = flask.request.args
+#     data = {
+#         'dirname': args.get('dirname'),
+#         'dirpath': args.get('dirpath'),
+#         'ilk': args.get('ilk'),
+#         'node_id': args.get('node_id'),
+#         'Device': args.get('Device'),
+#         'busnum': args.get('busnum'),
+#         'devnum': args.get('devnum'),
+#         'idVendor': args.get('idVendor'),
+#         'idProduct': args.get('idProduct'),
+#         'manufacturer': args.get('manufacturer'),
+#         'product': args.get('product'),
+#     }
+#     device_configurations = astutus.usb.DeviceConfigurations()
+#     device_config = device_configurations.find_configuration(data)
+#     if device_config is None:
+#         assert False, data
+#     alias = None
+#     # nodepath = data.get('nodepath')
+#     # if nodepath is not None:
+#     #     aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+#     #     alias = aliases.find_highest_priority(nodepath)
+#     #     device_configurations = astutus.usb.DeviceConfigurations()
+#     #     device_config = device_configurations.find_configuration(data)
+#     #     node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+#     #     logger.error(f'node_data: {node_data}')
+#     # else:
+#     #     logger.error(f'With nodepath none, data: {data}')
+#     node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+#     result = {
+#         "node_data": node_data
+#     }
+#     return result, HTTPStatus.OK
 
 
 @usb_page.route('/astutus/usb/sys/<path:path>', methods=['GET', 'PATCH'])
@@ -206,12 +214,10 @@ def handle_usb_device_with_ajax():
     if flask.request.method == 'GET':
         begin = datetime.now()
         logger.info("Start device tree data creation")
-        device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
-        logger.debug(f"device_info_map: {device_info_map}")
         device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
         device_configurations = astutus.usb.DeviceConfigurations()
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
-        bare_tree_html = tree_to_html(bare_tree_dict, device_info_map)
+        bare_tree_html = tree_to_html(bare_tree_dict)
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
@@ -232,7 +238,6 @@ def handle_usb_device_with_ajax():
             bare_tree=bare_tree_html,
             aliases_javascript=aliases.to_javascript(),
             configurations_javascript=device_configurations.to_javascript(),
-            tree_html=None,
             tree_html_background_color=background_color)
 
 

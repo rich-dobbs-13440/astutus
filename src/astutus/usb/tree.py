@@ -229,8 +229,10 @@ class UsbDeviceTree(object):
     def assemble_bare_tree(self):
         logger.info("Start assemble_bare_tree")
         start_time = datetime.now()
+        device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
         tree = treelib.Tree()
         rootpath, tag = self.basepath.rsplit('/', 1)
+        ilk_by_dirpath = self.get_ilk_by_dirpath()
         for dirpath in self.get_tree_dirpaths():
             parent_dirpath, dirname = dirpath.rsplit('/', 1)
             if parent_dirpath == self.basepath:
@@ -239,9 +241,14 @@ class UsbDeviceTree(object):
                 parent = None
             else:
                 parent = parent_dirpath
+
+            maybe_slot = dirname[5:]
+            device_info = device_info_map.get(maybe_slot)
             data = {
-                'dirpath': dirpath,
                 'dirname': dirname,
+                'dirpath': dirpath,
+                'device_info': device_info,
+                'ilk': ilk_by_dirpath[dirpath],
             }
             tree.create_node(
                 tag=dirname,
