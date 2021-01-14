@@ -118,22 +118,21 @@ function rememberTemplateSelection( selectionStart, selectionEnd) {
 
 function handleInsertButtonClick(value) {
     // Insert a placeholder into the template.
-    console.log("Need to handle inserting " + value + ' at (' + templateSelectionStart + ', ' +  templateSelectionEnd + ')');
-    console.log("The entire string: " + $("#template").val());
-    var templateValue = $("#template").val();
+    const templateElement = document.querySelector("#template")
+    var templateValue = templateElement.value
     var startStr = templateValue.substring(0, templateSelectionStart);
-    console.log("startStr: " + startStr);
+    // console.log("startStr: " + startStr);
     var endStr = templateValue.substring(templateSelectionEnd);
-    console.log("endStr: " + endStr);
+    // console.log("endStr: " + endStr);
     var replacementStr = startStr + value + endStr
-    console.log("replacementStr: " + replacementStr);
-    $("#template").val(replacementStr)
+    // console.log("replacementStr: " + replacementStr);
+    templateElement.value = replacementStr
     var currentInsert = templateSelectionStart + value.length
-    console.log('Desired current insert: ' + currentInsert)
+    // console.log('Desired current insert: ' + currentInsert)
     templateSelectionStart = currentInsert
     templateSelectionEnd = currentInsert
-    $("#template")[0].selectionStart = currentInsert
-    $("#template")[0].selectionEnd = currentInsert
+    templateElement.selectionStart = currentInsert
+    templateElement.selectionEnd = currentInsert
 }
 
 function onTreeButtonClick(button) {
