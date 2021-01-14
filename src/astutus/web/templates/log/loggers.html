@@ -20,16 +20,18 @@
 
 function handleOnChange(select, loggerName) {
     data = { "level": select.value };
-    $.ajax(`/astutus/log/${loggerName}`, {
-        method: 'patch',
-        data: data,
-        success: function(data, textStatus,  jqXHR) {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
             console.log("Logger patch succeeded")
-        },
-        error: function(xhr) {
+        } else {
+            console.log('Update log level failed.  xhr:', xhr);
             alert('Failed to update log level for  ' + loggerName)
         }
-    })
+    };
+    xhr.open('PATCH', `/astutus/log/${loggerName}`);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
 }
 
 </script>
