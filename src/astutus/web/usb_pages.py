@@ -165,8 +165,8 @@ def handle_device_tree_item(path):
     return data_for_return, HTTPStatus.OK
 
 
-@usb_page.route('/astutus/usb/device_with_ajax', methods=['GET'])
-def handle_usb_device_with_ajax():
+@usb_page.route('/astutus/usb/device', methods=['GET', 'POST'])
+def handle_usb_device():
     if flask.request.method == 'GET':
         begin = datetime.now()
         logger.info("Start device tree data creation")
@@ -197,36 +197,6 @@ def handle_usb_device_with_ajax():
             aliases_javascript=aliases.to_javascript(),
             configurations_javascript=device_configurations.to_javascript(),
             tree_html=None,
-            tree_html_background_color=background_color)
-
-
-@usb_page.route('/astutus/usb/device', methods=['GET', 'POST'])
-def handle_usb_device():
-    """ usb_page.route('/astutus/usb/device', methods=['GET', 'POST']) """
-    if flask.request.method == 'GET':
-        begin = datetime.now()
-        logger.info("Start device tree data creation")
-        device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
-        logger.info("Obtained tree_dict")
-        tree_html = device_tree.execute_tree_cmd(to_html=True)
-        logger.info("Obtained tree_html")
-        breadcrumbs_list = [
-            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
-            '<li><a href="/astutus/usb">/usb</a> &raquo;</li>',
-            '<li>/device</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
-        background_color = astutus.util.get_setting('/astutus/usb/settings', 'background_color', "#fcfcfc")
-        delta = datetime.now() - begin
-        logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
-
-        return flask.render_template(
-            'usb/dyn_usb_device.html',
-            static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
-            tree_html=tree_html,
             tree_html_background_color=background_color)
     if flask.request.method == 'POST':
         form = flask.request.form

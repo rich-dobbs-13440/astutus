@@ -121,3 +121,107 @@ function handleInsertButtonClick(value) {
     $("#template")[0].selectionStart = currentInsert
     $("#template")[0].selectionEnd = currentInsert
 }
+
+function onTreeButtonClick(button) {
+    data = {};
+    nodedata = JSON.parse(button.dataset['nodedata']);
+    Object.assign(data, nodedata);
+    dataForDir = JSON.parse(button.dataset['data_for_dir']);
+    Object.assign(data, dataForDir);
+    data["nodepath"] = button.dataset['nodepath'];
+    // Currently button.dataset['info'] uses single quotes, but the JSON parser wants double quotes.
+    info = button.dataset['info']
+    if (info) {
+        info = info.replace("'", '"')
+        console.log('info: ', info)
+        deviceInfo = JSON.parse()
+        Object.assign(data, deviceInfo);
+    }
+    handleAliasAddForm(button, data);
+}
+
+function updateNodeData(button, buttonData) {
+    // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+    var dirpath = button.dataset['dirpath'];
+    var nodepath = button.dataset['nodepath'];
+    var alias = aliases.findLongest(nodepath)
+    var device_configuration = device_configurations.get(buttonData['node_id'])
+    var span = button.nextElementSibling
+    data = {
+        'data': buttonData,
+        'device_config': device_configuration,
+        'alias': alias,
+    }
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            const response = JSON.parse(xhr.responseText);
+            span.innerHTML = response["html_label"];
+            button.onclick = function () { onTreeButtonClick(button) }
+            nodeData = response['node_data'];
+            button.dataset['nodedata'] = JSON.stringify(nodeData);
+        } else {
+            console.log('Failure in updateNodeData.  xhr:', xhr);
+            console.log('Request data:', data);
+        }
+    };
+    xhr.open('PUT', '/astutus/usb/label' + dirpath);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    console.log('data:', data)
+    xhr.send(JSON.stringify(data));
+}
+
+function updateButtonData(button) {
+    var dirpath = button.dataset['dirpath'];
+    console.log("dirpath: ", dirpath)
+    var deviceInfo = button.dataset['info'];
+    if (deviceInfo == undefined) {
+        deviceInfo = "Nothing!"
+    }
+    data = {
+        'info': deviceInfo,
+    };
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            const response = JSON.parse(xhr.responseText);
+            data_for_dir = response['data_for_dir'];
+            button.dataset['data_for_dir'] = JSON.stringify(data_for_dir);
+            nodeId = data_for_dir['node_id'];
+            parentDirpath = data_for_dir["parent_dirpath"];
+            if (parentDirpath in nodePathByDirPath) {
+                parentNodePath = nodePathByDirPath[parentDirpath];
+                nodePath = parentNodePath + "/" + nodeId;
+            } else {
+                nodePath = nodeId;
+            }
+            nodePathByDirPath[data_for_dir["dirpath"]] = nodePath;
+            button.dataset['nodepath'] = nodePath;
+            buttonIdx++;
+            updateButtonData(buttons[buttonIdx]);
+            updateNodeData(button, data_for_dir);
+        } else {
+            console.log('Failure in updateNodeData.  xhr:', xhr);
+            console.log('Request data:', data);
+        }
+    };
+    xhr.open('PUT', '/astutus/usb' + dirpath);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
+}
+
+function updateDescription(buttonIdx) {
+    // Start with the first button, and eventually process all buttons asynchronously.
+    updateButtonData(buttons[buttonIdx])
+}
+
+var nodePathByDirPath = {}
+var buttons;
+var buttonIdx;
+function updateAllDescriptions() {
+    buttons = document.querySelectorAll("button.astutus-tree-item-button");
+    buttonIdx = 0
+    updateDescription(buttonIdx);
+}
+
+updateAllDescriptions();
