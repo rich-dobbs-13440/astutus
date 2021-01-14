@@ -202,6 +202,7 @@ class DeviceAliases(dict):
         aliases = {}
         for pattern, value in raw_aliases.items():
             alias = value
+            logger.debug(f"alias: {alias}")
             alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
             alias['pattern'] = pattern
             aliases[pattern] = value

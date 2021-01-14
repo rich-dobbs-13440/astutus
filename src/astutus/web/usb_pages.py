@@ -207,12 +207,12 @@ def handle_usb_device():
             color = form.get('color')
             logger.debug(f"color: {color}")
             aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-            aliases[nodepath] = [{
+            aliases[nodepath] = {
                 "color": f"{color}",
                 "description_template": f"{template}",
                 "order": "00",
                 "priority": 50
-            }]
+            }
             astutus.usb.device_aliases.DeviceAliases.write_raw_as_json(filepath=None, raw_aliases=aliases)
             return flask.redirect(flask.url_for('usb.handle_usb_device'))
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
