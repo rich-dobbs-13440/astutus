@@ -3,7 +3,6 @@ Backlog
 
 Backlog:
 
-  * Task: Get search to work from dynamic page with Javascript error.
   * Task: Custom favicon for documentation pages.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
@@ -18,6 +17,7 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-14 13:19 Task: Get search to work from dynamic page without Javascript error.
   * |done| 2021-01-14 12:48 Task: Reduce usage of Jquery.  Use vanilla Javascript techniques instead.
   * |done| 2021-01-14 12:02 Task: Style /astutus/raspi/ifconfig page. (Gets rid of generic page with a JQuery ajax call)
   * |done| 2021-01-14 03:40 Task: Fix regressions with devices page.

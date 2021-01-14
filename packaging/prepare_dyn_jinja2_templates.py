@@ -149,6 +149,12 @@ def apply_line_oriented_replacements(html_text):
             # Send back the discovered output file in the regular output
             # return channels as an HTML comment.
             add_to_output(f'<!-- DYNAMIC_TEMPLATE_OUTPUT_FILE {filename} -->')
+        elif '<link rel="search" title="Search" href="../search.html" />' in line:
+            # src/astutus/web/static/_docs/search.html
+            add_to_output('<link rel="search" title="Search" href="/static/_docs/search.html" />')
+        elif 'action="../search.html"' in line:
+            # Handle: <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+            add_to_output(line.replace('action="../search.html"', 'action="/static/_docs/search.html"'))
         else:
             add_to_output(line)
     return "\n".join(output_lines)
