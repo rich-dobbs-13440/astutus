@@ -44,11 +44,16 @@ function isElementInViewport(el) {
 }
 
 function toggleVisibility(checkbox, cssClass, displayValue) {
+    var display;
     if (checkbox.checked) {
-        $(cssClass).css("display" , displayValue);
+        display = displayValue;
     } else {
-        $(cssClass).css("display" , "none");
+        display = "none";
     }
+    nodes = document.querySelectorAll(cssClass);
+    nodes.forEach(element => {
+        element.style.display = display;
+    });
 }
 
 function onBackgroundColorChange(colorInput) {

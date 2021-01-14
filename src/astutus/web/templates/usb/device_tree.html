@@ -1,21 +1,12 @@
 <link rel="stylesheet" href="/static/device_tree.css" />
 <p>
-  <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node ID</input>
   <span>
   <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)" class="astutus-color">Background Color</input>
   </span>
 </p>
 <div class="astutus-tree-html" id="tree-html-container">
-  {% if tree_html is not none %}
-    {{ tree_html | safe }}
-  {% endif %}
 
-  {% if tree_dirpaths is not none %}
-    {% for dirpath in tree_dirpaths %}
-      <p>{{ dirpath }}</p>
-    {% endfor %}
-  {% endif %}
   {% if bare_tree is not none %}
     {{ bare_tree | safe }}
   {% endif %}
