@@ -117,18 +117,21 @@ def apply_line_oriented_replacements(html_text):
             pass  # Remove the previous link and button
         elif 'View page source' in line:
             pass
+        elif '<![endif]-->' in line:
+            add_to_output('<!-- Indenting fix for if lt IE 9 pragma: /> /> -->')
         elif '</head>' in line:
             # Add additional head material
-            add_to_output('<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">')
-            add_to_output('<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">')
-            add_to_output('<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">')
-            add_to_output('<link rel="manifest" href="/static/site.webmanifest">')
+            add_to_output('<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png"/>')
+            add_to_output('<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>')
+            add_to_output('<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>')
+            add_to_output('<link rel="manifest" href="/static/site.webmanifest"/>')
             add_to_output('<link rel="stylesheet" href="/static/app.css" />')
+
             # Should this be hosted locally to avoid issues with Raspi not connected to internet?
-            cdn = '//cdnjs.cloudflare.com/ajax/libs'
-            add_to_output(f'<script src="{cdn}/jquery/3.1.1/jquery.min.js"></script>')
-            add_to_output(f'<link rel="stylesheet" href="{cdn}/jstree/3.3.8/themes/default/style.min.css" />')
-            add_to_output(f'<script src="{cdn}/jstree/3.3.8/jstree.min.js"></script>')
+            # cdn = '//cdnjs.cloudflare.com/ajax/libs'
+            # add_to_output(f'<link rel="stylesheet" href="{cdn}/jstree/3.3.8/themes/default/style.min.css" />')
+            # add_to_output(f'<script src="{cdn}/jstree/3.3.8/jstree.min.js"></script>')
+            add_to_output('<script src="/static/app.js"></script>')
             add_to_output(line)
         elif '{{INCLUDE}}' in line:
             pattern = r"{{INCLUDE}}\s*([\w,\.,/]+)\s*{{END_INCLUDE}}"

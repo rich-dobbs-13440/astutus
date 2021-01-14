@@ -79,7 +79,7 @@
 {% endif %}
 <script>
 // Set the background color upon loading
-$(".astutus-tree-html").css("background-color", '{{ tree_html_background_color }}');
+document.querySelector("#tree-html-container").style.background = '{{ tree_html_background_color }}';
 </script>
 
 <script src="/static/device_tree.js"></script>
