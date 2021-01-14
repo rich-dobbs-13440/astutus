@@ -14,6 +14,7 @@ processes the files.
 .. toctree::
     :maxdepth: 1
     :caption: Dynamic Templates:
+    :glob:
 
     *
 

@@ -127,18 +127,21 @@ def handle_raspi_item(idx):
 @raspi_page.route('/astutus/raspi/<int:idx>/ifconfig', methods=['GET'])
 def handle_raspi_item_ifconfig(idx):
     """" raspi_page.route('/astutus/raspi/<int:idx>/ifconfig', methods=['GET']) """
-    item = astutus.db.RaspberryPi.query.get(idx)
-    raspi = astutus.raspi.RaspberryPi(item)
-    ifconfig = raspi.get_ifconfig()
-    page_data = {
-        'title': "Raspberry Pi - ifconfig",
-        'show_links_section': False,
-        "show_post_section": False,
-        "show_delete_section": False,
-        "show_raw_json_section": True,
-    }
-    return flask.render_template(
-        'generic_rest_page.html',
-        page_data=page_data,
-        data=ifconfig,
-        links=None)
+    if flask.request.method == 'GET':
+        item = astutus.db.RaspberryPi.query.get(idx)
+        raspi = astutus.raspi.RaspberryPi(db_data=item)
+        ifconfig = raspi.get_ifconfig()
+        breadcrumbs_list = [
+            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+            '<li><a href="/astutus/raspi">/raspi</a> &raquo;</li>',
+            f'<li><a href="/astutus/raspi/{idx}">/{idx}</a> &raquo;</li>',
+            '<li>/ifconfig</li>',
+        ]
+        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        return flask.render_template(
+            'raspi/dyn_item_ifconfig.html',
+            static_base=static_base,
+            breadcrumbs_list_items=breadcrumbs_list_items,
+            wy_menu_vertical=wy_menu_vertical,
+            ifconfig=ifconfig)
