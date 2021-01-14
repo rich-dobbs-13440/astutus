@@ -1,17 +1,13 @@
-function handleTreeItemClick(data) {
-    var nodeButtonJquery = $("#" + data["idx"]);
-    nodeButton = nodeButtonJquery[0];
-    handleAliasAddForm(nodeButton, data)
-}
-
-
 function handleAliasAddForm(placementElement, data) {
 
-    $("#nodepath").val(data["nodepath"]);
-    $("#template").val(data["alias_description_template"]);
+    var nodePathElement = document.querySelector("#nodepath");
+    nodePathElement.value = data["nodepath"];
+    templateElement = document.querySelector("#template");
+    templateElement.value = data["alias_description_template"];
     var color = data["alias_color"];
     if (color != "") {
-        $("#color").val(color);
+        colorElement = document.querySelector("#color");
+        colorElement.value = color;
     }
 
     var rect = placementElement.getBoundingClientRect();
@@ -56,14 +52,27 @@ function toggleVisibility(checkbox, cssClass, displayValue) {
 }
 
 function onBackgroundColorChange(colorInput) {
-    $(".tree_html").css("background-color", colorInput.value)
+    const color = colorInput.value
+    const treeHtmlNodes = document.querySelectorAll('.astutus-tree-html');
+    treeHtmlNodes.forEach(element => {
+        element.style.background = color;
+      });
     data = {
-        "background-color": colorInput.value
+        "background-color": color
     }
-    // TODO: should be patch, not post.
-    // TODO: Move away from jquery for ajax.
-    $.post('/astutus/usb/settings', data)
-        .fail(function(jqxhr, settings, ex) { alert('failed, ' + ex); });
+
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Nothing needed
+        } else {
+            console.log('Updating color failed.  xhr:', xhr);
+            alert('Updating color failed.  xhr:' + xhr)
+        }
+    };
+    xhr.open('PATCH', '/astutus/usb/settings');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
 }
 
 function getSortedKeys(obj) {

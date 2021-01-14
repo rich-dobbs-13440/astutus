@@ -6,7 +6,7 @@
   <input type="color" value="{{ tree_html_background_color }}" onchange="onBackgroundColorChange(this)" class="astutus-color">Background Color</input>
   </span>
 </p>
-<div class="tree_html" id="tree-html-container">
+<div class="astutus-tree-html" id="tree-html-container">
   {% if tree_html is not none %}
     {{ tree_html | safe }}
   {% endif %}
@@ -88,7 +88,7 @@
 {% endif %}
 <script>
 // Set the background color upon loading
-$(".tree_html").css("background-color", '{{ tree_html_background_color }}');
+$(".astutus-tree-html").css("background-color", '{{ tree_html_background_color }}');
 </script>
 
 <script src="/static/device_tree.js"></script>

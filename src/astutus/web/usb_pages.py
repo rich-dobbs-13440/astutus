@@ -145,8 +145,6 @@ def handle_device_tree_item(path):
         }
         return data, HTTPStatus.OK
     request_data = flask.request.get_json(force=True)
-
-    # form = flask.request.form
     device_info_arg = request_data.get('info')
     logger.debug(f'device_info_arg: {device_info_arg}')
     if path == 'devices/pci0000:00':
@@ -347,13 +345,14 @@ def handle_usb_configuration_item(node_id):
         return "TODO", HTTPStatus.NOT_IMPLEMENTED
 
 
-@usb_page.route('/astutus/usb/settings', methods=['GET', 'POST'])
+@usb_page.route('/astutus/usb/settings', methods=['GET', 'PATCH'])
 def handle_usb_settings():
-    """ usb_page.route('/astutus/usb/settings', methods=['GET', 'POST']) """
+    """ usb_page.route('/astutus/usb/settings', methods=['GET', 'PATCH']) """
     if flask.request.method == 'GET':
         return "Should return settings here", HTTPStatus.NOT_IMPLEMENTED
-    if flask.request.method == 'POST':
-        background_color = flask.request.form.get('background-color')
+    if flask.request.method == 'PATCH':
+        request_data = flask.request.get_json(force=True)
+        background_color = request_data.get('background-color')
         if background_color is not None:
             logger.info(f"background_color: {background_color}")
             astutus.util.persist_setting('/astutus/usb/settings', 'background_color', background_color)

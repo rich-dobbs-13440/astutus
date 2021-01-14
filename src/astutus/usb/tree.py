@@ -345,58 +345,6 @@ class UsbDeviceTree(object):
 
         return sanitized_data
 
-    def make_button(self, data):
-        idx = data['idx']
-        dirname = data['dirname']
-        sanitized_data = self.sanitize_for_html(data)
-        data_json = json.dumps(sanitized_data)
-        return [
-            f"<button onclick='handleTreeItemClick({data_json})' id='{idx}' class='astutus-tree-item-button'>{dirname}</button>",  # noqa
-            data['html_label']
-        ]
-
-    def traverse_element(self, element):
-        if isinstance(element, dict):
-            data = element.get("data")
-            children = element.get("children")
-            if children is not None:
-                lines = []
-                if data is not None:
-                    lines.extend(self.make_button(data))
-                lines.extend(self.traverse_element(children))
-                return lines
-            if data is not None:
-                return self.formulate_data_as_table(data)
-                # return formulate_data_consisely(data)
-            lines = []
-            for key, value in element.items():
-                lines.extend(self.traverse_element(value))
-            return lines
-        elif isinstance(element, list):
-            lines = []
-            lines.append('<ul class="ast">')
-            for value in element:
-                lines.append("<li>")
-                lines.extend(self.traverse_element(value))
-                lines.append("</li>")
-            lines.append("</ul>")
-            return lines
-        elif isinstance(element, str):
-            return [element]
-        else:
-            return [f'Got to something unhandled {type(element)}']
-
-    def traverse_tree_dict_to_html(self, tree_dict: dict) -> str:
-        lines = []
-        # For more uniform styling, the entire tree should be a list with a single item.
-        lines.append('<ul class="ast">')
-        lines.append("<li>")
-        items = tree_dict
-        lines.extend(self.traverse_element(items))
-        lines.append("</li>")
-        lines.append("</ul>")
-        return "\n".join(lines)
-
     def get_aliases(self):
         if self.aliases is None:
             self.aliases = astutus.usb.device_aliases.DeviceAliases(filepath=self.device_aliases_filepath)
@@ -433,7 +381,7 @@ class UsbDeviceTree(object):
             node_ids=[],
             show_tree=False,
             to_dict=False,
-            to_html=False,
+            # to_html=False,
             to_tree_dirpaths=False,
             to_bare_tree=False
             ):
@@ -452,10 +400,10 @@ class UsbDeviceTree(object):
         if to_dict:
             return self.get_tree_as_dict()
 
-        if to_html:
-            tree = self.get_treelib_tree()
-            tree_dict = tree.to_dict(with_data=True)
-            return self.traverse_tree_dict_to_html(tree_dict)
+        # if to_html:
+        #     tree = self.get_treelib_tree()
+        #     tree_dict = tree.to_dict(with_data=True)
+        #     return self.traverse_tree_dict_to_html(tree_dict)
 
         if len(node_ids) > 0:
             self.generate_alias_json_snippet(
