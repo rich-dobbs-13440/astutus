@@ -86,17 +86,16 @@ function getSortedKeys(obj) {
 }
 
 function updatePlaceholderTable(table_id, data) {
-    $(table_id).empty();
-
+    const tableElement = document.querySelector(table_id);
     var dataKeys = getSortedKeys(data);
     var idx;
     var key;
     var value;
     var rowText;
-    var newRow;
+    lines = [];
     for (idx = 0; idx < dataKeys.length; idx++) {
-      key = dataKeys[idx];
-      if (key != 'idx') {
+        key = dataKeys[idx];
+        if (key != 'idx') {
             value = data[key];
             placeholder = `{${key}}`
             tdPlaceholder = `<td><div class="astutus-placeholder">${placeholder}</div></td>`;
@@ -104,10 +103,11 @@ function updatePlaceholderTable(table_id, data) {
             onClickText = `handleInsertButtonClick('${placeholder}')`
             tdbutton = `<td><div class="astutus-insert-placeholder"><button onclick="${onClickText}">Insert</button></div></td>`
             rowText = `<tr>${tdbutton}${tdPlaceholder}${tdCurrentValue}</tr>`;
-        $(table_id).append(rowText)
+            lines.push(rowText)
         }
     }
-  }
+    tableElement.innerHTML = lines.join("\n")
+}
 
 var templateSelectionStart;
 var templateSelectionEnd
