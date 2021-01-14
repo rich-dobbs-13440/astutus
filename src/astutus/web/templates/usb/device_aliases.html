@@ -31,22 +31,4 @@
         <hr/>
     </div>
 {% endfor %}
-<!-- <script>
-    function deleteViaJavascript(item_id) {
-        if (confirm("Are you sure you want to delete item " + item_id + "?")) {
-            // Dev Note:  Javascript requires backticks for string interpolation:
-            $.ajax(`/astutus/usb/alias/${item_id}`, {
-                method : 'delete',
-                success: function(data, textStatus,  jqXHR) {
-                    if (jqXHR.status == 202) {
-                        redirect_url = data["redirect_url"]
-                        window.location.replace(redirect_url);
-                    }
-                },
-                error: function(xhr) {
-                    alert('Failed to delete item ' + item_id)
-                }
-            })
-        }
-    }
-</script> -->
+

@@ -21,9 +21,9 @@ wy_menu_vertical_list = [
 wy_menu_vertical = "\n".join(wy_menu_vertical_list)
 
 
-@log_page.route('/astutus/log', methods=['POST', 'GET'])
+@log_page.route('/astutus/log', methods=['GET'])
 def handle_log():
-    """ log_page.route('/astutus/log', methods=['POST', 'GET']) """
+    """ log_page.route('/astutus/log', methods=[GET']) """
     if flask.request.method == 'GET':
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
@@ -48,9 +48,8 @@ def handle_log_item(logger_name):
     """ log_page.route('/astutus/log/<logger_name>', methods=['PATCH']) """
     if flask.request.method == 'PATCH':
         logger.debug(f"logger_name: {logger_name}")
-        logger.debug(f"flask.request.data: {flask.request.data}")
-        form = flask.request.form
-        level = int(form.get('level'))
+        request_data = flask.request.get_json(force=True)
+        level = int(request_data.get('level'))
         logger.debug(f"level: {level}")
         astutus.log.set_level(logger_name, level)
         item = astutus.db.Logger.query.get(logger_name)
