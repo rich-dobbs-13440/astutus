@@ -3,7 +3,7 @@ Backlog
 
 Backlog:
 
-  * Task: Fix regressions with devices page.
+  * Task: Reduce usage of Jquery.  Use vanilla Javascript techniques instead.
   * Task: Style /astutus/raspi page.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
@@ -18,6 +18,7 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-14 03:40 Task: Fix regressions with devices page.
   * |done| 2021-01-13 12:33 Task: Implement OnClick for device with ajax page.
   * |done| 2021-01-13 12:33 Task: Speedup rendering of device tree page.
   * |done| 2021-01-13 12:33 Task: Rework structure of device aliases file and DeviceAliases class.
