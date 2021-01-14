@@ -145,8 +145,6 @@ def handle_device_tree_item(path):
         }
         return data, HTTPStatus.OK
     request_data = flask.request.get_json(force=True)
-
-    # form = flask.request.form
     device_info_arg = request_data.get('info')
     logger.debug(f'device_info_arg: {device_info_arg}')
     if path == 'devices/pci0000:00':
@@ -165,8 +163,8 @@ def handle_device_tree_item(path):
     return data_for_return, HTTPStatus.OK
 
 
-@usb_page.route('/astutus/usb/device_with_ajax', methods=['GET'])
-def handle_usb_device_with_ajax():
+@usb_page.route('/astutus/usb/device', methods=['GET', 'POST'])
+def handle_usb_device():
     if flask.request.method == 'GET':
         begin = datetime.now()
         logger.info("Start device tree data creation")
@@ -198,36 +196,6 @@ def handle_usb_device_with_ajax():
             configurations_javascript=device_configurations.to_javascript(),
             tree_html=None,
             tree_html_background_color=background_color)
-
-
-@usb_page.route('/astutus/usb/device', methods=['GET', 'POST'])
-def handle_usb_device():
-    """ usb_page.route('/astutus/usb/device', methods=['GET', 'POST']) """
-    if flask.request.method == 'GET':
-        begin = datetime.now()
-        logger.info("Start device tree data creation")
-        device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
-        logger.info("Obtained tree_dict")
-        tree_html = device_tree.execute_tree_cmd(to_html=True)
-        logger.info("Obtained tree_html")
-        breadcrumbs_list = [
-            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
-            '<li><a href="/astutus/usb">/usb</a> &raquo;</li>',
-            '<li>/device</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
-        background_color = astutus.util.get_setting('/astutus/usb/settings', 'background_color', "#fcfcfc")
-        delta = datetime.now() - begin
-        logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
-
-        return flask.render_template(
-            'usb/dyn_usb_device.html',
-            static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
-            tree_html=tree_html,
-            tree_html_background_color=background_color)
     if flask.request.method == 'POST':
         form = flask.request.form
         if form.get("action") == "add_or_update_alias":
@@ -239,12 +207,12 @@ def handle_usb_device():
             color = form.get('color')
             logger.debug(f"color: {color}")
             aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-            aliases[nodepath] = [{
+            aliases[nodepath] = {
                 "color": f"{color}",
                 "description_template": f"{template}",
                 "order": "00",
                 "priority": 50
-            }]
+            }
             astutus.usb.device_aliases.DeviceAliases.write_raw_as_json(filepath=None, raw_aliases=aliases)
             return flask.redirect(flask.url_for('usb.handle_usb_device'))
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
@@ -377,13 +345,14 @@ def handle_usb_configuration_item(node_id):
         return "TODO", HTTPStatus.NOT_IMPLEMENTED
 
 
-@usb_page.route('/astutus/usb/settings', methods=['GET', 'POST'])
+@usb_page.route('/astutus/usb/settings', methods=['GET', 'PATCH'])
 def handle_usb_settings():
-    """ usb_page.route('/astutus/usb/settings', methods=['GET', 'POST']) """
+    """ usb_page.route('/astutus/usb/settings', methods=['GET', 'PATCH']) """
     if flask.request.method == 'GET':
         return "Should return settings here", HTTPStatus.NOT_IMPLEMENTED
-    if flask.request.method == 'POST':
-        background_color = flask.request.form.get('background-color')
+    if flask.request.method == 'PATCH':
+        request_data = flask.request.get_json(force=True)
+        background_color = request_data.get('background-color')
         if background_color is not None:
             logger.info(f"background_color: {background_color}")
             astutus.util.persist_setting('/astutus/usb/settings', 'background_color', background_color)

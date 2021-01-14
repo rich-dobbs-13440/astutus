@@ -4,7 +4,7 @@ Backlog
 Backlog:
 
   * Task: Reduce usage of Jquery.  Use vanilla Javascript techniques instead.
-  * Task: Style /astutus/raspi page.
+  * Task: Get search to work from dynamic page with Javascript error.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
   * Task: Get color sensor working on RPi.
@@ -18,6 +18,7 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-14 12:02 Task: Style /astutus/raspi/ifconfig page. (Gets rid of generic page with a JQuery ajax call)
   * |done| 2021-01-14 03:40 Task: Fix regressions with devices page.
   * |done| 2021-01-13 12:33 Task: Implement OnClick for device with ajax page.
   * |done| 2021-01-13 12:33 Task: Speedup rendering of device tree page.

@@ -1,5 +1,10 @@
+<div>
 <table>
     <tr><td>ID</td><td>{{ item.id }}</td></tr>
     <tr><td>MAC Address</td><td>{{ item.mac_addr }}</td></tr>
     <tr><td>IPv4</td><td>{{ item.ipv4 }}</td></tr>
 </table>
+</div>
+<p>
+    See the <a href="/astutus/raspi/{{ item.id }}/ifconfig"> ethernet interface configuration for this Pi</a>.
+</p>
