@@ -118,13 +118,10 @@
       'device_config': device_configuration,
       'alias': alias,
     }
-    // Start work on using vanilla Javascript to Get using query passed in JSON.
     const xhr = new XMLHttpRequest();
-    // listen for `load` event
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
           const response = JSON.parse(xhr.responseText);
-          // console.log(response);
           span.innerHTML = response["html_label"];
           button.onclick = function(){onTreeButtonClick(button)}
           nodeData = response['node_data'];
@@ -150,31 +147,33 @@
     data = {
       'info': deviceInfo,
     };
-    $.ajax('/astutus/usb' + dirpath, {
-      method: 'PATCH',
-      data: data,
-      success: function(data, textStatus,  jqXHR) {
-        buttonData = data['data_for_dir'];
-        button.dataset['data_for_dir'] = JSON.stringify(buttonData);
-        nodeId = buttonData['node_id'];
-        parentDirpath = buttonData["parent_dirpath"];
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const response = JSON.parse(xhr.responseText);
+        data_for_dir = response['data_for_dir'];
+        button.dataset['data_for_dir'] = JSON.stringify(data_for_dir);
+        nodeId = data_for_dir['node_id'];
+        parentDirpath = data_for_dir["parent_dirpath"];
         if (parentDirpath in  nodePathByDirPath) {
           parentNodePath = nodePathByDirPath[parentDirpath];
           nodePath = parentNodePath + "/" + nodeId;
         } else {
           nodePath = nodeId;
         }
-        nodePathByDirPath[buttonData["dirpath"]] = nodePath;
+        nodePathByDirPath[data_for_dir["dirpath"]] = nodePath;
         button.dataset['nodepath'] = nodePath;
-
-        updateNodeData(button, buttonData);
         buttonIdx++;
-        updateDescription(buttonIdx);
-      },
-      error: function(xhr) {
-          alert('Failed')
+        updateButtonData(buttons[buttonIdx]);
+        updateNodeData(button, data_for_dir);
+      } else {
+          console.log('Failure in updateNodeData.  xhr:', xhr);
+          console.log('Request data:', data);
       }
-    });
+    };
+    xhr.open('PUT', '/astutus/usb' + dirpath);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
   }
 
   function updateDescription(buttonIdx) {
