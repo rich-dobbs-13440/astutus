@@ -5,11 +5,18 @@
     --popup-dialog-initial-width: 900px;
     --astutus-table-scroll-static-height: 0px;
 }
+.wy-nav-content {
+    /* Override width for dynamic pages: */
+    max-width: 1200px;
+}
 div.astutus-popup {
     background-color: var(--popup-dialog-background-color);
     padding: 3ch;
     display: none;
     position: absolute;
+    /* Specify top and left to give units for vanilla JS: */
+    top: 30px;
+    left: 30px;
     height: var(--popup-dialog-initial-height);
     width: var(--popup-dialog-initial-width);
     resize: both;

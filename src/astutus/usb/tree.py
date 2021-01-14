@@ -7,6 +7,7 @@ import logging
 import os
 import os.path
 import sys
+from datetime import datetime
 
 import astutus.log
 import astutus.usb
@@ -26,6 +27,47 @@ DEFAULT_DEVICE_CONFIGURATIONS_FILEPATH = "~/.astutus/device_configurations.json"
 
 def key_by_node_data_key(node):
     return node.data.key()
+
+
+def get_data_for_dirpath(ilk, dirpath, device_info):
+    if ilk == 'usb':
+        data = astutus.usb.node.UsbDeviceNodeData.extract_data(dirpath)
+        assert data.get('dirpath') is not None, data
+    elif ilk == 'pci':
+        data = astutus.usb.node.PciDeviceNodeData.extract_data(dirpath)
+        if device_info is not None:
+            data.update(device_info)
+        assert data.get('dirpath') is not None, data
+    else:
+        _, dirname = dirpath.rsplit("/", 1)
+        data = astutus.usb.node.OtherDeviceNodeData.extract_data(dirpath)
+        logger.debug(f'ilk: {data.get("ilk")}')
+        logger.debug(f'dirpath: {data.get("dirpath")}')
+        logger.debug(f'dirname: {data.get("dirname")}')
+    return data
+
+
+def get_node_data(data, device_config, alias):
+    assert data is not None
+    ilk = data['ilk']
+    if ilk == 'usb':
+        node_data = astutus.usb.node.UsbDeviceNodeData(
+            data=data,
+            config=device_config,
+            alias=alias)
+    elif ilk == 'pci':
+        node_data = astutus.usb.node.PciDeviceNodeData(
+            data=data,
+            config=device_config,
+            alias=alias)
+    elif ilk == 'other':
+        node_data = astutus.usb.node.OtherDeviceNodeData(
+            data=data,
+            config=device_config,
+            alias=alias)
+    else:
+        raise NotImplementedError()
+    return node_data
 
 
 class UsbDeviceTree(object):
@@ -55,6 +97,7 @@ class UsbDeviceTree(object):
         self.tree_dirpaths = None
         self.data_by_dirpath = None
         self.ilk_by_dirpath = None
+        self.usb_device_dirpaths = None
         self.tree_as_dict = None
 
     def get_device_info_map(self):
@@ -95,26 +138,17 @@ class UsbDeviceTree(object):
 
     def find_data_for_paths(self, ilk_by_dirpath, dirpaths):
         data_by_dirpath = {}
+        device_info_map = self.get_device_info_map()
         for dirpath in dirpaths:
             ilk = ilk_by_dirpath[dirpath]
-            if ilk == 'usb':
-                data = astutus.usb.node.UsbDeviceNodeData.extract_data(dirpath)
-                assert data.get('dirpath') is not None, data
-            elif ilk == 'pci':
-                data = astutus.usb.node.PciDeviceNodeData.extract_data(dirpath)
-                slot = data['dirname'][5:]
-                device_info = self.get_device_info_map().get(slot)
-                if device_info is not None:
-                    data.update(device_info)
-                else:
-                    assert False, slot
-                assert data.get('dirpath') is not None, data
+
+            if ilk == 'pci':
+                _, dirname = dirpath.rsplit('/', 1)
+                slot = dirname[5:]
+                device_info = device_info_map.get(slot)
             else:
-                _, dirname = dirpath.rsplit("/", 1)
-                data = astutus.usb.node.OtherDeviceNodeData.extract_data(dirpath)
-                logger.debug(f'ilk: {data.get("ilk")}')
-                logger.debug(f'dirpath: {data.get("dirpath")}')
-                logger.debug(f'dirname: {data.get("dirname")}')
+                device_info = None
+            data = get_data_for_dirpath(ilk, dirpath, device_info)
             data_by_dirpath[dirpath] = data
         return data_by_dirpath
 
@@ -123,6 +157,7 @@ class UsbDeviceTree(object):
         nodepath_by_dirpath = {}
         for dirpath in tree_dirpaths:
             data = data_by_dirpath[dirpath]
+            dirpath = data['dirpath']
             node_id = data.get('node_id')
             parent_dirpath, dirname = dirpath.rsplit("/", 1)
             parent_nodepath = nodepath_by_dirpath.get(parent_dirpath)
@@ -160,33 +195,61 @@ class UsbDeviceTree(object):
                     alias_map[nodepath] = values
         print(json.dumps(alias_map, indent=4, sort_keys=True))
 
-    def extract_tree_data(self, *, basepath):
-        logger.info("Start extract_tree_data")
+    def get_usb_device_dirpath(self):
+        if self.usb_device_dirpaths is None:
+            self.usb_device_dirpaths, self.ilk_by_dirpath = self.walk_basepath_for_usb(self.basepath)
+        return self.usb_device_dirpaths
 
-        usb_device_dirpaths, ilk_by_dirpath = self.walk_basepath_for_usb(basepath)
-        logger.info(f"Number of USB devices found: {len(usb_device_dirpaths)}")
-        for device_dirpath in usb_device_dirpaths:
-            logger.debug(device_dirpath)
-        for dirpath in usb_device_dirpaths:
-            logger.debug(f"dirpath: {dirpath} ilk: {ilk_by_dirpath[dirpath]}")
+    def get_ilk_by_dirpath(self):
+        if self.ilk_by_dirpath is None:
+            self.usb_device_dirpaths, self.ilk_by_dirpath = self.walk_basepath_for_usb(self.basepath)
+        return self.ilk_by_dirpath
 
-        tree_dirpaths = self.find_tree_dirpaths(basepath, usb_device_dirpaths)
-        logger.info(f"treepaths count: {len(tree_dirpaths)}")
-        logger.debug("show ilks for all tree path:")
-        for dirpath in tree_dirpaths:
-            logger.debug(f"dirpath: {dirpath} ilk: {ilk_by_dirpath[dirpath]}")
+    def get_tree_dirpaths(self):
+        if self.tree_dirpaths is None:
+            self.tree_dirpaths = self.find_tree_dirpaths(self.basepath, self.get_usb_device_dirpath())
+        return self.tree_dirpaths
 
-        logger.debug("show data for all tree path:")
-        data_by_dirpath = self.find_data_for_paths(ilk_by_dirpath, tree_dirpaths)
-        for dirpath in tree_dirpaths:
-            logger.debug(f"dirpath: {dirpath} data: {data_by_dirpath[dirpath]}")
+    def get_data_by_dirpath(self):
+        if self.data_by_dirpath is None:
+            logger.info("Start get_data_by_dirpath")
+            start_time = datetime.now()
 
-        self.augment_data_by_nodepath(tree_dirpaths, data_by_dirpath)
-        for dirpath in tree_dirpaths:
-            logger.debug(f"dirpath: {dirpath} nodepath: {data_by_dirpath[dirpath]['nodepath']}")
+            tree_dirpaths = self.get_tree_dirpaths()
+            data_by_dirpath = self.find_data_for_paths(self.get_ilk_by_dirpath(), self.get_tree_dirpaths())
 
-        logger.info("End extract_tree_data")
-        return tree_dirpaths, data_by_dirpath, ilk_by_dirpath
+            self.augment_data_by_nodepath(tree_dirpaths, data_by_dirpath)
+            for dirpath in tree_dirpaths:
+                logger.debug(f"dirpath: {dirpath} nodepath: {data_by_dirpath[dirpath]['nodepath']}")
+            self.data_by_dirpath = data_by_dirpath
+
+            logger.info(f"End get_data_by_dirpath duration: {(datetime.now() - start_time).total_seconds()}")
+        return self.data_by_dirpath
+
+    def assemble_bare_tree(self):
+        logger.info("Start assemble_bare_tree")
+        start_time = datetime.now()
+        tree = treelib.Tree()
+        rootpath, tag = self.basepath.rsplit('/', 1)
+        for dirpath in self.get_tree_dirpaths():
+            parent_dirpath, dirname = dirpath.rsplit('/', 1)
+            if parent_dirpath == self.basepath:
+                pass
+            if parent_dirpath == rootpath:
+                parent = None
+            else:
+                parent = parent_dirpath
+            data = {
+                'dirpath': dirpath,
+                'dirname': dirname,
+            }
+            tree.create_node(
+                tag=dirname,
+                identifier=dirpath,
+                parent=parent,
+                data=data)
+        logger.info(f"End assemble_bare_tree - duration: {(datetime.now() - start_time).total_seconds()}")
+        return tree.to_dict(with_data=True)
 
     def assemble_tree(
             self,
@@ -198,32 +261,18 @@ class UsbDeviceTree(object):
             device_aliases,
             device_configurations):
         logger.info("Start assemble_tree")
+        start_time = datetime.now()
         tree = treelib.Tree()
         rootpath, tag = basepath.rsplit('/', 1)
         for dirpath in tree_dirpaths:
             data = data_by_dirpath[dirpath]
             assert dirpath == data['dirpath']
             parent_dirpath, dirname = dirpath.rsplit('/', 1)
-            ilk = ilk_by_dirpath[dirpath]
+            # ilk = ilk_by_dirpath[dirpath]
             nodepath = data.get('nodepath')
             alias = device_aliases.find_highest_priority(nodepath)
             device_config = device_configurations.find_configuration(data)
-            if ilk == 'usb':
-                node_data = astutus.usb.node.UsbDeviceNodeData(
-                    data=data,
-                    config=device_config,
-                    alias=alias)
-            elif ilk == 'pci':
-                node_data = astutus.usb.node.PciDeviceNodeData(
-                    data=data,
-                    config=device_config,
-                    alias=alias)
-            elif ilk == 'other':
-                logger.debug(f'alias: {alias} nodepath: {nodepath}  data: {data}')
-                node_data = astutus.usb.node.OtherDeviceNodeData(
-                    data=data,
-                    config=device_config,
-                    alias=alias)
+            node_data = get_node_data(data, device_config, alias)
             if parent_dirpath == basepath:
                 pass
             if parent_dirpath == rootpath:
@@ -235,7 +284,7 @@ class UsbDeviceTree(object):
                 identifier=dirpath,
                 parent=parent,
                 data=node_data)
-        logger.info("End assemble_tree")
+        logger.info(f"End assemble_tree - duration: {(datetime.now() - start_time).total_seconds()}")
         return tree
 
     def formulate_data_as_table(self, data):
@@ -332,6 +381,8 @@ class UsbDeviceTree(object):
                 lines.append("</li>")
             lines.append("</ul>")
             return lines
+        elif isinstance(element, str):
+            return [element]
         else:
             return [f'Got to something unhandled {type(element)}']
 
@@ -356,24 +407,6 @@ class UsbDeviceTree(object):
             self.device_configurations = astutus.usb.device_configurations.DeviceConfigurations(
                 filepath=self.device_configurations_filepath)
         return self.device_configurations
-
-    def get_tree_dirpaths(self):
-        if self.tree_dirpaths is None:
-            self.tree_dirpaths, self.data_by_dirpath, self.ilk_by_dirpath = self.extract_tree_data(
-                basepath=self.basepath)
-        return self.tree_dirpaths
-
-    def get_data_by_dirpath(self):
-        if self.data_by_dirpath is None:
-            self.tree_dirpaths, self.data_by_dirpath, self.ilk_by_dirpath = self.extract_tree_data(
-                basepath=self.basepath)
-        return self.data_by_dirpath
-
-    def get_ilk_by_dirpath(self):
-        if self.ilk_by_dirpath is None:
-            self.tree_dirpaths, self.data_by_dirpath, self.ilk_by_dirpath = self.extract_tree_data(
-                basepath=self.basepath)
-        return self.ilk_by_dirpath
 
     def get_treelib_tree(self):
         if self.treelib_tree is None:
@@ -401,12 +434,20 @@ class UsbDeviceTree(object):
             show_tree=False,
             to_dict=False,
             to_html=False,
+            to_tree_dirpaths=False,
+            to_bare_tree=False
             ):
 
         if show_tree:
             astutus.usb.node.DeviceNode.verbose = verbose
             tree = self.get_treelib_tree()
             tree.show(data_property="colorized_node_label_for_terminal", key=key_by_node_data_key)
+
+        if to_tree_dirpaths:
+            return self.get_tree_dirpaths()
+
+        if to_bare_tree:
+            return self.assemble_bare_tree()
 
         if to_dict:
             return self.get_tree_as_dict()

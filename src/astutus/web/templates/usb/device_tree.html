@@ -1,82 +1,4 @@
-<style>
-  :root {
-    --alias-editor-height: 170px;
-    --placeholder-instructions-height: 30px;
-    --other-height: 20px;
-    --astutus-table-scroll-static-height: calc(var(--alias-editor-height) + var(--placeholder-instructions-height) + var(--other-height));
-  }
-  div.add-alias-form {
-    margin-bottom: 2ch;
-  }
-  div.astutus-placeholder {
-    text-overflow: ellipsis;
-    padding-top: 4px;
-    padding-bottom: 4px;
-  }
-  div.astutus-current-value {
-    text-overflow: ellipsis;
-    padding-top: 4px;
-    padding-bottom: 4px;
-  }
-  div.astutus-insert-placeholder {
-    padding-right: 10px;
-    padding-top: 4px;
-    padding-bottom: 4px;
-    padding-left: 4px;
-    margin: 0px;
-  }
-  #nodepath {
-    width: 100%;
-  }
-  #template {
-    width: 100%;
-  }
-  #add_alias_form_button_div {
-    padding-top: 1ch;
-  }
-  .dirname_class {
-    display: none;
-  }
-  .node_id_class {
-    display: none;
-  }
-  .node_attr_table_class {
-    display: none;
-  }
-  .tree_html {
-    padding: 1ch;
-  }
-  table.astutus-table-scroll-header td:nth-child(1),
-  table.astutus-table-scroll td:nth-child(1) {
-    width: 65px;
-  }
-  table.astutus-table-scroll-header td:nth-child(1),
-  table.astutus-table-scroll td:nth-child(1) {
-    width: 20%;
-  }
-  table.astutus-table-scroll-header td:nth-child(2),
-  table.astutus-table-scroll td:nth-child(2) {
-    width: 80%;
-  }
-  #astutus-add-alias-table input[type=text] {
-    width: 100%;
-  }
-  #astutus-add-alias-table input[type=number] {
-    width: 8ch;
-  }
-  .rst-content .section #tree-html-container ul.ast li button.astutus-tree-item-button {
-    border-radius: 40px;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    padding-right: 10px;
-    padding-left: 10px;
-  }
-  .rst-content .section #tree-html-container ul.ast li>* {
-    line-height: 14px;
-    margin-bottom: 2px;
-    margin-top: 2px
-  }
-</style>
+<link rel="stylesheet" href="/static/device_tree.css" />
 <p>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_attr_table_class', 'block')">Attribute Table</input>
   <input type="checkbox" onclick="toggleVisibility(this, '.node_id_class', 'inline')">Node ID</input>
@@ -85,7 +7,19 @@
   </span>
 </p>
 <div class="tree_html" id="tree-html-container">
-  {{ tree_html | safe }}
+  {% if tree_html is not none %}
+    {{ tree_html | safe }}
+  {% endif %}
+
+  {% if tree_dirpaths is not none %}
+    {% for dirpath in tree_dirpaths %}
+      <p>{{ dirpath }}</p>
+    {% endfor %}
+  {% endif %}
+  {% if bare_tree is not none %}
+    {{ bare_tree | safe }}
+  {% endif %}
+
 </div>
   <!-- TODO: Add in collapsing feature without bringing the ugly styling
     <script>
@@ -145,129 +79,119 @@
     </div>
   </div>
 </div>
+<script src="/static/device_tree.js"></script>
+{% if aliases_javascript is not none %}
+{{ aliases_javascript | safe }}
+{% endif %}
+{% if configurations_javascript is not none %}
+{{ configurations_javascript | safe }}
+{% endif %}
 <script>
-  function handleTreeItemClick(data) {
-    $("#nodepath").val(data["nodepath"]);
-    $("#template").val(data["alias_description_template"]);
-    var color = data["alias_color"];
-    if (color != "") {
-      $("#color").val(color);
+
+  function onTreeButtonClick(button) {
+    data = {};
+    nodedata = JSON.parse(button.dataset['nodedata']);
+    Object.assign(data, nodedata);
+    dataForDir = JSON.parse(button.dataset['data_for_dir']);
+    Object.assign(data, dataForDir);
+    data["nodepath"] = button.dataset['nodepath'];
+    // Currently button.dataset['info'] uses single quotes, but the JSON parser wants double quotes.
+    info = button.dataset['info']
+    if (info) {
+      info = info.replace("'", '"')
+      console.log('info: ', info)
+      deviceInfo = JSON.parse()
+      Object.assign(data, deviceInfo);
     }
-
-    var container = $("#add-alias-form-container");
-    var nodeButton = $("#" + data["idx"]);
-    var buttonOffset = nodeButton.offset();
-    container.css("top", buttonOffset.top + 30);
-    container.css("left", buttonOffset.left + 30);
-
-    updatePlaceholderTable('#alias-placeholder-table', data);
-
-
-    container.show();
-
-    if (!isElementInViewport(container)) {
-      // Form will be below button
-      console.log("Scrolling element into view.")
-      var domDivElement = container[0];
-      domDivElement.scrollIntoView(false);
-    }
+    handleAliasAddForm(button, data);
   }
 
-  function handleAddAliasFormCancel() {
-    $("#add-alias-form-container").hide();
-  }
-
-  function isElementInViewport(el) {
-
-    if (typeof jQuery === "function" && el instanceof jQuery) {
-        el = el[0];
-    }
-
-    var rect = el.getBoundingClientRect();
-
-    return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-    );
-  }
-
-  function toggleVisibility(checkbox, cssClass, displayValue) {
-    if (checkbox.checked) {
-      $(cssClass).css("display" , displayValue);
-    } else {
-      $(cssClass).css("display" , "none");
-    }
-  }
-
-  function onBackgroundColorChange(colorInput) {
-    $(".tree_html").css("background-color", colorInput.value)
+  function updateNodeData(button, buttonData) {
+    // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+    var dirpath = button.dataset['dirpath'];
+    var nodepath = button.dataset['nodepath'];
+    var alias = aliases.findLongest(nodepath)
+    var device_configuration = device_configurations.get(buttonData['node_id'])
+    var span = button.nextElementSibling
     data = {
-      "background-color": colorInput.value
+      'data': buttonData,
+      'device_config': device_configuration,
+      'alias': alias,
     }
-    // TODO: should be patch, not post.
-    $.post('/astutus/usb/settings', data)
-      .fail(function(jqxhr, settings, ex) { alert('failed, ' + ex); });
-  }
-
-  function getSortedKeys(obj) {
-    var keys = Object.keys(obj);
-    return keys.sort();
-  }
-
-  function updatePlaceholderTable(table_id, data) {
-    $(table_id).empty();
-
-    var dataKeys = getSortedKeys(data);
-    var idx;
-    var key;
-    var value;
-    var rowText;
-    var newRow;
-    for (idx = 0; idx < dataKeys.length; idx++) {
-      key = dataKeys[idx];
-      if (key != 'idx') {
-        value = data[key];
-        placeholder = `{${key}}`
-        tdPlaceholder = `<td><div class="astutus-placeholder">${placeholder}</div></td>`;
-        tdCurrentValue = `<td><div class="astutus-current-value">${value}</div></td>`;
-        onClickText = `handleInsertButtonClick('${placeholder}')`
-        tdbutton = `<td><div class="astutus-insert-placeholder"><button onclick="${onClickText}">Insert</button></div></td>`
-        rowText = `<tr>${tdbutton}${tdPlaceholder}${tdCurrentValue}</tr>`;
-        $(table_id).append(rowText)
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+          const response = JSON.parse(xhr.responseText);
+          span.innerHTML = response["html_label"];
+          button.onclick = function(){onTreeButtonClick(button)}
+          nodeData = response['node_data'];
+          button.dataset['nodedata'] = JSON.stringify(nodeData);
+      } else {
+          console.log('Failure in updateNodeData.  xhr:', xhr);
+          console.log('Request data:', data);
       }
+    };
+    xhr.open('PUT', '/astutus/usb/label' + dirpath);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    console.log('data:', data)
+    xhr.send(JSON.stringify(data));
+  }
+
+  function updateButtonData(button) {
+    var dirpath = button.dataset['dirpath'];
+    console.log("dirpath: ", dirpath)
+    var deviceInfo = button.dataset['info'];
+    if (deviceInfo == undefined) {
+      deviceInfo = "Nothing!"
     }
-
+    data = {
+      'info': deviceInfo,
+    };
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const response = JSON.parse(xhr.responseText);
+        data_for_dir = response['data_for_dir'];
+        button.dataset['data_for_dir'] = JSON.stringify(data_for_dir);
+        nodeId = data_for_dir['node_id'];
+        parentDirpath = data_for_dir["parent_dirpath"];
+        if (parentDirpath in  nodePathByDirPath) {
+          parentNodePath = nodePathByDirPath[parentDirpath];
+          nodePath = parentNodePath + "/" + nodeId;
+        } else {
+          nodePath = nodeId;
+        }
+        nodePathByDirPath[data_for_dir["dirpath"]] = nodePath;
+        button.dataset['nodepath'] = nodePath;
+        buttonIdx++;
+        updateButtonData(buttons[buttonIdx]);
+        updateNodeData(button, data_for_dir);
+      } else {
+          console.log('Failure in updateNodeData.  xhr:', xhr);
+          console.log('Request data:', data);
+      }
+    };
+    xhr.open('PUT', '/astutus/usb' + dirpath);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
   }
-  var templateSelectionStart;
-  var templateSelectionEnd
-  function rememberTemplateSelection( selectionStart, selectionEnd) {
-    templateSelectionStart = selectionStart;
-    templateSelectionEnd = selectionEnd;
+
+  function updateDescription(buttonIdx) {
+    // Start with the first button, and eventually process all buttons asynchronously.
+    updateButtonData(buttons[buttonIdx])
   }
 
-  function handleInsertButtonClick(value) {
-    // Insert a placeholder into the template.
-    console.log("Need to handle inserting " + value + ' at (' + templateSelectionStart + ', ' +  templateSelectionEnd + ')');
-    console.log("The entire string: " + $("#template").val());
-    var templateValue = $("#template").val();
-    var startStr = templateValue.substring(0, templateSelectionStart);
-    console.log("startStr: " + startStr);
-    var endStr = templateValue.substring(templateSelectionEnd);
-    console.log("endStr: " + endStr);
-    var replacementStr = startStr + value + endStr
-    console.log("replacementStr: " + replacementStr);
-    $("#template").val(replacementStr)
-    var currentInsert = templateSelectionStart + value.length
-    console.log('Desired current insert: ' + currentInsert)
-    templateSelectionStart = currentInsert
-    templateSelectionEnd = currentInsert
-    $("#template")[0].selectionStart = currentInsert
-    $("#template")[0].selectionEnd = currentInsert
+  var nodePathByDirPath = {}
+  var buttons;
+  var buttonIdx;
+  function updateAllDescriptions() {
+    buttons = document.querySelectorAll("button.astutus-tree-item-button");
+    buttonIdx = 0
+    updateDescription(buttonIdx);
   }
 
   // Set the background color upon loading
   $(".tree_html").css("background-color", '{{ tree_html_background_color }}');
+  updateAllDescriptions();
 
 </script>

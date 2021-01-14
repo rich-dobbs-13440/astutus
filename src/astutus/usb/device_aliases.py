@@ -164,11 +164,14 @@ class DeviceAliases(dict):
     .. code-block:: json
 
         {
-            "[ancestor==usb(05e3:0610)]usb(1a86:7523)[sibling==usb(0bda:8153)]": {
-                "color": "fushia",
-                "label": "SMAKIN Relay into TECKNET USB 2.0",
-                "order": "40",
-                "priority": 98
+        "pci(0x1002:0x5a19)/pci(0x1b21:0x1042)":
+            {
+                "name": "Come up with good name",
+                "color": "#5a1ddd",
+                "description_template": "ASM1042 Alias",
+                "order": "00",
+                "pattern": "pci(0x1002:0x5a19)/pci(0x1b21:0x1042)",
+                "priority": 50
             },
         }
 
@@ -198,7 +201,7 @@ class DeviceAliases(dict):
     def parse_raw_aliases(raw_aliases):
         aliases = {}
         for pattern, value in raw_aliases.items():
-            alias = value[0]
+            alias = value
             alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
             alias['pattern'] = pattern
             aliases[pattern] = value
@@ -215,10 +218,12 @@ class DeviceAliases(dict):
     def find(self, nodepath: str) -> [dict]:
         """ Find all aliases that partially match the nodepath.  """
         logger.debug(f"nodepath: {nodepath}")
+        if nodepath is None:
+            assert False
         aliases = []
         for pattern, value in super().items():
             if nodepath.endswith(pattern):
-                aliases.append(value[0])
+                aliases.append(value)
         logger.debug(f"aliases: {aliases}")
         return aliases
 
@@ -240,7 +245,7 @@ class DeviceAliases(dict):
         if value is None:
             alias = None
         else:
-            alias = value[0]
+            alias = value
             alias['pattern'] = pattern
             alias['color'] = astutus.util.convert_color_for_html_input_type_color(alias['color'])
         logger.debug(f'alias: {alias}')
@@ -254,3 +259,40 @@ class DeviceAliases(dict):
         if filepath is None:
             filepath = self.filepath
         self.write_raw_as_json(filepath=filepath, raw_aliases=self)
+
+    def to_javascript(self):
+        chunks = []
+        chunks.append("<script>")
+        chunks.append("var aliases = ")
+        chunks.append(json.dumps(self, indent=4, sort_keys=True))
+
+        chunks.append('''
+        aliases.find = function(nodepath) {
+            const keys = Object.keys(this);
+            var matchingAliases = [];
+            keys.forEach((pattern, index) => {
+                if (nodepath.endsWith(pattern)) {
+                   matchingAliases.push(this[pattern]);
+                }
+            });
+            return matchingAliases;
+        };
+        aliases.findLongest = function(nodepath) {
+            var longest_length = 0;
+            var best = null;
+            matchingAliases = this.find(nodepath);
+            for (alias of matchingAliases) {
+                if (alias['pattern'].length > longest_length) {
+                    best = alias;
+                    longest_length = alias['pattern'].length;
+                };
+            }
+            return best;
+        };
+
+        ''')
+        # Try it out
+        chunks.append("console.log('aliases.find(): ', aliases.find('pci(0x1002:0x5a19)/pci(0x1b21:0x1042)/usb(1d6b:0002)'));")  # noqa
+        chunks.append("console.log('aliases.findLongest(', aliases.findLongest('pci(0x1002:0x5a19)/pci(0x1b21:0x1042)/usb(1d6b:0002)'));")  # noqa
+        chunks.append("</script>")
+        return "\n".join(chunks)

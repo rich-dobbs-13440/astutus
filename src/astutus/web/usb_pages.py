@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime
 from http import HTTPStatus
 
 import astutus.usb
@@ -47,16 +48,165 @@ def handle_usb():
             links=links)
 
 
+def item_to_html(item, device_info_map):
+    if isinstance(item, str):
+        return [item]
+    elif isinstance(item, dict):
+        lines = []
+        for key, value in item.items():
+            if key == 'children':
+                lines.append('<ul>')
+                for child in item['children']:
+                    lines.append('<li>')
+                    lines.extend(item_to_html(child, device_info_map))
+                    lines.append('</li>')
+                lines.append('</ul>')
+            elif key == 'data':
+                pass
+            else:
+                dirpath = value['data']['dirpath']
+                dirname = value['data']['dirname']
+                maybe_slot = dirname[5:]
+                device_info = device_info_map.get(maybe_slot)
+                if device_info is not None:
+                    data_info = f' data-info="{device_info}"'
+                else:
+                    data_info = ""
+                button_class = 'class="astutus-tree-item-button"'
+                lines.append(f'<button data-dirpath="{dirpath}" {button_class}{data_info}>{dirname}</button>')
+                lines.append('<span></span>')
+                lines.extend(item_to_html(value, device_info_map))
+        return lines
+    elif isinstance(item, list):
+        assert False, item
+    assert False, type(item)
+
+
+def tree_to_html(tree_dict, device_info_map):
+    lines = []
+    lines.append('<ul class="ast"><li>')
+    lines.extend(item_to_html(tree_dict, device_info_map))
+    lines.append('</li></ul>')
+    return '\n' + '\n'.join(lines)
+
+
+@usb_page.route('/astutus/usb/label/sys/<path:path>', methods=['PUT'])
+def handle_label(path):
+    # Intent is to get JSON here, rather than form data.
+    # logger.info(f"flask.request.data: {flask.request.data}")
+    # logger.info(f"flask.request.headers: {flask.request.headers}")
+    # logger.info(f"flask.request.is_json: {flask.request.is_json}")
+    if flask.request.is_json:
+        request_data = flask.request.get_json(force=True)
+        logger.debug(f"request_data: {request_data}")
+        # logger.info(f"request_data.get('alias'): {request_data.get('alias')}")
+        alias = request_data.get('alias')
+        sys_devices_path = '/sys/' + path
+        data = request_data.get('data')
+        # TODO: Pass configuration from web page.  Maybe security risk.  Need to consider protection from
+        #       running arbitrary code.
+        config_data = request_data.get('device_config')
+        if config_data is not None:
+            device_config = astutus.usb.DeviceConfiguration(config_data)
+        else:
+            if data.get('ilk') == 'pci':
+                device_config = astutus.usb.DeviceConfigurations.make_pci_configuration(data)
+            elif data.get('ilk') == 'usb':
+                device_config = astutus.usb.DeviceConfigurations.make_generic_usb_configuration(data)
+            elif data.get('ilk') == 'other':
+                device_config = astutus.usb.DeviceConfigurations.make_generic_other_configuration(data)
+            else:
+                raise NotImplementedError(f"Unhandled ilk: {data.get('ilk')}")
+        logger.debug(f"device_config: {device_config}")
+        node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
+        logger.debug(f"node_data: {node_data}")
+        result = {
+            'html_label': node_data.get('html_label'),
+            'sys_devices_path': sys_devices_path,
+            'node_data': node_data,
+        }
+        return result, HTTPStatus.OK
+
+
+@usb_page.route('/astutus/usb/sys/<path:path>', methods=['GET', 'PATCH', 'PUT'])
+def handle_device_tree_item(path):
+    logger.info('Start handle_device_tree_item')
+    sys_devices_path = '/sys/' + path
+    logger.debug(f'sys_devices_path: {sys_devices_path}')
+    if sys_devices_path == '/sys/devices':
+        data = {
+            'data_for_dir': {
+                'node_id': 'other(devices)',
+                'top_of_tree': True,
+                'dirpath': '/sys/devices',
+                'dirname': 'devices',
+                'ilk': 'other',
+            },
+        }
+        return data, HTTPStatus.OK
+    request_data = flask.request.get_json(force=True)
+
+    # form = flask.request.form
+    device_info_arg = request_data.get('info')
+    logger.debug(f'device_info_arg: {device_info_arg}')
+    if path == 'devices/pci0000:00':
+        device_info = None
+        ilk = "other"
+    elif device_info_arg == "Nothing!":
+        device_info = None
+        ilk = "usb"
+    else:
+        device_info = json.loads(device_info_arg.replace("'", '"'))
+        ilk = "pci"
+    data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path, device_info)
+    data_for_return = {
+        'data_for_dir': data,
+    }
+    return data_for_return, HTTPStatus.OK
+
+
+@usb_page.route('/astutus/usb/device_with_ajax', methods=['GET'])
+def handle_usb_device_with_ajax():
+    if flask.request.method == 'GET':
+        begin = datetime.now()
+        logger.info("Start device tree data creation")
+        device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
+        logger.debug(f"device_info_map: {device_info_map}")
+        device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
+        device_configurations = astutus.usb.DeviceConfigurations()
+        bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
+        bare_tree_html = tree_to_html(bare_tree_dict, device_info_map)
+        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+        breadcrumbs_list = [
+            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+            '<li><a href="/astutus/usb">/usb</a> &raquo;</li>',
+            '<li>/device</li>',
+        ]
+        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
+        background_color = astutus.util.get_setting('/astutus/usb/settings', 'background_color', "#fcfcfc")
+        delta = datetime.now() - begin
+        logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
+
+        return flask.render_template(
+            'usb/dyn_usb_device.html',
+            static_base=static_base,
+            breadcrumbs_list_items=breadcrumbs_list_items,
+            wy_menu_vertical=wy_menu_vertical,
+            bare_tree=bare_tree_html,
+            aliases_javascript=aliases.to_javascript(),
+            configurations_javascript=device_configurations.to_javascript(),
+            tree_html=None,
+            tree_html_background_color=background_color)
+
+
 @usb_page.route('/astutus/usb/device', methods=['GET', 'POST'])
 def handle_usb_device():
     """ usb_page.route('/astutus/usb/device', methods=['GET', 'POST']) """
     if flask.request.method == 'GET':
+        begin = datetime.now()
         logger.info("Start device tree data creation")
         device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
-        tree_dict = device_tree.execute_tree_cmd(to_dict=True)
-        render_as_json = False
-        if render_as_json:
-            return tree_dict
         logger.info("Obtained tree_dict")
         tree_html = device_tree.execute_tree_cmd(to_html=True)
         logger.info("Obtained tree_html")
@@ -68,13 +218,14 @@ def handle_usb_device():
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         background_color = astutus.util.get_setting('/astutus/usb/settings', 'background_color', "#fcfcfc")
-        logger.info("Start rendering template for device tree")
+        delta = datetime.now() - begin
+        logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
+
         return flask.render_template(
             'usb/dyn_usb_device.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
-            tree=json.dumps(tree_dict),
             tree_html=tree_html,
             tree_html_background_color=background_color)
     if flask.request.method == 'POST':
