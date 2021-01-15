@@ -1,8 +1,10 @@
 Raspberry Pi
 ============
 
-{{DESTINATION}} raspi/dyn_raspi_item.html {{END_DESTINATION}}
+««HTML_TITLE»» Raspberry Pi's - /astutus/raspi/{{idx}} ««END_HTML_TITLE»»
 
-{{INCLUDE}} raspi/raspi_item_display.html {{END_INCLUDE}}
+««DESTINATION»» raspi/dyn_raspi_item.html ««END_DESTINATION»»
 
-{{INCLUDE}} delete_item_form.html {{END_INCLUDE}}
+««INCLUDE»» raspi/raspi_item_display.html ««END_INCLUDE»»
+
+««INCLUDE»» delete_item_form.html ««END_INCLUDE»»

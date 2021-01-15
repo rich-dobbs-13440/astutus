@@ -230,7 +230,7 @@ def handle_usb_alias():
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         return flask.render_template(
-            'usb/dyn_usb_alias.html',
+            'usb/dyn_alias.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
@@ -261,6 +261,7 @@ def handle_usb_alias_item(nodepath):
                 breadcrumbs_list_items=breadcrumbs_list_items,
                 wy_menu_vertical=wy_menu_vertical,
                 item=item,
+                nodepath=nodepath,
                 alias=alias)
         return f"No alias for {nodepath} found.", HTTPStatus.BAD_REQUEST
     if flask.request.method == 'DELETE':

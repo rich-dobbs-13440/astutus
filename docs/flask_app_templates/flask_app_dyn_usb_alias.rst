@@ -1,7 +1,9 @@
 USB Aliases
 ===========
 
-{{DESTINATION}} usb/dyn_usb_alias.html {{END_DESTINATION}}
+««HTML_TITLE»» USB Aliases - /astutus/alias ««END_HTML_TITLE»»
+
+««DESTINATION»» usb/dyn_alias.html ««END_DESTINATION»»
 
 Aliases allow providing meaningful human names to USB devices despite
 the challenges of the USB implementation:
@@ -18,4 +20,4 @@ the challenges of the USB implementation:
 Device Aliases
 --------------
 
-{{INCLUDE}} usb/device_aliases.html {{END_INCLUDE}}
+««INCLUDE»» usb/device_aliases.html ««END_INCLUDE»»

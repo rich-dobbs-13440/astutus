@@ -1,6 +1,8 @@
 USB Device Tree
 ===============
 
-{{DESTINATION}} usb/dyn_usb_device.html {{END_DESTINATION}}
+««HTML_TITLE»» USB Devices - /astutus/usb/device ««END_HTML_TITLE»»
 
-{{INCLUDE}} usb/device_tree.html {{END_INCLUDE}}
+««DESTINATION»» usb/dyn_usb_device.html ««END_DESTINATION»»
+
+««INCLUDE»» usb/device_tree.html ««END_INCLUDE»»

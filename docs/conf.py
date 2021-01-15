@@ -24,7 +24,7 @@ author = 'Rich Dobbs'
 
 # The full version, including alpha/beta/rc tags
 version = astutus.__version__
-release = version + "a2021.01.09.22.19"
+release = version + "a2021.01.14.22.19"
 
 
 # -- General configuration ---------------------------------------------------
@@ -56,6 +56,9 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# Use the ringtail cat icon for docs too.
+html_favicon = '_static/favicon.ico'
 
 
 # Override theme to issue with tables.

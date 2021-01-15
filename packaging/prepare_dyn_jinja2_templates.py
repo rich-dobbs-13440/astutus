@@ -133,15 +133,15 @@ def apply_line_oriented_replacements(html_text):
             # add_to_output(f'<script src="{cdn}/jstree/3.3.8/jstree.min.js"></script>')
             add_to_output('<script src="/static/app.js"></script>')
             add_to_output(line)
-        elif '{{INCLUDE}}' in line:
-            pattern = r"{{INCLUDE}}\s*([\w,\.,/]+)\s*{{END_INCLUDE}}"
+        elif '««INCLUDE»»' in line:
+            pattern = r"««INCLUDE»»\s*([\w,\.,/]+)\s*««END_INCLUDE»»"
             matches = re.search(pattern, line)
             if not matches:
                 assert False, line
             filename = matches.group(1)
             add_to_output('{% include "' + filename + '" %}')
-        elif '{{DESTINATION}}' in line:
-            pattern = r"{{DESTINATION}}\s*([\w,\.,/]+)\s*{{END_DESTINATION}}"
+        elif '««DESTINATION»»' in line:
+            pattern = r"««DESTINATION»»\s*([\w,\.,/]+)\s*««END_DESTINATION»»"
             matches = re.search(pattern, line)
             if not matches:
                 assert False, line
@@ -149,6 +149,24 @@ def apply_line_oriented_replacements(html_text):
             # Send back the discovered output file in the regular output
             # return channels as an HTML comment.
             add_to_output(f'<!-- DYNAMIC_TEMPLATE_OUTPUT_FILE {filename} -->')
+        elif '<link rel="search" title="Search" href="../search.html" />' in line:
+            # src/astutus/web/static/_docs/search.html
+            add_to_output('<link rel="search" title="Search" href="/static/_docs/search.html" />')
+        elif 'action="../search.html"' in line:
+            # Handle: <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+            add_to_output(line.replace('action="../search.html"', 'action="/static/_docs/search.html"'))
+        elif '<title>' in line:
+            # This pattern matches every thing between markers.
+            # Whitespace needs to be stripped out to make a good title.
+            pattern = r'««HTML_TITLE»»([^«]+)««END_HTML_TITLE»»'
+            matches = re.search(pattern, html_text)
+            if matches:
+                title_text = matches.group(1).strip()
+                add_to_output(f'<title>{title_text}</title>')
+            else:
+                add_to_output(line)
+        elif '««HTML_TITLE»»' in line:
+            pass
         else:
             add_to_output(line)
     return "\n".join(output_lines)
@@ -157,8 +175,7 @@ def apply_line_oriented_replacements(html_text):
 def indent_html_text(html_text):
     """ Attempts to indent html in a somewhat meaningful fashion.
 
-    Doesn't work perfectly, since Sphinx doesn't produce perfect HTML.
-    For example, there are no closing element for <meta> tags.
+    Needs some semi-manual patch up to take care of HTML comments.
     """
     output_chunks = []
     nesting = 0

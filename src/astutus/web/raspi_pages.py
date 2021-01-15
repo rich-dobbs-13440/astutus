@@ -120,7 +120,8 @@ def handle_raspi_item(idx):
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
-            item=item
+            item=item,
+            idx=idx,
             )
 
 
@@ -144,4 +145,5 @@ def handle_raspi_item_ifconfig(idx):
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
+            idx=idx,
             ifconfig=ifconfig)
