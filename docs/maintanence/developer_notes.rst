@@ -370,3 +370,23 @@ Next, copy the following link tags and paste them into the head of your HTML.
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="manifest" href="/site.webmanifest">
+
+
+Installing On Raspberry Pi
+--------------------------
+
+.. code-block:: console
+
+  Could not find a version that satisfies the requirement treelib (from astutus) (from versions: )
+  No matching distribution found for treelib (from astutus)
+
+  Collecting SQLAlchemy>=0.8.0 (from flask-sqlalchemy->astutus)
+  Could not find a version that satisfies the requirement SQLAlchemy>=0.8.0 (from flask-sqlalchemy->astutus) (from versions: )
+  No matching distribution found for SQLAlchemy>=0.8.0 (from flask-sqlalchemy->astutus)
+
+  Collecting pyyaml>=3.13 (from serial->astutus)
+  Could not find a version that satisfies the requirement pyyaml>=3.13 (from serial->astutus) (from versions: )
+  No matching distribution found for pyyaml>=3.13 (from serial->astutus)
+
+
+  pip3 install --no-index --find-links=. astutus

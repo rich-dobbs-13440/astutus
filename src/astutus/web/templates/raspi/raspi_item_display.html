@@ -11,6 +11,9 @@
 <p>
     <button onclick="handlePublishWheels('{{ item.id }}')" >Publish Wheels</button>
 </p>
+<p>
+    <button onclick="handleInstallAstutus('{{ item.id }}')" >Install Astutus</button>
+</p>
 <script>
 
 function handlePublishWheels(idx) {
@@ -19,13 +22,31 @@ function handlePublishWheels(idx) {
     xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
             console.log("Publish wheels patch succeeded")
+            alert("Publish wheels succeeded")
         } else {
             console.log('Request to publish wheels failed.  xhr:', xhr);
-            alert('Request to publish wheels failed.  ' + xhr.response)
+            alert('Request to publish wheels failed.  ' + xhr.statusText)
         }
     };
     xhr.open('PATCH', `/astutus/raspi/${idx}`);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify(data));
-    }
+}
+
+function handleInstallAstutus(idx) {
+    data = { "action": 'install_or_upgrade_astutus' };
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            console.log("Install Astutus patch succeeded")
+            alert("Install or upgrade Astutus succeeded")
+        } else {
+            console.log('Request to install or upgrade Astutus failed.  xhr:', xhr);
+            alert('Request to install or upgrade Astutus failed.  ' + xhr.statusText)
+        }
+    };
+    xhr.open('PATCH', `/astutus/raspi/${idx}`);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
+}
 </script>

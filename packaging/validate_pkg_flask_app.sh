@@ -20,6 +20,9 @@ mark_sub_section "Self-publish Package Wheels"
 source "${this_dir}/fetch_wheels.sh"
 cp "${this_dir}"/dist/*.whl "${wheels_destination}"
 cp "${this_dir}"/wheels/none-any/*.whl "${wheels_destination}"
+cp "${this_dir}"/wheels/none-any/*.tar.gz "${wheels_destination}"
+cp "${this_dir}"/wheels/linux_armv7l/*.whl "${wheels_destination}"
+cp "${this_dir}"/wheels/manylinux1_x86_64/*.whl "${wheels_destination}"
 
 mark_sub_section "Launch Flask Application"
 

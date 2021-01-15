@@ -101,6 +101,10 @@ def handle_raspi_item(idx):
             raspi = astutus.raspi.RaspberryPi(db_data=item)
             raspi.publish_wheels()
             return "Publishing windows apparently succeeded.", HTTPStatus.OK
+        if action == 'install_or_upgrade_astutus':
+            raspi = astutus.raspi.RaspberryPi(db_data=item)
+            raspi.uninstall_and_then_install_astutus()
+            return "Install or upgrade Astutus apparently succeeded.", HTTPStatus.OK
         raise NotImplementedError(f"The action '{action}'' is not handled.")
     if flask.request.method == 'DELETE':
         item = astutus.db.RaspberryPi.query.get(idx)
