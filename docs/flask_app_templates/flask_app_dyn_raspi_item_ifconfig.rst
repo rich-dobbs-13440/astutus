@@ -1,5 +1,5 @@
-Raspberry PI Ethernet Internet Configuration
-===========================================
+Raspberry Pi Ethernet Internet Configuration
+============================================
 
 ««HTML_TITLE»» RPi ifconfig - /astutus/raspi/{{ idx }}/ifconfig ««END_HTML_TITLE»»
 

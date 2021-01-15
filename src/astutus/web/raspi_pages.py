@@ -90,11 +90,18 @@ def handle_raspi():
         return "Case not handled", HTTPStatus.NOT_IMPLEMENTED
 
 
-@raspi_page.route('/astutus/raspi/<int:idx>', methods=['POST', 'GET', 'DELETE'])
+@raspi_page.route('/astutus/raspi/<int:idx>', methods=['PATCH', 'GET', 'DELETE'])
 def handle_raspi_item(idx):
     """ raspi_page.route('/astutus/raspi/<int:idx>', methods=['POST', 'GET', 'DELETE']) """
-    if flask.request.method == 'POST':
-        return "Got here"
+    if flask.request.method == 'PATCH':
+        request_data = flask.request.get_json(force=True)
+        action = request_data.get('action')
+        item = astutus.db.RaspberryPi.query.get(idx)
+        if action == 'publish_wheels':
+            raspi = astutus.raspi.RaspberryPi(db_data=item)
+            raspi.publish_wheels()
+            return "Publishing windows apparently succeeded.", HTTPStatus.OK
+        raise NotImplementedError(f"The action '{action}'' is not handled.")
     if flask.request.method == 'DELETE':
         item = astutus.db.RaspberryPi.query.get(idx)
         db.session.delete(item)

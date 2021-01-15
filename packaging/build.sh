@@ -23,7 +23,8 @@ source "${REPOPATH}/venv/bin/activate"
 
 mark_sub_section "Build Documentation"
 cd "${REPOPATH}/docs"
-make html
+# Things are far enough along that we should be able to fail on documentation errors.
+make html SPHINXOPTS="-W --keep-going -n"
 cd "${REPOPATH}"
 rm -rf src/astutus/web/static/_docs
 cp -r docs/_build/html src/astutus/web/static/_docs
@@ -40,13 +41,6 @@ mark_sub_section "View Package Contents"
 rm -rf packaging/dist/content/ && true
 unzip  -d packaging/dist/content/ packaging/dist/astutus-*.whl
 
-
-mark_sub_section "Self-publish Package Wheel"
-source "${this_dir}/fetch_wheels.sh"
-rm  "${REPOPATH}"/src/astutus/wheels/*.whl && true
-mkdir -p "${REPOPATH}/src/astutus/wheels/"
-cp "${this_dir}"/dist/*.whl "${REPOPATH}/src/astutus/wheels/"
-cp "${this_dir}"/wheels/none-any/*.whl "${REPOPATH}/src/astutus/wheels/"
 
 print_success "All steps done"
 

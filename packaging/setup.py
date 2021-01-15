@@ -37,6 +37,7 @@ def get_package_data_list(root_dir, dirname):
 
 package_data = get_package_data_list('../src/astutus', 'web')
 package_data.append("usb/device_configurations.json")
+package_data.append("wheels/purpose.txt")
 
 
 setuptools.setup(
@@ -52,6 +53,7 @@ setuptools.setup(
         'astutus.raspi',
         'astutus.usb',
         'astutus.util',
+        'astutus.wheels',
     ],
     package_data={
         'astutus': package_data,
