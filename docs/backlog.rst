@@ -3,8 +3,6 @@ Backlog
 
 Backlog:
 
-  * Task: Provide decent titles for dynamic pages suitable for book marking.
-    The existing book marks look like this: Logging — Astutus 0.1.7a2021.01.09.22.19 documentation
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
   * Task: Get color sensor working on RPi.
@@ -18,6 +16,7 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-14 21:53 Task: Provide decent titles for dynamic pages suitable for book marking.
   * |done| 2021-01-14 14:24 Task: Custom favicon for documentation pages.
   * |done| 2021-01-14 13:19 Task: Get search to work from dynamic page without Javascript error.
   * |done| 2021-01-14 12:48 Task: Reduce usage of Jquery.  Use vanilla Javascript techniques instead.
