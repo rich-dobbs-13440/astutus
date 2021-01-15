@@ -2,6 +2,7 @@ Astutus Raspberry Pi From the Browser
 =====================================
 
 ««DESTINATION»» raspi/dyn_raspi.html ««END_DESTINATION»»
+««HTML_TITLE»» Raspberry Pi's  - /astutus/raspi ««END_HTML_TITLE»»
 
 Links
 -----

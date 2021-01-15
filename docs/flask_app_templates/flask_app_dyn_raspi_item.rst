@@ -1,6 +1,8 @@
 Raspberry Pi
 ============
 
+««HTML_TITLE»» Raspberry Pi's - /astutus/raspi/{{idx}} ««END_HTML_TITLE»»
+
 ««DESTINATION»» raspi/dyn_raspi_item.html ««END_DESTINATION»»
 
 ««INCLUDE»» raspi/raspi_item_display.html ««END_INCLUDE»»
