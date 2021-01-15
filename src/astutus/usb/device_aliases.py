@@ -17,12 +17,6 @@ implementation of this system. But for know, the initial
 implementation will be driven by the needs to identify
 particular USB relays plugged into the current computer.
 
-To do this, four axes are considered:
-
-    * Current node axis
-    * Ancestor axis
-    * Child axis
-    * Sibling axis
 
 In looking at the tree there are two distinct ilk of nodes:
 
@@ -33,32 +27,6 @@ The nodes are identified as:
 
     * pci(*{vendor}*:*{device}*)
     * usb(*{idVendor}*:*{idProduct}*)
-
-The axis checks are implemented using this pattern:
-
-    [ *{axis}* *{operator}* *{node}* ]
-
-A bare node is implicitly the current node axis and operator is implicitly
-equality.
-
-For ancestor, the equality operator means that some ancestor matches the equality
-operator and specified node value.
-
-For sibling or child, the equality operator means that some sibling or child
-matches the equality operator and node value.
-
-Here are some examples of validly formated selectors:
-
-    * usb(1a86:7523)
-    * [ancestor==usb(05e3:0610)]usb(1a86:7523)[sibling==usb(0bda:8153)]
-    * [ancestor==pci(0x1002:0x5a19)]usb(1a86:7523)[child=usb(0bda:8153)]
-    * [ancestor==pci(0x1002:0x5a19)]usb(1a86:7523)
-
-This module contains two key public features:
-
-    * TODO:  Reimplement this sort of feature: The **find_pci_paths(selector)** function for use in automation.
-    * The **DeviceAliases** class used by the **astutus-usb-tree** command.
-
 
 """
 import json
@@ -150,7 +118,7 @@ class DeviceAliases(dict):
 
     Each of these attributes are string values.
 
-    Color should be as defined in astutus.util.term_color.py.
+    Color should be as defined using css compatible color names or #rrggbb values.
 
     The order and priority values should be two character values, such as "44".
 
@@ -159,7 +127,7 @@ class DeviceAliases(dict):
 
     Order is used in sorting the nodes in the USB tree for display.
 
-    Here is structure of the **old** raw aliases file:
+    Here is structure of the raw aliases file:
 
     .. code-block:: json
 
@@ -262,6 +230,7 @@ class DeviceAliases(dict):
         self.write_raw_as_json(filepath=filepath, raw_aliases=self)
 
     def to_javascript(self):
+        """ Provides the device aliases as a Javascript object with a small set of methods. """
         chunks = []
         chunks.append("<script>")
         chunks.append("var aliases = ")

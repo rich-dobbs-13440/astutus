@@ -1,6 +1,8 @@
-Rasberry PI Ethernet Internet Configuration
+Raspberry PI Ethernet Internet Configuration
 ===========================================
 
-{{DESTINATION}} raspi/dyn_item_ifconfig.html {{END_DESTINATION}}
+««HTML_TITLE»» RPi ifconfig - /astutus/raspi/{{ idx }}/ifconfig ««END_HTML_TITLE»»
 
-{{INCLUDE}} raspi/ifconfig.html {{END_INCLUDE}}
+««DESTINATION»» raspi/dyn_item_ifconfig.html ««END_DESTINATION»»
+
+««INCLUDE»» raspi/ifconfig.html ««END_INCLUDE»»

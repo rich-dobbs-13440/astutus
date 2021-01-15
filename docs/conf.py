@@ -24,7 +24,7 @@ author = 'Rich Dobbs'
 
 # The full version, including alpha/beta/rc tags
 version = astutus.__version__
-release = version + "a2021.01.09.22.19"
+release = version + "a2021.01.14.22.19"
 
 
 # -- General configuration ---------------------------------------------------

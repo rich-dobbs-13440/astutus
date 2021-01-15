@@ -7,8 +7,8 @@ Device Configuration
 
 .. note::  The file structure is not documented, but you should be able to maintain it by looking at other configurations.
 
-{{DESTINATION}} usb/dyn_configuration_item.html {{END_DESTINATION}}
+««DESTINATION»» usb/dyn_configuration_item.html ««END_DESTINATION»»
 
-{{INCLUDE}} usb/configuration_item.html {{END_INCLUDE}}
+««INCLUDE»» usb/configuration_item.html ««END_INCLUDE»»
 
-{{INCLUDE}} delete_item_form.html {{END_INCLUDE}}
+««INCLUDE»» delete_item_form.html ««END_INCLUDE»»

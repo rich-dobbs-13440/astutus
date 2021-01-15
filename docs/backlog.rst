@@ -3,6 +3,8 @@ Backlog
 
 Backlog:
 
+  * Task: Provide decent titles for dynamic pages suitable for book marking.
+    The existing book marks look like this: Logging — Astutus 0.1.7a2021.01.09.22.19 documentation
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
   * Task: Get color sensor working on RPi.
