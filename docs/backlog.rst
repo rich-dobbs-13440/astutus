@@ -3,6 +3,9 @@ Backlog
 
 Backlog:
 
+  * Task: Publish wheels to RPi.
+  * Task: Install Astutus on Rpi without internet.
+  * Task: Implement command to launch flask app.
   * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
   * Task: Get color sensor working on RPi.
