@@ -8,7 +8,7 @@ set -e
 this_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "${this_dir}/utilities.sh"
 
-deactivate && true
+deactivate || true
 
 cd ${this_dir}/dist
 unset PYTHONPATH

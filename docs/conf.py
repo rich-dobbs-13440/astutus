@@ -44,7 +44,15 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
-
+# For now, ignore warnings like this:
+# WARNING: py:class reference target not found: sqlalchemy.ext.declarative.api.Model
+# Sphinx does not handle complicated type hints, at least as currently configured.
+nitpick_ignore = [
+    ('py:class', 'sqlalchemy.ext.declarative.api.Model'),
+    ('py:class', '{}'),
+    ('py:class', "[<class 'dict'>]"),
+    ('py:class', "[(<class 'int'>, <class 'str'>, <class 'str'>)]")
+]
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

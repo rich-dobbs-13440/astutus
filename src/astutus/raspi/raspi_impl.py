@@ -4,6 +4,8 @@ import re
 import subprocess
 import pathlib
 
+import astutus.util
+
 logger = logging.getLogger(__name__)
 
 
@@ -77,3 +79,33 @@ class RaspberryPi():
         logger.debug(f"stdout: \n{stdout}")
         if completed_process.returncode != 0:
             raise RaspberryPiRuntimeError(completed_process)
+
+    def uninstall_and_then_install_astutus(self):
+        # Since the version may not be an identified version upgrade during devlopment,
+        # uninstall the old version and install the new one from the wheel.
+        cmds = [
+            f'ssh pi@{self.ipv4} /usr/bin/pip3 uninstall astutus -y  || true',
+            f'ssh pi@{self.ipv4} /usr/bin/pip3 install --no-index --find-links=/home/pi/wheels/ astutus',
+        ]
+        for cmd in cmds:
+            logger.debug(f"cmd: {cmd}")
+            completed_process = subprocess.run(
+                args=cmd,
+                shell=True,
+                capture_output=True
+            )
+            logger.debug(f"type(completed_process.stdout): {type(completed_process.stdout)}")
+            stdout = completed_process.stdout.decode("utf-8")
+            logger.debug(f"stdout: \n{stdout}")
+            if completed_process.returncode != 0:
+                raise RaspberryPiRuntimeError(completed_process)
+
+    def launch_web_app(self):
+        cmds = [
+            f'ssh -v pi@{self.ipv4} "sudo pkill -f \'/usr/bin/python3 /home/pi/.local/bin/astutus-web-app\'"',
+            f'ssh -f pi@{self.ipv4} "nohup /home/pi/.local/bin/astutus-web-app < /dev/null > std.out 2> std.err & "',
+        ]
+        results = astutus.util.run_cmds(cmds, stop_on_error=True)
+        logger.debug(f"results: {results}")
+        return_code = results[-1][0]
+        return return_code == 0, results

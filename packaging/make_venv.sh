@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Makes the virtual venv, and modifies it so that 
+# Makes the virtual venv, and modifies it so that
 # environment variables for this project can be set.
 
 
@@ -10,7 +10,7 @@ set -e
 this_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 export REPOPATH=$( cd ${this_dir}/.. ; pwd )
 
-deactivate && true 
+deactivate || true
 
 cd "${REPOPATH}"
 

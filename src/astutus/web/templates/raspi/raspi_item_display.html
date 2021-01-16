@@ -8,3 +8,47 @@
 <p>
     See the <a href="/astutus/raspi/{{ item.id }}/ifconfig"> ethernet interface configuration for this Pi</a>.
 </p>
+<p>
+    <button onclick="handlePublishWheels('{{ item.id }}')" >Publish Wheels</button>
+</p>
+<p>
+    <button onclick="handleInstallAstutus('{{ item.id }}')" >Install Astutus</button>
+</p>
+<p>
+    <button onclick="handleLaunchWebApp('{{ item.id }}')" >Launch Web App on Raspberry Pi</button>
+</p>
+<script>
+
+function patchThisRaspberryPi(idx, action, action_text) {
+    data = { "action": action };
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            msg = `Action: ${action_text} succeeded.`
+            console.log(msg)
+            alert(msg)
+        } else {
+            err_msg = `Action: ${action_text} failed: ${xhr.statusText}`
+            console.log(err_msg);
+            alert(err_msg)
+        }
+    };
+    xhr.open('PATCH', `/astutus/raspi/${idx}`);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
+}
+
+function handlePublishWheels(idx) {
+    patchThisRaspberryPi(idx, 'publish_wheels', 'Publish wheels patch');
+}
+
+function handleInstallAstutus(idx) {
+    patchThisRaspberryPi(idx, 'install_or_upgrade_astutus', 'Install Astutus patch');
+}
+
+function handleLaunchWebApp(idx) {
+    patchThisRaspberryPi(idx, 'launch_web_app', 'Launch web application on the Raspberry Pi');
+}
+
+
+</script>
