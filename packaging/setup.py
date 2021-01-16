@@ -59,6 +59,9 @@ setuptools.setup(
         'astutus': package_data,
     },
     entry_points={
-        'console_scripts': ['astutus-usb-tree=astutus.usb.tree:main']
+        'console_scripts': [
+            'astutus-usb-tree=astutus.usb.tree:main',
+            'astutus-web-app=astutus.web.flask_app:run_with_standard_options',
+        ]
     }
 )

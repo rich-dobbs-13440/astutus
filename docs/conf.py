@@ -46,10 +46,12 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # For now, ignore warnings like this:
 # WARNING: py:class reference target not found: sqlalchemy.ext.declarative.api.Model
+# Sphinx does not handle complicated type hints, at least as currently configured.
 nitpick_ignore = [
     ('py:class', 'sqlalchemy.ext.declarative.api.Model'),
     ('py:class', '{}'),
     ('py:class', "[<class 'dict'>]"),
+    ('py:class', "[(<class 'int'>, <class 'str'>, <class 'str'>)]")
 ]
 # -- Options for HTML output -------------------------------------------------
 

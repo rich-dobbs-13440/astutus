@@ -97,14 +97,28 @@ def handle_raspi_item(idx):
         request_data = flask.request.get_json(force=True)
         action = request_data.get('action')
         item = astutus.db.RaspberryPi.query.get(idx)
+        raspi = astutus.raspi.RaspberryPi(db_data=item)
         if action == 'publish_wheels':
-            raspi = astutus.raspi.RaspberryPi(db_data=item)
             raspi.publish_wheels()
             return "Publishing windows apparently succeeded.", HTTPStatus.OK
         if action == 'install_or_upgrade_astutus':
-            raspi = astutus.raspi.RaspberryPi(db_data=item)
             raspi.uninstall_and_then_install_astutus()
             return "Install or upgrade Astutus apparently succeeded.", HTTPStatus.OK
+        if action == 'launch_web_app':
+            running, results = raspi.launch_web_app()
+            # Results is a list, which Flask doesn't automatically turn into JSON
+            web_results = flask.jsonify(results)
+            if not running:
+                # The BAD_GATEWAY HTTP status is selected because the
+                # actual error probably happened on Raspberry Pi, or the
+                # computer hosting this web application.  So this web server
+                # is acting as a gateway to another server.
+                return web_results, HTTPStatus.BAD_GATEWAY
+            # The start up of the flask application can take a non trivial amount of time,
+            # so OK can't be assumed or tested for.  However, the request
+            # seems to have worked, so ACCEPTED is appropriate.
+            return web_results, HTTPStatus.ACCEPTED
+
         raise NotImplementedError(f"The action '{action}'' is not handled.")
     if flask.request.method == 'DELETE':
         item = astutus.db.RaspberryPi.query.get(idx)

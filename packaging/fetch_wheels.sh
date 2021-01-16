@@ -19,10 +19,10 @@ cd "${REPOPATH}/packaging/wheels/none-any"
 
 pip3 download -r ../../requirements.txt
 cd "${REPOPATH}/packaging/wheels"
-mv none-any/*.manylinux1_x86_64.whl manylinux1_x86_64 && true
+mv none-any/*.manylinux1_x86_64.whl manylinux1_x86_64 || true
 
 # TODO: Handle MarkupSafe and SQLAlchemy which are *linux_armv7l.whl
-#     Use a docker instance to get platform independence? 
+#     Use a docker instance to get platform independence?
 #     Remote to an available PI?
 #     Do it efficiently as part of adoption?  * This seems like the winner
 

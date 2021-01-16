@@ -21,8 +21,25 @@ def run_cmd(cmd: str, *, cwd: str = None) -> (int, str, str):
         stdout = completed_process.stdout.decode('utf-8')
     except UnicodeDecodeError:
         stdout = "<<not unicode>>"
-    stderr = completed_process.stderr.decode('utf-8')
+    try:
+        stderr = completed_process.stderr.decode('utf-8')
+    except UnicodeDecodeError:
+        stderr = "<<not unicode>>"
     return return_code, stdout, stderr
+
+
+def run_cmds(cmds: [str], cwd: str = None, stop_on_error: bool = True) -> [(int, str, str)]:
+    results = []
+    for cmd in cmds:
+        logger.debug(f"cmd: {cmd}")
+        result = run_cmd(cmd, cwd=cwd)
+        logger.debug(f"result: {result}")
+        results.append(result)
+        if stop_on_error:
+            return_code, _, _ = result
+            if return_code != 0:
+                break
+    return results
 
 
 def get_user_data_path():

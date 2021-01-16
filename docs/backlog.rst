@@ -3,10 +3,10 @@ Backlog
 
 Backlog:
 
-  * Task: Implement command to launch flask app.
+  * Task: Sphinx toctree entries to dynamic web pages.
+  * Task: Sphinx toctrees automatic for dynamic web pages.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
-  * Story: As a developer, I can view documentation from RPi
   * Task: Mark relay tests as slow.
   * Task: Get color sensor working on RPi.
   * Task: Write test with relays controlling lights and monitored by color sensor.
@@ -19,6 +19,8 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-16 10:43 Story: As a developer, I can view documentation from RPi
+  * |done| 2021-01-16 10:43 Task: Implement command to launch flask app.
   * |done| 2021-01-15 16:28 Task: Install Astutus on Rpi without internet.
   * |done| 2021-01-15 10:31 Task: Publish wheels to RPi.
   * |done| 2021-01-14 21:53 Task: Provide decent titles for dynamic pages suitable for book marking.

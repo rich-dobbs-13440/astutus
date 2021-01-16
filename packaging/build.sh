@@ -38,7 +38,7 @@ python -m pep517.build packaging/
 
 
 mark_sub_section "View Package Contents"
-rm -rf packaging/dist/content/ && true
+rm -rf packaging/dist/content/ || true
 unzip  -d packaging/dist/content/ packaging/dist/astutus-*.whl
 
 
