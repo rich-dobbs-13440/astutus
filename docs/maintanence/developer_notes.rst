@@ -390,3 +390,12 @@ Installing On Raspberry Pi
 
 
   pip3 install --no-index --find-links=. astutus
+
+Dynamic TOC Tree
+----------------
+
+.. code-block:: html
+
+  <div class="admonition" id="todo-0">
+  <p class="admonition-title">DynTocScript</p>
+  </div>

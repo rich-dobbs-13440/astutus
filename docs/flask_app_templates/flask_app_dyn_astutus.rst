@@ -1,6 +1,8 @@
 Astutus From the Browser
 ========================
 
+.. astutus_dyn_link:: "/astutus"
+
 ««HTML_TITLE»» Astutus Dynamic Pages - /astutus ««END_HTML_TITLE»»
 
 Links

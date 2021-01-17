@@ -33,7 +33,8 @@ release = version + "a2021.01.14.22.19"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc'
+    'sphinx.ext.autodoc',
+    'astutus.sphinx.dyn_toc'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

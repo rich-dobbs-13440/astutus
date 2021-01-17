@@ -71,17 +71,12 @@ Meaning:  shrewd, sagacious, expert, astute.
 **I like that!**
 
 
-
-
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-   readme
-
    roadmap_to_documentation
+   flask_app_templates/flask_app_dyn_astutus
    backlog
    maintanence/guidelines
    source/modules
@@ -96,3 +91,6 @@ Indices and tables
 
 
 This documentation for |release| was produced at |today|.
+
+.. astutus_dyn_links_in_menus::
+

@@ -23,8 +23,10 @@ source "${REPOPATH}/venv/bin/activate"
 
 mark_sub_section "Build Documentation"
 cd "${REPOPATH}/docs"
-# Things are far enough along that we should be able to fail on documentation errors.
-make html SPHINXOPTS="-W --keep-going -n"
+# Using warnings in debugging sphinx extension.
+# # Things are far enough along that we should be able to fail on documentation errors.
+# make html SPHINXOPTS="-W --keep-going -n"
+make html
 cd "${REPOPATH}"
 rm -rf src/astutus/web/static/_docs
 cp -r docs/_build/html src/astutus/web/static/_docs
