@@ -1,6 +1,10 @@
 USB Aliases
 ===========
 
+.. astutus_dyn_link:: "/astutus/usb/alias"
+
+.. astutus_dyn_links_in_menus::
+
 ««HTML_TITLE»» USB Aliases - /astutus/alias ««END_HTML_TITLE»»
 
 ««DESTINATION»» usb/dyn_alias.html ««END_DESTINATION»»

@@ -11,12 +11,12 @@ The names of the templates should all start with "flask_app_dyn" since
 that is used in generating the destination name in script that
 processes the files.
 
-.. toctree::
-    :maxdepth: 1
-    :caption: Dynamic Templates:
-    :glob:
+.. .. toctree::
+..     :maxdepth: 1
+..     :caption: Dynamic Templates:
+..     :glob:
 
-    *
+..     *
 
 
 To create a new dynamic page, here are some steps that you'll need to do:

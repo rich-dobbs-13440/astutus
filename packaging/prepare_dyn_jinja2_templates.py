@@ -175,12 +175,18 @@ def apply_line_oriented_replacements(html_text):
 def indent_html_text(html_text):
     """ Attempts to indent html in a somewhat meaningful fashion.
 
+    Presumes that the html_text provide is not indented at all.
+
     Needs some semi-manual patch up to take care of HTML comments.
+
     """
+    # Note:  Doesn't handle embedded javascript.  Move that to a Jinja2 template?
+    # Or app.js?  Or make this function smart for indentation of Javascript?
     output_chunks = []
     nesting = 0
     indent = "  "
     for line in html_text.splitlines():
+        # In case head is messed up, get things back to sanity.
         if '<body' in line:
             nesting = 1
         if nesting > 0:
@@ -214,7 +220,8 @@ def process_dynamic_template(input_path, output_basepath, auto_output_filename):
         old, new = replacement
         html_text = html_text.replace(old, new)
 
-    html_text = prepare_wy_menu_vertical(html_text)
+    # Try to figure out how to make the wy_menu_vertical natural.
+    # html_text = prepare_wy_menu_vertical(html_text)
     html_text = prepare_breadcrumbs_navigation(html_text)
     html_text = apply_line_oriented_replacements(html_text)
     html_text = indent_html_text(html_text)

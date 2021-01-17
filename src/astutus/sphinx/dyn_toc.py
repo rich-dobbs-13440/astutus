@@ -82,23 +82,38 @@ def generate_menu_modification(app, doctree, fromdocname):
         for link in env.dyn_link_list:
             # Note: docname is a relative path without a file extension. So something like this:
             # {'docname': 'flask_app_templates/flask_app_dyn_astutus', 'replacement_url': '"/astutus"'}
-            line = "    {'docname': '" + f"{link['docname']}', 'replacement_url':'{link['replacement_url']}'" + '}'
+            # For this to work from Sphinx configuration directory and other folders, must
+            # retain only file name, and that will need to be unique.
+            if link['docname'].find('/') >= 0:
+                _, basename = link['docname'].rsplit('/', 1)
+            else:
+                basename = link['docname']
+            search_snippet = f"'search_pattern': '{basename}.html'"
+            replacement_url_snippet = f"'replacement_url':'{link['replacement_url']}'"
+            line = "    {" + search_snippet + ", " + replacement_url_snippet + "}"
             js_links.append(line)
         script += nodes.raw('', ',\n'.join(js_links), format='html')
         script += nodes.raw('', "\n];\n", format='html')
         script += nodes.raw('', '''
 function replaceWithDynamicLinks(dynLinkList) {
     const menuLinks = document.querySelectorAll("div.wy-menu-vertical ul li a");
-    for (link of dynLinkList) {
-        menuLinks.forEach(element => {
-            href = element.href;
-            if (href.includes(link['docname'])) {
-                element.href = link['replacement_url'];
-                console.log("Element a: ", element);
+    menuLinks.forEach(element => {
+        href = element.href;
+        for (link of dynLinkList) {
+            if (href.includes(link['search_pattern'])) {
+                sectionIdx = href.indexOf("#");
+                var sectionLink = "";
+                if (sectionIdx >= 0) {
+                    sectionLink = href(sectionIdx);
+                }
+                element.href = link['replacement_url'] + sectionLink;
+                break;
             }
-        });
-    }
+        }
+        console.log("Original href", href, "current href", element.href)
+    });
 }
+
 
 replaceWithDynamicLinks(dynLinkList)
         ''', format='html')
