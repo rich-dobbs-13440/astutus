@@ -3,7 +3,7 @@ Backlog
 
 Backlog:
 
-  * Task: Sphinx toctrees automatic for dynamic web pages.
+  * Task: Update UI for dynamic pages.  Do a round of clean up and polish.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
   * Task: Mark relay tests as slow.
