@@ -15,12 +15,10 @@ class DynLinkNode(nodes.General, nodes.Element):
 
 
 def visit_dyn_link_node(self, node):
-    # self.visit_admonition(node)
     pass
 
 
 def depart_dyn_link_node(self, node):
-    # self.depart_admonition(node)
     pass
 
 
@@ -68,6 +66,10 @@ class DynLinkDirective(SphinxDirective):
 
 def generate_menu_modification(app, doctree, fromdocname):
     logger.debug("Got to generate_menu_modification")
+    if app.config.astutus_docs_base == '':
+        raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
+    if app.config.astutus_dyn_base == "":
+        raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
     env = app.builder.env
     if not hasattr(env, 'dyn_link_list'):
         env.dyn_link_list = []
@@ -92,10 +94,15 @@ def generate_menu_modification(app, doctree, fromdocname):
             replacement_url_snippet = f"'replacement_url':'{link['replacement_url']}'"
             line = "    {" + search_snippet + ", " + replacement_url_snippet + "}"
             js_links.append(line)
+            search_snippet_link = f"'search_pattern': '{basename}#'"
+            line = "    {" + search_snippet_link + ", " + replacement_url_snippet + "}"
+
         script += nodes.raw('', ',\n'.join(js_links), format='html')
         script += nodes.raw('', "\n];\n", format='html')
+        script += nodes.raw('', f"astutus_docs_base = '{app.config.astutus_docs_base}';", format='html')
+        script += nodes.raw('', f"astutus_dyn_base = '{app.config.astutus_dyn_base}';", format='html')
         script += nodes.raw('', '''
-function replaceHrefs(menuLinks, dynLinkList) {
+function replaceHrefs(menuLinks, dynLinkList, docs_base, dyn_base) {
     menuLinks.forEach(element => {
         href = element.href;
         for (link of dynLinkList) {
@@ -109,22 +116,26 @@ function replaceHrefs(menuLinks, dynLinkList) {
                 break;
             }
         }
+        if (href == element.href && !href.includes(dyn_base)) {
+            // Fix up hrefs for static documentation pages for flask deployed configuration
+            const url = new URL(href)
+            element.href = docs_base + url.pathname + url.hash;
+        }
         console.log("Original href", href, "current href", element.href)
     });
 }
 
-function applyDynamicLinks(dynLinkList) {
+function applyDynamicLinks(dynLinkList, docs_base, dyn_base) {
     var menuLinks = document.querySelectorAll("div.toctree-wrapper ul li a");
-    replaceHrefs(menuLinks, dynLinkList)
+    replaceHrefs(menuLinks, dynLinkList, docs_base, dyn_base)
     menuLinks = document.querySelectorAll("div.wy-menu-vertical ul li a");
-    replaceHrefs(menuLinks, dynLinkList)
+    replaceHrefs(menuLinks, dynLinkList, docs_base, dyn_base)
 }
 
-applyDynamicLinks(dynLinkList)
+applyDynamicLinks(dynLinkList, astutus_docs_base, astutus_dyn_base)
         ''', format='html')
         script += nodes.raw('', "\n</script>\n", format='html')
         content.append(script)
-
         node.replace_self(content)
 
 
@@ -140,11 +151,11 @@ def setup(app):
         ScriptNode,
         html=(visit_script_node, depart_script_node)
     )
-    # app.add_config_value('dyntoc_include', False, 'html')
+    app.add_config_value('astutus_docs_base', '', 'html')
+    app.add_config_value('astutus_dyn_base', '', 'html')
     app.add_directive('astutus_dyn_link', DynLinkDirective)
     app.add_directive('astutus_dyn_links_in_menus', DynLinksInMenuDirective)
     app.connect('doctree-resolved', generate_menu_modification)
-
     return {
         'version': '0.1',
         'parallel_read_safe': True,

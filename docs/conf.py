@@ -73,3 +73,7 @@ html_favicon = '_static/favicon.ico'
 # Override theme to issue with tables.
 def setup(app):
     app.add_css_file('css/theme_overrides.css')
+
+
+astutus_docs_base = "/static/_docs"
+astutus_dyn_base = "/astutus"

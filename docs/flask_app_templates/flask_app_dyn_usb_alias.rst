@@ -25,7 +25,4 @@ the challenges of the USB implementation:
   of the aliases that you have defined, and editing specific aliases.
 
 
-Device Aliases
---------------
-
 ««INCLUDE»» usb/device_aliases.html ««END_INCLUDE»»
