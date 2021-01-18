@@ -65,6 +65,22 @@ class DynLinkDirective(SphinxDirective):
 
 
 def generate_menu_modification(app, doctree, fromdocname):
+    """ Here the data needed for modifying the menu dynamically is added to the page.
+
+    Rather than attempting to change the structure of the menus during document
+    generation, the data needed for that task is dumped into a <script> block
+    in the body of the page.  Then the menu modification Javascript function
+    is called to modify the hrefs in the menus as the page loads.
+
+    This code modifies the menus generated for the toctree directive, at least
+    when used with the Read-the-Docs theme.  At this time it is not clear
+    whether the same menus are used in other themes.
+
+    The actual Javascript code is included in the head of the page
+    using the standard html_js_files configuration variable.
+    """
+    # TODO: Once this is working again, move the addition of the file
+    # to the setup function below.
     logger.debug("Got to generate_menu_modification")
     if app.config.astutus_docs_base == '':
         raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
@@ -99,42 +115,13 @@ def generate_menu_modification(app, doctree, fromdocname):
 
         script += nodes.raw('', ',\n'.join(js_links), format='html')
         script += nodes.raw('', "\n];\n", format='html')
-        script += nodes.raw('', f"astutus_docs_base = '{app.config.astutus_docs_base}';", format='html')
-        script += nodes.raw('', f"astutus_dyn_base = '{app.config.astutus_dyn_base}';", format='html')
-        script += nodes.raw('', '''
-function replaceHrefs(menuLinks, dynLinkList, docs_base, dyn_base) {
-    menuLinks.forEach(element => {
-        href = element.href;
-        for (link of dynLinkList) {
-            if (href.includes(link['search_pattern'])) {
-                sectionIdx = href.indexOf("#");
-                var sectionLink = "";
-                if (sectionIdx >= 0) {
-                    sectionLink = href.substring(sectionIdx);
-                }
-                element.href = link['replacement_url'] + sectionLink;
-                break;
-            }
-        }
-        if (href == element.href && !href.includes(dyn_base)) {
-            // Fix up hrefs for static documentation pages for flask deployed configuration
-            const url = new URL(href)
-            element.href = docs_base + url.pathname + url.hash;
-        }
-        console.log("Original href", href, "current href", element.href)
-    });
-}
-
-function applyDynamicLinks(dynLinkList, docs_base, dyn_base) {
-    var menuLinks = document.querySelectorAll("div.toctree-wrapper ul li a");
-    replaceHrefs(menuLinks, dynLinkList, docs_base, dyn_base)
-    menuLinks = document.querySelectorAll("div.wy-menu-vertical ul li a");
-    replaceHrefs(menuLinks, dynLinkList, docs_base, dyn_base)
-}
-
-applyDynamicLinks(dynLinkList, astutus_docs_base, astutus_dyn_base)
-        ''', format='html')
-        script += nodes.raw('', "\n</script>\n", format='html')
+        script += nodes.raw('', f"astutus_docs_base = '{app.config.astutus_docs_base}';\n", format='html')
+        script += nodes.raw('', f"astutus_dyn_base = '{app.config.astutus_dyn_base}';\n", format='html')
+        script += nodes.raw(
+            '',
+            "astutusDynPage.applyDynamicLinks(dynLinkList, astutus_docs_base, astutus_dyn_base);\n",
+            format='html')
+        script += nodes.raw('', "</script>\n", format='html')
         content.append(script)
         node.replace_self(content)
 

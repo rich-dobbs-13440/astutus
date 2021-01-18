@@ -43,6 +43,10 @@ let us know!
 
 Backlog:
 
+  * Task: For item dynamic pages, fix up vertical menu, both for item and parent.
+  * Task: Allow notes or other features to accordion fold.
+  * Task: Convert «« »» markup into Sphinx directives.
+  * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
   * Task: Mark relay tests as slow.

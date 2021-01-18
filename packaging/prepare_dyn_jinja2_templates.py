@@ -205,7 +205,7 @@ def process_dynamic_template(input_path, output_basepath, auto_output_filename):
     """  Process the Sphinx generated html file to produced a styled Jinja template
 
     The destination filepath can be automatically derived from the input
-    name, or may be explicitly specificied by a directive in the template rst file.
+    name, or may be explicitly specified by a directive in the template rst file.
 
     """
     with open(input_path, "r") as input_file:

@@ -34,7 +34,7 @@ release = version + "a2021.01.14.22.19"
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'astutus.sphinx.dyn_toc'
+    'astutus.sphinx.dyn_pages',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -75,5 +75,13 @@ def setup(app):
     app.add_css_file('css/theme_overrides.css')
 
 
+# For now, keep the original source in the docs directory, but
+# longer term, should be installed there when the extension
+# is installed.  # Should be able to do this automatically
+# in the extension!  Probably should only add to pages
+# where it is used.
+html_js_files = ['astutus_dynamic_sphinx_pages.js']
+
+# Options for the Astutus dynamic pages custom extension.
 astutus_docs_base = "/static/_docs"
 astutus_dyn_base = "/astutus"

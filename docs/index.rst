@@ -17,13 +17,19 @@ Introduction
      and continuous integration / continuous deployment in a very-small, high-performance
      team setting.
 
+.. warning::
+
+   This work is targeted at Linux-like computers.  At this time, it has only been
+   used with Linux Mint and Raspberry Pi OS.  The actual functionality depends
+   on operating system specific utilities that are not available in Windows-based
+   computers.
 
 .. toctree::
    :maxdepth: 2
    :caption: Table of Contents:
 
    welcome
-   Changes <backlog>
+   changes
    flask_app_templates/flask_app_dyn_astutus
    roadmap_to_documentation
    maintanence/guidelines
