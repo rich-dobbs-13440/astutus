@@ -20,6 +20,10 @@ the challenges of the USB implementation:
     * The sys/device file structure is not persistent or consistent against
       system reboot timing and plug-and-play.
 
+  Typically, you will define aliases interactively, by clicking on the buttons
+  in the device tree.  But you might find this page useful for seeing all
+  of the aliases that you have defined, and editing specific aliases.
+
 
 Device Aliases
 --------------

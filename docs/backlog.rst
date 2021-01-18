@@ -3,7 +3,6 @@ Backlog
 
 Backlog:
 
-  * Spike: Suppress vertical menu replacement, and understand how vertical menu is defined.
   * Task: Sphinx toctrees automatic for dynamic web pages.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
@@ -19,6 +18,8 @@ Backlog:
 
 Done:
 
+  * |done| 2021-01-17 18:23 Task: Sphinx toctrees automatic for dynamic web pages.
+  * |done| 2021-01-17 13:51 Spike: Suppress vertical menu replacement, and understand how vertical menu is defined.
   * |done| 2021-01-17 10:22 Task: Sphinx toctree entries to dynamic web pages.
   * |done| 2021-01-16 10:43 Story: As a developer, I can view documentation from RPi
   * |done| 2021-01-16 10:43 Task: Implement command to launch flask app.

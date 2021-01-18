@@ -95,8 +95,7 @@ def generate_menu_modification(app, doctree, fromdocname):
         script += nodes.raw('', ',\n'.join(js_links), format='html')
         script += nodes.raw('', "\n];\n", format='html')
         script += nodes.raw('', '''
-function replaceWithDynamicLinks(dynLinkList) {
-    const menuLinks = document.querySelectorAll("div.wy-menu-vertical ul li a");
+function replaceHrefs(menuLinks, dynLinkList) {
     menuLinks.forEach(element => {
         href = element.href;
         for (link of dynLinkList) {
@@ -104,7 +103,7 @@ function replaceWithDynamicLinks(dynLinkList) {
                 sectionIdx = href.indexOf("#");
                 var sectionLink = "";
                 if (sectionIdx >= 0) {
-                    sectionLink = href(sectionIdx);
+                    sectionLink = href.substring(sectionIdx);
                 }
                 element.href = link['replacement_url'] + sectionLink;
                 break;
@@ -114,8 +113,14 @@ function replaceWithDynamicLinks(dynLinkList) {
     });
 }
 
+function applyDynamicLinks(dynLinkList) {
+    var menuLinks = document.querySelectorAll("div.toctree-wrapper ul li a");
+    replaceHrefs(menuLinks, dynLinkList)
+    menuLinks = document.querySelectorAll("div.wy-menu-vertical ul li a");
+    replaceHrefs(menuLinks, dynLinkList)
+}
 
-replaceWithDynamicLinks(dynLinkList)
+applyDynamicLinks(dynLinkList)
         ''', format='html')
         script += nodes.raw('', "\n</script>\n", format='html')
         content.append(script)

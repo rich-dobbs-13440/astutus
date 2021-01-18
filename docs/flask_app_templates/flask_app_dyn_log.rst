@@ -1,5 +1,5 @@
-Logging
-=======
+Control Logging
+===============
 
 .. astutus_dyn_link:: "/astutus/log"
 

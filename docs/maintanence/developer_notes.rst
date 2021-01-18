@@ -394,8 +394,15 @@ Installing On Raspberry Pi
 Dynamic TOC Tree
 ----------------
 
+Here is structure of toc generated on the page for the toctree directive:
+
 .. code-block:: html
 
-  <div class="admonition" id="todo-0">
-  <p class="admonition-title">DynTocScript</p>
-  </div>
+  <div class="toctree-wrapper compound">
+      <p class="caption"><span class="caption-text">Contents:</span></p>
+      <ul>
+        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_device.html">USB Device Tree</a></li>
+        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_alias.html">USB Aliases</a></li>
+        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_configuration.html">Device Configurations</a></li>
+        </ul>
+      </div>
