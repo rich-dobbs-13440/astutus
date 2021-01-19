@@ -22,10 +22,6 @@ def depart_dyn_link_node(self, node):
     pass
 
 
-class DynLinksInMenuListNode(nodes.General, nodes.Element):
-    pass
-
-
 class ScriptNode(nodes.General, nodes.Element):
     pass
 
@@ -38,30 +34,55 @@ def depart_script_node(self, node):
     logger.debug(f"Departing node: {node} ")
 
 
-class DynLinksInMenuDirective(Directive):
+class DynLinksInMenuListNode(nodes.General, nodes.Element):
 
-    def run(self):
-        return [DynLinksInMenuListNode('')]
+    def set_item_list_name(self, item_list_name):
+        self.item_list_name = item_list_name
 
+    def set_item_pattern(self, pattern):
+        self.pattern = pattern
 
-class DynLinkDirective(SphinxDirective):
+    def replace_node_content(self, dyn_link_list, docs_base, dyn_base):
+        content = []
+        script = ScriptNode()
+        script += nodes.raw('', "\n<script>\n", format='html')
+        dyn_links_json = self.dyn_links_as_json(dyn_link_list)
+        script += nodes.raw('', f"\nvar dynLinkList = {dyn_links_json};\n", format='html')
+        script += nodes.raw('', f"astutus_docs_base = '{docs_base}';\n", format='html')
+        script += nodes.raw('', f"astutus_dyn_base = '{dyn_base}';\n", format='html')
+        script += nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
+        script += nodes.raw('', "dynLinkList, astutus_docs_base, astutus_dyn_base", format='html')
+        if self.item_list_name is not None:
+            script += nodes.raw('', f", {self.item_list_name}", format='html')
+        if self.pattern is not None:
+            script += nodes.raw('', f", '{self.pattern}'", format='html')
+        script += nodes.raw('', ");\n", format='html')
+        script += nodes.raw('', "</script>\n", format='html')
+        content.append(script)
+        self.replace_self(content)
 
-    required_arguments = 1
-
-    def run(self):
-        logger.debug("DynLinkDirective.run")
-
-        if not hasattr(self.env, 'dyn_link_list'):
-            self.env.dyn_link_list = []
-
-        # Some inconsistency in whether the argument will come back with
-        # quotes or not.  Need to figure out how to use converters and use path as type.
-        replacement_url = self.arguments[0].replace('"', '').replace("'", '')
-        self.env.dyn_link_list.append({
-            'docname': self.env.docname,
-            'replacement_url': replacement_url
-        })
-        return []
+    @staticmethod
+    def dyn_links_as_json(dyn_link_list):
+        items = []
+        # Don't want trailing comma in Javascript, so use join to make list
+        for link in dyn_link_list:
+            # Note: docname is a relative path without a file extension. So something like this:
+            # {'docname': 'flask_app_templates/flask_app_dyn_astutus', 'replacement_url': '"/astutus"'}
+            # For this to work from Sphinx configuration directory and other folders, must
+            # retain only file name, and that will need to be unique.
+            if link['docname'].find('/') >= 0:
+                _, basename = link['docname'].rsplit('/', 1)
+            else:
+                basename = link['docname']
+            search_snippet = f"'search_pattern': '{basename}.html'"
+            replacement_url_snippet = f"'replacement_url':'{link['replacement_url']}'"
+            item = "    {" + search_snippet + ", " + replacement_url_snippet + "}"
+            items.append(item)
+            # search_snippet_link = f"'search_pattern': '{basename}#'"
+            # line = "    {" + search_snippet_link + ", " + replacement_url_snippet + "}"
+            # js_links.append(line)
+        items_text = ',\n'.join(items)
+        return '[' + items_text + ']'
 
 
 def generate_menu_modification(app, doctree, fromdocname):
@@ -89,41 +110,46 @@ def generate_menu_modification(app, doctree, fromdocname):
     env = app.builder.env
     if not hasattr(env, 'dyn_link_list'):
         env.dyn_link_list = []
-
     for node in doctree.traverse(DynLinksInMenuListNode):
-        content = []
-        script = ScriptNode()
-        script += nodes.raw('', "\n<script>\n", format='html')
-        script += nodes.raw('', "\nvar dynLinkList = [\n", format='html')
-        # Don't want trailing comma in Javascript, so use join to make list
-        js_links = []
-        for link in env.dyn_link_list:
-            # Note: docname is a relative path without a file extension. So something like this:
-            # {'docname': 'flask_app_templates/flask_app_dyn_astutus', 'replacement_url': '"/astutus"'}
-            # For this to work from Sphinx configuration directory and other folders, must
-            # retain only file name, and that will need to be unique.
-            if link['docname'].find('/') >= 0:
-                _, basename = link['docname'].rsplit('/', 1)
-            else:
-                basename = link['docname']
-            search_snippet = f"'search_pattern': '{basename}.html'"
-            replacement_url_snippet = f"'replacement_url':'{link['replacement_url']}'"
-            line = "    {" + search_snippet + ", " + replacement_url_snippet + "}"
-            js_links.append(line)
-            search_snippet_link = f"'search_pattern': '{basename}#'"
-            line = "    {" + search_snippet_link + ", " + replacement_url_snippet + "}"
+        node.replace_node_content(env.dyn_link_list, app.config.astutus_docs_base, app.config.astutus_dyn_base)
 
-        script += nodes.raw('', ',\n'.join(js_links), format='html')
-        script += nodes.raw('', "\n];\n", format='html')
-        script += nodes.raw('', f"astutus_docs_base = '{app.config.astutus_docs_base}';\n", format='html')
-        script += nodes.raw('', f"astutus_dyn_base = '{app.config.astutus_dyn_base}';\n", format='html')
-        script += nodes.raw(
-            '',
-            "astutusDynPage.applyDynamicLinks(dynLinkList, astutus_docs_base, astutus_dyn_base);\n",
-            format='html')
-        script += nodes.raw('', "</script>\n", format='html')
-        content.append(script)
-        node.replace_self(content)
+
+class DynLinksInMenuDirective(Directive):
+
+    optional_arguments = 2
+
+    def run(self):
+        node = DynLinksInMenuListNode('')
+        if len(self.arguments) > 0:
+            node.set_item_list_name(self.arguments[0])
+        else:
+            node.set_item_list_name(None)
+        if len(self.arguments) > 1:
+            node.set_item_pattern(self.arguments[1])
+        else:
+            node.set_item_pattern(None)
+
+        return [node]
+
+
+class DynLinkDirective(SphinxDirective):
+
+    required_arguments = 1
+
+    def run(self):
+        logger.debug("DynLinkDirective.run")
+
+        if not hasattr(self.env, 'dyn_link_list'):
+            self.env.dyn_link_list = []
+
+        # Some inconsistency in whether the argument will come back with
+        # quotes or not.  Need to figure out how to use converters and use path as type.
+        replacement_url = self.arguments[0].replace('"', '').replace("'", '')
+        self.env.dyn_link_list.append({
+            'docname': self.env.docname,
+            'replacement_url': replacement_url
+        })
+        return []
 
 
 def setup(app):

@@ -7,7 +7,7 @@ Submodules
 astutus.sphinx.dyn\_toc module
 ------------------------------
 
-.. automodule:: astutus.sphinx.dyn_toc
+.. automodule:: astutus.sphinx.dyn_pages
    :members:
    :undoc-members:
    :show-inheritance:

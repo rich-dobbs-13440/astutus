@@ -24,4 +24,6 @@ Search for Pi's on LAN
 .. astutus_dyn_link:: "/astutus/raspi"
 
 
-.. astutus_dyn_links_in_menus::
+««INCLUDE»» raspi/items_list_js.html ««END_INCLUDE»»
+
+.. astutus_dyn_links_in_menus:: raspi_items_list <idx>
