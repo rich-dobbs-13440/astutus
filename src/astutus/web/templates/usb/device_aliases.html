@@ -2,7 +2,7 @@
 
 {% if aliases | length > 1 %}
     <h2>Items</h2>
-    {% for key, alias in aliases.items() %}
+    {% for key, alias in aliases.items() | sort(attribute='1.name') %}
         <div>
             <table>
                 <tr>
@@ -24,12 +24,16 @@
                     <td>Priority</td><td>{{ alias.priority }}</td>
                 </tr> -->
             </table>
-            <button onclick="window.location.href='/astutus/usb/alias/{{ alias.pattern }}'">Edit</button>
-
-            <!-- <form onsubmit="return deleteViaJavascript('{{ alias.match }}' );">
-                <button type="submit">Delete</button>
-            </form> -->
-
+            <table>
+                <tr>
+                    <td><button onclick="window.location.href='/astutus/usb/alias/{{ alias.pattern }}'">Edit</button></td>
+                    <td>
+                        <form onsubmit="return deleteViaJavascript('{{ alias.pattern }}' );">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
             <hr/>
         </div>
     {% endfor %}

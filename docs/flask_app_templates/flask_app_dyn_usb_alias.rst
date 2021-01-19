@@ -1,15 +1,6 @@
 USB Aliases
 ===========
 
-.. astutus_dyn_link:: "/astutus/usb/alias"
-
-.. toctree::
-    :hidden:
-
-    flask_app_dyn_usb_alias_item
-
-.. astutus_dyn_links_in_menus::
-
 ««HTML_TITLE»» USB Aliases - /astutus/alias ««END_HTML_TITLE»»
 
 ««DESTINATION»» usb/dyn_alias.html ««END_DESTINATION»»
@@ -31,3 +22,14 @@ the challenges of the USB implementation:
 
 
 ««INCLUDE»» usb/device_aliases.html ««END_INCLUDE»»
+
+.. astutus_dyn_link:: "/astutus/usb/alias"
+
+.. toctree::
+    :hidden:
+
+    flask_app_dyn_usb_alias_item
+
+««INCLUDE»» usb/alias_items_list_js.html ««END_INCLUDE»»
+
+.. astutus_dyn_links_in_menus:: dynamic alias_items_list <path>

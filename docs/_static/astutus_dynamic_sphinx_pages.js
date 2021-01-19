@@ -23,23 +23,22 @@ var astutusDynPage = {
         var first = true;
         for (item of itemList) {
             replacementUrl = astutusDynPage.getReplacementUrl(link, itemPattern, item)
+            console.log("replacementUrl", replacementUrl)
+            var aElement;
             if (first) {
-                element.href = replacementUrl + sectionHash;
-                if (link['replacement_url'].endsWith(itemPattern)) {
-                    element.innerHTML = item['innerHTML'];
-                }
+                aElement = element;
                 first = false;
             } else {
                 // Duplicate list item and add to end of list.
                 var li = element.parentElement;
                 var ul = li.parentElement;
                 var liClone = li.cloneNode(li)
-                aElement = liClone.getElementsByTagName('A')[0];
-                aElement.href = replacementUrl + sectionHash;
-                if (link['replacement_url'].endsWith(itemPattern)) {
-                    element.innerHTML = item['innerHTML'];
-                }
                 ul.appendChild(liClone)
+                aElement = liClone.getElementsByTagName('A')[0];
+            }
+            aElement.href = replacementUrl + sectionHash;
+            if (link['replacement_url'].endsWith(itemPattern)) {
+                aElement.innerHTML = item['innerHTML'];
             }
         }
         return false;

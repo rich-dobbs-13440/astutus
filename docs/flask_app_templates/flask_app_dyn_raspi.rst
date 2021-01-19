@@ -8,6 +8,7 @@ Adopted Pi's
 ------------
 
 .. toctree::
+
     flask_app_dyn_raspi_item
 
 
@@ -19,7 +20,6 @@ Search for Pi's on LAN
 ««INCLUDE»» raspi/raspi_search_results.html ««END_INCLUDE»»
 
 .. astutus_dyn_link:: "/astutus/raspi"
-
 
 ««INCLUDE»» raspi/items_list_js.html ««END_INCLUDE»»
 
