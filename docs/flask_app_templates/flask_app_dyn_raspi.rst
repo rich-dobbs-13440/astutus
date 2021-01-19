@@ -7,21 +7,16 @@ Raspberry Pi's
 Adopted Pi's
 ------------
 
-Use these links to work with Raspberry Pi's from the browser:
-
-    - ««INCLUDE»» generic_links_display_section.html ««END_INCLUDE»»
-
 .. toctree::
-    :hidden:
-
     flask_app_dyn_raspi_item
-    flask_app_dyn_raspi_find
 
 
 Search for Pi's on LAN
 ----------------------
 
 ««INCLUDE»» raspi/raspi_nmap_search_form.html ««END_INCLUDE»»
+
+««INCLUDE»» raspi/raspi_search_results.html ««END_INCLUDE»»
 
 .. astutus_dyn_link:: "/astutus/raspi"
 

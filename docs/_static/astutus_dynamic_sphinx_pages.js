@@ -6,9 +6,6 @@ var astutusDynPage = {
     },
 
     getReplacementUrl: function(link, itemPattern, item) {
-        if (itemPattern == undefined) {
-            itemPattern = '<idx>';
-        }
         replacementUrl = link['replacement_url'];
         itemValue = item['value'];
         return replacementUrl.replace(itemPattern, itemValue);
@@ -28,7 +25,9 @@ var astutusDynPage = {
             replacementUrl = astutusDynPage.getReplacementUrl(link, itemPattern, item)
             if (first) {
                 element.href = replacementUrl + sectionHash;
-                element.innerHTML = item['innerHTML'];
+                if (link['replacement_url'].endsWith(itemPattern)) {
+                    element.innerHTML = item['innerHTML'];
+                }
                 first = false;
             } else {
                 // Duplicate list item and add to end of list.
@@ -37,7 +36,9 @@ var astutusDynPage = {
                 var liClone = li.cloneNode(li)
                 aElement = liClone.getElementsByTagName('A')[0];
                 aElement.href = replacementUrl + sectionHash;
-                aElement.innerHTML = item['innerHTML'];
+                if (link['replacement_url'].endsWith(itemPattern)) {
+                    element.innerHTML = item['innerHTML'];
+                }
                 ul.appendChild(liClone)
             }
         }
