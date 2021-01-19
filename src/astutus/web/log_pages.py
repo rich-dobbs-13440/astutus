@@ -10,16 +10,6 @@ db = None
 static_base = None
 log_page = flask.Blueprint('log', __name__, template_folder='templates')
 
-wy_menu_vertical_list = [
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb">Browser USB Capabilities</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb/device">Browser USB Devices</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb/alias">Browser USB Device Aliases</a></li>',  # noqa
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>',  # noqa
-]
-wy_menu_vertical = "\n".join(wy_menu_vertical_list)
-
 
 @log_page.route('/astutus/log', methods=['GET'])
 def handle_log():
@@ -36,7 +26,6 @@ def handle_log():
             'log/dyn_log.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             loggers=loggers)
     if flask.request.method == 'POST':
         # loglevel = getattr(logging, args.loglevel)

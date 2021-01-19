@@ -10,53 +10,6 @@ import os.path
 import re
 
 
-def prepare_wy_menu_vertical(html_text):
-    """ A simple state machine to prepare the menu for jinja2 substition.
-
-    The wy_menu_vertical section is probably specific to the Sphinx Read the Docs format.
-    """
-    output_lines = []
-
-    # Create a closure to produce output
-    def add_to_output(line):
-        # Strip all whitespace from lines, since the sphinx generated pages are completely inconsistent.
-        # Probably should pretty print html at the end.
-        stripped_line = line.strip()
-        # print(f"stripped_line: {stripped_line}")
-        if stripped_line != "":
-            output_lines.append(stripped_line)
-
-    state = "before"
-    nesting = 0
-    for line in html_text.splitlines():
-        if state == "before":
-            if 'class="wy-menu wy-menu-vertical"' in line:
-                state = "in_div"
-            add_to_output(line)
-        elif state == "in_div":
-            if '<p class="caption"><span class="caption-text">Contents:</span></p>' in line:
-                state = "ready_for_menu"
-            add_to_output(line)
-        elif state == "ready_for_menu":
-            if '<ul class="current">' in line:
-                nesting += 1
-                state = "in_list_items"
-            add_to_output(line)
-        elif state == "in_list_items":
-            nesting += line.count("<li")
-            nesting -= line.count("</li>")
-            nesting += line.count("<ul")
-            nesting -= line.count("/ul>")
-            print(f"skipped line: {line}")
-            if nesting <= 0:
-                state = "done_with_menu"
-                add_to_output("{{ wy_menu_vertical | safe }}")
-                add_to_output("</ul>")
-        elif state == "done_with_menu":
-            add_to_output(line)
-    return "\n".join(output_lines)
-
-
 def prepare_breadcrumbs_navigation(html_text):
     """ Strip out existing breadcrumb navigation section and replace it with Jinja2 variable.
 
@@ -220,8 +173,6 @@ def process_dynamic_template(input_path, output_basepath, auto_output_filename):
         old, new = replacement
         html_text = html_text.replace(old, new)
 
-    # Try to figure out how to make the wy_menu_vertical natural.
-    # html_text = prepare_wy_menu_vertical(html_text)
     html_text = prepare_breadcrumbs_navigation(html_text)
     html_text = apply_line_oriented_replacements(html_text)
     html_text = indent_html_text(html_text)

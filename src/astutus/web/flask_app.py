@@ -73,13 +73,6 @@ def create_app_and_db(static_base):
 static_base = "/static/_docs/_static"
 app, db = create_app_and_db(static_base=static_base)
 
-wy_menu_vertical_list = [
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
-]
-wy_menu_vertical = "\n".join(wy_menu_vertical_list)
-
 
 @app.template_filter('tojson_pretty')
 def tojson_pretty_jinja2_template_file(json_text):
@@ -113,7 +106,6 @@ def handle_astutus():
         'transformed_dyn_astutus.html',
         static_base=static_base,
         breadcrumbs_list_items=breadcrumbs_list_items,
-        wy_menu_vertical=wy_menu_vertical,
         links=links)
 
 

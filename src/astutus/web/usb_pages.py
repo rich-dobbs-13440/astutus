@@ -12,16 +12,6 @@ logger.addHandler(flask.logging.default_handler)
 
 usb_page = flask.Blueprint('usb', __name__, template_folder='templates')
 
-wy_menu_vertical_list = [
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb">Browser USB Capabilities</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb/device">Browser USB Devices</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb/alias">Browser USB Device Aliases</a></li>',  # noqa
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>',  # noqa
-]
-wy_menu_vertical = "\n".join(wy_menu_vertical_list)
-
 static_base = None  # Will be set when pages are registered.
 
 
@@ -44,7 +34,6 @@ def handle_usb():
             'usb/dyn_usb.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             links=links)
 
 
@@ -190,7 +179,6 @@ def handle_usb_device():
             'usb/dyn_usb_device.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             bare_tree=bare_tree_html,
             aliases_javascript=aliases.to_javascript(),
             configurations_javascript=device_configurations.to_javascript(),
@@ -233,7 +221,6 @@ def handle_usb_alias():
             'usb/dyn_alias.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             aliases=aliases)
 
 
@@ -259,7 +246,6 @@ def handle_usb_alias_item(nodepath):
                 'usb/dyn_alias_item.html',
                 static_base=static_base,
                 breadcrumbs_list_items=breadcrumbs_list_items,
-                wy_menu_vertical=wy_menu_vertical,
                 item=item,
                 nodepath=nodepath,
                 alias=alias)
@@ -316,7 +302,6 @@ def handle_usb_configuration():
             'usb/dyn_device_configurations.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             device_configurations=device_configurations)
 
 
@@ -338,7 +323,6 @@ def handle_usb_configuration_item(node_id):
             'usb/dyn_configuration_item.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             item=node_id,
             device_config=device_config)
     if flask.request.method == 'DELETE':
