@@ -1,14 +1,16 @@
 var astutusDynPage = {
 
-    getReplacementUrl: function(link, itemPattern, itemList, idx) {
-        if (itemList == undefined) {
-            return link['replacement_url'];
-        }
+    linkHasItems: function(link, itemPattern) {
+        replacementUrl = link['replacement_url'];
+        return replacementUrl.includes(itemPattern);
+    },
+
+    getReplacementUrl: function(link, itemPattern, item) {
         if (itemPattern == undefined) {
             itemPattern = '<idx>';
         }
-        replacementUrl = link['replacement_url']
-        itemValue = itemList[idx]['value'];
+        replacementUrl = link['replacement_url'];
+        itemValue = item['value'];
         return replacementUrl.replace(itemPattern, itemValue);
     },
 
@@ -29,9 +31,27 @@ var astutusDynPage = {
                     if (sectionIdx >= 0) {
                         sectionLink = rawHref.substring(sectionIdx);
                     }
-                    idx = 0
-                    replacementUrl = astutusDynPage.getReplacementUrl(link, itemPattern, itemList, idx)
-                    element.href = replacementUrl + sectionLink;
+                    if (astutusDynPage.linkHasItems(link, itemPattern)) {
+                        var first = true;
+                        for (item of itemList) {
+                            replacementUrl = astutusDynPage.getReplacementUrl(link, itemPattern, item)
+                            if (first) {
+                                element.href = replacementUrl + sectionLink;
+                                first = false;
+                            } else {
+                                // Duplicate list item and add to end of list.
+                                var li = element.parentElement;
+                                var ul = li.parentElement;
+                                var liClone = li.cloneNode(li)
+                                aElement = liClone.getElementsByTagName('A')[0];
+                                aElement.href = replacementUrl;
+                                ul.appendChild(liClone)
+                            }
+                        }
+                    } else {
+                        replacementUrl = link['replacement_url']
+                        element.href = replacementUrl + sectionLink;
+                    }
                     replaced = true;
                     break;
                 }
