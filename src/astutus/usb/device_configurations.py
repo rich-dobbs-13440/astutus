@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import shutil
+import operator
 
 import astutus.log
 import astutus.util
@@ -196,9 +197,9 @@ class DeviceConfigurations(object):
 
     def items(self):
         item_list = []
-        sorted_keys = sorted([key for key in self.device_map.keys()])
-        for key in sorted_keys:
+        for key in self.device_map:
             item_list.append(self.get_item(key))
+        item_list.sort(key=operator.itemgetter('name'))
         return item_list
 
     def to_javascript(self):

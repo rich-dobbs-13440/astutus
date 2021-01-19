@@ -36,6 +36,14 @@ def get_alias_items_list_as_json():
     return json.dumps(items_list)
 
 
+def get_config_items_list_as_json():
+    device_configurations = astutus.usb.DeviceConfigurations()
+    items_list = []
+    for config in device_configurations.items():
+        items_list.append({'value': config['id'], 'innerHTML': config['name']})
+    return json.dumps(items_list)
+
+
 @usb_page.route('/astutus/usb', methods=['GET'])
 def handle_usb():
     if flask.request.method == 'GET':
@@ -325,7 +333,8 @@ def handle_usb_configuration():
             'usb/dyn_device_configurations.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            device_configurations=device_configurations)
+            device_configurations=device_configurations,
+            config_items_list=get_config_items_list_as_json())
 
 
 @usb_page.route('/astutus/usb/configuration/<node_id>', methods=['GET', "DELETE"])
@@ -347,7 +356,8 @@ def handle_usb_configuration_item(node_id):
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             item=node_id,
-            device_config=device_config)
+            device_config=device_config,
+            config_items_list=get_config_items_list_as_json())
     if flask.request.method == 'DELETE':
         logger.debug(f"Delete the item now: {node_id}")
         return "TODO", HTTPStatus.NOT_IMPLEMENTED

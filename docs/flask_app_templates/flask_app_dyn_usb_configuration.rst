@@ -15,6 +15,12 @@ device_configurations.json file.
 
 Soon, these links should allow you to make local customizations.
 
+««HTML_TITLE»» USB Device Configurations - /astutus/usb/device_configurations ««END_HTML_TITLE»»
+
+««DESTINATION»» usb/dyn_device_configurations.html ««END_DESTINATION»»
+
+««INCLUDE»» usb/device_configurations.html ««END_INCLUDE»»
+
 .. astutus_dyn_link:: "/astutus/usb/configuration"
 
 .. toctree::
@@ -22,10 +28,6 @@ Soon, these links should allow you to make local customizations.
 
     flask_app_dyn_usb_configuration_item
 
-.. astutus_dyn_links_in_menus::
+««INCLUDE»» usb/config_items_list_js.html ««END_INCLUDE»»
 
-««HTML_TITLE»» USB Device Configurations - /astutus/usb/device_configurations ««END_HTML_TITLE»»
-
-««DESTINATION»» usb/dyn_device_configurations.html ««END_DESTINATION»»
-
-««INCLUDE»» usb/device_configurations.html ««END_INCLUDE»»
+.. astutus_dyn_links_in_menus:: dynamic config_items_list <idx>
