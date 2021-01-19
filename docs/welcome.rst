@@ -27,6 +27,13 @@ After that, open up your browser to:
 
    <p><a href="http://localhost:5000/astutus/doc/index.html">Welcome to Astutus</a></p>
 
+.. warning::
+
+   This work is targeted at Linux-like computers.  At this time, it has only been
+   used with Linux Mint and Raspberry Pi OS.  The actual functionality depends
+   on operating system specific utilities that are not available in Windows-based
+   computers.
+
 
 Where is the Code?
 ------------------

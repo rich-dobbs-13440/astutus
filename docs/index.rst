@@ -1,10 +1,8 @@
-.. Astutus documentation master file, created by
-   sphinx-quickstart on Sat Dec 19 07:40:43 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Table of Contents
+=================
 
 Introduction
-============
+------------
 
 **Astutus** is a Python3 package.  It is intended to:
 
@@ -16,13 +14,6 @@ Introduction
      priortizing work.  The capabilities are directed at test-driven-development, automation,
      and continuous integration / continuous deployment in a very-small, high-performance
      team setting.
-
-.. warning::
-
-   This work is targeted at Linux-like computers.  At this time, it has only been
-   used with Linux Mint and Raspberry Pi OS.  The actual functionality depends
-   on operating system specific utilities that are not available in Windows-based
-   computers.
 
 .. toctree::
    :maxdepth: 2

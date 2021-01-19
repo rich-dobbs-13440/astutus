@@ -10,12 +10,12 @@ logger = logging.getLogger(__name__)
 raspi_page = flask.Blueprint('raspi', __name__, template_folder='templates')
 db = None
 
-wy_menu_vertical_list = [
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
-]
-wy_menu_vertical = "\n".join(wy_menu_vertical_list)
+# wy_menu_vertical_list = [
+#     '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
+#     '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
+#     '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
+# ]
+# wy_menu_vertical = "\n".join(wy_menu_vertical_list)
 
 static_base = "/static/_docs/_static"
 
@@ -31,6 +31,14 @@ def process_raspi_search_using_nmap(args):
     return display_raspi_find(search_result=search_result, filter=filter)
 
 
+def get_items_list_as_json():
+    items = astutus.db.RaspberryPi.query.all()
+    items_list = []
+    for item in items:
+        items_list.append({'value': item.id, 'innerHTML': item.ipv4})
+    return json.dumps(items_list)
+
+
 def display_raspi_find(*, search_result, filter):
     breadcrumbs_list = [
         '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
@@ -43,9 +51,10 @@ def display_raspi_find(*, search_result, filter):
         'raspi/dyn_raspi_find.html',
         static_base=static_base,
         breadcrumbs_list_items=breadcrumbs_list_items,
-        wy_menu_vertical=wy_menu_vertical,
+        # wy_menu_vertical=wy_menu_vertical,
         search_result=search_result,
-        filter=filter)
+        filter=filter,
+        raspi_items_list=get_items_list_as_json())
 
 
 @raspi_page.route('/astutus/raspi', methods=['POST', 'GET'])
@@ -58,15 +67,12 @@ def handle_raspi():
         if flask.request.args.get('find') is not None:
             logger.debug("Go to display_raspi_find")
             return display_raspi_find(search_result=None, filter=["Raspberry"])
-        items = astutus.db.RaspberryPi.query.all()
-        links_list = []
-        for item in items:
-            link = f'<li><p>See <a class="reference internal" href="/astutus/raspi/{item.id}"><span class="doc">{item.id}</span></a></p></li>'  # noqa
-            links_list.append(link)
-        links = "\n".join(links_list)
-        raspi_items_list = []
-        for item in items:
-            raspi_items_list.append({'value': item.id, 'innerHTML': item.ipv4})
+        # items = astutus.db.RaspberryPi.query.all()
+        # links_list = []
+        # for item in items:
+        #     link = f'<li><p>See <a class="reference internal" href="/astutus/raspi/{item.id}"><span class="doc">{item.id}</span></a></p></li>'  # noqa
+        #     links_list.append(link)
+        # links = "\n".join(links_list)
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',
@@ -77,10 +83,10 @@ def handle_raspi():
             'raspi/dyn_raspi.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
-            links=links,
+            # wy_menu_vertical=wy_menu_vertical,
+            # links=links,
             filter=["Raspberry"],
-            raspi_items_list=json.dumps(raspi_items_list))
+            raspi_items_list=get_items_list_as_json())
 
     if flask.request.method == 'POST':
         form = flask.request.form
@@ -138,6 +144,10 @@ def handle_raspi_item(idx):
         if item is None:
             # Create a dummy item to display error message
             item = astutus.db.RaspberryPi(id=f"non-existent {idx}", ipv4="no such id", mac_addr="no such id")
+        # items = astutus.db.RaspberryPi.query.all()
+        # raspi_items_list = []
+        # for item in items:
+        #     raspi_items_list.append({'value': item.id, 'innerHTML': item.ipv4})
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',
@@ -149,10 +159,10 @@ def handle_raspi_item(idx):
             'raspi/dyn_raspi_item.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
+            # wy_menu_vertical=wy_menu_vertical,
             item=item,
             idx=idx,
-            )
+            raspi_items_list=get_items_list_as_json())
 
 
 @raspi_page.route('/astutus/raspi/<int:idx>/ifconfig', methods=['GET'])
@@ -162,6 +172,10 @@ def handle_raspi_item_ifconfig(idx):
         item = astutus.db.RaspberryPi.query.get(idx)
         raspi = astutus.raspi.RaspberryPi(db_data=item)
         ifconfig = raspi.get_ifconfig()
+        # items = astutus.db.RaspberryPi.query.all()
+        # raspi_items_list = []
+        # for item in items:
+        #     raspi_items_list.append({'value': item.id, 'innerHTML': item.ipv4})
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',
@@ -174,6 +188,6 @@ def handle_raspi_item_ifconfig(idx):
             'raspi/dyn_item_ifconfig.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             idx=idx,
-            ifconfig=ifconfig)
+            ifconfig=ifconfig,
+            raspi_items_list=get_items_list_as_json())

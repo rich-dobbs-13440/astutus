@@ -14,7 +14,9 @@ Use these links to work with Raspberry Pi's from the browser:
 .. toctree::
     :hidden:
 
-    flask_app_dyn_raspi_item.rst
+    flask_app_dyn_raspi_item
+    flask_app_dyn_raspi_find
+
 
 Search for Pi's on LAN
 ----------------------

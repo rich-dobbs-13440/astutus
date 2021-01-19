@@ -1,7 +1,6 @@
 import sphinx.util
 
 from docutils import nodes
-from docutils.parsers.rst import Directive
 
 from sphinx.util.docutils import SphinxDirective
 # import logging
@@ -65,11 +64,15 @@ class DynLinksInMenuListNode(nodes.General, nodes.Element):
         script = ScriptNode()
         script += nodes.raw('', "\n<script>\n", format='html')
         dyn_links_json = self.dyn_links_as_json(dyn_link_list)
-        script += nodes.raw('', f"\nvar dynLinkList = {dyn_links_json};\n", format='html')
-        script += nodes.raw('', f"astutus_docs_base = '{docs_base}';\n", format='html')
-        script += nodes.raw('', f"astutus_dyn_base = '{dyn_base}';\n", format='html')
+        script += nodes.raw('', f"const astutusDocname = '{self.docname}';\n", format='html')
+        script += nodes.raw('', f"const astutusDynLinkList = {dyn_links_json};\n", format='html')
+        script += nodes.raw('', f"const astutusDocsBase = '{docs_base}';\n", format='html')
+        script += nodes.raw('', f"const astutusDynBase = '{dyn_base}';\n", format='html')
         script += nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
-        script += nodes.raw('', "dynLinkList, astutus_docs_base, astutus_dyn_base", format='html')
+        script += nodes.raw('', "astutusDocname", format='html')
+        script += nodes.raw('', ", astutusDynLinkList", format='html')
+        script += nodes.raw('', ", astutusDocsBase", format='html')
+        script += nodes.raw('', ", astutusDynBase", format='html')
         script += nodes.raw('', f", {self.dynamic_for_js()}", format='html')
         if self.item_list_name is not None:
             script += nodes.raw('', f", {self.item_list_name}", format='html')
@@ -133,12 +136,13 @@ def generate_menu_modification(app, doctree, fromdocname):
         node.replace_node_content(env.dyn_link_list, app.config.astutus_docs_base, app.config.astutus_dyn_base)
 
 
-class DynLinksInMenuDirective(Directive):
+class DynLinksInMenuDirective(SphinxDirective):
 
     optional_arguments = 3
 
     def run(self):
         node = DynLinksInMenuListNode('')
+        node.docname = self.env.docname
         if len(self.arguments) > 0:
             dynamic = self.arguments[0]
         else:

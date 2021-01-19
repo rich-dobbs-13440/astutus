@@ -83,5 +83,5 @@ def setup(app):
 html_js_files = ['astutus_dynamic_sphinx_pages.js']
 
 # Options for the Astutus dynamic pages custom extension.
-astutus_docs_base = "/static/_docs"
+astutus_docs_base = "/astutus/doc"
 astutus_dyn_base = "/astutus"

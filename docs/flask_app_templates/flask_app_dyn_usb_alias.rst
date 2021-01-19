@@ -3,6 +3,11 @@ USB Aliases
 
 .. astutus_dyn_link:: "/astutus/usb/alias"
 
+.. toctree::
+    :hidden:
+
+    flask_app_dyn_usb_alias_item
+
 .. astutus_dyn_links_in_menus::
 
 ««HTML_TITLE»» USB Aliases - /astutus/alias ««END_HTML_TITLE»»

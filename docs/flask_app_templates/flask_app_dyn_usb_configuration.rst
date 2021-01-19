@@ -17,6 +17,11 @@ Soon, these links should allow you to make local customizations.
 
 .. astutus_dyn_link:: "/astutus/usb/configuration"
 
+.. toctree::
+    :hidden:
+
+    flask_app_dyn_usb_configuration_item
+
 .. astutus_dyn_links_in_menus::
 
 ««HTML_TITLE»» USB Device Configurations - /astutus/usb/device_configurations ««END_HTML_TITLE»»

@@ -11,4 +11,10 @@ Raspberry Pi
 
 ««INCLUDE»» delete_item_form.html ««END_INCLUDE»»
 
-.. astutus_dyn_links_in_menus::
+««INCLUDE»» raspi/items_list_js.html ««END_INCLUDE»»
+
+.. toctree::
+
+    flask_app_dyn_raspi_item_ifconfig.rst
+
+.. astutus_dyn_links_in_menus:: dynamic raspi_items_list <idx>

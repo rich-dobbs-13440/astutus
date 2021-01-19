@@ -14,85 +14,99 @@ var astutusDynPage = {
         return replacementUrl.replace(itemPattern, itemValue);
     },
 
-    replaceHrefs: function (menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern) {
+    replaceForItemList: function(element, link, sectionHash, itemPattern, itemList) {
+        if (itemList.length == 0) {
+            // Remove the entire ul, since it has no items.
+            var li = element.parentElement;
+            var ul = li.parentElement;
+            var ulParent = ul.parentElement;
+            ulParent.removeChild(ul);
+            return true;
+        }
+        var first = true;
+        for (item of itemList) {
+            replacementUrl = astutusDynPage.getReplacementUrl(link, itemPattern, item)
+            if (first) {
+                element.href = replacementUrl + sectionHash;
+                element.innerHTML = item['innerHTML'];
+                first = false;
+            } else {
+                // Duplicate list item and add to end of list.
+                var li = element.parentElement;
+                var ul = li.parentElement;
+                var liClone = li.cloneNode(li)
+                aElement = liClone.getElementsByTagName('A')[0];
+                aElement.href = replacementUrl + sectionHash;
+                aElement.innerHTML = item['innerHTML'];
+                ul.appendChild(liClone)
+            }
+        }
+        return false;
+    },
+
+    replaceHrefs: function (docName, menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern) {
         if (itemList != undefined) {
             if (itemPattern == undefined) {
                 itemPattern = '<idx>';
             }
         }
-        menuLinks.forEach(element => {
-            var rawHref = element.getAttribute("href");
-            var originalHref = element.href;
-            var replaced = false;
+        menuLinks.forEach(aElement => {
+            const rawHref = aElement.getAttribute("href");
+            const originalHref = aElement.href;
+            var href;
+            if (isDynamic) {
+                if (rawHref.startsWith("#")) {
+                    href = docName + rawHref
+                } else {
+                    href = rawHref;
+                }
+            } else {
+                href = rawHref;
+            }
+            console.log("rawHref", rawHref, "href", href, "orginalHref", originalHref);
+            const idxOfHash = href.indexOf("#");
+            var sectionHash = "";
+            if (idxOfHash >= 0) {
+                sectionHash = href.substring(idxOfHash);
+            }
+            var found = false;
             var removed = false;
             for (link of dynLinkList) {
-                if (rawHref.includes(link['search_pattern'])) {
-                    sectionIdx = rawHref.indexOf("#");
-                    var sectionLink = "";
-                    if (sectionIdx >= 0) {
-                        sectionLink = rawHref.substring(sectionIdx);
-                    }
+                if (href.includes(link['search_pattern'])) {
                     if (astutusDynPage.linkHasItems(link, itemPattern)) {
-                        var first = true;
-                        for (item of itemList) {
-                            replacementUrl = astutusDynPage.getReplacementUrl(link, itemPattern, item)
-                            if (first) {
-                                element.href = replacementUrl + sectionLink;
-                                first = false;
-                            } else {
-                                // Duplicate list item and add to end of list.
-                                var li = element.parentElement;
-                                var ul = li.parentElement;
-                                var liClone = li.cloneNode(li)
-                                aElement = liClone.getElementsByTagName('A')[0];
-                                aElement.href = replacementUrl;
-                                ul.appendChild(liClone)
-                            }
-                        }
-                        if (itemList.length == 0) {
-                            // Remove the entire ul, since it has no items.
-                            var li = element.parentElement;
-                            var ul = li.parentElement;
-                            var ulParent = ul.parentElement;
-                            ulParent.removeChild(ul);
-                        }
+                        removed = astutusDynPage.replaceForItemList(aElement, link, sectionHash, itemPattern, itemList)
+                        console.log()
                     } else {
                         replacementUrl = link['replacement_url']
-                        element.href = replacementUrl + sectionLink;
+                        aElement.href = replacementUrl + sectionHash;
                     }
-                    replaced = true;
+                    found = true;
+                    console.log('Pattern found!', 'removed', removed, 'pattern', link['search_pattern'])
                     break;
                 }
             }
-            if (!replaced) {
+            if (!found) {
                 // Fix up hrefs for static documentation pages for flask deployed configuration
                 if (isDynamic) {
-                    if (rawHref.startsWith("#")) {
-                        console.log("Inter-page link. No change needed.");
-                    } else if (rawHref.startsWith("../")) {
-                        element.href = docsBase + "/" + rawHref.replace('../', '')
-                    } else {
-                        console.log('Unhandled case rawHref: ', rawHref)
-                    }
+                    // Remove all relative upward references
+                    var hrefRelativeToDocs = rawHref.replace(/\.\.\//g, '')
+                    aElement.href = docsBase + "/" + hrefRelativeToDocs;
                 } else {
-                    element.href = docsBase + "/" + rawHref;
+                    aElement.href = docsBase + "/" + rawHref;
                 }
-            }
-            if (removed) {
-                console.log("Original rawHref", rawHref, "originalHref", originalHref, "element removed!");
-            } else {
-                console.log("Original rawHref", rawHref, "originalHref", originalHref, "current element.href", element.href);
-            }
 
+            }
+            if (!removed) {
+                console.log("Original rawHref", rawHref, "originalHref", originalHref, "current aElement.href", aElement.href);
+            }
         });
     },
 
-    applyDynamicLinks: function (dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern) {
+    applyDynamicLinks: function (docName, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern) {
         var menuLinks = document.querySelectorAll("div.toctree-wrapper ul li a");
-        astutusDynPage.replaceHrefs(menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern);
+        astutusDynPage.replaceHrefs(docName, menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern);
         menuLinks = document.querySelectorAll("div.wy-menu-vertical ul li a");
-        astutusDynPage.replaceHrefs(menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern);
+        astutusDynPage.replaceHrefs(docName, menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern);
     }
 
 }
-
