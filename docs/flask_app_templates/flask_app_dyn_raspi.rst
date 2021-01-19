@@ -26,4 +26,4 @@ Search for Pi's on LAN
 
 ««INCLUDE»» raspi/items_list_js.html ««END_INCLUDE»»
 
-.. astutus_dyn_links_in_menus:: raspi_items_list <idx>
+.. astutus_dyn_links_in_menus:: dynamic raspi_items_list <idx>

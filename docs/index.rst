@@ -46,5 +46,5 @@ Indices and tables
 
 This documentation for |release| was produced at |today|.
 
-.. astutus_dyn_links_in_menus::
+.. astutus_dyn_links_in_menus:: not_dynamic
 

@@ -14,7 +14,7 @@ var astutusDynPage = {
         return replacementUrl.replace(itemPattern, itemValue);
     },
 
-    replaceHrefs: function (menuLinks, dynLinkList, docsBase, dynBase, itemList, itemPattern) {
+    replaceHrefs: function (menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern) {
         if (itemList != undefined) {
             if (itemPattern == undefined) {
                 itemPattern = '<idx>';
@@ -24,6 +24,7 @@ var astutusDynPage = {
             var rawHref = element.getAttribute("href");
             var originalHref = element.href;
             var replaced = false;
+            var removed = false;
             for (link of dynLinkList) {
                 if (rawHref.includes(link['search_pattern'])) {
                     sectionIdx = rawHref.indexOf("#");
@@ -48,6 +49,13 @@ var astutusDynPage = {
                                 ul.appendChild(liClone)
                             }
                         }
+                        if (itemList.length == 0) {
+                            // Remove the entire ul, since it has no items.
+                            var li = element.parentElement;
+                            var ul = li.parentElement;
+                            var ulParent = ul.parentElement;
+                            ulParent.removeChild(ul);
+                        }
                     } else {
                         replacementUrl = link['replacement_url']
                         element.href = replacementUrl + sectionLink;
@@ -58,24 +66,32 @@ var astutusDynPage = {
             }
             if (!replaced) {
                 // Fix up hrefs for static documentation pages for flask deployed configuration
-                if (originalHref.includes(dynBase)) {
-                    // Assume for now that the dynamic rst files are one directory below configuration directory:
-                    element.href = docsBase + "/" + rawHref.replace('../', '')
-
+                if (isDynamic) {
+                    if (rawHref.startsWith("#")) {
+                        console.log("Inter-page link. No change needed.");
+                    } else if (rawHref.startsWith("../")) {
+                        element.href = docsBase + "/" + rawHref.replace('../', '')
+                    } else {
+                        console.log('Unhandled case rawHref: ', rawHref)
+                    }
                 } else {
                     element.href = docsBase + "/" + rawHref;
                 }
-
             }
-            console.log("Original rawHref", rawHref, "originalHref", originalHref, "current element.href", element.href)
+            if (removed) {
+                console.log("Original rawHref", rawHref, "originalHref", originalHref, "element removed!");
+            } else {
+                console.log("Original rawHref", rawHref, "originalHref", originalHref, "current element.href", element.href);
+            }
+
         });
     },
 
-    applyDynamicLinks: function (dynLinkList, docsBase, dynBase, itemList, itemPattern) {
+    applyDynamicLinks: function (dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern) {
         var menuLinks = document.querySelectorAll("div.toctree-wrapper ul li a");
-        astutusDynPage.replaceHrefs(menuLinks, dynLinkList, docsBase, dynBase, itemList, itemPattern);
+        astutusDynPage.replaceHrefs(menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern);
         menuLinks = document.querySelectorAll("div.wy-menu-vertical ul li a");
-        astutusDynPage.replaceHrefs(menuLinks, dynLinkList, docsBase, dynBase, itemList, itemPattern);
+        astutusDynPage.replaceHrefs(menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern);
     }
 
 }

@@ -42,6 +42,24 @@ class DynLinksInMenuListNode(nodes.General, nodes.Element):
     def set_item_pattern(self, pattern):
         self.pattern = pattern
 
+    def set_dynamic(self, dynamic):
+        if dynamic is None:
+            # Defaults to being dynamic.
+            self.dynamic = True
+        elif dynamic == 'dynamic':
+            self.dynamic = True
+        elif dynamic == 'not_dynamic':
+            self.dynamic = False
+        else:
+            raise ValueError(f"Expecting None, 'dynamic' or 'not_dynamic', got {dynamic}")
+
+    def dynamic_for_js(self):
+        """ Convert to true or false, from Python boolean"""
+        if self.dynamic:
+            return "true"
+        else:
+            return "false"
+
     def replace_node_content(self, dyn_link_list, docs_base, dyn_base):
         content = []
         script = ScriptNode()
@@ -52,6 +70,7 @@ class DynLinksInMenuListNode(nodes.General, nodes.Element):
         script += nodes.raw('', f"astutus_dyn_base = '{dyn_base}';\n", format='html')
         script += nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
         script += nodes.raw('', "dynLinkList, astutus_docs_base, astutus_dyn_base", format='html')
+        script += nodes.raw('', f", {self.dynamic_for_js()}", format='html')
         if self.item_list_name is not None:
             script += nodes.raw('', f", {self.item_list_name}", format='html')
         if self.pattern is not None:
@@ -78,9 +97,9 @@ class DynLinksInMenuListNode(nodes.General, nodes.Element):
             replacement_url_snippet = f"'replacement_url':'{link['replacement_url']}'"
             item = "    {" + search_snippet + ", " + replacement_url_snippet + "}"
             items.append(item)
-            # search_snippet_link = f"'search_pattern': '{basename}#'"
-            # line = "    {" + search_snippet_link + ", " + replacement_url_snippet + "}"
-            # js_links.append(line)
+            search_snippet_link = f"'search_pattern': '{basename}#'"
+            item = "    {" + search_snippet_link + ", " + replacement_url_snippet + "}"
+            items.append(item)
         items_text = ',\n'.join(items)
         return '[' + items_text + ']'
 
@@ -116,19 +135,25 @@ def generate_menu_modification(app, doctree, fromdocname):
 
 class DynLinksInMenuDirective(Directive):
 
-    optional_arguments = 2
+    optional_arguments = 3
 
     def run(self):
         node = DynLinksInMenuListNode('')
         if len(self.arguments) > 0:
-            node.set_item_list_name(self.arguments[0])
+            dynamic = self.arguments[0]
         else:
-            node.set_item_list_name(None)
+            dynamic = 'dynamic'
+        node.set_dynamic(dynamic)
         if len(self.arguments) > 1:
-            node.set_item_pattern(self.arguments[1])
+            item_list_name = self.arguments[1]
         else:
-            node.set_item_pattern(None)
-
+            item_list_name = None
+        node.set_item_list_name(item_list_name)
+        if len(self.arguments) > 2:
+            item_pattern = self.arguments[2]
+        else:
+            item_pattern = '<idx>'
+        node.set_item_pattern(item_pattern)
         return [node]
 
 

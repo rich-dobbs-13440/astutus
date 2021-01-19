@@ -128,6 +128,9 @@ class DeviceConfigurations(object):
         self.pci_device_info = None
         logger.info("Done initializing device configurations")
 
+    def __len__(self):
+        return len(self.device_map)
+
     def find_configuration(self, data):
         if data['ilk'] == 'usb':
             return self.find_usb_configuration(data)

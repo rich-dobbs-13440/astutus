@@ -1,3 +1,4 @@
+import json
 import logging
 from http import HTTPStatus
 
@@ -63,6 +64,9 @@ def handle_raspi():
             link = f'<li><p>See <a class="reference internal" href="/astutus/raspi/{item.id}"><span class="doc">{item.id}</span></a></p></li>'  # noqa
             links_list.append(link)
         links = "\n".join(links_list)
+        raspi_items_list = []
+        for item in items:
+            raspi_items_list.append({'value': item.id, 'innerHTML': item.ipv4})
         breadcrumbs_list = [
             '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
             '<li><a href="/astutus">/astutus</a> &raquo;</li>',
@@ -75,7 +79,8 @@ def handle_raspi():
             breadcrumbs_list_items=breadcrumbs_list_items,
             wy_menu_vertical=wy_menu_vertical,
             links=links,
-            filter=["Raspberry"])
+            filter=["Raspberry"],
+            raspi_items_list=json.dumps(raspi_items_list))
 
     if flask.request.method == 'POST':
         form = flask.request.form
