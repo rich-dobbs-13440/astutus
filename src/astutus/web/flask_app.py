@@ -103,7 +103,7 @@ def handle_astutus():
     ]
     links = "\n".join(links_list)
     return flask.render_template(
-        'transformed_dyn_astutus.html',
+        'dyn_astutus.html',
         static_base=static_base,
         breadcrumbs_list_items=breadcrumbs_list_items,
         links=links)

@@ -7,6 +7,9 @@ import re
 logger = sphinx.util.logging.getLogger(__name__)
 
 
+# Since the Jinja2 templates may not be legal HTML5, this process will be based
+# on text manipulation, rather than DOM transformation or XSLT transformations.
+
 def prepare_breadcrumbs_navigation(html_text):
     """ Strip out existing breadcrumb navigation section and replace it with Jinja2 variable.
 
