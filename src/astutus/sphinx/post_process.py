@@ -150,6 +150,11 @@ def indent_html_text(html_text):
             nesting = 0
     return "".join(output_chunks)
 
+# from lxml import etree, html
+
+# document_root = html.fromstring("<html><body><h1>hello world</h1></body></html>")
+# print(etree.tostring(document_root, encoding='unicode', pretty_print=True))
+
 
 def process_dynamic_template(input_path, output_basepath):
     """  Process the Sphinx generated html file to produced a styled Jinja template

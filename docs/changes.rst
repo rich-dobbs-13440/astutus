@@ -43,8 +43,9 @@ let us know!
 
 Backlog:
 
+  * Task: Fix up indentation so that it does better with Javascript
+  * Task: Move most post processing out of packaging into Sphinx extension and use it from there.
   * Task: Allow notes or other features to accordion fold.
-  * Task: Convert «« »» markup into Sphinx directives.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
@@ -71,6 +72,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |done| 2021-01-19 21:33 Task: Convert «« »» markup into Sphinx directives.
   * |done| 2021-01-19 15:36 Task: Polish up device names
   * |done| 2021-01-19 14:09 Task: For item dynamic pages, fix up vertical menu, both for item and parent.
   * |done| 2021-01-18 01:01 Task: For dynamic pages, need to fix up vertical menu links back to docs.
