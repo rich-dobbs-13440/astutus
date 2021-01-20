@@ -3,6 +3,8 @@ Astutus From the Browser
 
 .. astutus_dyn_link:: "/astutus"
 
+.. astutus_dyn_destination:: dyn_astutus.html
+
 Astutus uses a custom extension to Sphinx to provide dynamic HTML pages.
 This approach makes it easy to add instructions and guidance functional
 pages.  It makes it easy to get a **good-enough** look-and-feel, without

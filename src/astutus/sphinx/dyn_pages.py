@@ -1,7 +1,9 @@
 import sphinx.util
 
+
 import docutils
 import astutus
+import astutus.sphinx.post_process
 from sphinx.util.docutils import SphinxDirective
 
 
@@ -256,6 +258,17 @@ class DynDestinationDirective(SphinxDirective):
             node.replace_self(replacement_node)
 
 
+def config_inited(app, config):
+    """ Check that the required configuration variables have been initialized"""
+    logger.warn("Got to config_inited")
+    if app.config.astutus_docs_base == '':
+        raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
+    if app.config.astutus_dyn_base == "":
+        raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
+    if app.config.astutus_dyn_templace_dir == "":
+        raise ValueError("You must define 'astutus_dyn_templace_dir' if you are using Astutus capabilities.")
+
+
 def setup(app):
     app.add_node(
         DynLinkNode,
@@ -274,6 +287,7 @@ def setup(app):
     )
     app.add_config_value('astutus_docs_base', '', 'html')
     app.add_config_value('astutus_dyn_base', '', 'html')
+    app.add_config_value('astutus_dyn_templace_dir', '', 'html')
     app.add_directive('astutus_dyn_link', DynLinkDirective)
 
     app.add_directive('astutus_dyn_links_in_menus', DynLinksInMenuDirective)
@@ -287,6 +301,9 @@ def setup(app):
 
     app.add_directive('astutus_dyn_destination', DynDestinationDirective)
     app.connect('doctree-resolved', DynDestinationDirective.handle_insert_markup)
+
+    app.connect('config-inited', config_inited)
+    app.connect('build-finished', astutus.sphinx.post_process.post_process)
 
     return {
         'version': astutus.__version__,

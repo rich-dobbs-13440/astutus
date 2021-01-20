@@ -83,5 +83,6 @@ def setup(app):
 html_js_files = ['astutus_dynamic_sphinx_pages.js']
 
 # Options for the Astutus dynamic pages custom extension.
+astutus_dyn_templace_dir = "flask_app_templates"
 astutus_docs_base = "/astutus/doc"
 astutus_dyn_base = "/astutus"
