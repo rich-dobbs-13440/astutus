@@ -22,6 +22,7 @@ import json
 import logging
 import os
 import sqlite3
+from http import HTTPStatus
 
 import astutus.db
 import astutus.log
@@ -122,6 +123,13 @@ def handle_doc_top():
     directory = os.path.join(app.root_path, 'static', '_docs')
     print(f"directory: {directory}")
     return flask.send_from_directory(directory, 'index.html')
+
+
+@app.route('/astutus/doc/dyn_pages/<path:path>')
+def handle_doc_reference_to_dyn_page(path):
+    if path == 'dyn_index.html':
+        return flask.redirect(flask.url_for('handle_astutus'))
+    return path, HTTPStatus.NOT_IMPLEMENTED
 
 
 @app.route('/astutus/doc/<path:path>')

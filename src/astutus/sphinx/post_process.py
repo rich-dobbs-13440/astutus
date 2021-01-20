@@ -207,9 +207,9 @@ def post_process(app, exception):
     logger.warn("Got to post process")
     # logger.warn(f"app: {dir(app)}")
     logger.warn(f"outdir: {app.outdir}")
-    source_dir = pathlib.Path(app.outdir) / app.config.astutus_dyn_templace_dir
+    source_dir = pathlib.Path(app.outdir) / app.config.astutus_dyn_pages_dir
     logger.warn(f"source_dir: {source_dir}")
-    destin_dir = pathlib.Path(app.outdir).parent / 'astutus_dynamic_templates'
+    destin_dir = pathlib.Path(app.outdir).parent / app.config.astutus_dynamic_templates
     os.makedirs(destin_dir)
     logger.warn(f"destin_dir: {destin_dir}")
 

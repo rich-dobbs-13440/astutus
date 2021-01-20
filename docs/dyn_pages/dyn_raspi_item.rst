@@ -10,7 +10,7 @@ Raspberry Pi
 .. toctree::
     :caption: Characteristics
 
-    Internet Configuration <flask_app_dyn_raspi_item_ifconfig>
+    Internet Configuration <dyn_raspi_item_ifconfig>
 
 .. astutus_dyn_include:: delete_item_form.html
 

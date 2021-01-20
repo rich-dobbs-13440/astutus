@@ -9,7 +9,7 @@ Adopted Pi's
 
 .. toctree::
 
-    flask_app_dyn_raspi_item
+    dyn_raspi_item
 
 
 Search for Pi's on LAN

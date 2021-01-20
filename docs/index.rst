@@ -21,7 +21,7 @@ Introduction
 
    welcome
    changes
-   flask_app_templates/flask_app_dyn_astutus
+   dyn_pages/dyn_index
    roadmap_to_documentation
    maintanence/guidelines
    source/modules
@@ -35,7 +35,4 @@ Indices and tables
 * :ref:`search`
 
 
-This documentation for |release| was produced at |today|.
-
-.. astutus_dyn_links_in_menus:: not_dynamic
-
+This documentation for |release| was produced at sometime on |today|.

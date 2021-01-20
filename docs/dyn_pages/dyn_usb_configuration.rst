@@ -26,7 +26,7 @@ Soon, these links should allow you to make local customizations.
 .. toctree::
     :hidden:
 
-    flask_app_dyn_usb_configuration_item
+    dyn_usb_configuration_item
 
 .. astutus_dyn_include:: usb/config_items_list_js.html
 

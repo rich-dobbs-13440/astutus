@@ -18,8 +18,8 @@ development planning and execution.
     :caption: Current Capabilities:
     :maxdepth: 2
 
-    flask_app_dyn_raspi
-    flask_app_dyn_usb
-    flask_app_dyn_log
+    dyn_raspi
+    dyn_usb
+    dyn_log
 
 .. astutus_dyn_links_in_menus::

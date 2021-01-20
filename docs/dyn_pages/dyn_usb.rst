@@ -7,9 +7,9 @@ USB Devices
     :maxdepth: 1
     :caption: You can:
 
-    View USB devices as a tree <flask_app_dyn_usb_device>
-    Manage device aliases <flask_app_dyn_usb_alias>
-    Manage device names <flask_app_dyn_usb_configuration>
+    View USB devices as a tree <dyn_usb_device>
+    Manage device aliases <dyn_usb_alias>
+    Manage device names <dyn_usb_configuration>
 
 .. astutus_dyn_links_in_menus::
 

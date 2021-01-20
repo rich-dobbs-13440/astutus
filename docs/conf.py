@@ -79,10 +79,10 @@ def setup(app):
 # longer term, should be installed there when the extension
 # is installed.  # Should be able to do this automatically
 # in the extension!  Probably should only add to pages
-# where it is used.
+# where it is used.  Or handle in flask or post processing.
 html_js_files = ['astutus_dynamic_sphinx_pages.js']
 
 # Options for the Astutus dynamic pages custom extension.
-astutus_dyn_templace_dir = "flask_app_templates"
-astutus_docs_base = "/astutus/doc"
-astutus_dyn_base = "/astutus"
+astutus_dyn_pages_dir = "dyn_pages"  # relative to the configuration directory.
+astutus_docs_base = "/astutus/doc"  # web app URL path
+astutus_dyn_base = "/astutus"  # web app URL path to get to top of dynamic pages.

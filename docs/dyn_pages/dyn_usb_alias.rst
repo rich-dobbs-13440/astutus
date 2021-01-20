@@ -28,7 +28,7 @@ the challenges of the USB implementation:
 .. toctree::
     :hidden:
 
-    flask_app_dyn_usb_alias_item
+    dyn_usb_alias_item
 
 .. astutus_dyn_include:: usb/alias_items_list_js.html
 

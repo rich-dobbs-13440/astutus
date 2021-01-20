@@ -7,7 +7,7 @@ contain placeholders.
 The placeholders are then replaced with Jinja2 dynamic markup, and
 stored as templates to be used by the Flask application.
 
-The names of the templates should all start with "flask_app_dyn" since
+The names of the templates should all start with "dyn" since
 that is used in generating the destination name in script that
 processes the files.
 
