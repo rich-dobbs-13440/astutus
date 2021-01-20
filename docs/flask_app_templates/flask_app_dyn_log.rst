@@ -14,4 +14,4 @@ Control Logging
 ««DESTINATION»» log/dyn_log.html ««END_DESTINATION»»
 
 
-««INCLUDE»» log/loggers.html ««END_INCLUDE»»
+.. astutus_dyn_include:: log/loggers.html

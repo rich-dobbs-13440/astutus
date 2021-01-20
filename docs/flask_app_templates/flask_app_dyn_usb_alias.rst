@@ -21,7 +21,7 @@ the challenges of the USB implementation:
   of the aliases that you have defined, and editing specific aliases.
 
 
-««INCLUDE»» usb/device_aliases.html ««END_INCLUDE»»
+.. astutus_dyn_include:: usb/device_aliases.html
 
 .. astutus_dyn_link:: "/astutus/usb/alias"
 
@@ -30,6 +30,6 @@ the challenges of the USB implementation:
 
     flask_app_dyn_usb_alias_item
 
-««INCLUDE»» usb/alias_items_list_js.html ««END_INCLUDE»»
+.. astutus_dyn_include:: usb/alias_items_list_js.html
 
 .. astutus_dyn_links_in_menus:: dynamic alias_items_list <path>

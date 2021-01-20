@@ -19,7 +19,7 @@ Soon, these links should allow you to make local customizations.
 
 ««DESTINATION»» usb/dyn_device_configurations.html ««END_DESTINATION»»
 
-««INCLUDE»» usb/device_configurations.html ««END_INCLUDE»»
+.. astutus_dyn_include:: usb/device_configurations.html
 
 .. astutus_dyn_link:: "/astutus/usb/configuration"
 
@@ -28,6 +28,6 @@ Soon, these links should allow you to make local customizations.
 
     flask_app_dyn_usb_configuration_item
 
-««INCLUDE»» usb/config_items_list_js.html ««END_INCLUDE»»
+.. astutus_dyn_include:: usb/config_items_list_js.html
 
 .. astutus_dyn_links_in_menus:: dynamic config_items_list <idx>

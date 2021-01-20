@@ -5,17 +5,17 @@ Raspberry Pi
 
 ««DESTINATION»» raspi/dyn_raspi_item.html ««END_DESTINATION»»
 
-««INCLUDE»» raspi/raspi_item_display.html ««END_INCLUDE»»
+.. astutus_dyn_include:: raspi/raspi_item_display.html
 
 .. toctree::
     :caption: Characteristics
 
     Internet Configuration <flask_app_dyn_raspi_item_ifconfig>
 
-««INCLUDE»» delete_item_form.html ««END_INCLUDE»»
+.. astutus_dyn_include:: delete_item_form.html
 
 .. astutus_dyn_link:: "/astutus/raspi/<idx>"
 
-««INCLUDE»» raspi/items_list_js.html ««END_INCLUDE»»
+.. astutus_dyn_include:: raspi/items_list_js.html
 
 .. astutus_dyn_links_in_menus:: dynamic raspi_items_list <idx>

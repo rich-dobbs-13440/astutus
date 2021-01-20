@@ -7,9 +7,9 @@ Raspberry Pi Ethernet Internet Configuration
 
 ««DESTINATION»» raspi/dyn_item_ifconfig.html ««END_DESTINATION»»
 
-««INCLUDE»» raspi/ifconfig.html ««END_INCLUDE»»
+.. astutus_dyn_include:: raspi/ifconfig.html
 
 
-««INCLUDE»» raspi/items_list_js.html ««END_INCLUDE»»
+.. astutus_dyn_include:: raspi/items_list_js.html
 
 .. astutus_dyn_links_in_menus:: dynamic raspi_items_list <idx>

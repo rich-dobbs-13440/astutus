@@ -33,7 +33,10 @@ def depart_generic_node(self, node):
 
 
 class DynBookmarkNode(docutils.nodes.General, docutils.nodes.Element):
+    pass
 
+
+class DynIncludeNode(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
@@ -198,11 +201,33 @@ class DynBookmarkDirective(SphinxDirective):
 
     @staticmethod
     def handle_title_modification(app, doctree, fromdocname):
-        """ Hanlde title modification by inserting post processing markup. """
+        """ Handle title modification by inserting post processing markup. """
         for node in doctree.traverse(DynBookmarkNode):
             logger.debug("DynBookmarkDirective.handle_title_modification")
             jinja2_bookmark_pattern = node.bookmark_pattern.replace('<', '{{ ').replace('>', ' }}')
             replacement = f'\n««HTML_TITLE»» {jinja2_bookmark_pattern} ««END_HTML_TITLE»»\n'  # noqa
+            replacement_node = docutils.nodes.raw('', replacement, format='html')
+            node.replace_self(replacement_node)
+
+
+class DynIncludeDirective(SphinxDirective):
+
+    required_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self):
+        logger.warning("DynIncludeDirective.run")
+        node = DynIncludeNode('')
+        node.include = self.arguments[0]
+        return [node]
+
+    @staticmethod
+    def handle_title_modification(app, doctree, fromdocname):
+        """ Handle title modification by inserting post processing markup. """
+        for node in doctree.traverse(DynIncludeNode):
+            logger.debug("DynBookmarkDirective.handle_title_modification")
+            jinja2_bookmark_pattern = node.include.replace('<', '{{ ').replace('>', ' }}')
+            replacement = f'\n««INCLUDE»» {jinja2_bookmark_pattern} ««END_INCLUDE»»\n'  # noqa
             replacement_node = docutils.nodes.raw('', replacement, format='html')
             node.replace_self(replacement_node)
 
@@ -232,6 +257,9 @@ def setup(app):
 
     app.add_directive('astutus_dyn_bookmark', DynBookmarkDirective)
     app.connect('doctree-resolved', DynBookmarkDirective.handle_title_modification)
+
+    app.add_directive('astutus_dyn_include', DynIncludeDirective)
+    app.connect('doctree-resolved', DynIncludeDirective.handle_title_modification)
 
     return {
         'version': astutus.__version__,

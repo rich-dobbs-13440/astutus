@@ -19,4 +19,4 @@ To define an alias, click on a button associated with the node.
 
 ««DESTINATION»» usb/dyn_usb_device.html ««END_DESTINATION»»
 
-««INCLUDE»» usb/device_tree.html ««END_INCLUDE»»
+.. astutus_dyn_include:: usb/device_tree.html

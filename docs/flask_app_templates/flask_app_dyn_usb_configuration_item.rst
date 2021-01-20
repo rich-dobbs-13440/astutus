@@ -11,12 +11,12 @@ Device Configuration
 
 ««DESTINATION»» usb/dyn_configuration_item.html ««END_DESTINATION»»
 
-««INCLUDE»» usb/configuration_item.html ««END_INCLUDE»»
+.. astutus_dyn_include:: usb/configuration_item.html
 
-««INCLUDE»» delete_item_form.html ««END_INCLUDE»»
+.. astutus_dyn_include:: delete_item_form.html
 
 .. astutus_dyn_link:: "/astutus/usb/configuration/<idx>"
 
-««INCLUDE»» usb/config_items_list_js.html ««END_INCLUDE»»
+.. astutus_dyn_include:: usb/config_items_list_js.html
 
 .. astutus_dyn_links_in_menus:: dynamic config_items_list <idx>

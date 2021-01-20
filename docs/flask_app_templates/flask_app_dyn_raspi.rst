@@ -15,12 +15,12 @@ Adopted Pi's
 Search for Pi's on LAN
 ----------------------
 
-««INCLUDE»» raspi/raspi_nmap_search_form.html ««END_INCLUDE»»
+.. astutus_dyn_include:: raspi/raspi_nmap_search_form.html
 
-««INCLUDE»» raspi/raspi_search_results.html ««END_INCLUDE»»
+.. astutus_dyn_include:: raspi/raspi_search_results.html
 
 .. astutus_dyn_link:: "/astutus/raspi"
 
-««INCLUDE»» raspi/items_list_js.html ««END_INCLUDE»»
+.. astutus_dyn_include:: raspi/items_list_js.html
 
 .. astutus_dyn_links_in_menus:: dynamic raspi_items_list <idx>
