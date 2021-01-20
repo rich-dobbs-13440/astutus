@@ -15,4 +15,4 @@ USB Devices
 
 .. astutus_dyn_bookmark:: USB - /astutus/usb
 
-««DESTINATION»» usb/dyn_usb.html ««END_DESTINATION»»
+.. astutus_dyn_destination:: usb/dyn_usb.html

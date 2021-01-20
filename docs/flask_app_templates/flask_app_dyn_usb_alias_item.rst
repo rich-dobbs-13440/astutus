@@ -3,7 +3,7 @@ Device Alias
 
 .. astutus_dyn_bookmark:: USB Alias - /astutus/alias/{{ nodepath }}
 
-««DESTINATION»» usb/dyn_alias_item.html ««END_DESTINATION»»
+.. astutus_dyn_destination:: usb/dyn_alias_item.html
 
 .. astutus_dyn_include:: usb/alias_editor.html
 

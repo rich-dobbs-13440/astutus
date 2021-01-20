@@ -1,7 +1,7 @@
 Raspberry Pi's
 ==============
 
-««DESTINATION»» raspi/dyn_raspi.html ««END_DESTINATION»»
+.. astutus_dyn_destination:: raspi/dyn_raspi.html
 .. astutus_dyn_bookmark:: Raspberry Pi's  - /astutus/raspi
 
 Adopted Pi's

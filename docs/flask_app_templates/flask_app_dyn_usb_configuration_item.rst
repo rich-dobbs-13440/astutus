@@ -9,7 +9,7 @@ Device Configuration
 
 .. note::  The file structure is not documented, but you should be able to maintain it by looking at other configurations.
 
-««DESTINATION»» usb/dyn_configuration_item.html ««END_DESTINATION»»
+.. astutus_dyn_destination:: usb/dyn_configuration_item.html
 
 .. astutus_dyn_include:: usb/configuration_item.html
 

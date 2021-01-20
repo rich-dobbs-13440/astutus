@@ -3,7 +3,7 @@ USB Aliases
 
 .. astutus_dyn_bookmark:: USB Aliases - /astutus/alias
 
-««DESTINATION»» usb/dyn_alias.html ««END_DESTINATION»»
+.. astutus_dyn_destination:: usb/dyn_alias.html
 
 Aliases allow providing meaningful human names to USB devices despite
 the challenges of the USB implementation:

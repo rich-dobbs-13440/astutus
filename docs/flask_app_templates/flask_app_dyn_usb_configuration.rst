@@ -17,7 +17,7 @@ Soon, these links should allow you to make local customizations.
 
 .. astutus_dyn_bookmark:: USB Device Configurations - /astutus/usb/device_configurations
 
-««DESTINATION»» usb/dyn_device_configurations.html ««END_DESTINATION»»
+.. astutus_dyn_destination:: usb/dyn_device_configurations.html
 
 .. astutus_dyn_include:: usb/device_configurations.html
 

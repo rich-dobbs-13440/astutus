@@ -20,10 +20,6 @@ def depart_dyn_link_node(self, node):
     pass
 
 
-class ScriptNode(docutils.nodes.General, docutils.nodes.Element):
-    pass
-
-
 def visit_generic_node(self, node):
     logger.debug(f"Visiting node: {node} ")
 
@@ -32,11 +28,19 @@ def depart_generic_node(self, node):
     logger.debug(f"Departing node: {node} ")
 
 
+class ScriptNode(docutils.nodes.General, docutils.nodes.Element):
+    pass
+
+
 class DynBookmarkNode(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
 class DynIncludeNode(docutils.nodes.General, docutils.nodes.Element):
+    pass
+
+
+class DynDestinationNode(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
@@ -196,16 +200,16 @@ class DynBookmarkDirective(SphinxDirective):
     def run(self):
         logger.warning("DynBookmarkDirective.run")
         node = DynBookmarkNode('')
-        node.bookmark_pattern = self.arguments[0]
+        node.value = self.arguments[0]
         return [node]
 
     @staticmethod
-    def handle_title_modification(app, doctree, fromdocname):
+    def handle_insert_markup(app, doctree, fromdocname):
         """ Handle title modification by inserting post processing markup. """
         for node in doctree.traverse(DynBookmarkNode):
             logger.debug("DynBookmarkDirective.handle_title_modification")
-            jinja2_bookmark_pattern = node.bookmark_pattern.replace('<', '{{ ').replace('>', ' }}')
-            replacement = f'\n««HTML_TITLE»» {jinja2_bookmark_pattern} ««END_HTML_TITLE»»\n'  # noqa
+            jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
+            replacement = f'\n««HTML_TITLE»» {jinja2_value} ««END_HTML_TITLE»»\n'
             replacement_node = docutils.nodes.raw('', replacement, format='html')
             node.replace_self(replacement_node)
 
@@ -213,21 +217,41 @@ class DynBookmarkDirective(SphinxDirective):
 class DynIncludeDirective(SphinxDirective):
 
     required_arguments = 1
-    final_argument_whitespace = True
 
     def run(self):
         logger.warning("DynIncludeDirective.run")
         node = DynIncludeNode('')
-        node.include = self.arguments[0]
+        node.value = self.arguments[0]
         return [node]
 
     @staticmethod
-    def handle_title_modification(app, doctree, fromdocname):
-        """ Handle title modification by inserting post processing markup. """
+    def handle_insert_markup(app, doctree, fromdocname):
+        """ Handle include modification by inserting post processing markup. """
         for node in doctree.traverse(DynIncludeNode):
             logger.debug("DynBookmarkDirective.handle_title_modification")
-            jinja2_bookmark_pattern = node.include.replace('<', '{{ ').replace('>', ' }}')
-            replacement = f'\n««INCLUDE»» {jinja2_bookmark_pattern} ««END_INCLUDE»»\n'  # noqa
+            jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
+            replacement = f'\n««INCLUDE»» {jinja2_value} ««END_INCLUDE»»\n'
+            replacement_node = docutils.nodes.raw('', replacement, format='html')
+            node.replace_self(replacement_node)
+
+
+class DynDestinationDirective(SphinxDirective):
+
+    required_arguments = 1
+
+    def run(self):
+        logger.warning("DynDestinationDirective.run")
+        node = DynDestinationNode('')
+        node.value = self.arguments[0]
+        return [node]
+
+    @staticmethod
+    def handle_insert_markup(app, doctree, fromdocname):
+        """ Handle title modification by inserting post processing markup. """
+        for node in doctree.traverse(DynDestinationNode):
+            logger.debug("DynBookmarkDirective.handle_title_modification")
+            jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
+            replacement = f'\n««DESTINATION»» {jinja2_value} ««END_DESTINATION»»\n'
             replacement_node = docutils.nodes.raw('', replacement, format='html')
             node.replace_self(replacement_node)
 
@@ -256,10 +280,13 @@ def setup(app):
     app.connect('doctree-resolved', DynLinksInMenuDirective.generate_menu_modification)
 
     app.add_directive('astutus_dyn_bookmark', DynBookmarkDirective)
-    app.connect('doctree-resolved', DynBookmarkDirective.handle_title_modification)
+    app.connect('doctree-resolved', DynBookmarkDirective.handle_insert_markup)
 
     app.add_directive('astutus_dyn_include', DynIncludeDirective)
-    app.connect('doctree-resolved', DynIncludeDirective.handle_title_modification)
+    app.connect('doctree-resolved', DynIncludeDirective.handle_insert_markup)
+
+    app.add_directive('astutus_dyn_destination', DynDestinationDirective)
+    app.connect('doctree-resolved', DynDestinationDirective.handle_insert_markup)
 
     return {
         'version': astutus.__version__,

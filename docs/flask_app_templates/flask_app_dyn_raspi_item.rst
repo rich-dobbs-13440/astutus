@@ -3,7 +3,7 @@ Raspberry Pi
 
 .. astutus_dyn_bookmark:: Raspberry Pi's - /astutus/raspi/{{idx}}
 
-««DESTINATION»» raspi/dyn_raspi_item.html ««END_DESTINATION»»
+.. astutus_dyn_destination:: raspi/dyn_raspi_item.html
 
 .. astutus_dyn_include:: raspi/raspi_item_display.html
 
