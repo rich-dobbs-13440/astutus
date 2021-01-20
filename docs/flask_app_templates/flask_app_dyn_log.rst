@@ -9,7 +9,7 @@ Control Logging
     :caption: Contents:
 
 
-««HTML_TITLE»» Control Logging - /astutus/logging ««END_HTML_TITLE»»
+.. astutus_dyn_bookmark:: Control Logging - /astutus/logging
 
 ««DESTINATION»» log/dyn_log.html ««END_DESTINATION»»
 

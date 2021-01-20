@@ -15,7 +15,7 @@ device_configurations.json file.
 
 Soon, these links should allow you to make local customizations.
 
-««HTML_TITLE»» USB Device Configurations - /astutus/usb/device_configurations ««END_HTML_TITLE»»
+.. astutus_dyn_bookmark:: USB Device Configurations - /astutus/usb/device_configurations
 
 ««DESTINATION»» usb/dyn_device_configurations.html ««END_DESTINATION»»
 

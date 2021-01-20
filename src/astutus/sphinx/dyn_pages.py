@@ -1,15 +1,14 @@
 import sphinx.util
 
-from docutils import nodes
-
+import docutils
+import astutus
 from sphinx.util.docutils import SphinxDirective
-# import logging
+
 
 logger = sphinx.util.logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
 
 
-class DynLinkNode(nodes.General, nodes.Element):
+class DynLinkNode(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
@@ -21,19 +20,24 @@ def depart_dyn_link_node(self, node):
     pass
 
 
-class ScriptNode(nodes.General, nodes.Element):
+class ScriptNode(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
-def visit_script_node(self, node):
+def visit_generic_node(self, node):
     logger.debug(f"Visiting node: {node} ")
 
 
-def depart_script_node(self, node):
+def depart_generic_node(self, node):
     logger.debug(f"Departing node: {node} ")
 
 
-class DynLinksInMenuListNode(nodes.General, nodes.Element):
+class DynBookmarkNode(docutils.nodes.General, docutils.nodes.Element):
+
+    pass
+
+
+class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
 
     def set_item_list_name(self, item_list_name):
         self.item_list_name = item_list_name
@@ -62,24 +66,24 @@ class DynLinksInMenuListNode(nodes.General, nodes.Element):
     def replace_node_content(self, dyn_link_list, docs_base, dyn_base):
         content = []
         script = ScriptNode()
-        script += nodes.raw('', "\n<script>\n", format='html')
+        script += docutils.nodes.raw('', "\n<script>\n", format='html')
         dyn_links_json = self.dyn_links_as_json(dyn_link_list)
-        script += nodes.raw('', f"const astutusDocname = '{self.docname}';\n", format='html')
-        script += nodes.raw('', f"const astutusDynLinkList = {dyn_links_json};\n", format='html')
-        script += nodes.raw('', f"const astutusDocsBase = '{docs_base}';\n", format='html')
-        script += nodes.raw('', f"const astutusDynBase = '{dyn_base}';\n", format='html')
-        script += nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
-        script += nodes.raw('', "astutusDocname", format='html')
-        script += nodes.raw('', ", astutusDynLinkList", format='html')
-        script += nodes.raw('', ", astutusDocsBase", format='html')
-        script += nodes.raw('', ", astutusDynBase", format='html')
-        script += nodes.raw('', f", {self.dynamic_for_js()}", format='html')
+        script += docutils.nodes.raw('', f"const astutusDocname = '{self.docname}';\n", format='html')
+        script += docutils.nodes.raw('', f"const astutusDynLinkList = {dyn_links_json};\n", format='html')
+        script += docutils.nodes.raw('', f"const astutusDocsBase = '{docs_base}';\n", format='html')
+        script += docutils.nodes.raw('', f"const astutusDynBase = '{dyn_base}';\n", format='html')
+        script += docutils.nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
+        script += docutils.nodes.raw('', "astutusDocname", format='html')
+        script += docutils.nodes.raw('', ", astutusDynLinkList", format='html')
+        script += docutils.nodes.raw('', ", astutusDocsBase", format='html')
+        script += docutils.nodes.raw('', ", astutusDynBase", format='html')
+        script += docutils.nodes.raw('', f", {self.dynamic_for_js()}", format='html')
         if self.item_list_name is not None:
-            script += nodes.raw('', f", {self.item_list_name}", format='html')
+            script += docutils.nodes.raw('', f", {self.item_list_name}", format='html')
         if self.pattern is not None:
-            script += nodes.raw('', f", '{self.pattern}'", format='html')
-        script += nodes.raw('', ");\n", format='html')
-        script += nodes.raw('', "</script>\n", format='html')
+            script += docutils.nodes.raw('', f", '{self.pattern}'", format='html')
+        script += docutils.nodes.raw('', ");\n", format='html')
+        script += docutils.nodes.raw('', "</script>\n", format='html')
         content.append(script)
         self.replace_self(content)
 
@@ -107,35 +111,6 @@ class DynLinksInMenuListNode(nodes.General, nodes.Element):
         return '[' + items_text + ']'
 
 
-def generate_menu_modification(app, doctree, fromdocname):
-    """ Here the data needed for modifying the menu dynamically is added to the page.
-
-    Rather than attempting to change the structure of the menus during document
-    generation, the data needed for that task is dumped into a <script> block
-    in the body of the page.  Then the menu modification Javascript function
-    is called to modify the hrefs in the menus as the page loads.
-
-    This code modifies the menus generated for the toctree directive, at least
-    when used with the Read-the-Docs theme.  At this time it is not clear
-    whether the same menus are used in other themes.
-
-    The actual Javascript code is included in the head of the page
-    using the standard html_js_files configuration variable.
-    """
-    # TODO: Once this is working again, move the addition of the file
-    # to the setup function below.
-    logger.debug("Got to generate_menu_modification")
-    if app.config.astutus_docs_base == '':
-        raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
-    if app.config.astutus_dyn_base == "":
-        raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
-    env = app.builder.env
-    if not hasattr(env, 'dyn_link_list'):
-        env.dyn_link_list = []
-    for node in doctree.traverse(DynLinksInMenuListNode):
-        node.replace_node_content(env.dyn_link_list, app.config.astutus_docs_base, app.config.astutus_dyn_base)
-
-
 class DynLinksInMenuDirective(SphinxDirective):
 
     optional_arguments = 3
@@ -160,6 +135,35 @@ class DynLinksInMenuDirective(SphinxDirective):
         node.set_item_pattern(item_pattern)
         return [node]
 
+    @staticmethod
+    def generate_menu_modification(app, doctree, fromdocname):
+        """ Here the data needed for modifying the menu dynamically is added to the page.
+
+        Rather than attempting to change the structure of the menus during document
+        generation, the data needed for that task is dumped into a <script> block
+        in the body of the page.  Then the menu modification Javascript function
+        is called to modify the hrefs in the menus as the page loads.
+
+        This code modifies the menus generated for the toctree directive, at least
+        when used with the Read-the-Docs theme.  At this time it is not clear
+        whether the same menus are used in other themes.
+
+        The actual Javascript code is included in the head of the page
+        using the standard html_js_files configuration variable.
+        """
+        # TODO: Once this is working again, move the addition of the file
+        # to the setup function below.
+        if app.config.astutus_docs_base == '':
+            raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
+        if app.config.astutus_dyn_base == "":
+            raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
+        env = app.builder.env
+        if not hasattr(env, 'dyn_link_list'):
+            env.dyn_link_list = []
+        for node in doctree.traverse(DynLinksInMenuListNode):
+            logger.debug("Got to generate_menu_modification")
+            node.replace_node_content(env.dyn_link_list, app.config.astutus_docs_base, app.config.astutus_dyn_base)
+
 
 class DynLinkDirective(SphinxDirective):
 
@@ -181,6 +185,28 @@ class DynLinkDirective(SphinxDirective):
         return []
 
 
+class DynBookmarkDirective(SphinxDirective):
+
+    required_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self):
+        logger.warning("DynBookmarkDirective.run")
+        node = DynBookmarkNode('')
+        node.bookmark_pattern = self.arguments[0]
+        return [node]
+
+    @staticmethod
+    def handle_title_modification(app, doctree, fromdocname):
+        """ Hanlde title modification by inserting post processing markup. """
+        for node in doctree.traverse(DynBookmarkNode):
+            logger.debug("DynBookmarkDirective.handle_title_modification")
+            jinja2_bookmark_pattern = node.bookmark_pattern.replace('<', '{{ ').replace('>', ' }}')
+            replacement = f'\n««HTML_TITLE»» {jinja2_bookmark_pattern} ««END_HTML_TITLE»»\n'  # noqa
+            replacement_node = docutils.nodes.raw('', replacement, format='html')
+            node.replace_self(replacement_node)
+
+
 def setup(app):
     app.add_node(
         DynLinkNode,
@@ -191,15 +217,24 @@ def setup(app):
     )
     app.add_node(
         ScriptNode,
-        html=(visit_script_node, depart_script_node)
+        html=(visit_generic_node, depart_generic_node)
+    )
+    app.add_node(
+        DynBookmarkNode,
+        html=(visit_generic_node, depart_generic_node)
     )
     app.add_config_value('astutus_docs_base', '', 'html')
     app.add_config_value('astutus_dyn_base', '', 'html')
     app.add_directive('astutus_dyn_link', DynLinkDirective)
+
     app.add_directive('astutus_dyn_links_in_menus', DynLinksInMenuDirective)
-    app.connect('doctree-resolved', generate_menu_modification)
+    app.connect('doctree-resolved', DynLinksInMenuDirective.generate_menu_modification)
+
+    app.add_directive('astutus_dyn_bookmark', DynBookmarkDirective)
+    app.connect('doctree-resolved', DynBookmarkDirective.handle_title_modification)
+
     return {
-        'version': '0.1',
+        'version': astutus.__version__,
         'parallel_read_safe': True,
         'parallel_write_safe': True,
     }

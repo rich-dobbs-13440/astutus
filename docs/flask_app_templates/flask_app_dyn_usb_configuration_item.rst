@@ -1,7 +1,7 @@
 Device Configuration
 ====================
 
-««HTML_TITLE»» USB Configuration - /astutus/usb/device_configuration/{{ nodeid }} ««END_HTML_TITLE»»
+.. astutus_dyn_bookmark:: USB Configuration - /astutus/usb/device_configuration/{{ nodeid }}
 
 .. warning::  This page is under construction and can't be used to modify configurations.
 

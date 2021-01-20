@@ -13,6 +13,6 @@ USB Devices
 
 .. astutus_dyn_links_in_menus::
 
-««HTML_TITLE»» USB - /astutus/usb ««END_HTML_TITLE»»
+.. astutus_dyn_bookmark:: USB - /astutus/usb
 
 ««DESTINATION»» usb/dyn_usb.html ««END_DESTINATION»»

@@ -1,7 +1,7 @@
 USB Aliases
 ===========
 
-««HTML_TITLE»» USB Aliases - /astutus/alias ««END_HTML_TITLE»»
+.. astutus_dyn_bookmark:: USB Aliases - /astutus/alias
 
 ««DESTINATION»» usb/dyn_alias.html ««END_DESTINATION»»
 

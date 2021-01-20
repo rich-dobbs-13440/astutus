@@ -10,7 +10,7 @@ a lot of investment in custom styling.  It provides a high degree of
 integration between end user functionality, system documentation, and
 development planning and execution.
 
-««HTML_TITLE»» Astutus Dynamic Pages - /astutus ««END_HTML_TITLE»»
+.. astutus_dyn_bookmark:: Astutus Dynamic Pages - /astutus
 
 .. toctree::
     :caption: Current Capabilities:

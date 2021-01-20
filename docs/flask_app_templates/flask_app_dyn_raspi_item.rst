@@ -1,7 +1,7 @@
 Raspberry Pi
 ============
 
-««HTML_TITLE»» Raspberry Pi's - /astutus/raspi/{{idx}} ««END_HTML_TITLE»»
+.. astutus_dyn_bookmark:: Raspberry Pi's - /astutus/raspi/{{idx}}
 
 ««DESTINATION»» raspi/dyn_raspi_item.html ««END_DESTINATION»»
 
