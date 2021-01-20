@@ -17,7 +17,7 @@ Soon, these links should allow you to make local customizations.
 
 .. astutus_dyn_bookmark:: USB Device Configurations - /astutus/usb/device_configurations
 
-.. astutus_dyn_destination:: usb/dyn_device_configurations.html
+.. astutus_dyn_destination:: astutus/usb/dyn_device_configurations.html
 
 .. astutus_dyn_include:: usb/device_configurations.html
 
@@ -26,7 +26,7 @@ Soon, these links should allow you to make local customizations.
 .. toctree::
     :hidden:
 
-    dyn_usb_configuration_item
+    configuration_item
 
 .. astutus_dyn_include:: usb/config_items_list_js.html
 

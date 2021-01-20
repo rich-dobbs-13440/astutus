@@ -81,17 +81,18 @@ class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
         script += docutils.nodes.raw('', f"const astutusDynLinkList = {dyn_links_json};\n", format='html')
         script += docutils.nodes.raw('', f"const astutusDocsBase = '{docs_base}';\n", format='html')
         script += docutils.nodes.raw('', f"const astutusDynBase = '{dyn_base}';\n", format='html')
-        script += docutils.nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
-        script += docutils.nodes.raw('', "astutusDocname", format='html')
-        script += docutils.nodes.raw('', ", astutusDynLinkList", format='html')
-        script += docutils.nodes.raw('', ", astutusDocsBase", format='html')
-        script += docutils.nodes.raw('', ", astutusDynBase", format='html')
-        script += docutils.nodes.raw('', f", {self.dynamic_for_js()}", format='html')
-        if self.item_list_name is not None:
-            script += docutils.nodes.raw('', f", {self.item_list_name}", format='html')
-        if self.pattern is not None:
-            script += docutils.nodes.raw('', f", '{self.pattern}'", format='html')
-        script += docutils.nodes.raw('', ");\n", format='html')
+
+        # script += docutils.nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
+        # script += docutils.nodes.raw('', "astutusDocname", format='html')
+        # script += docutils.nodes.raw('', ", astutusDynLinkList", format='html')
+        # script += docutils.nodes.raw('', ", astutusDocsBase", format='html')
+        # script += docutils.nodes.raw('', ", astutusDynBase", format='html')
+        # script += docutils.nodes.raw('', f", {self.dynamic_for_js()}", format='html')
+        # if self.item_list_name is not None:
+        #     script += docutils.nodes.raw('', f", {self.item_list_name}", format='html')
+        # if self.pattern is not None:
+        #     script += docutils.nodes.raw('', f", '{self.pattern}'", format='html')
+        # script += docutils.nodes.raw('', ");\n", format='html')
         script += docutils.nodes.raw('', "</script>\n", format='html')
         content.append(script)
         self.replace_self(content)

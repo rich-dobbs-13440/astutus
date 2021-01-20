@@ -44,7 +44,7 @@ def get_config_items_list_as_json():
     return json.dumps(items_list)
 
 
-@usb_page.route('/astutus/usb', methods=['GET'])
+@usb_page.route('/astutus/usb/index.html', methods=['GET'])
 def handle_usb():
     if flask.request.method == 'GET':
         breadcrumbs_list = [

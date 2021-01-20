@@ -50,7 +50,7 @@ def display_raspi_find(*, search_result, filter):
         raspi_items_list=get_items_list_as_json())
 
 
-@raspi_page.route('/astutus/raspi', methods=['POST', 'GET'])
+@raspi_page.route('/astutus/raspi/index.html', methods=['POST', 'GET'])
 def handle_raspi():
     """ raspi_page.route('/astutus/raspi', methods=['POST', 'GET']) """
     if flask.request.method == 'GET':
@@ -67,7 +67,7 @@ def handle_raspi():
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         return flask.render_template(
-            'raspi/dyn_raspi.html',
+            'astutus/raspi/dyn_raspi.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             filter=["Raspberry"],

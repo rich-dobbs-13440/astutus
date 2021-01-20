@@ -21,7 +21,7 @@ Introduction
 
    welcome
    changes
-   dyn_pages/dyn_index
+   dyn_pages/astutus/index
    roadmap_to_documentation
    maintanence/guidelines
    source/modules

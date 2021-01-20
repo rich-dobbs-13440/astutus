@@ -85,11 +85,11 @@ def tojson_pretty_jinja2_template_file(json_text):
 @app.route('/')
 def handle_top():
     """ app.route('/') """
-    return flask.redirect(flask.url_for("handle_astutus"))
+    return flask.redirect(flask.url_for("handle_app_index"))
 
 
-@app.route('/astutus')
-def handle_astutus():
+@app.route('/astutus/index.html')
+def handle_app_index():
 
     """ app.route('/astutus') """
     breadcrumbs_list = [
@@ -128,8 +128,8 @@ def handle_doc_top():
 @app.route('/astutus/doc/dyn_pages/<path:path>')
 def handle_doc_reference_to_dyn_page(path):
     if path == 'dyn_index.html':
-        return flask.redirect(flask.url_for('handle_astutus'))
-    return path, HTTPStatus.NOT_IMPLEMENTED
+        return flask.redirect(flask.url_for('handle_app_index'))
+    return flask.redirect("/" + path)
 
 
 @app.route('/astutus/doc/<path:path>')

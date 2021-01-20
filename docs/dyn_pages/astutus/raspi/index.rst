@@ -1,7 +1,7 @@
 Raspberry Pi's
 ==============
 
-.. astutus_dyn_destination:: raspi/dyn_raspi.html
+.. astutus_dyn_destination:: astutus/raspi/dyn_raspi.html
 .. astutus_dyn_bookmark:: Raspberry Pi's  - /astutus/raspi
 
 Adopted Pi's
@@ -9,7 +9,7 @@ Adopted Pi's
 
 .. toctree::
 
-    dyn_raspi_item
+    item
 
 
 Search for Pi's on LAN
@@ -19,7 +19,7 @@ Search for Pi's on LAN
 
 .. astutus_dyn_include:: raspi/raspi_search_results.html
 
-.. astutus_dyn_link:: "/astutus/raspi"
+.. astutus_dyn_link:: "/astutus/raspi/index.html"
 
 .. astutus_dyn_include:: raspi/items_list_js.html
 

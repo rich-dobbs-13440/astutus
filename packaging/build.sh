@@ -31,7 +31,7 @@ cd "${REPOPATH}"
 rm -rf src/astutus/web/static/_docs
 cp -r docs/_build/html src/astutus/web/static/_docs
 cd "$this_dir"
-./prepare_dyn_jinja2_templates.py
+./transfer_styled_templates.py
 
 
 mark_sub_section "Build Package"

@@ -196,8 +196,7 @@ def process_dynamic_template(input_path, output_basepath):
     output_path = os.path.join(output_basepath, output_relative_filepath)
 
     output_dir = os.path.dirname(output_path)
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
     with open(output_path, "w") as output_file:
         output_file.write(html_text)
     print(f"INFO: Wrote out file output_path: {output_path}\n")
@@ -210,7 +209,7 @@ def post_process(app, exception):
     source_dir = pathlib.Path(app.outdir) / app.config.astutus_dyn_pages_dir
     logger.warn(f"source_dir: {source_dir}")
     destin_dir = pathlib.Path(app.outdir).parent / app.config.astutus_dynamic_templates
-    os.makedirs(destin_dir)
+    os.makedirs(destin_dir, exist_ok=True)
     logger.warn(f"destin_dir: {destin_dir}")
 
     for dirpath, dirnames, filenames in os.walk(source_dir):
