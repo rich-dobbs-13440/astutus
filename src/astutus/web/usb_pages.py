@@ -235,7 +235,7 @@ def handle_usb_device():
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
 
 
-@usb_page.route('/astutus/usb/alias', methods=['GET'])
+@usb_page.route('/astutus/usb/alias.html', methods=['GET'])
 def handle_usb_alias():
     if flask.request.method == 'GET':
         breadcrumbs_list = [
@@ -318,7 +318,7 @@ def handle_usb_alias_item(nodepath):
         return flask.redirect(flask.url_for('usb.handle_usb_alias'))
 
 
-@usb_page.route('/astutus/usb/configuration', methods=['GET'])
+@usb_page.route('/astutus/usb/configuration.html', methods=['GET'])
 def handle_usb_configuration():
     if flask.request.method == 'GET':
         breadcrumbs_list = [

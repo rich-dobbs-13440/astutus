@@ -17,5 +17,5 @@ help:
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
-	sphinx-apidoc -d 6 -o source/ ../src/astutus
+	sphinx-apidoc -d 6 -o astutus/doc/source/ ../src/astutus
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

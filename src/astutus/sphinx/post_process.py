@@ -102,7 +102,7 @@ def apply_line_oriented_replacements(html_text):
             # Send back the discovered output file in the regular output
             # return channels as an HTML comment.
             add_to_output(f'<!-- DYNAMIC_TEMPLATE_OUTPUT_FILE {filename} -->')
-        elif '<link rel="search" title="Search" href="../search.html" />' in line:
+        elif '<link rel="search" title="Search" href="' in line:
             # src/astutus/web/static/_docs/search.html
             add_to_output('<link rel="search" title="Search" href="/static/_docs/search.html" />')
         elif 'action="../search.html"' in line:
@@ -120,6 +120,17 @@ def apply_line_oriented_replacements(html_text):
                 add_to_output(line)
         elif '««HTML_TITLE»»' in line:
             pass
+        elif '/_static/' in line:
+            pattern = r"\"(\.\.\/)*_static/"
+            # TODO: this should be dependent on a config variable!
+            subst = "\"/static/_docs/_static/"
+            modified_line = re.sub(pattern, subst, line, 1)
+            add_to_output(modified_line)
+        elif '/doc/' in line:
+            # TODO: this should be dependent on a config variable!
+            pattern = r"\"(\.\.\/)*astutus/doc/"
+            subst = "\"/astutus/doc/"
+            modified_line = re.sub(pattern, subst, line, 1)
         else:
             add_to_output(line)
     return "\n".join(output_lines)
@@ -169,14 +180,14 @@ def process_dynamic_template(input_path, output_basepath):
     with open(input_path, "r") as input_file:
         html_text = input_file.read()
 
-    replacements = [
-        ("../_static/", "{{ static_base }}/"),
-        ("../index.html", "/astutus/doc/index.html"),
-    ]
+    # replacements = [
+    #     ("../_static/", "{{ static_base }}/"),
+    #     ("../index.html", "/astutus/doc/index.html"),
+    # ]
 
-    for replacement in replacements:
-        old, new = replacement
-        html_text = html_text.replace(old, new)
+    # for replacement in replacements:
+    #     old, new = replacement
+    #     html_text = html_text.replace(old, new)
 
     html_text = prepare_breadcrumbs_navigation(html_text)
     html_text = apply_line_oriented_replacements(html_text)
