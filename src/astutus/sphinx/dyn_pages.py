@@ -70,7 +70,7 @@ class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
         script += docutils.nodes.raw('', "\n<script>\n", format='html')
         dyn_links_json = self.dyn_links_as_json(dyn_link_list)
         script += docutils.nodes.raw('', f"const astutusDocname = '{self.docname}';\n", format='html')
-        script += docutils.nodes.raw('', f"const astutusDynLinkList = {dyn_links_json};\n", format='html')
+        script += docutils.nodes.raw('', f"const astutusDynLinkList = \n{dyn_links_json};\n", format='html')
         script += docutils.nodes.raw('', f"const astutusDocsBase = '{docs_base}';\n", format='html')
         script += docutils.nodes.raw('', f"const astutusDynBase = '{dyn_base}';\n", format='html')
         script += docutils.nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
