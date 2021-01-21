@@ -4,6 +4,14 @@ astutus.util package
 Submodules
 ----------
 
+astutus.util.pci module
+-----------------------
+
+.. automodule:: astutus.util.pci
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 astutus.util.term\_color module
 -------------------------------
 
