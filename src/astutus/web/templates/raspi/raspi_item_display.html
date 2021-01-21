@@ -30,7 +30,7 @@ function patchThisRaspberryPi(idx, action, action_text) {
             alert(err_msg)
         }
     };
-    xhr.open('PATCH', `/astutus/raspi/${idx}`);
+    xhr.open('PATCH', `/astutus/app/raspi/${idx}`);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify(data));
 }

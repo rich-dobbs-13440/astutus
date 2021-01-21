@@ -1,7 +1,7 @@
 USB Devices
 ================
 
-.. astutus_dyn_link:: "/astutus/usb"
+.. astutus_dyn_link:: "/astutus/app/usb/index.html"
 
 .. toctree::
     :maxdepth: 1

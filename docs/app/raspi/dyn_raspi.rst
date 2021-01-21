@@ -8,8 +8,9 @@ Adopted Pi's
 ------------
 
 .. toctree::
+    :maxdepth: 1
 
-    dyn_raspi_item
+    idx/dyn_raspi_item
 
 
 Search for Pi's on LAN
@@ -19,8 +20,8 @@ Search for Pi's on LAN
 
 .. astutus_dyn_include:: raspi/raspi_search_results.html
 
-.. astutus_dyn_link:: "/astutus/raspi"
+.. astutus_dyn_link:: "/astutus/app/raspi/index.html"
 
 .. astutus_dyn_include:: raspi/items_list_js.html
 
-.. astutus_dyn_links_in_menus:: dynamic raspi_items_list <idx>
+.. astutus_dyn_links_in_menus:: raspi_items_list <idx>

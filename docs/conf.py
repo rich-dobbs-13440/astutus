@@ -83,6 +83,6 @@ def setup(app):
 html_js_files = ['astutus_dynamic_sphinx_pages.js']
 
 # Options for the Astutus dynamic pages custom extension.
-astutus_dyn_pages_dir = "dyn_pages"  # relative to the configuration directory.
+astutus_dyn_pages_dir = "app"  # relative to the configuration directory.
 astutus_docs_base = "/astutus/doc"  # web app URL path
 astutus_dyn_base = "/astutus"  # web app URL path to get to top of dynamic pages.

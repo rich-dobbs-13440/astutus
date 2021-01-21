@@ -11,7 +11,12 @@ static_base = None
 log_page = flask.Blueprint('log', __name__, template_folder='templates')
 
 
-@log_page.route('/astutus/log', methods=['GET'])
+@log_page.route('/astutus/app/log/dyn_log.html', methods=['GET'])
+def handle_log_from_doc():
+    return flask.redirect(flask.url_for("log.handle_log"))
+
+
+@log_page.route('/astutus/app/log/index.html', methods=['GET'])
 def handle_log():
     """ log_page.route('/astutus/log', methods=[GET']) """
     if flask.request.method == 'GET':

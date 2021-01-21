@@ -1,9 +1,9 @@
 Astutus From the Browser
 ========================
 
-.. astutus_dyn_link:: "/astutus"
+.. astutus_dyn_link:: "/astutus/app/index.html"
 
-.. astutus_dyn_destination:: dyn_astutus.html
+.. astutus_dyn_destination:: dyn_index.html
 
 Astutus uses a custom extension to Sphinx to provide dynamic HTML pages.
 This approach makes it easy to add instructions and guidance functional
@@ -18,8 +18,8 @@ development planning and execution.
     :caption: Current Capabilities:
     :maxdepth: 2
 
-    dyn_raspi
-    dyn_usb
-    dyn_log
+    raspi/dyn_raspi
+    usb/dyn_usb
+    log/dyn_log
 
 .. astutus_dyn_links_in_menus::

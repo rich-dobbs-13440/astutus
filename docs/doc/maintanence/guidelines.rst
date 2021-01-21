@@ -8,7 +8,7 @@ Guidelines for Maintaining the System
     packaging
     documenting
     developer_notes
-    ../templates/template_index
-    ../readme
+    templates
+    readme
     macosx
     smakn_usb_relay

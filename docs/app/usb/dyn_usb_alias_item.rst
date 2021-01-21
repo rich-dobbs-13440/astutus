@@ -9,8 +9,8 @@ Device Alias
 
 .. astutus_dyn_include:: delete_item_form.html
 
-.. astutus_dyn_link:: "/astutus/usb/alias/<path>"
+.. astutus_dyn_link:: "/astutus/app/usb/alias/<path>/index.html"
 
 .. astutus_dyn_include:: usb/alias_items_list_js.html
 
-.. astutus_dyn_links_in_menus:: dynamic alias_items_list <path>
+.. astutus_dyn_links_in_menus:: alias_items_list <path>

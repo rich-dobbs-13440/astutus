@@ -23,7 +23,7 @@ the challenges of the USB implementation:
 
 .. astutus_dyn_include:: usb/device_aliases.html
 
-.. astutus_dyn_link:: "/astutus/usb/alias"
+.. astutus_dyn_link:: "/astutus/app/usb/alias.html"
 
 .. toctree::
     :hidden:
@@ -32,4 +32,4 @@ the challenges of the USB implementation:
 
 .. astutus_dyn_include:: usb/alias_items_list_js.html
 
-.. astutus_dyn_links_in_menus:: dynamic alias_items_list <path>
+.. astutus_dyn_links_in_menus:: alias_items_list <path>

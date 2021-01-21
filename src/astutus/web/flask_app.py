@@ -20,9 +20,8 @@ Maintainence note:
 """
 import json
 import logging
-import os
 import sqlite3
-from http import HTTPStatus
+# from http import HTTPStatus
 
 import astutus.db
 import astutus.log
@@ -32,6 +31,7 @@ import astutus.web.flask_app
 import astutus.web.log_pages
 import astutus.web.raspi_pages
 import astutus.web.usb_pages
+import astutus.web.doc_pages
 import flask
 import flask.logging
 
@@ -56,6 +56,8 @@ def create_app_and_db(static_base):
             app.register_blueprint(astutus.web.log_pages.log_page)
             astutus.web.log_pages.static_base = static_base
             astutus.web.log_pages.db = db
+            app.register_blueprint(astutus.web.doc_pages.doc_page)
+            astutus.web.doc_pages.doc_page.root_path = app.root_path
             # Handle logging configuration
             flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
             level_by_logger_name = {}
@@ -88,7 +90,12 @@ def handle_top():
     return flask.redirect(flask.url_for("handle_astutus"))
 
 
-@app.route('/astutus')
+@app.route('/astutus/app/dyn_index.html', methods=['GET'])
+def handle_app_index_from_doc():
+    return flask.redirect(flask.url_for("handle_astutus"))
+
+
+@app.route('/astutus/app/index.html')
 def handle_astutus():
 
     """ app.route('/astutus') """
@@ -104,43 +111,10 @@ def handle_astutus():
     ]
     links = "\n".join(links_list)
     return flask.render_template(
-        'dyn_astutus.html',
+        'dyn_index.html',
         static_base=static_base,
         breadcrumbs_list_items=breadcrumbs_list_items,
         links=links)
-
-
-@app.route('/astutus/doc')
-def handle_doc():
-    """ @app.route('/astutus/doc') """
-    return flask.redirect(flask.url_for("handle_doc_top"))
-
-
-@app.route('/astutus/doc/index.html')
-def handle_doc_top():
-    """ app.route('/astutus/doc/index.html') """
-    logger.debug(f"app.root_path: {app.root_path}")
-    directory = os.path.join(app.root_path, 'static', '_docs')
-    print(f"directory: {directory}")
-    return flask.send_from_directory(directory, 'index.html')
-
-
-@app.route('/astutus/doc/dyn_pages/<path:path>')
-def handle_doc_reference_to_dyn_page(path):
-    if path == 'dyn_index.html':
-        return flask.redirect(flask.url_for('handle_astutus'))
-    return path, HTTPStatus.NOT_IMPLEMENTED
-
-
-@app.route('/astutus/doc/<path:path>')
-def handle_doc_path(path):
-    """ app.route('/astutus/doc/<path:path>') """
-    print(f"path: {path}")
-    # print(f"filename: {filename}")
-    logger.debug(f"app.root_path: {app.root_path}")
-    real_path = os.path.join(app.root_path, 'static', '_docs', path)
-    print(f"real_directory: {real_path}")
-    return flask.send_file(real_path)
 
 
 def run_with_standard_options():

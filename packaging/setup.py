@@ -31,6 +31,9 @@ def get_package_data_list(root_dir, dirname):
             continue
         if '__pycache__' in item:
             continue
+        if item == 'wheels':
+            items.append(os.path.join(item, 'purpose.txt'))
+            continue
         items.append(os.path.join(item, '*'))
     return items
 
@@ -51,6 +54,7 @@ setuptools.setup(
         'astutus.log',
         'astutus.web',
         'astutus.raspi',
+        'astutus.sphinx',
         'astutus.usb',
         'astutus.util',
         'astutus.wheels',
