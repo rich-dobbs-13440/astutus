@@ -1,8 +1,8 @@
-import pathlib
 import os
+import pathlib
+import re
 
 import sphinx.util
-import re
 
 logger = sphinx.util.logging.getLogger(__name__)
 
@@ -143,6 +143,7 @@ def indent_html_text(html_text):
     output_chunks = []
     nesting = 0
     indent = "  "
+    state = 'regular'
     for line in html_text.splitlines():
         # In case head is messed up, get things back to sanity.
         if '<body' in line:
@@ -151,17 +152,18 @@ def indent_html_text(html_text):
             output_chunks.append(indent * nesting)
         output_chunks.append(line)
         output_chunks.append("\n")
-        nesting += line.count("<")
-        nesting -= line.count("</") * 2
-        nesting -= line.count("/>")
+        if state == 'regular':
+            nesting += line.count("<")
+            nesting -= line.count("</") * 2
+            nesting -= line.count("/>")
+        if line == '<script>':
+            state = 'in_script'
+        elif line == '</script>':
+            nesting -= 1
+            state = 'regular'
         if '<!DOCTYPE html>' in line:
             nesting = 0
     return "".join(output_chunks)
-
-# from lxml import etree, html
-
-# document_root = html.fromstring("<html><body><h1>hello world</h1></body></html>")
-# print(etree.tostring(document_root, encoding='unicode', pretty_print=True))
 
 
 def process_dynamic_template(input_path, output_basepath):
