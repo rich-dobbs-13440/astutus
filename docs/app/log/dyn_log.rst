@@ -1,10 +1,8 @@
 Control Logging
 ===============
 
-.. astutus_dyn_link:: "/astutus/log"
+.. astutus_dyn_link:: "/astutus/app/log/index.html"
 
-.. toctree::
-    :caption: Contents:
 
 .. astutus_dyn_links_in_menus::
 

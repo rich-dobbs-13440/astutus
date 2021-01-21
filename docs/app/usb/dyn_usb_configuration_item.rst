@@ -15,7 +15,7 @@ Device Configuration
 
 .. astutus_dyn_include:: delete_item_form.html
 
-.. astutus_dyn_link:: "/astutus/usb/configuration/<idx>"
+.. astutus_dyn_link:: "/astutus/app/usb/configuration/<idx>/index.html"
 
 .. astutus_dyn_include:: usb/config_items_list_js.html
 

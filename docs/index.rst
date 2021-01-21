@@ -19,6 +19,6 @@ Introduction
    :maxdepth: 2
    :caption: Table of Contents:
 
-   app/index
+   app/dyn_index
    doc/index
 

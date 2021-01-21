@@ -50,6 +50,11 @@ def display_raspi_find(*, search_result, filter):
         raspi_items_list=get_items_list_as_json())
 
 
+@raspi_page.route('/astutus/app/raspi/dyn_raspi.html', methods=['GET'])
+def handle_raspi_from_doc():
+    return flask.redirect(flask.url_for("raspi.handle_raspi"))
+
+
 @raspi_page.route('/astutus/app/raspi/index.html', methods=['POST', 'GET'])
 def handle_raspi():
     if flask.request.method == 'GET':

@@ -90,6 +90,11 @@ def handle_top():
     return flask.redirect(flask.url_for("handle_astutus"))
 
 
+@app.route('/astutus/app/dyn_index.html', methods=['GET'])
+def handle_app_index_from_doc():
+    return flask.redirect(flask.url_for("handle_astutus"))
+
+
 @app.route('/astutus/app/index.html')
 def handle_astutus():
 

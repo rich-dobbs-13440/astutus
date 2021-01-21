@@ -38,16 +38,11 @@ def handle_doc_path(path):
     logger.debug(f"real_path: {real_path}")
     return flask.send_file(real_path)
 
-# @doc_page.route('/astutus/doc')
-# def handle_doc():
-#     """ @app.route('/astutus/doc') """
-#     return flask.redirect(flask.url_for("handle_doc_top"))
 
-
-# @doc_page.route('/astutus/doc/index.html')
-# def handle_doc_top():
-#     """ app.route('/astutus/doc/index.html') """
-#     logger.debug(f"app.root_path: {app.root_path}")
-#     directory = os.path.join(app.root_path, 'static', '_docs')
-#     print(f"directory: {directory}")
-#     return flask.send_from_directory(directory, 'index.html')
+@doc_page.route('/astutus/index.html')
+def handle_top_index():
+    # print(f"filename: {filename}")
+    logger.debug(f"app.root_path: {doc_page.root_path}")
+    real_path = os.path.join(doc_page.root_path, 'html', 'index.html')
+    logger.debug(f"real_path: {real_path}")
+    return flask.send_file(real_path)

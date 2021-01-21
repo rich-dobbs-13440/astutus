@@ -1,7 +1,7 @@
 Astutus From the Browser
 ========================
 
-.. astutus_dyn_link:: "/astutus"
+.. astutus_dyn_link:: "/astutus/app/index.html"
 
 .. astutus_dyn_destination:: dyn_index.html
 
@@ -19,7 +19,7 @@ development planning and execution.
     :maxdepth: 2
 
     raspi/dyn_raspi
-    dyn_usb
-    dyn_log
+    usb/dyn_usb
+    log/dyn_log
 
 .. astutus_dyn_links_in_menus::

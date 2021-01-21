@@ -120,6 +120,11 @@ def apply_line_oriented_replacements(html_text):
                 add_to_output(line)
         elif '««HTML_TITLE»»' in line:
             pass
+        elif '../_static/' in line:
+            pattern = r"\"(\.\.\/)*_static/"
+            subst = "\"/astutus/_static/"
+            modified_line = re.sub(pattern, subst, line)
+            add_to_output(modified_line)
         else:
             add_to_output(line)
     return "\n".join(output_lines)

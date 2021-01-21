@@ -21,7 +21,7 @@ Soon, these links should allow you to make local customizations.
 
 .. astutus_dyn_include:: usb/device_configurations.html
 
-.. astutus_dyn_link:: "/astutus/usb/configuration"
+.. astutus_dyn_link:: "/astutus/app/usb/configuration.html"
 
 .. toctree::
     :hidden:
