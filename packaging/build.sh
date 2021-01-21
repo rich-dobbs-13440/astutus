@@ -28,10 +28,10 @@ cd "${REPOPATH}/docs"
 # make html SPHINXOPTS="-W --keep-going -n"
 make html
 cd "${REPOPATH}"
-rm -rf src/astutus/web/static/_docs
-cp -r docs/_build/html src/astutus/web/static/_docs
+rm -rf src/astutus/web/html
+cp -r docs/_build/html src/astutus/web/html
 cd "$this_dir"
-./prepare_dyn_jinja2_templates.py
+./transfer_styled_templates.py
 
 
 mark_sub_section "Build Package"
