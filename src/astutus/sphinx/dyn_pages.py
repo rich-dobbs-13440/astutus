@@ -54,23 +54,15 @@ class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
     def set_item_pattern(self, pattern):
         self.pattern = pattern
 
-    def set_dynamic(self, dynamic):
-        if dynamic is None:
-            # Defaults to being dynamic.
-            self.dynamic = True
-        elif dynamic == 'dynamic':
-            self.dynamic = True
-        elif dynamic == 'not_dynamic':
-            self.dynamic = False
+    def set_replace_replace_inner_html(self, replace_inner_html):
+        if replace_inner_html is None:
+            self.replace_inner_html = True
+        elif replace_inner_html == "false":
+            self.replace_inner_html = False
+        elif replace_inner_html == "true":
+            self.replace_inner_html = True
         else:
-            raise ValueError(f"Expecting None, 'dynamic' or 'not_dynamic', got {dynamic}")
-
-    def dynamic_for_js(self):
-        """ Convert to true or false, from Python boolean"""
-        if self.dynamic:
-            return "true"
-        else:
-            return "false"
+            raise ValueError("Expecting 'true' or 'false'")
 
     def replace_node_content(self, dyn_link_list, docs_base, dyn_base):
         content = []
@@ -86,11 +78,12 @@ class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
         script += docutils.nodes.raw('', ", astutusDynLinkList", format='html')
         script += docutils.nodes.raw('', ", astutusDocsBase", format='html')
         script += docutils.nodes.raw('', ", astutusDynBase", format='html')
-        script += docutils.nodes.raw('', f", {self.dynamic_for_js()}", format='html')
         if self.item_list_name is not None:
             script += docutils.nodes.raw('', f", {self.item_list_name}", format='html')
-        if self.pattern is not None:
-            script += docutils.nodes.raw('', f", '{self.pattern}'", format='html')
+            if self.pattern is not None:
+                script += docutils.nodes.raw('', f", '{self.pattern}'", format='html')
+                if self.replace_inner_html is False:
+                    script += docutils.nodes.raw('', ", false", format='html')
         script += docutils.nodes.raw('', ");\n", format='html')
         script += docutils.nodes.raw('', "</script>\n", format='html')
         content.append(script)
@@ -128,20 +121,20 @@ class DynLinksInMenuDirective(SphinxDirective):
         node = DynLinksInMenuListNode('')
         node.docname = self.env.docname
         if len(self.arguments) > 0:
-            dynamic = self.arguments[0]
-        else:
-            dynamic = 'dynamic'
-        node.set_dynamic(dynamic)
-        if len(self.arguments) > 1:
-            item_list_name = self.arguments[1]
+            item_list_name = self.arguments[0]
         else:
             item_list_name = None
         node.set_item_list_name(item_list_name)
-        if len(self.arguments) > 2:
-            item_pattern = self.arguments[2]
+        if len(self.arguments) > 1:
+            item_pattern = self.arguments[1]
         else:
-            item_pattern = '<idx>'
+            item_pattern = None
         node.set_item_pattern(item_pattern)
+        if len(self.arguments) > 2:
+            replace_inner_html = self.arguments[2]
+        else:
+            replace_inner_html = None
+        node.set_replace_replace_inner_html(replace_inner_html)
         return [node]
 
     @staticmethod

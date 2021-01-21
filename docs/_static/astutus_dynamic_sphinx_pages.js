@@ -11,7 +11,7 @@ var astutusDynPage = {
         return replacementUrl.replace(itemPattern, itemValue);
     },
 
-    replaceForItemList: function(element, link, sectionHash, itemPattern, itemList) {
+    replaceForItemList: function(element, link, sectionHash, itemPattern, itemList, replaceInnerHtml) {
         if (itemList.length == 0) {
             // Remove the entire ul, since it has no items.
             var li = element.parentElement;
@@ -37,14 +37,14 @@ var astutusDynPage = {
                 aElement = liClone.getElementsByTagName('A')[0];
             }
             aElement.href = replacementUrl + sectionHash;
-            if (link['replacement_url'].endsWith(itemPattern)) {
+            if (replaceInnerHtml) {
                 aElement.innerHTML = item['innerHTML'];
             }
         }
         return false;
     },
 
-    replaceHrefs: function (docName, menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern) {
+    replaceHrefs: function (docName, menuLinks, dynLinkList, docsBase, dynBase, itemList, itemPattern, replaceInnerHtml) {
         if (itemList != undefined) {
             if (itemPattern == undefined) {
                 itemPattern = '<idx>';
@@ -54,12 +54,8 @@ var astutusDynPage = {
             const rawHref = aElement.getAttribute("href");
             const originalHref = aElement.href;
             var href;
-            if (isDynamic) {
-                if (rawHref.startsWith("#")) {
-                    href = docName + rawHref
-                } else {
-                    href = rawHref;
-                }
+            if (rawHref.startsWith("#")) {
+                href = docName + rawHref
             } else {
                 href = rawHref;
             }
@@ -74,7 +70,7 @@ var astutusDynPage = {
             for (link of dynLinkList) {
                 if (href.includes(link['search_pattern'])) {
                     if (astutusDynPage.linkHasItems(link, itemPattern)) {
-                        removed = astutusDynPage.replaceForItemList(aElement, link, sectionHash, itemPattern, itemList)
+                        removed = astutusDynPage.replaceForItemList(aElement, link, sectionHash, itemPattern, itemList, replaceInnerHtml)
                         console.log()
                     } else {
                         replacementUrl = link['replacement_url']
@@ -102,11 +98,14 @@ var astutusDynPage = {
         });
     },
 
-    applyDynamicLinks: function (docName, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern) {
+    applyDynamicLinks: function (docName, dynLinkList, docsBase, dynBase, itemList, itemPattern, replaceInnerHtml) {
+        if (replaceInnerHtml == undefined) {
+            replaceInnerHtml = true;
+        }
         var menuLinks = document.querySelectorAll("div.toctree-wrapper ul li a");
-        astutusDynPage.replaceHrefs(docName, menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern);
+        astutusDynPage.replaceHrefs(docName, menuLinks, dynLinkList, docsBase, dynBase, itemList, itemPattern, replaceInnerHtml);
         menuLinks = document.querySelectorAll("div.wy-menu-vertical ul li a");
-        astutusDynPage.replaceHrefs(docName, menuLinks, dynLinkList, docsBase, dynBase, isDynamic, itemList, itemPattern);
+        astutusDynPage.replaceHrefs(docName, menuLinks, dynLinkList, docsBase, dynBase, itemList, itemPattern, replaceInnerHtml);
     }
 
 }

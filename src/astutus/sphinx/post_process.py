@@ -169,15 +169,6 @@ def process_dynamic_template(input_path, output_basepath):
     with open(input_path, "r") as input_file:
         html_text = input_file.read()
 
-    replacements = [
-        ("../_static/", "{{ static_base }}/"),
-        ("../index.html", "/astutus/doc/index.html"),
-    ]
-
-    for replacement in replacements:
-        old, new = replacement
-        html_text = html_text.replace(old, new)
-
     html_text = prepare_breadcrumbs_navigation(html_text)
     html_text = apply_line_oriented_replacements(html_text)
     html_text = indent_html_text(html_text)

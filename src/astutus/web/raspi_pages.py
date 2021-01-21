@@ -50,9 +50,8 @@ def display_raspi_find(*, search_result, filter):
         raspi_items_list=get_items_list_as_json())
 
 
-@raspi_page.route('/astutus/raspi', methods=['POST', 'GET'])
+@raspi_page.route('/astutus/app/raspi/index.html', methods=['POST', 'GET'])
 def handle_raspi():
-    """ raspi_page.route('/astutus/raspi', methods=['POST', 'GET']) """
     if flask.request.method == 'GET':
         if flask.request.args.get("action") == "seach_using_nmap":
             logger.debug("Go to process_raspi_find_form")
@@ -86,9 +85,8 @@ def handle_raspi():
         return "Case not handled", HTTPStatus.NOT_IMPLEMENTED
 
 
-@raspi_page.route('/astutus/raspi/<int:idx>', methods=['PATCH', 'GET', 'DELETE'])
-def handle_raspi_item(idx):
-    """ raspi_page.route('/astutus/raspi/<int:idx>', methods=['POST', 'GET', 'DELETE']) """
+@raspi_page.route('/astutus/app/raspi/<int:idx>', methods=['PATCH'])
+def handle_raspi_item_rest(idx):
     if flask.request.method == 'PATCH':
         request_data = flask.request.get_json(force=True)
         action = request_data.get('action')
@@ -116,12 +114,16 @@ def handle_raspi_item(idx):
             return web_results, HTTPStatus.ACCEPTED
 
         raise NotImplementedError(f"The action '{action}'' is not handled.")
+
+
+@raspi_page.route('/astutus/app/raspi/<int:idx>/index.html', methods=['GET', 'DELETE'])
+def handle_raspi_item(idx):
     if flask.request.method == 'DELETE':
         item = astutus.db.RaspberryPi.query.get(idx)
         db.session.delete(item)
         db.session.commit()
         data = {
-            "redirect_url": "/astutus/raspi"
+            "redirect_url": "/astutus/app/raspi/index.html"
         }
         return data, HTTPStatus.ACCEPTED
     if flask.request.method == 'GET':
@@ -145,7 +147,7 @@ def handle_raspi_item(idx):
             raspi_items_list=get_items_list_as_json())
 
 
-@raspi_page.route('/astutus/raspi/<int:idx>/ifconfig', methods=['GET'])
+@raspi_page.route('/astutus/app/raspi/<int:idx>/ifconfig.html', methods=['GET'])
 def handle_raspi_item_ifconfig(idx):
     """" raspi_page.route('/astutus/raspi/<int:idx>/ifconfig', methods=['GET']) """
     if flask.request.method == 'GET':
@@ -153,10 +155,10 @@ def handle_raspi_item_ifconfig(idx):
         raspi = astutus.raspi.RaspberryPi(db_data=item)
         ifconfig = raspi.get_ifconfig()
         breadcrumbs_list = [
-            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
-            '<li><a href="/astutus/raspi">/raspi</a> &raquo;</li>',
-            f'<li><a href="/astutus/raspi/{idx}">/{idx}</a> &raquo;</li>',
+            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus/app/index.html">/astutus</a> &raquo;</li>',
+            '<li><a href="/astutus/app/raspi/index.html">/raspi</a> &raquo;</li>',
+            f'<li><a href="/astutus/app/raspi/{idx}/index.html">/{idx}</a> &raquo;</li>',
             '<li>/ifconfig</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)

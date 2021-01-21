@@ -30,4 +30,4 @@ Soon, these links should allow you to make local customizations.
 
 .. astutus_dyn_include:: usb/config_items_list_js.html
 
-.. astutus_dyn_links_in_menus:: dynamic config_items_list <idx>
+.. astutus_dyn_links_in_menus:: config_items_list <idx>

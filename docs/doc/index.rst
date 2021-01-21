@@ -8,10 +8,9 @@ Documentation
 
    welcome
    changes
-   app/dyn_index
    roadmap_to_documentation
    maintanence/guidelines
-   source/modules
+   ../../source/modules
 
 
 Indices and tables
