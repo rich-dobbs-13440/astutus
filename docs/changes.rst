@@ -1,24 +1,87 @@
-Backlog
+Changes
 =======
+
+Here's where you find out what we are working on, and what we've worked on -- and you can now use!
+
+.. note::
+
+  To the developer:  With incremental, test-driven development, it should be possible to deliver
+  `Frequent, Tangible, Working Results  <https://en.wikipedia.org/wiki/Peter_Coad>`_
+  most days. You should be **concerned** if you haven't committed in a day.  You should probably
+  **throw away your changes** and replan if you've gone two days without having something to
+  push to the repository.  It is reasonable to see regular transitions between what's on your
+  backlog, and what's done, and available for use as new features.  It is **concerning** if
+  that is not happening.
+
+
+What's Up
+---------
+
+Here's where you find what we are working on.  Rather we work on something else?  Just
+let us know!
+
+.. note::
+
+  To the developer:  Your backlog should consist of epics, stories, tasks, and spikes. For planning purposes,
+  your backlog shouldn't be too large and it shouldn't be too small.  You'll need to
+  at least one epic on it, and I don't understand why you'd need more than two!
+  Stories tell where you're headed, and tasks get you there. Spikes are for deciding
+  what to do, and helping you know how long until you get there.
+
+  At any point, it should be possible for a smart manager to look at your backlog,
+  understand what you are trying to get done, what sort of things that you are
+  currently working on, and whether you are about done.
+
+  By looking at your backlog over time, it should be possible for a smart manager
+  to understand about where you'll be at in the future, without having to
+  trust your assessment (which is probably over-optimimistic!).
+
+  Chances are, you should be adding tasks after each commmit, as you discover
+  new tasks, plan new work, or get to the point where you want to communicate
+  details of the work required.
+
 
 Backlog:
 
-  * Task: Sphinx toctree entries to dynamic web pages.
-  * Task: Sphinx toctrees automatic for dynamic web pages.
+  * Spike: Try handling navigation to dynamic pages in flask.
+  * Task: Fix up indentation so that it does better with Javascript
+  * Task: Allow notes or other features to accordion fold.
+  * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
   * Task: Mark relay tests as slow.
   * Task: Get color sensor working on RPi.
   * Task: Write test with relays controlling lights and monitored by color sensor.
-  * Next Epic: Get repository good enough to be publically visible.
+  * Task: Some tests of USB devices that are independent of current /sys/devices structure.
+  * Epic: Get repository good enough to be publically visible.
 
 
 .. |done| raw:: html
 
     <input checked=""  disabled="" type="checkbox">
 
+What's New
+----------
+
+Here is where you'll find a record of what things have gotten done.  Not a lot of
+hand waving, but not as detailed as repository commits.
+
+.. note::
+
+  To the developer: Just move items from the backlog to here as you make commits.
+
 Done:
 
+  * |done| 2021-01-20 10:13 Task: Fix bug with other page's vertical menu not substituting for dynamic templates.
+  * |done| 2021-01-20 06:40 Task: Move most post processing out of packaging into Sphinx extension and use it from there.
+  * |done| 2021-01-19 21:33 Task: Convert «« »» markup into Sphinx directives.
+  * |done| 2021-01-19 15:36 Task: Polish up device names
+  * |done| 2021-01-19 14:09 Task: For item dynamic pages, fix up vertical menu, both for item and parent.
+  * |done| 2021-01-18 01:01 Task: For dynamic pages, need to fix up vertical menu links back to docs.
+  * |done| 2021-01-18 01:01 Task: Update UI for dynamic pages.  Do a round of clean up and polish.
+  * |done| 2021-01-17 18:23 Task: Sphinx toctrees automatic for dynamic web pages.
+  * |done| 2021-01-17 13:51 Spike: Suppress vertical menu replacement, and understand how vertical menu is defined.
+  * |done| 2021-01-17 10:22 Task: Sphinx toctree entries to dynamic web pages.
   * |done| 2021-01-16 10:43 Story: As a developer, I can view documentation from RPi
   * |done| 2021-01-16 10:43 Task: Implement command to launch flask app.
   * |done| 2021-01-15 16:28 Task: Install Astutus on Rpi without internet.

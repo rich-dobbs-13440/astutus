@@ -8,6 +8,7 @@ Guidelines for Maintaining the System
     packaging
     documenting
     developer_notes
-    ../flask_app_templates/template_index
+    ../templates/template_index
+    ../readme
     macosx
     smakn_usb_relay

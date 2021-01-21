@@ -1,9 +1,9 @@
 USB Aliases
 ===========
 
-««HTML_TITLE»» USB Aliases - /astutus/alias ««END_HTML_TITLE»»
+.. astutus_dyn_bookmark:: USB Aliases - /astutus/alias
 
-««DESTINATION»» usb/dyn_alias.html ««END_DESTINATION»»
+.. astutus_dyn_destination:: usb/dyn_alias.html
 
 Aliases allow providing meaningful human names to USB devices despite
 the challenges of the USB implementation:
@@ -16,8 +16,20 @@ the challenges of the USB implementation:
     * The sys/device file structure is not persistent or consistent against
       system reboot timing and plug-and-play.
 
+  Typically, you will define aliases interactively, by clicking on the buttons
+  in the device tree.  But you might find this page useful for seeing all
+  of the aliases that you have defined, and editing specific aliases.
 
-Device Aliases
---------------
 
-««INCLUDE»» usb/device_aliases.html ««END_INCLUDE»»
+.. astutus_dyn_include:: usb/device_aliases.html
+
+.. astutus_dyn_link:: "/astutus/usb/alias"
+
+.. toctree::
+    :hidden:
+
+    dyn_usb_alias_item
+
+.. astutus_dyn_include:: usb/alias_items_list_js.html
+
+.. astutus_dyn_links_in_menus:: dynamic alias_items_list <path>

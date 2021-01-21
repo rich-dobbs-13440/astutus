@@ -2,7 +2,6 @@ Developer Notes
 ===============
 
 
-
 .. |done| raw:: html
 
     <input checked=""  disabled="" type="checkbox">
@@ -23,18 +22,17 @@ Plan:
 
 * |done| Factor out utilities to make it feasible to uniquely identify relays.
 
-* |in_progress| Create some REST API to drive adoption of Rasberry Pi into ecosystem.
+* |done| Create some REST API to drive adoption of Rasberry Pi into ecosystem.
 
 * |done| This requires a persistence layer, so do SQLAlchemy next
 
-* Transfer python package to RaspPi.
+* |done| Transfer python package to RaspPi.
 
 * Web inteface to control lights
 
 * Pick out colors of lights with sensor
 
-* Web interface - how to get styling??? Try to use Sphinx to generate styled pages
-  with appropriate forms???
+* |done| Use Sphinx to generate styling for dynamic pages.
 
 
 
@@ -57,24 +55,10 @@ Found this searching the web:
 
 TODO:
 
-    * Capture modified version of sudoers and document change.
+    * Capture modified version of sudoers
+    * Document changes needed to get it to work without a password.
+    * Detect and prompt user to install it if it is not available.
 
-Running Flask from a package
-----------------------------
-
-
->>>  import astutus.web.flask_app
->>>  astutus.web.flask_app.run_with_standard_options()
-
-This doesn't seem to work.  Instead just use main()
-
-
->>> import astutus.web.flask_app
->>> db.create_all()
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-NameError: name 'db' is not defined
->>> astutus.web.flask_app.db.create_all()
 
 Pytest
 ------
@@ -87,6 +71,7 @@ Fix it up so path is full.
 
 Olio
 ----
+
 Linter rstcheck is not installed.
 
 Serial Communication with USB Relay
@@ -179,11 +164,21 @@ sudo adduser $USER dialout
 
 Okay, it turns out busnum and devnum are not stable and can change by rebooting, plugging/unplugging devices, etc.
 
-What is stable, I think it the path:
+.. error::
 
-pci0000:00/0000:00:07.0/0000:05:00.0/usb10/10-1/10-1.2/10-1.2.2
+  The following idea did not turn out to be correct:
 
-As long as the devices aren't physically moved, the path stays the same.
+    * What is stable, I think it the path.
+
+    * pci0000:00/0000:00:07.0/0000:05:00.0/usb10/10-1/10-1.2/10-1.2.2
+
+    * As long as the devices aren't physically moved, the path stays the same.
+
+  In fact, numbering of PCI bus devices can change from one reboot to another, and
+  the the USB device varies with start up and plug-and-play too.  Instead, the
+  vendor and product/device topology needs to be used, and it is not guaranteed
+  to be unique unless the user takes care to not plug in equivalent devices in
+  parallel.
 
 
 .. code-block:: console
@@ -254,14 +249,6 @@ As long as the devices aren't physically moved, the path stays the same.
   FileNotFoundError: [Errno 2] No such file or directory: '/tmp/try-astutus/astutus/packaging/dist/venv/lib/python3.8/site-packages/astutus/web/static/_docs/source/developer_notes.html'
 
 
-2020-12-27 21:44 Getting this error with DB:
-
-.. code-block:: console
-
-  sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: raspberry_pi
-  [SQL: SELECT raspberry_pi.id AS raspberry_pi_id, raspberry_pi.mac_addr AS raspberry_pi_mac_addr, raspberry_pi.ipv4 AS raspberry_pi_ipv4
-  FROM raspberry_pi]
-  (Background on this error at: http://sqlalche.me/e/13/e3q8)
 
 
 Deprecation Warning
@@ -300,36 +287,8 @@ Add a capability to astutus-usb-tree to list out paths for a selected node.
 
 Do it in JSON format, that can be plopped into aliases and then modified.
 
-Preparing the side menu navigation
-----------------------------------
-
-.. code-block::  html
-
-  <p class="caption"><span class="caption-text">Contents:</span></p>
-  <ul class="current">
-    <li class="toctree-l1"><a class="reference internal" href="../readme.html">Astutus Readme</a></li>
-    <li class="toctree-l1"><a class="reference internal" href="../roadmap_to_documentation.html">Roadmap to Documentation</a></li>
-    <li class="toctree-l1"><a class="reference internal" href="../backlog.html">Backlog</a></li>
-    <li class="toctree-l1 current"><a class="reference internal" href="../maintanence/guidelines.html">Guidelines for Maintaining the System</a><ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="../maintanence/packaging.html">Packaging</a></li>
-    <li class="toctree-l2"><a class="reference internal" href="../maintanence/documenting.html">Documenting</a></li>
-    <li class="toctree-l2"><a class="reference internal" href="../maintanence/developer_notes.html">Developer Notes</a></li>
-    <li class="toctree-l2 current"><a class="reference internal" href="template_index.html">Flask Application Templates</a><ul class="current">
-    <li class="toctree-l3 current"><a class="current reference internal" href="#">USB Tree</a><ul>
-    <li class="toctree-l4"><a class="reference internal" href="#collapsable-tree-display">Collapsable Tree Display</a></li>
-    <li class="toctree-l4"><a class="reference internal" href="#device-configurations">Device Configurations</a></li>
-    <li class="toctree-l4"><a class="reference internal" href="#device-aliases">Device Aliases</a></li>
-    </ul>
-    </li>
-    </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="../maintanence/macosx.html">Working with Macintosh OSX</a></li>
-    <li class="toctree-l2"><a class="reference internal" href="../maintanence/smakn_usb_relay.html">SMAKN LCUS-1 USB Relay</a></li>
-    </ul>
-    </li>
-    <li class="toctree-l1"><a class="reference internal" href="../source/modules.html">Modules in the <strong>astutus</strong> package</a></li>
-    </ul>
-
+Breadcrump Navigation
+---------------------
 
 .. code-block::  html
 
@@ -390,3 +349,19 @@ Installing On Raspberry Pi
 
 
   pip3 install --no-index --find-links=. astutus
+
+Dynamic TOC Tree
+----------------
+
+Here is structure of toc generated on the page for the toctree directive:
+
+.. code-block:: html
+
+  <div class="toctree-wrapper compound">
+      <p class="caption"><span class="caption-text">Contents:</span></p>
+      <ul>
+        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_device.html">USB Device Tree</a></li>
+        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_alias.html">USB Aliases</a></li>
+        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_configuration.html">Device Configurations</a></li>
+        </ul>
+      </div>

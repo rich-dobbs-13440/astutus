@@ -22,6 +22,7 @@ import json
 import logging
 import os
 import sqlite3
+from http import HTTPStatus
 
 import astutus.db
 import astutus.log
@@ -73,13 +74,6 @@ def create_app_and_db(static_base):
 static_base = "/static/_docs/_static"
 app, db = create_app_and_db(static_base=static_base)
 
-wy_menu_vertical_list = [
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>'
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>'
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>'  # noqa
-]
-wy_menu_vertical = "\n".join(wy_menu_vertical_list)
-
 
 @app.template_filter('tojson_pretty')
 def tojson_pretty_jinja2_template_file(json_text):
@@ -110,10 +104,9 @@ def handle_astutus():
     ]
     links = "\n".join(links_list)
     return flask.render_template(
-        'transformed_dyn_astutus.html',
+        'dyn_astutus.html',
         static_base=static_base,
         breadcrumbs_list_items=breadcrumbs_list_items,
-        wy_menu_vertical=wy_menu_vertical,
         links=links)
 
 
@@ -130,6 +123,13 @@ def handle_doc_top():
     directory = os.path.join(app.root_path, 'static', '_docs')
     print(f"directory: {directory}")
     return flask.send_from_directory(directory, 'index.html')
+
+
+@app.route('/astutus/doc/dyn_pages/<path:path>')
+def handle_doc_reference_to_dyn_page(path):
+    if path == 'dyn_index.html':
+        return flask.redirect(flask.url_for('handle_astutus'))
+    return path, HTTPStatus.NOT_IMPLEMENTED
 
 
 @app.route('/astutus/doc/<path:path>')

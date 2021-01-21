@@ -12,17 +12,36 @@ logger.addHandler(flask.logging.default_handler)
 
 usb_page = flask.Blueprint('usb', __name__, template_folder='templates')
 
-wy_menu_vertical_list = [
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc">Welcome</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus">Browser Astutus</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb">Browser USB Capabilities</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb/device">Browser USB Devices</a></li>',
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/usb/alias">Browser USB Device Aliases</a></li>',  # noqa
-    '<li class="toctree-l1"><a class="reference internal" href="/astutus/doc/command_line">Command Line Astutus</a></li>',  # noqa
-]
-wy_menu_vertical = "\n".join(wy_menu_vertical_list)
-
 static_base = None  # Will be set when pages are registered.
+
+
+def get_alias_items_list_as_json():
+    aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+    alias_by_resolved_name = {}
+    for key, alias in aliases.items():
+        logger.debug(f"alias: {alias}")
+        # Need to have a good name for display.  For now just use description template.
+        resolved_name = alias.get('name', alias['description_template'])
+        while True:
+            if resolved_name not in alias_by_resolved_name:
+                alias_by_resolved_name[resolved_name] = {'value': alias['pattern'], 'innerHTML': resolved_name}
+                break
+            else:
+                resolved_name += "+"
+    # Sort before returning list.
+    items_list = []
+    sorted_keys = sorted([key for key in alias_by_resolved_name.keys()])
+    for key in sorted_keys:
+        items_list.append(alias_by_resolved_name[key])
+    return json.dumps(items_list)
+
+
+def get_config_items_list_as_json():
+    device_configurations = astutus.usb.DeviceConfigurations()
+    items_list = []
+    for config in device_configurations.items():
+        items_list.append({'value': config['id'], 'innerHTML': config['name']})
+    return json.dumps(items_list)
 
 
 @usb_page.route('/astutus/usb', methods=['GET'])
@@ -44,7 +63,6 @@ def handle_usb():
             'usb/dyn_usb.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             links=links)
 
 
@@ -190,7 +208,6 @@ def handle_usb_device():
             'usb/dyn_usb_device.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             bare_tree=bare_tree_html,
             aliases_javascript=aliases.to_javascript(),
             configurations_javascript=device_configurations.to_javascript(),
@@ -233,8 +250,8 @@ def handle_usb_alias():
             'usb/dyn_alias.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
-            aliases=aliases)
+            aliases=aliases,
+            alias_items_list=get_alias_items_list_as_json())
 
 
 @usb_page.route('/astutus/usb/alias/<path:nodepath>', methods=['GET', "DELETE", "POST"])
@@ -259,10 +276,10 @@ def handle_usb_alias_item(nodepath):
                 'usb/dyn_alias_item.html',
                 static_base=static_base,
                 breadcrumbs_list_items=breadcrumbs_list_items,
-                wy_menu_vertical=wy_menu_vertical,
                 item=item,
                 nodepath=nodepath,
-                alias=alias)
+                alias=alias,
+                alias_items_list=get_alias_items_list_as_json())
         return f"No alias for {nodepath} found.", HTTPStatus.BAD_REQUEST
     if flask.request.method == 'DELETE':
         logger.debug(f"Delete the item now: {nodepath}")
@@ -296,7 +313,7 @@ def handle_usb_alias_item(nodepath):
         original_pattern = form.get('original_pattern')
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         del aliases[original_pattern]
-        aliases[pattern] = [alias]
+        aliases[pattern] = alias
         aliases.write(filepath=None)
         return flask.redirect(flask.url_for('usb.handle_usb_alias'))
 
@@ -316,8 +333,8 @@ def handle_usb_configuration():
             'usb/dyn_device_configurations.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
-            device_configurations=device_configurations)
+            device_configurations=device_configurations,
+            config_items_list=get_config_items_list_as_json())
 
 
 @usb_page.route('/astutus/usb/configuration/<node_id>', methods=['GET', "DELETE"])
@@ -338,9 +355,9 @@ def handle_usb_configuration_item(node_id):
             'usb/dyn_configuration_item.html',
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
-            wy_menu_vertical=wy_menu_vertical,
             item=node_id,
-            device_config=device_config)
+            device_config=device_config,
+            config_items_list=get_config_items_list_as_json())
     if flask.request.method == 'DELETE':
         logger.debug(f"Delete the item now: {node_id}")
         return "TODO", HTTPStatus.NOT_IMPLEMENTED
