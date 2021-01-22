@@ -20,9 +20,9 @@ What's Up
 Here's where you find what we are working on.  Rather we work on something else?  Just
 let us know!
 
-.. note::
+.. astutus_toggle_note::
 
-  To the developer:  Your backlog should consist of epics, stories, tasks, and spikes. For planning purposes,
+  To the developer:  Your <span>backlog</span> should consist of epics, stories, tasks, and spikes. For planning purposes,
   your backlog shouldn't be too large and it shouldn't be too small.  You'll need to
   at least one epic on it, and I don't understand why you'd need more than two!
   Stories tell where you're headed, and tasks get you there. Spikes are for deciding
