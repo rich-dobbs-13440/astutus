@@ -269,12 +269,29 @@ class ToggleNoteNode(docutils.nodes.General, docutils.nodes.Element):
 class ToggleNoteDirective(SphinxDirective):
 
     has_content = True
+    optional_arguments = 2
+    final_argument_whitespace = True
 
     def run(self):
         logger.warning("ToggleNoteDirective.run")
+        if len(self.arguments) > 0:
+            toggle_start = self.arguments[0]
+        else:
+            toggle_start = 'expanded'
+
+        if len(self.arguments) > 1:
+            extra_title_text = self.arguments[1]
+        else:
+            extra_title_text = ''
+
         node = ToggleNoteNode('')
-        # node = docutils.nodes.paragraph()
-        # node['joe'] = 'gold'
+        if toggle_start == 'expanded':
+            node.collapsed = False
+        elif toggle_start == 'collapsed':
+            node.collapsed = True
+        else:
+            raise ValueError("For the ToggleNoteDirective, expecting the first argument to be collapsed or expanded")
+        node.extra_title_text = extra_title_text
         node += docutils.nodes.raw('', '\n'.join(self.content), format='html')
         return [node]
 
@@ -310,13 +327,16 @@ class ToggleNoteDirective(SphinxDirective):
             container['classes'] += ['astutus-toggle', 'admonition', 'note']
             checkbox_id = f'astutus-toggle-{idx}'
             idx += 1
+            if node.collapsed:
+                checked_value = 'checked'
+            else:
+                checked_value = ''
             container += docutils.nodes.raw(
-                '', f'<input type="checkbox" id="{checkbox_id}" value="1" />\n', format='html')
+                '', f'<input type="checkbox" id="{checkbox_id}" {checked_value} />\n', format='html')
+            title_text = f'Note: {node.extra_title_text}'
+            title_paragraph_text = f'<p class="astutus-toggle-symbol admonition-title">{title_text}</p>'
             container += docutils.nodes.raw(
-                '',
-                f'<label for="{checkbox_id}"><p class="astutus-toggle-symbol admonition-title">Note: ' +
-                'Extract title from directive argument</p></label>\n',
-                format='html')
+                '', f'<label for="{checkbox_id}">{title_paragraph_text}</label>\n', format='html')
             paragraph = docutils.nodes.paragraph()
             paragraph['classes'] += ["astutus-toggle"]
             paragraph += docutils.nodes.Text('\n')
