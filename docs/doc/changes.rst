@@ -3,7 +3,7 @@ Changes
 
 Here's where you find out what we are working on, and what we've worked on -- and you can now use!
 
-.. note::
+.. astutus_toggle_note::
 
   To the developer:  With incremental, test-driven development, it should be possible to deliver
   `Frequent, Tangible, Working Results  <https://en.wikipedia.org/wiki/Peter_Coad>`_

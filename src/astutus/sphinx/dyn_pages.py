@@ -282,18 +282,18 @@ class ToggleNoteDirective(SphinxDirective):
     def make_style_node():
         content = """
 <style>
-div.astutus-toggle input[type=checkbox] {
-    display: none;
-}
-input[type=checkbox]:checked + label span.astutus-toggle:before {
-    content: "⊞";
-}
-input[type=checkbox] + label span.astutus-toggle:before {
-    content: "⊟";
-}
-div.astutus-toggle input[type=checkbox]:checked ~ p.astutus-toggle {
-    display: none;
-}
+    div.astutus-toggle input[type=checkbox] {
+        display: none;
+    }
+    div.astutus-toggle input[type=checkbox]:checked~p.astutus-toggle {
+        display: none;
+    }
+    input[type=checkbox]:checked + label p.astutus-toggle-symbol:before {
+        content: "⊞";
+    }
+    input[type=checkbox] + label p.astutus-toggle-symbol:before {
+        content: "⊟";
+    }
 </style>          """
         return docutils.nodes.raw('', content, format='html')
 
@@ -301,17 +301,21 @@ div.astutus-toggle input[type=checkbox]:checked ~ p.astutus-toggle {
     def handle_insert_markup(app, doctree, fromdocname):
         logger.debug(f"ToggleNoteDirective.handle_insert_markup  fromdocname: {fromdocname}")
         found = False
+        idx = 0
         for node in doctree.traverse(ToggleNoteNode):
             logger.warning("ToggleNoteDirective.handle_insert_markup")
             found = True
             children = node.children
             container = docutils.nodes.container()
-            container['classes'] += ['astutus-toggle']
+            container['classes'] += ['astutus-toggle', 'admonition', 'note']
+            checkbox_id = f'astutus-toggle-{idx}'
+            idx += 1
             container += docutils.nodes.raw(
-                '', '<input type="checkbox" id="second-checkbox" value="1" />\n', format='html')
+                '', f'<input type="checkbox" id="{checkbox_id}" value="1" />\n', format='html')
             container += docutils.nodes.raw(
                 '',
-                '<label for="second-checkbox"><span class="astutus-toggle"></span>some label</label>\n',
+                f'<label for="{checkbox_id}"><p class="astutus-toggle-symbol admonition-title">Note: ' +
+                'Extract title from directive argument</p></label>\n',
                 format='html')
             paragraph = docutils.nodes.paragraph()
             paragraph['classes'] += ["astutus-toggle"]
@@ -323,7 +327,7 @@ div.astutus-toggle input[type=checkbox]:checked ~ p.astutus-toggle {
             for document in doctree.traverse(docutils.nodes.document):
                 # Want the stylesheet to be above content to be styled.
                 document.children.insert(0, ToggleNoteDirective.make_style_node())
-                logger.warning(f"ToggleNoteDirective.handle_insert_markup  {document}")
+                # logger.warning(f"ToggleNoteDirective.handle_insert_markup  {document}")
 
 
 def setup(app):

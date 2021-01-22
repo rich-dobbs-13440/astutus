@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
     <head>
@@ -8,7 +9,6 @@
 
             input[type=checkbox]:checked+label span.astutus-toggle:before {
                 content: "⊞";
-
             }
 
             input[type=checkbox]+label span.astutus-toggle:before {
@@ -18,17 +18,24 @@
             div.astutus-toggle input[type=checkbox]:checked~p.astutus-toggle {
                 display: none;
             }
+            input[type=checkbox]:checked + label p.astutus-toggle-symbol:before {
+                content: "⊞";
+            }
+            input[type=checkbox] + label p.astutus-toggle-symbol:before {
+                content: "⊟";
+            }
+
         </style>
     </head>
-
     <body>
         <div class="astutus-toggle">
-            <input type="checkbox" id="second-checkbox" value="1" />
-            <label for="second-checkbox"><span class="astutus-toggle"></span>some label</label>
+            <input type="checkbox" id="astutus-checkbox-1" value="1" />
+            <label for="astutus-checkbox-1"><p class="astutus-toggle-symbol">Note: Shortened</p></label>
             <p class="astutus-toggle">
                 This is the content.
             </p>
         </div>
+
     </body>
 
 </html>
