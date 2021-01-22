@@ -262,7 +262,7 @@ def config_inited(app, config):
         raise ValueError("You must define 'astutus_dyn_pages_dir' if you are using Astutus capabilities.")
 
 
-class ToggleNoteNode(docutils.nodes.General, docutils.nodes.Element):
+class ToggleNoteNode(docutils.nodes.note):
     pass
 
 
@@ -284,7 +284,14 @@ class ToggleNoteDirective(SphinxDirective):
         else:
             extra_title_text = ''
 
-        node = ToggleNoteNode('')
+        # node = ToggleNoteNode('')
+
+        # node += docutils.nodes.raw('', '\n'.join(self.content), format='html')
+        # return [node]
+        self.assert_has_content()
+        text = '\n'.join(self.content)
+        # Create the admonition node, to be populated by `nested_parse`.
+        node = ToggleNoteNode(rawsource=text)
         if toggle_start == 'expanded':
             node.collapsed = False
         elif toggle_start == 'collapsed':
@@ -292,7 +299,8 @@ class ToggleNoteDirective(SphinxDirective):
         else:
             raise ValueError("For the ToggleNoteDirective, expecting the first argument to be collapsed or expanded")
         node.extra_title_text = extra_title_text
-        node += docutils.nodes.raw('', '\n'.join(self.content), format='html')
+        # Parse the directive contents.
+        self.state.nested_parse(self.content, self.content_offset, node)
         return [node]
 
     @staticmethod
@@ -302,7 +310,7 @@ class ToggleNoteDirective(SphinxDirective):
     div.astutus-toggle input[type=checkbox] {
         display: none;
     }
-    div.astutus-toggle input[type=checkbox]:checked~p.astutus-toggle {
+    div.astutus-toggle input[type=checkbox]:checked ~ div.astutus-toggle {
         display: none;
     }
     input[type=checkbox]:checked + label p.astutus-toggle-symbol:before {
@@ -337,11 +345,11 @@ class ToggleNoteDirective(SphinxDirective):
             title_paragraph_text = f'<p class="astutus-toggle-symbol admonition-title">{title_text}</p>'
             container += docutils.nodes.raw(
                 '', f'<label for="{checkbox_id}">{title_paragraph_text}</label>\n', format='html')
-            paragraph = docutils.nodes.paragraph()
-            paragraph['classes'] += ["astutus-toggle"]
-            paragraph += docutils.nodes.Text('\n')
-            paragraph += children
-            container += paragraph
+            toggled_container = docutils.nodes.container()
+            toggled_container['classes'] += ["astutus-toggle"]
+            toggled_container += docutils.nodes.Text('\n')
+            toggled_container += children
+            container += toggled_container
             node.replace_self(container)
         if found:
             for document in doctree.traverse(docutils.nodes.document):

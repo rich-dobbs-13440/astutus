@@ -15,7 +15,7 @@
                 content: "⊟";
             }
 
-            div.astutus-toggle input[type=checkbox]:checked~p.astutus-toggle {
+            div.astutus-toggle input[type=checkbox]:checked + label ~div.astutus-toggle {
                 display: none;
             }
             input[type=checkbox]:checked + label p.astutus-toggle-symbol:before {
@@ -31,10 +31,31 @@
         <div class="astutus-toggle">
             <input type="checkbox" id="astutus-checkbox-1" value="1" />
             <label for="astutus-checkbox-1"><p class="astutus-toggle-symbol">Note: Shortened</p></label>
-            <p class="astutus-toggle">
+            <div class="astutus-toggle">
                 This is the content.
-            </p>
+            </div>
         </div>
+
+        <div class="astutus-toggle admonition note docutils container">
+            <input type="checkbox" id="astutus-toggle-1" checked />
+            <label for="astutus-toggle-1"><p class="astutus-toggle-symbol admonition-title">Note: To the Developer</p></label>
+            <div class="astutus-toggle">
+            <p>To the developer:  Your <strong>backlog</strong> should consist of epics, stories, tasks, and spikes. For planning purposes,
+            your backlog shouldn’t be too large and it shouldn’t be too small.  You’ll need to
+            at least one epic on it, and I don’t understand why you’d need more than two!
+            Stories tell where you’re headed, and tasks get you there. Spikes are for deciding
+            what to do, and helping you know how long until you get there.</p>
+            <p>At any point, it should be possible for a smart manager to look at your backlog,
+            understand what you are trying to get done, what sort of things that you are
+            currently working on, and whether you are about done.</p>
+            <p>By looking at your backlog over time, it should be possible for a smart manager
+            to understand about where you’ll be at in the future, without having to
+            trust your assessment (which is probably over-optimimistic!).</p>
+            <p>Chances are, you should be adding tasks after each commmit, as you discover
+            new tasks, plan new work, or get to the point where you want to communicate
+            details of the work required.</p>
+            </div>
+            </div>
 
     </body>
 
