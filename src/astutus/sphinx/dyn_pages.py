@@ -5,7 +5,6 @@ import docutils
 import astutus
 import astutus.sphinx.post_process
 from sphinx.util.docutils import SphinxDirective
-from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 
 
 logger = sphinx.util.logging.getLogger(__name__)
@@ -280,10 +279,31 @@ class ToggleNoteDirective(SphinxDirective):
         return [node]
 
     @staticmethod
+    def make_style_node():
+        content = """
+<style>
+div.astutus-toggle input[type=checkbox] {
+    display: none;
+}
+input[type=checkbox]:checked + label span.astutus-toggle:before {
+    content: "⊞";
+}
+input[type=checkbox] + label span.astutus-toggle:before {
+    content: "⊟";
+}
+div.astutus-toggle input[type=checkbox]:checked ~ p.astutus-toggle {
+    display: none;
+}
+</style>          """
+        return docutils.nodes.raw('', content, format='html')
+
+    @staticmethod
     def handle_insert_markup(app, doctree, fromdocname):
-        logger.debug(f"ToggleNoteDirective.handle_insert_markup: {fromdocname}")
+        logger.debug(f"ToggleNoteDirective.handle_insert_markup  fromdocname: {fromdocname}")
+        found = False
         for node in doctree.traverse(ToggleNoteNode):
             logger.warning("ToggleNoteDirective.handle_insert_markup")
+            found = True
             children = node.children
             container = docutils.nodes.container()
             container['classes'] += ['astutus-toggle']
@@ -299,7 +319,11 @@ class ToggleNoteDirective(SphinxDirective):
             paragraph += children
             container += paragraph
             node.replace_self(container)
-        pass
+        if found:
+            for document in doctree.traverse(docutils.nodes.document):
+                # Want the stylesheet to be above content to be styled.
+                document.children.insert(0, ToggleNoteDirective.make_style_node())
+                logger.warning(f"ToggleNoteDirective.handle_insert_markup  {document}")
 
 
 def setup(app):
@@ -327,7 +351,6 @@ def setup(app):
     app.add_config_value('astutus_dyn_pages_dir', 'astutus_dyn_pages', 'html')
     app.add_config_value('astutus_dynamic_templates', 'astutus_dynamic_templates', 'html')
     app.add_directive('astutus_dyn_link', DynLinkDirective)
-
 
     app.add_directive('astutus_dyn_links_in_menus', DynLinksInMenuDirective)
     app.connect('doctree-resolved', DynLinksInMenuDirective.generate_menu_modification)
