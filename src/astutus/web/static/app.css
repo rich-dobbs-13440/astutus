@@ -43,3 +43,15 @@ input[type=color].astutus-color {
     width: 26px;
     padding: 1px;
 }
+div.astutus-toggle input[type=checkbox] {
+	display: none;
+}
+input[type=checkbox]:checked + label span.astutus-toggle:before {
+    content: "⊞";
+}
+input[type=checkbox] + label span.astutus-toggle:before {
+    content: "⊟";
+}
+div.astutus-toggle input[type=checkbox]:checked ~ p.astutus-toggle {
+	display: none;
+}

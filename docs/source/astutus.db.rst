@@ -4,6 +4,14 @@ astutus.db package
 Submodules
 ----------
 
+astutus.db.logger\_db module
+----------------------------
+
+.. automodule:: astutus.db.logger_db
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 astutus.db.raspi\_db module
 ---------------------------
 

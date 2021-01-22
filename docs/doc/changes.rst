@@ -3,7 +3,7 @@ Changes
 
 Here's where you find out what we are working on, and what we've worked on -- and you can now use!
 
-.. note::
+.. astutus_toggle_note:: collapsed To the Developer
 
   To the developer:  With incremental, test-driven development, it should be possible to deliver
   `Frequent, Tangible, Working Results  <https://en.wikipedia.org/wiki/Peter_Coad>`_
@@ -20,9 +20,9 @@ What's Up
 Here's where you find what we are working on.  Rather we work on something else?  Just
 let us know!
 
-.. note::
+.. astutus_toggle_note:: collapsed To the Developer
 
-  To the developer:  Your backlog should consist of epics, stories, tasks, and spikes. For planning purposes,
+  To the developer:  Your **backlog** should consist of epics, stories, tasks, and spikes. For planning purposes,
   your backlog shouldn't be too large and it shouldn't be too small.  You'll need to
   at least one epic on it, and I don't understand why you'd need more than two!
   Stories tell where you're headed, and tasks get you there. Spikes are for deciding
@@ -43,7 +43,7 @@ let us know!
 
 Backlog:
 
-  * Task: Allow notes or other features to accordion fold.
+  * Task: Use id's rather than direct docnames for identifying dynamic replacements.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
@@ -64,12 +64,15 @@ What's New
 Here is where you'll find a record of what things have gotten done.  Not a lot of
 hand waving, but not as detailed as repository commits.
 
-.. note::
+.. astutus_toggle_note:: collapsed To the Developer
 
   To the developer: Just move items from the backlog to here as you make commits.
 
 Done:
 
+  * |done| 2021-01-22 12:27 Task: Move Toggle styling to a static CSS file.
+  * |done| 2021-01-22 11:24 Task: Handle markup within astutus_toggle_note content.
+  * |done| 2021-01-22 09:31 Task: Directive astutus_toggle_note working in basic form.
   * |done| 2021-01-21 12:31 Task: Fix up indentation so that it does better with Javascript
   * |done| 2021-01-21 11:15 Spike: Try handling navigation to dynamic pages in flask. Successful, can be merged.
   * |done| 2021-01-20 10:13 Task: Fix bug with other page's vertical menu not substituting for dynamic templates.
