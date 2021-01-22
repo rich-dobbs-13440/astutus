@@ -81,12 +81,6 @@ var astutusDynPage = {
                     break;
                 }
             }
-            // if (!found) {
-            //     // Fix up hrefs for static documentation pages for flask deployed configuration
-            //     // Remove all relative upward references
-            //     var hrefRelativeToDocs = rawHref.replace(/\.\.\//g, '')
-            //     aElement.href = docsBase + "/" + hrefRelativeToDocs;
-            // }
             if (!removed) {
                 console.log("Original rawHref", rawHref, "originalHref", originalHref, "current aElement.href", aElement.href);
             }

@@ -1,11 +1,9 @@
-import sphinx.util
-
-
-import docutils
 import astutus
 import astutus.sphinx.post_process
-from sphinx.util.docutils import SphinxDirective
+import docutils
 
+import sphinx.util
+from sphinx.util.docutils import SphinxDirective
 
 logger = sphinx.util.logging.getLogger(__name__)
 
@@ -251,17 +249,6 @@ class DynDestinationDirective(SphinxDirective):
             node.replace_self(replacement_node)
 
 
-def config_inited(app, config):
-    """ Check that the required configuration variables have been initialized"""
-    logger.warn("Got to config_inited")
-    if app.config.astutus_docs_base == '':
-        raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
-    if app.config.astutus_dyn_base == "":
-        raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
-    if app.config.astutus_dyn_pages_dir == "":
-        raise ValueError("You must define 'astutus_dyn_pages_dir' if you are using Astutus capabilities.")
-
-
 class ToggleNoteNode(docutils.nodes.note):
     pass
 
@@ -304,32 +291,11 @@ class ToggleNoteDirective(SphinxDirective):
         return [node]
 
     @staticmethod
-    def make_style_node():
-        content = """
-<style>
-    div.astutus-toggle input[type=checkbox] {
-        display: none;
-    }
-    div.astutus-toggle input[type=checkbox]:checked ~ div.astutus-toggle {
-        display: none;
-    }
-    input[type=checkbox]:checked + label p.astutus-toggle-symbol:before {
-        content: "⊞";
-    }
-    input[type=checkbox] + label p.astutus-toggle-symbol:before {
-        content: "⊟";
-    }
-</style>          """
-        return docutils.nodes.raw('', content, format='html')
-
-    @staticmethod
     def handle_insert_markup(app, doctree, fromdocname):
         logger.debug(f"ToggleNoteDirective.handle_insert_markup  fromdocname: {fromdocname}")
-        found = False
         idx = 0
         for node in doctree.traverse(ToggleNoteNode):
             logger.warning("ToggleNoteDirective.handle_insert_markup")
-            found = True
             children = node.children
             container = docutils.nodes.container()
             container['classes'] += ['astutus-toggle', 'admonition', 'note']
@@ -351,14 +317,33 @@ class ToggleNoteDirective(SphinxDirective):
             toggled_container += children
             container += toggled_container
             node.replace_self(container)
-        if found:
-            for document in doctree.traverse(docutils.nodes.document):
-                # Want the stylesheet to be above content to be styled.
-                document.children.insert(0, ToggleNoteDirective.make_style_node())
-                # logger.warning(f"ToggleNoteDirective.handle_insert_markup  {document}")
+
+
+def config_inited(app, config):
+    """ Check that the required configuration variables have been initialized"""
+    logger.warn("Got to config_inited")
+    if app.config.astutus_docs_base == '':
+        raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
+    if app.config.astutus_dyn_base == "":
+        raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
+    if app.config.astutus_dyn_pages_dir == "":
+        raise ValueError("You must define 'astutus_dyn_pages_dir' if you are using Astutus capabilities.")
+
+    # For now, keep the original source files in the docs directory, but
+    # longer term, they should be installed there when the extension
+    # is installed.  Haven't figured out a way to selectively
+    # add this only to the files where the directives are used.
+    app.add_css_file('astutus_dynamic_sphinx_pages.css')
+    app.add_js_file('astutus_dynamic_sphinx_pages.js')
 
 
 def setup(app):
+
+    app.add_config_value('astutus_docs_base', '', 'html')
+    app.add_config_value('astutus_dyn_base', '', 'html')
+    app.add_config_value('astutus_dyn_pages_dir', 'astutus_dyn_pages', 'html')
+    app.add_config_value('astutus_dynamic_templates', 'astutus_dynamic_templates', 'html')
+
     app.add_node(
         DynLinkNode,
         html=(visit_dyn_link_node, depart_dyn_link_node)
@@ -378,10 +363,7 @@ def setup(app):
         ToggleNoteNode,
         html=(visit_generic_node, depart_generic_node)
     )
-    app.add_config_value('astutus_docs_base', '', 'html')
-    app.add_config_value('astutus_dyn_base', '', 'html')
-    app.add_config_value('astutus_dyn_pages_dir', 'astutus_dyn_pages', 'html')
-    app.add_config_value('astutus_dynamic_templates', 'astutus_dynamic_templates', 'html')
+
     app.add_directive('astutus_dyn_link', DynLinkDirective)
 
     app.add_directive('astutus_dyn_links_in_menus', DynLinksInMenuDirective)

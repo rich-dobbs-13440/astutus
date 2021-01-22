@@ -75,13 +75,6 @@ def setup(app):
     app.add_css_file('css/theme_overrides.css')
 
 
-# For now, keep the original source in the docs directory, but
-# longer term, should be installed there when the extension
-# is installed.  # Should be able to do this automatically
-# in the extension!  Probably should only add to pages
-# where it is used.  Or handle in flask or post processing.
-html_js_files = ['astutus_dynamic_sphinx_pages.js']
-
 # Options for the Astutus dynamic pages custom extension.
 astutus_dyn_pages_dir = "app"  # relative to the configuration directory.
 astutus_docs_base = "/astutus/doc"  # web app URL path
