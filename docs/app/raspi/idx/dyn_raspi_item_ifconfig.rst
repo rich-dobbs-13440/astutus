@@ -8,6 +8,3 @@ Raspberry Pi Ethernet Internet Configuration
 .. astutus_dyn_destination:: raspi/dyn_item_ifconfig.html
 
 .. astutus_dyn_include:: raspi/ifconfig.html
-
-
-.. astutus_dyn_links_in_menus:: raspi_items_list <idx>

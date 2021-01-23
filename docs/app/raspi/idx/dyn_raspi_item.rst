@@ -15,5 +15,3 @@ Raspberry Pi
 .. astutus_dyn_include:: delete_item_form.html
 
 .. astutus_dyn_link:: "/astutus/app/raspi/<idx>/index.html"
-
-.. astutus_dyn_links_in_menus:: raspi_items_list <idx> false

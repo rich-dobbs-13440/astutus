@@ -56,104 +56,6 @@ class DynDestinationNode(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
-# class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
-
-#     def set_item_list_name(self, item_list_name):
-#         self.item_list_name = item_list_name
-
-#     def set_item_pattern(self, pattern):
-#         self.pattern = pattern
-
-#     def set_replace_replace_inner_html(self, replace_inner_html):
-#         if replace_inner_html is None:
-#             self.replace_inner_html = True
-#         elif replace_inner_html == "false":
-#             self.replace_inner_html = False
-#         elif replace_inner_html == "true":
-#             self.replace_inner_html = True
-#         else:
-#             raise ValueError("Expecting 'true' or 'false'")
-#
-# @staticmethod
-# def dyn_links_as_json(astutus_dyn_link_list):
-#     items = []
-#     # Don't want trailing comma in Javascript, so use join to make list
-#     for link in astutus_dyn_link_list:
-#         # Note: docname is a relative path without a file extension. So something like this:
-#         # {'docname': 'flask_app_templates/flask_app_dyn_astutus', 'replacement_url': '"/astutus"'}
-#         # For this to work from Sphinx configuration directory and other folders, must
-#         # retain only file name, and that will need to be unique.
-#         if link['docname'].find('/') >= 0:
-#             _, basename = link['docname'].rsplit('/', 1)
-#         else:
-#             basename = link['docname']
-#         search_snippet = f"'search_pattern': '{basename}.html'"
-#         replacement_url_snippet = f"'replacement_url':'{link['replacement_url']}'"
-#         item = "    {" + search_snippet + ", " + replacement_url_snippet + "}"
-#         items.append(item)
-#         search_snippet_link = f"'search_pattern': '{basename}#'"
-#         item = "    {" + search_snippet_link + ", " + replacement_url_snippet + "}"
-#         items.append(item)
-#     items_text = ',\n'.join(items)
-#     return '[' + items_text + ']'
-
-
-class DynLinksInMenuDirective(SphinxDirective):
-
-    optional_arguments = 3
-
-    def run(self):
-        # node = DynLinksInMenuListNode('')
-        # node.docname = self.env.docname
-        # if len(self.arguments) > 0:
-        #     item_list_name = self.arguments[0]
-        # else:
-        #     item_list_name = None
-        # node.set_item_list_name(item_list_name)
-        # if len(self.arguments) > 1:
-        #     item_pattern = self.arguments[1]
-        # else:
-        #     item_pattern = None
-        # node.set_item_pattern(item_pattern)
-        # if len(self.arguments) > 2:
-        #     replace_inner_html = self.arguments[2]
-        # else:
-        #     replace_inner_html = None
-        # node.set_replace_replace_inner_html(replace_inner_html)
-        # return [node]
-        return []
-
-    @staticmethod
-    def generate_menu_modification(app, doctree, fromdocname):
-        """ Here the data needed for modifying the menu dynamically is added to the page.
-
-        Rather than attempting to change the structure of the menus during document
-        generation, the data needed for that task is dumped into a <script> block
-        in the body of the page.  Then the menu modification Javascript function
-        is called to modify the hrefs in the menus as the page loads.
-
-        This code modifies the menus generated for the toctree directive, at least
-        when used with the Read-the-Docs theme.  At this time it is not clear
-        whether the same menus are used in other themes.
-
-        The actual Javascript code is included in the head of the page
-        using the standard html_js_files configuration variable.
-        """
-        # TODO: Once this is working again, move the addition of the file
-        # to the setup function below.
-        if app.config.astutus_docs_base == '':
-            raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
-        if app.config.astutus_dyn_base == "":
-            raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
-        env = app.builder.env
-        if not hasattr(env, 'astutus_dyn_link_list'):
-            env.astutus_dyn_link_list = []
-        # for node in doctree.traverse(DynLinksInMenuListNode):
-        #     assert False, "Think this is dead now."
-        #     logger.debug("Got to generate_menu_modification")
-        #     node.replace_self(docutils.nodes.Text(''))
-
-
 class DynLinkDirective(SphinxDirective):
 
     required_arguments = 1
@@ -361,9 +263,6 @@ def setup(app):
     )
 
     app.add_directive('astutus_dyn_link', DynLinkDirective)
-
-    app.add_directive('astutus_dyn_links_in_menus', DynLinksInMenuDirective)
-    app.connect('doctree-resolved', DynLinksInMenuDirective.generate_menu_modification)
 
     app.add_directive('astutus_dyn_bookmark', DynBookmarkDirective)
     app.connect('doctree-resolved', DynBookmarkDirective.handle_insert_markup)

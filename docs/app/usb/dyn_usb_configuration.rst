@@ -27,6 +27,3 @@ Soon, these links should allow you to make local customizations.
     :hidden:
 
     dyn_usb_configuration_item
-
-
-.. astutus_dyn_links_in_menus:: config_items_list <idx>

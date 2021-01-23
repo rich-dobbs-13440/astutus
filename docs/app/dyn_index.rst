@@ -22,4 +22,3 @@ development planning and execution.
     usb/dyn_usb
     log/dyn_log
 
-.. astutus_dyn_links_in_menus::

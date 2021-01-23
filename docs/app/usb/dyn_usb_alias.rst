@@ -29,6 +29,3 @@ the challenges of the USB implementation:
     :hidden:
 
     dyn_usb_alias_item
-
-
-.. astutus_dyn_links_in_menus:: alias_items_list <path>

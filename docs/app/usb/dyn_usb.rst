@@ -11,8 +11,6 @@ USB Devices
     Manage device aliases <dyn_usb_alias>
     Manage device names <dyn_usb_configuration>
 
-.. astutus_dyn_links_in_menus::
-
 .. astutus_dyn_bookmark:: USB - /astutus/app/usb
 
 .. astutus_dyn_destination:: usb/dyn_usb.html
