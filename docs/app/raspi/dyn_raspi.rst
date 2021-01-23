@@ -2,7 +2,7 @@ Raspberry Pi's
 ==============
 
 .. astutus_dyn_destination:: raspi/dyn_raspi.html
-.. astutus_dyn_bookmark:: Raspberry Pi's  - /astutus/raspi
+.. astutus_dyn_bookmark:: Raspberry Pi's  - /astutus/app/raspi
 
 Adopted Pi's
 ------------

@@ -33,9 +33,9 @@ def get_items_list():
 
 def display_raspi_find(*, search_result, filter):
     breadcrumbs_list = [
-        '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-        '<li><a href="/astutus">/astutus</a> &raquo;</li>',
-        '<li><a href="/astutus/raspi">/raspi</a> &raquo;</li>',
+        '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
+        '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
+        '<li><a href="/astutus/app/raspi/index.html">/raspi</a> &raquo;</li>',
         '<li>find=nmap</li>',
     ]
     breadcrumbs_list_items = "\n".join(breadcrumbs_list)
@@ -46,7 +46,7 @@ def display_raspi_find(*, search_result, filter):
         breadcrumbs_list_items=breadcrumbs_list_items,
         search_result=search_result,
         filter=filter,
-        idx_list=get_items_list())
+        idx_item_list=get_items_list())
 
 
 @raspi_page.route('/astutus/app/raspi/dyn_raspi.html', methods=['GET'])
@@ -64,8 +64,8 @@ def handle_raspi():
             logger.debug("Go to display_raspi_find")
             return display_raspi_find(search_result=None, filter=["Raspberry"])
         breadcrumbs_list = [
-            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
             '<li>/raspi</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
@@ -74,7 +74,7 @@ def handle_raspi():
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             filter=["Raspberry"],
-            idx_list=get_items_list())
+            idx_item_list=get_items_list())
 
     if flask.request.method == 'POST':
         form = flask.request.form
@@ -136,9 +136,9 @@ def handle_raspi_item(idx):
             # Create a dummy item to display error message
             item = astutus.db.RaspberryPi(id=f"non-existent {idx}", ipv4="no such id", mac_addr="no such id")
         breadcrumbs_list = [
-            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
-            '<li><a href="/astutus/raspi">/raspi</a> &raquo;</li>',
+            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
+            '<li><a href="/astutus/app/raspi/index.html">/raspi</a> &raquo;</li>',
             f'<li>/{item.id}</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)
@@ -148,12 +148,11 @@ def handle_raspi_item(idx):
             breadcrumbs_list_items=breadcrumbs_list_items,
             item=item,
             idx=idx,
-            idx_list=get_items_list())
+            idx_item_list=get_items_list())
 
 
 @raspi_page.route('/astutus/app/raspi/<int:idx>/ifconfig.html', methods=['GET'])
 def handle_raspi_item_ifconfig(idx):
-    """" raspi_page.route('/astutus/raspi/<int:idx>/ifconfig', methods=['GET']) """
     if flask.request.method == 'GET':
         item = astutus.db.RaspberryPi.query.get(idx)
         raspi = astutus.raspi.RaspberryPi(db_data=item)
@@ -172,4 +171,4 @@ def handle_raspi_item_ifconfig(idx):
             breadcrumbs_list_items=breadcrumbs_list_items,
             idx=idx,
             ifconfig=ifconfig,
-            idx_list=get_items_list())
+            idx_item_list=get_items_list())

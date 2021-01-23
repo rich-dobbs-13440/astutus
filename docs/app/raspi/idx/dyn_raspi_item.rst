@@ -1,7 +1,7 @@
 Raspberry Pi
 ============
 
-.. astutus_dyn_bookmark:: Raspberry Pi's - /astutus/raspi/{{idx}}
+.. astutus_dyn_bookmark:: Raspberry Pi's - /astutus/app/raspi/{{idx}}
 
 .. astutus_dyn_destination:: raspi/dyn_raspi_item.html
 

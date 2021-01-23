@@ -44,6 +44,7 @@ let us know!
 Backlog:
   * Task: Use id's rather than direct docnames for identifying dynamic replacements.
   * Task: Backout dead javascript and Sphinx extension code
+  * Task: Automate generation of breadcrumbs for dynamic pages.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.

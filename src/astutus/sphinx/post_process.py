@@ -218,19 +218,36 @@ def wrap_in_jinja2_loop(line_with_angled_tags, tags):
     for tag in tags:
         jinja2_variable = tag.replace('<', '{{ ').replace('>', '.value }}')
         line_with_jinja2_substitutions = line_with_jinja2_substitutions.replace(tag, jinja2_variable)
-    loop_variable = tags[-1].replace('<', '').replace('>', '')
+    loop_variable = tags[-1].replace('<', '').replace('>', '') + '_item'
     # TODO: Replace link text
+    logger.warning(f'line_with_angled_tags: {line_with_angled_tags}')
+    # Pattern in plain language:
+    #       Find the anchor element, including all of its attributes.
+    #          This assumes that attribute values are double quoted without any sort of embedded quotes.
+    #          The attribute values are capture in a non-matching group.
+    #       Select the link text, which cannot contain a > symbol, followed by closing html anchor tag
+    # pattern_to_pick_out_link_text = r'<a\s+([\w]+\=\"[^\"]+\"\s*)*>([^>]*)</a>'
+    pattern_to_pick_out_link_text = r'(<a\s+(?:[\w]+\=\"[^\"]+\"\s*)*>?)([^>]*?)(</a>?)'
+    # Replace the second matching group, keeping the first and third just like that originally are.
+    substitution = r'\g<1>{{ ' + loop_variable + r'.link_text }}\g<3>'
+    line_with_jinja2_substitutions = re.sub(pattern_to_pick_out_link_text, substitution, line_with_jinja2_substitutions)
+    logger.warning(f'line_with_jinja2_substitutions: {line_with_jinja2_substitutions}')
     lines = []
+    # Indentation is the leading blanks in the initial line.  At this point, the assumption is that the
+    # the raw HTML has been indented.
     indentation = line_with_angled_tags.replace(line_with_angled_tags.lstrip(), '')
     indent = '    '
     loop_list = loop_variable + '_list'
     lines.append(indentation + '{% for ' + loop_variable + ' in ' + loop_list + '  %}')
     lines.append(indent + line_with_jinja2_substitutions)
     lines.append(indentation + '{% endfor  %}')
+    # Handle the case where the developer has forgotten to include the loop list variable
+    # in the call to the Jinja2 template:
+    #   Tactic: Use the undefined loop_list variable in the template in a fashion
+    #           that will trigger a server error with an easy-to-diagnose exception and traceback:
+    #
+    #               jinja2.exceptions.UndefinedError: 'idx_list_____must_be_defined_in_template_call' is undefined
     lines.append(indentation + '{% if ' + loop_list + ' is not defined %}')
-    # Use the undefined loop_list variable in the template in a fashion that will trigger a server error
-    # with easy-to-debug traceback:
-    #    jinja2.exceptions.UndefinedError: 'idx_list_____must_be_defined_in_template_call' is undefined
     lines.append(indentation + indent + '{{ ' + loop_list + '_____must_be_defined_in_template_call.__' + ' }}')
     lines.append(indentation + '{% endif  %}')
     return lines
