@@ -54,12 +54,6 @@ def handle_usb_from_doc():
 @usb_page.route('/astutus/app/usb/index.html', methods=['GET'])
 def handle_usb():
     if flask.request.method == 'GET':
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index.html">/astutus</a> &raquo;</li>',
-            '<li>/usb</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         links_list = [
             '<li><p>See <a class="reference internal" href="/astutus/app/usb/device.html"><span class="doc">Devices</span></a></p></li>',  # noqa
             '<li><p>See <a class="reference internal" href="/astutus/app/usb/alias.html"><span class="doc">Device Aliases</span></a></p></li>',  # noqa
@@ -69,7 +63,6 @@ def handle_usb():
         return flask.render_template(
             'usb/dyn_usb.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             links=links)
 
 
@@ -200,13 +193,6 @@ def handle_usb_device():
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
         bare_tree_html = tree_to_html(bare_tree_dict, device_info_map)
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
-            '<li><a href="/astutus/app/usb/index.html">/usb</a> &raquo;</li>',
-            '<li>/device</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         background_color = astutus.util.get_setting('/astutus/app/usb/settings', 'background_color', "#fcfcfc")
         delta = datetime.now() - begin
         logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
@@ -214,7 +200,6 @@ def handle_usb_device():
         return flask.render_template(
             'usb/dyn_usb_device.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             bare_tree=bare_tree_html,
             aliases_javascript=aliases.to_javascript(),
             configurations_javascript=device_configurations.to_javascript(),
@@ -245,18 +230,10 @@ def handle_usb_device():
 @usb_page.route('/astutus/app/usb/alias.html', methods=['GET'])
 def handle_usb_alias():
     if flask.request.method == 'GET':
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index">/astutus/app</a> &raquo;</li>',
-            '<li><a href="/astutus/app/usb/index.html">/usb</a> &raquo;</li>',
-            '<li>/alias</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         return flask.render_template(
             'usb/dyn_alias.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             aliases=aliases,
             path_item_list=get_alias_path_item_list())
 
@@ -264,14 +241,6 @@ def handle_usb_alias():
 @usb_page.route('/astutus/app/usb/alias/<path:nodepath>/index.html', methods=['GET', "DELETE", "POST"])
 def handle_usb_alias_item(nodepath):
     if flask.request.method == 'GET':
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index.html">/app</a> &raquo;</li>',
-            '<li><a href="/astutus/app/usb/index.html">/usb</a> &raquo;</li>',
-            '<li><a href="/astutus/app/usb/alias.html">/alias</a> &raquo;</li>',
-            f'<li>/{nodepath}</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         item = {
             'id': nodepath,
         }
@@ -282,7 +251,6 @@ def handle_usb_alias_item(nodepath):
             return flask.render_template(
                 'usb/dyn_alias_item.html',
                 static_base=static_base,
-                breadcrumbs_list_items=breadcrumbs_list_items,
                 item=item,
                 nodepath=nodepath,
                 alias=alias,
@@ -328,18 +296,10 @@ def handle_usb_alias_item(nodepath):
 @usb_page.route('/astutus/app/usb/configuration.html', methods=['GET'])
 def handle_usb_configuration():
     if flask.request.method == 'GET':
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app">/astutus/app</a> &raquo;</li>',
-            '<li><a href="/astutus/app/usb/index.html">/usb</a> &raquo;</li>',
-            '<li>/configuration</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         device_configurations = astutus.usb.DeviceConfigurations()
         return flask.render_template(
             'usb/dyn_device_configurations.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             device_configurations=device_configurations,
             idx_item_list=get_config_items_list())
 
@@ -348,20 +308,11 @@ def handle_usb_configuration():
 def handle_usb_configuration_item(node_id):
     if flask.request.method == 'GET':
         logger.debug(f"node_id: {node_id}")
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
-            '<li><a href="/astutus/app/usb/index.html">/usb</a> &raquo;</li>',
-            '<li><a href="/astutus/app/usb/configuration.html">/configuration</a> &raquo;</li>',
-            f'<li>/{node_id}</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         device_configurations = astutus.usb.DeviceConfigurations()
         device_config = device_configurations.get_item(node_id)
         return flask.render_template(
             'usb/dyn_configuration_item.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             item=node_id,
             device_config=device_config,
             idx_item_list=get_config_items_list())

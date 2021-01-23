@@ -20,17 +20,10 @@ def handle_log_from_doc():
 def handle_log():
     """ log_page.route('/astutus/log', methods=[GET']) """
     if flask.request.method == 'GET':
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
-            '<li>/log</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         loggers = astutus.log.get_loggers()
         return flask.render_template(
             'log/dyn_log.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             loggers=loggers)
     if flask.request.method == 'POST':
         # loglevel = getattr(logging, args.loglevel)

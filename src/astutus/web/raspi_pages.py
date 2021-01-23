@@ -32,18 +32,9 @@ def get_items_list():
 
 
 def display_raspi_find(*, search_result, filter):
-    breadcrumbs_list = [
-        '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-        '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
-        '<li><a href="/astutus/app/raspi/index.html">/raspi</a> &raquo;</li>',
-        '<li>find=nmap</li>',
-    ]
-    breadcrumbs_list_items = "\n".join(breadcrumbs_list)
     return flask.render_template(
-        # 'raspi/dyn_raspi_find.html',
         'raspi/dyn_raspi.html',
         static_base=static_base,
-        breadcrumbs_list_items=breadcrumbs_list_items,
         search_result=search_result,
         filter=filter,
         idx_item_list=get_items_list())
@@ -63,16 +54,9 @@ def handle_raspi():
         if flask.request.args.get('find') is not None:
             logger.debug("Go to display_raspi_find")
             return display_raspi_find(search_result=None, filter=["Raspberry"])
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
-            '<li>/raspi</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         return flask.render_template(
             'raspi/dyn_raspi.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             filter=["Raspberry"],
             idx_item_list=get_items_list())
 
@@ -135,17 +119,9 @@ def handle_raspi_item(idx):
         if item is None:
             # Create a dummy item to display error message
             item = astutus.db.RaspberryPi(id=f"non-existent {idx}", ipv4="no such id", mac_addr="no such id")
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
-            '<li><a href="/astutus/app/raspi/index.html">/raspi</a> &raquo;</li>',
-            f'<li>/{item.id}</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         return flask.render_template(
             'raspi/dyn_raspi_item.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             item=item,
             idx=idx,
             idx_item_list=get_items_list())
@@ -157,18 +133,9 @@ def handle_raspi_item_ifconfig(idx):
         item = astutus.db.RaspberryPi.query.get(idx)
         raspi = astutus.raspi.RaspberryPi(db_data=item)
         ifconfig = raspi.get_ifconfig()
-        breadcrumbs_list = [
-            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus/app/index.html">/astutus</a> &raquo;</li>',
-            '<li><a href="/astutus/app/raspi/index.html">/raspi</a> &raquo;</li>',
-            f'<li><a href="/astutus/app/raspi/{idx}/index.html">/{idx}</a> &raquo;</li>',
-            '<li>/ifconfig</li>',
-        ]
-        breadcrumbs_list_items = "\n".join(breadcrumbs_list)
         return flask.render_template(
             'raspi/dyn_item_ifconfig.html',
             static_base=static_base,
-            breadcrumbs_list_items=breadcrumbs_list_items,
             idx=idx,
             ifconfig=ifconfig,
             idx_item_list=get_items_list())

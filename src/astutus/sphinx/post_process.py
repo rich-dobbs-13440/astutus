@@ -265,6 +265,7 @@ def fix_navigation_hrefs(html_text, docname, dyn_link_list, dyn_base):
     # Use simple state machine to process the document on a line-by-line basis.
     output_chunks = []
     state = 'outside_nav'
+    li_selector = None
     for line in html_text.splitlines():
         if state == 'outside_nav':
             output_chunks.append(line)
@@ -272,13 +273,19 @@ def fix_navigation_hrefs(html_text, docname, dyn_link_list, dyn_base):
             # <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
             if 'wy-menu-vertical' in line and '<div ' in line:
                 state = 'in_nav'
+                li_selector = '<li class="toctree'
             # Handle embedded toc links: <div class="toctree-wrapper compound">
             elif 'toctree-wrapper' in line and '<div ' in line:
                 state = 'in_nav'
+                li_selector = '<li class="toctree'
+            # Handle bread navigation: <div role="navigation" aria-label="breadcrumbs navigation">
+            elif 'aria-label="breadcrumbs navigation"' in line and '<div ' in line:
+                state = 'in_nav'
+                li_selector = '<li><a href="'
         elif state == 'in_nav':
             # Handle a link like this:
             # <li class="toctree-l2"><a class="reference internal" href="raspi/dyn_raspi.html">Raspberry Pi’s</a></li>
-            if '<li class="toctree' in line:
+            if li_selector in line:
                 # Replace relative href with an absolute href based on the doc and dynamic link modifications.
                 modified_line, tags = replace_relative_href(line, docname, dyn_links, dyn_base)
                 if len(tags) == 0:
@@ -303,7 +310,8 @@ def process_dynamic_template(input_path, output_basepath, docname, dyn_link_list
     with open(input_path, "r") as input_file:
         html_text = input_file.read()
 
-    html_text = prepare_breadcrumbs_navigation(html_text)
+    # Leave the original breadcrumbs in place, in prep for automated fix up.
+    # html_text = prepare_breadcrumbs_navigation(html_text)
     html_text = apply_line_oriented_replacements(html_text)
     html_text = indent_html_text(html_text)
     html_text = fix_navigation_hrefs(html_text, docname, dyn_link_list, dyn_base)

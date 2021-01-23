@@ -99,11 +99,6 @@ def handle_app_index_from_doc():
 def handle_astutus():
 
     """ app.route('/astutus') """
-    breadcrumbs_list = [
-        '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
-        '<li>/astutus</li>',
-    ]
-    breadcrumbs_list_items = "\n".join(breadcrumbs_list)
     links_list = [
         '<li><p>Control the <a class="reference internal" href="/astutus/log">logging</a> in the web application.</p></li>'  # noqa
         '<li><p>Discover and work with <a class="reference internal" href="/astutus/app/raspi"><span class="doc">Raspberry Pi\'s</span> on your system</a></p></li>',  # noqa
@@ -113,7 +108,6 @@ def handle_astutus():
     return flask.render_template(
         'dyn_index.html',
         static_base=static_base,
-        breadcrumbs_list_items=breadcrumbs_list_items,
         links=links)
 
 
