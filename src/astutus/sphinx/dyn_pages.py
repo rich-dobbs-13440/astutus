@@ -56,71 +56,46 @@ class DynDestinationNode(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
-class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
+# class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
 
-    def set_item_list_name(self, item_list_name):
-        self.item_list_name = item_list_name
+#     def set_item_list_name(self, item_list_name):
+#         self.item_list_name = item_list_name
 
-    def set_item_pattern(self, pattern):
-        self.pattern = pattern
+#     def set_item_pattern(self, pattern):
+#         self.pattern = pattern
 
-    def set_replace_replace_inner_html(self, replace_inner_html):
-        if replace_inner_html is None:
-            self.replace_inner_html = True
-        elif replace_inner_html == "false":
-            self.replace_inner_html = False
-        elif replace_inner_html == "true":
-            self.replace_inner_html = True
-        else:
-            raise ValueError("Expecting 'true' or 'false'")
-
-    def replace_node_content(self, astutus_dyn_link_list, docs_base, dyn_base):
-        content = []
-        script = ScriptNode()
-        script += docutils.nodes.raw('', "\n<script>\n", format='html')
-        dyn_links_json = self.dyn_links_as_json(astutus_dyn_link_list)
-        script += docutils.nodes.raw('', f"const astutusDocname = '{self.docname}';\n", format='html')
-        script += docutils.nodes.raw('', f"const astutusDynLinkList = \n{dyn_links_json};\n", format='html')
-        script += docutils.nodes.raw('', f"const astutusDocsBase = '{docs_base}';\n", format='html')
-        script += docutils.nodes.raw('', f"const astutusDynBase = '{dyn_base}';\n", format='html')
-        script += docutils.nodes.raw('', "astutusDynPage.applyDynamicLinks(", format='html')
-        script += docutils.nodes.raw('', "astutusDocname", format='html')
-        script += docutils.nodes.raw('', ", astutusDynLinkList", format='html')
-        script += docutils.nodes.raw('', ", astutusDocsBase", format='html')
-        script += docutils.nodes.raw('', ", astutusDynBase", format='html')
-        if self.item_list_name is not None:
-            script += docutils.nodes.raw('', f", {self.item_list_name}", format='html')
-            if self.pattern is not None:
-                script += docutils.nodes.raw('', f", '{self.pattern}'", format='html')
-                if self.replace_inner_html is False:
-                    script += docutils.nodes.raw('', ", false", format='html')
-        script += docutils.nodes.raw('', ");\n", format='html')
-        script += docutils.nodes.raw('', "</script>\n", format='html')
-        content.append(script)
-        self.replace_self(content)
-
-    @staticmethod
-    def dyn_links_as_json(astutus_dyn_link_list):
-        items = []
-        # Don't want trailing comma in Javascript, so use join to make list
-        for link in astutus_dyn_link_list:
-            # Note: docname is a relative path without a file extension. So something like this:
-            # {'docname': 'flask_app_templates/flask_app_dyn_astutus', 'replacement_url': '"/astutus"'}
-            # For this to work from Sphinx configuration directory and other folders, must
-            # retain only file name, and that will need to be unique.
-            if link['docname'].find('/') >= 0:
-                _, basename = link['docname'].rsplit('/', 1)
-            else:
-                basename = link['docname']
-            search_snippet = f"'search_pattern': '{basename}.html'"
-            replacement_url_snippet = f"'replacement_url':'{link['replacement_url']}'"
-            item = "    {" + search_snippet + ", " + replacement_url_snippet + "}"
-            items.append(item)
-            search_snippet_link = f"'search_pattern': '{basename}#'"
-            item = "    {" + search_snippet_link + ", " + replacement_url_snippet + "}"
-            items.append(item)
-        items_text = ',\n'.join(items)
-        return '[' + items_text + ']'
+#     def set_replace_replace_inner_html(self, replace_inner_html):
+#         if replace_inner_html is None:
+#             self.replace_inner_html = True
+#         elif replace_inner_html == "false":
+#             self.replace_inner_html = False
+#         elif replace_inner_html == "true":
+#             self.replace_inner_html = True
+#         else:
+#             raise ValueError("Expecting 'true' or 'false'")
+#
+# @staticmethod
+# def dyn_links_as_json(astutus_dyn_link_list):
+#     items = []
+#     # Don't want trailing comma in Javascript, so use join to make list
+#     for link in astutus_dyn_link_list:
+#         # Note: docname is a relative path without a file extension. So something like this:
+#         # {'docname': 'flask_app_templates/flask_app_dyn_astutus', 'replacement_url': '"/astutus"'}
+#         # For this to work from Sphinx configuration directory and other folders, must
+#         # retain only file name, and that will need to be unique.
+#         if link['docname'].find('/') >= 0:
+#             _, basename = link['docname'].rsplit('/', 1)
+#         else:
+#             basename = link['docname']
+#         search_snippet = f"'search_pattern': '{basename}.html'"
+#         replacement_url_snippet = f"'replacement_url':'{link['replacement_url']}'"
+#         item = "    {" + search_snippet + ", " + replacement_url_snippet + "}"
+#         items.append(item)
+#         search_snippet_link = f"'search_pattern': '{basename}#'"
+#         item = "    {" + search_snippet_link + ", " + replacement_url_snippet + "}"
+#         items.append(item)
+#     items_text = ',\n'.join(items)
+#     return '[' + items_text + ']'
 
 
 class DynLinksInMenuDirective(SphinxDirective):
@@ -128,24 +103,25 @@ class DynLinksInMenuDirective(SphinxDirective):
     optional_arguments = 3
 
     def run(self):
-        node = DynLinksInMenuListNode('')
-        node.docname = self.env.docname
-        if len(self.arguments) > 0:
-            item_list_name = self.arguments[0]
-        else:
-            item_list_name = None
-        node.set_item_list_name(item_list_name)
-        if len(self.arguments) > 1:
-            item_pattern = self.arguments[1]
-        else:
-            item_pattern = None
-        node.set_item_pattern(item_pattern)
-        if len(self.arguments) > 2:
-            replace_inner_html = self.arguments[2]
-        else:
-            replace_inner_html = None
-        node.set_replace_replace_inner_html(replace_inner_html)
-        return [node]
+        # node = DynLinksInMenuListNode('')
+        # node.docname = self.env.docname
+        # if len(self.arguments) > 0:
+        #     item_list_name = self.arguments[0]
+        # else:
+        #     item_list_name = None
+        # node.set_item_list_name(item_list_name)
+        # if len(self.arguments) > 1:
+        #     item_pattern = self.arguments[1]
+        # else:
+        #     item_pattern = None
+        # node.set_item_pattern(item_pattern)
+        # if len(self.arguments) > 2:
+        #     replace_inner_html = self.arguments[2]
+        # else:
+        #     replace_inner_html = None
+        # node.set_replace_replace_inner_html(replace_inner_html)
+        # return [node]
+        return []
 
     @staticmethod
     def generate_menu_modification(app, doctree, fromdocname):
@@ -172,11 +148,10 @@ class DynLinksInMenuDirective(SphinxDirective):
         env = app.builder.env
         if not hasattr(env, 'astutus_dyn_link_list'):
             env.astutus_dyn_link_list = []
-        for node in doctree.traverse(DynLinksInMenuListNode):
-            logger.debug("Got to generate_menu_modification")
-            node.replace_self(docutils.nodes.Text(''))
-        # node.replace_node_content([])
-        #         env.astutus_dyn_link_list, app.config.astutus_docs_base, app.config.astutus_dyn_base)
+        # for node in doctree.traverse(DynLinksInMenuListNode):
+        #     assert False, "Think this is dead now."
+        #     logger.debug("Got to generate_menu_modification")
+        #     node.replace_self(docutils.nodes.Text(''))
 
 
 class DynLinkDirective(SphinxDirective):
@@ -369,9 +344,9 @@ def setup(app):
         DynLinkNode,
         html=(visit_dyn_link_node, depart_dyn_link_node)
     )
-    app.add_node(
-        DynLinksInMenuListNode,
-    )
+    # app.add_node(
+    #     DynLinksInMenuListNode,
+    # )
     app.add_node(
         ScriptNode,
         html=(visit_generic_node, depart_generic_node)
