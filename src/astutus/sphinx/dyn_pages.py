@@ -232,7 +232,6 @@ def config_inited(app, config):
     # is installed.  Haven't figured out a way to selectively
     # add this only to the files where the directives are used.
     app.add_css_file('astutus_dynamic_sphinx_pages.css')
-    app.add_js_file('astutus_dynamic_sphinx_pages.js')
 
 
 def setup(app):

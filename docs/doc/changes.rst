@@ -43,7 +43,7 @@ let us know!
 
 Backlog:
 
-  * Task: Backout dead javascript and Sphinx extension code
+  * Task: Work out search page with new structure.
   * Task: Automate generation of breadcrumbs for dynamic pages.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
   * Task: Provide a link to the RPi's astutus-web-app.
@@ -72,6 +72,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |done| 2021-01-23 10:00 Task: Backout dead javascript and Sphinx extension code
   * |done| 2021-01-23 09:07 Task: Use id's rather than direct docnames for identifying dynamic replacements.
   * |done| 2021-01-22 12:27 Task: Move Toggle styling to a static CSS file.
   * |done| 2021-01-22 11:24 Task: Handle markup within astutus_toggle_note content.
