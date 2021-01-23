@@ -1,7 +1,7 @@
 Device Configuration
 ====================
 
-.. astutus_dyn_bookmark:: USB Configuration - /astutus/usb/device_configuration/{{ nodeid }}
+.. astutus_dyn_bookmark:: USB Configuration - /astutus/app/usb/device_configuration/{{ nodeid }}
 
 .. warning::  This page is under construction and can't be used to modify configurations.
 
@@ -16,7 +16,5 @@ Device Configuration
 .. astutus_dyn_include:: delete_item_form.html
 
 .. astutus_dyn_link:: "/astutus/app/usb/configuration/<idx>/index.html"
-
-.. astutus_dyn_include:: usb/config_items_list_js.html
 
 .. astutus_dyn_links_in_menus:: config_items_list <idx>

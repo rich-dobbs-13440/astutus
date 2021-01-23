@@ -216,7 +216,7 @@ def wrap_in_jinja2_loop(line_with_angled_tags, tags):
 
     line_with_jinja2_substitutions = line_with_angled_tags
     for tag in tags:
-        jinja2_variable = tag.replace('<', '{{ ').replace('>', '.value }}')
+        jinja2_variable = tag.replace('<', '{{ ').replace('>', '_item.value }}')
         line_with_jinja2_substitutions = line_with_jinja2_substitutions.replace(tag, jinja2_variable)
     loop_variable = tags[-1].replace('<', '').replace('>', '') + '_item'
     # TODO: Replace link text

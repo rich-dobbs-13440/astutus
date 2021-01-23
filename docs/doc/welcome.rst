@@ -9,7 +9,7 @@ just click this link:
 
 .. raw:: html
 
-   <p><a href="/astutus">Astutus From the Browser</a></p>
+   <p><a href="/astutus/app/index.html">Astutus From the Browser</a></p>
 
 If that link doesn't work, you will need to install the Python
 package and run the web application:

@@ -100,7 +100,7 @@ def handle_astutus():
 
     """ app.route('/astutus') """
     breadcrumbs_list = [
-        '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
+        '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
         '<li>/astutus</li>',
     ]
     breadcrumbs_list_items = "\n".join(breadcrumbs_list)

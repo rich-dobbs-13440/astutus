@@ -42,7 +42,7 @@ let us know!
 
 
 Backlog:
-  * Task: Use id's rather than direct docnames for identifying dynamic replacements.
+
   * Task: Backout dead javascript and Sphinx extension code
   * Task: Automate generation of breadcrumbs for dynamic pages.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
@@ -72,7 +72,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
-  * |done| 2021-01-22 21:30
+  * |done| 2021-01-23 09:07 Task: Use id's rather than direct docnames for identifying dynamic replacements.
   * |done| 2021-01-22 12:27 Task: Move Toggle styling to a static CSS file.
   * |done| 2021-01-22 11:24 Task: Handle markup within astutus_toggle_note content.
   * |done| 2021-01-22 09:31 Task: Directive astutus_toggle_note working in basic form.

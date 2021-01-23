@@ -21,8 +21,8 @@ def handle_log():
     """ log_page.route('/astutus/log', methods=[GET']) """
     if flask.request.method == 'GET':
         breadcrumbs_list = [
-            '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-            '<li><a href="/astutus">/astutus</a> &raquo;</li>',
+            '<li><a href="/astutus/index.html" class="icon icon-home"></a> &raquo;</li>',
+            '<li><a href="/astutus/app/index.html">/astutus/app</a> &raquo;</li>',
             '<li>/log</li>',
         ]
         breadcrumbs_list_items = "\n".join(breadcrumbs_list)

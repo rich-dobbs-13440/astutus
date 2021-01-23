@@ -30,6 +30,5 @@ the challenges of the USB implementation:
 
     dyn_usb_alias_item
 
-.. astutus_dyn_include:: usb/alias_items_list_js.html
 
 .. astutus_dyn_links_in_menus:: alias_items_list <path>
