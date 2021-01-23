@@ -1,11 +1,23 @@
 import astutus
 import astutus.sphinx.post_process
+import astutus.util
 import docutils
 
+import sphinx.addnodes
 import sphinx.util
 from sphinx.util.docutils import SphinxDirective
 
 logger = sphinx.util.logging.getLogger(__name__)
+
+
+def log_as_info(msg):
+    # Kludgy to use a closure to get colored logging specific to our code,
+    # but easier than modifying logger format.
+    ansi = astutus.util.AnsiSequenceStack()
+    start = ansi.push
+    info = '#FFA500'  # Color our info messages as orange
+    end = ansi.end
+    logger.info(f"{start(info)}{msg}{end(info)}")
 
 
 class DynLinkNode(docutils.nodes.General, docutils.nodes.Element):
@@ -62,11 +74,11 @@ class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
         else:
             raise ValueError("Expecting 'true' or 'false'")
 
-    def replace_node_content(self, dyn_link_list, docs_base, dyn_base):
+    def replace_node_content(self, astutus_dyn_link_list, docs_base, dyn_base):
         content = []
         script = ScriptNode()
         script += docutils.nodes.raw('', "\n<script>\n", format='html')
-        dyn_links_json = self.dyn_links_as_json(dyn_link_list)
+        dyn_links_json = self.dyn_links_as_json(astutus_dyn_link_list)
         script += docutils.nodes.raw('', f"const astutusDocname = '{self.docname}';\n", format='html')
         script += docutils.nodes.raw('', f"const astutusDynLinkList = \n{dyn_links_json};\n", format='html')
         script += docutils.nodes.raw('', f"const astutusDocsBase = '{docs_base}';\n", format='html')
@@ -88,10 +100,10 @@ class DynLinksInMenuListNode(docutils.nodes.General, docutils.nodes.Element):
         self.replace_self(content)
 
     @staticmethod
-    def dyn_links_as_json(dyn_link_list):
+    def dyn_links_as_json(astutus_dyn_link_list):
         items = []
         # Don't want trailing comma in Javascript, so use join to make list
-        for link in dyn_link_list:
+        for link in astutus_dyn_link_list:
             # Note: docname is a relative path without a file extension. So something like this:
             # {'docname': 'flask_app_templates/flask_app_dyn_astutus', 'replacement_url': '"/astutus"'}
             # For this to work from Sphinx configuration directory and other folders, must
@@ -158,11 +170,13 @@ class DynLinksInMenuDirective(SphinxDirective):
         if app.config.astutus_dyn_base == "":
             raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
         env = app.builder.env
-        if not hasattr(env, 'dyn_link_list'):
-            env.dyn_link_list = []
+        if not hasattr(env, 'astutus_dyn_link_list'):
+            env.astutus_dyn_link_list = []
         for node in doctree.traverse(DynLinksInMenuListNode):
             logger.debug("Got to generate_menu_modification")
-            node.replace_node_content(env.dyn_link_list, app.config.astutus_docs_base, app.config.astutus_dyn_base)
+            node.replace_self(docutils.nodes.Text(''))
+        # node.replace_node_content([])
+        #         env.astutus_dyn_link_list, app.config.astutus_docs_base, app.config.astutus_dyn_base)
 
 
 class DynLinkDirective(SphinxDirective):
@@ -172,13 +186,13 @@ class DynLinkDirective(SphinxDirective):
     def run(self):
         logger.debug("DynLinkDirective.run")
 
-        if not hasattr(self.env, 'dyn_link_list'):
-            self.env.dyn_link_list = []
+        if not hasattr(self.env, 'astutus_dyn_link_list'):
+            self.env.astutus_dyn_link_list = []
 
         # Some inconsistency in whether the argument will come back with
         # quotes or not.  Need to figure out how to use converters and use path as type.
         replacement_url = self.arguments[0].replace('"', '').replace("'", '')
-        self.env.dyn_link_list.append({
+        self.env.astutus_dyn_link_list.append({
             'docname': self.env.docname,
             'replacement_url': replacement_url
         })
@@ -191,7 +205,7 @@ class DynBookmarkDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self):
-        logger.warning("DynBookmarkDirective.run")
+        log_as_info("\nDynBookmarkDirective.run")
         node = DynBookmarkNode('')
         node.value = self.arguments[0]
         return [node]
@@ -200,7 +214,7 @@ class DynBookmarkDirective(SphinxDirective):
     def handle_insert_markup(app, doctree, fromdocname):
         """ Handle title modification by inserting post processing markup. """
         for node in doctree.traverse(DynBookmarkNode):
-            logger.debug("DynBookmarkDirective.handle_title_modification")
+            log_as_info("\nDynBookmarkDirective.handle_insert_markup")
             jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
             replacement = f'\n««HTML_TITLE»» {jinja2_value} ««END_HTML_TITLE»»\n'
             replacement_node = docutils.nodes.raw('', replacement, format='html')
@@ -212,7 +226,7 @@ class DynIncludeDirective(SphinxDirective):
     required_arguments = 1
 
     def run(self):
-        logger.warning("DynIncludeDirective.run")
+        log_as_info("\nDynIncludeDirective.run")
         node = DynIncludeNode('')
         node.value = self.arguments[0]
         return [node]
@@ -233,7 +247,7 @@ class DynDestinationDirective(SphinxDirective):
     required_arguments = 1
 
     def run(self):
-        logger.warning("DynDestinationDirective.run")
+        log_as_info("\nDynDestinationDirective.run")
         node = DynDestinationNode('')
         node.value = self.arguments[0]
         return [node]
@@ -242,7 +256,7 @@ class DynDestinationDirective(SphinxDirective):
     def handle_insert_markup(app, doctree, fromdocname):
         """ Handle title modification by inserting post processing markup. """
         for node in doctree.traverse(DynDestinationNode):
-            logger.debug("DynBookmarkDirective.handle_title_modification")
+            log_as_info("\nDynDestinationDirective.handle_insert_markup")
             jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
             replacement = f'\n««DESTINATION»» {jinja2_value} ««END_DESTINATION»»\n'
             replacement_node = docutils.nodes.raw('', replacement, format='html')
@@ -260,7 +274,7 @@ class ToggleNoteDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self):
-        logger.warning("ToggleNoteDirective.run")
+        log_as_info("\nToggleNoteDirective.run")
         if len(self.arguments) > 0:
             toggle_start = self.arguments[0]
         else:
@@ -295,7 +309,7 @@ class ToggleNoteDirective(SphinxDirective):
         logger.debug(f"ToggleNoteDirective.handle_insert_markup  fromdocname: {fromdocname}")
         idx = 0
         for node in doctree.traverse(ToggleNoteNode):
-            logger.warning("ToggleNoteDirective.handle_insert_markup")
+            log_as_info("\nToggleNoteDirective.handle_insert_markup")
             children = node.children
             container = docutils.nodes.container()
             container['classes'] += ['astutus-toggle', 'admonition', 'note']
@@ -319,9 +333,16 @@ class ToggleNoteDirective(SphinxDirective):
             node.replace_self(container)
 
 
+def examine_toctree(app, doctree, fromdocname):
+    pass
+    # log_as_info(f"\nexamine_toctree env.tocs.get: {app.env.tocs.get(fromdocname)} ")
+    # for node in doctree.traverse(sphinx.addnodes.toctree):
+    #     log_as_info(f"\nexamine_toctree docname: {fromdocname} ")
+
+
 def config_inited(app, config):
     """ Check that the required configuration variables have been initialized"""
-    logger.warn("Got to config_inited")
+    log_as_info('Got to config_inited')
     if app.config.astutus_docs_base == '':
         raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
     if app.config.astutus_dyn_base == "":
@@ -380,6 +401,8 @@ def setup(app):
 
     app.add_directive('astutus_toggle_note', ToggleNoteDirective)
     app.connect('doctree-resolved', ToggleNoteDirective.handle_insert_markup)
+
+    app.connect('doctree-resolved', examine_toctree)
 
     app.connect('config-inited', config_inited)
     app.connect('build-finished', astutus.sphinx.post_process.post_process)

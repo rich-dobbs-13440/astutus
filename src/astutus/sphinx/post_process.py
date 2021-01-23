@@ -1,10 +1,20 @@
 import os
 import pathlib
 import re
+import urllib.parse
 
 import sphinx.util
+import astutus.util
 
 logger = sphinx.util.logging.getLogger(__name__)
+
+
+def log_as_info(msg):
+    ansi = astutus.util.AnsiSequenceStack()
+    start = ansi.push
+    info = '#FFFF33'  # Color our info messages as yellow
+    end = ansi.end
+    logger.info(f"{start(info)}{msg}{end(info)}")
 
 
 # Since the Jinja2 templates may not be legal HTML5, this process will be based
@@ -20,7 +30,7 @@ def prepare_breadcrumbs_navigation(html_text):
     # Create a closure to produce output
     def add_to_output(line):
         # Strip all whitespace from lines, since the sphinx generated pages are completely inconsistent.
-        # Probably should pretty print html at the end.
+        # Pretty print html at the end.
         stripped_line = line.strip()
         # print(f"stripped_line: {stripped_line}")
         if stripped_line != "":
@@ -166,7 +176,107 @@ def indent_html_text(html_text):
     return "".join(output_chunks)
 
 
-def process_dynamic_template(input_path, output_basepath):
+def extract_tags_from_path(path):
+    tag_search_pattern = r'\/(\<\w+\>)\/'
+    matches = re.search(tag_search_pattern, path)
+    if matches:
+        tags = list(matches.groups())
+    else:
+        tags = []
+    return tags
+
+
+def replace_relative_href(line: str, docname: str, dyn_links: dict, dyn_base: str) -> (str, list):
+    # Extract out the value of the href using regexp
+    # <li class="toctree-l2"><a class="reference internal" href="raspi/dyn_raspi.html">Raspberry Pi’s</a></li>
+    pattern = r'href=\"([^\"]+)\"'
+    matches = re.search(pattern, line)
+    href_value = matches.group(1)
+    # Make a fake http url from the docname, and use that to resolve relative paths including "#"
+    server = "http://fake/"
+    base_url = server + docname + ".html"
+    href_absolute_url = urllib.parse.urljoin(base_url, href_value)
+    # Extract out the docname for the href, to be able to lookup the dynamic link.
+    href_parts = urllib.parse.urlsplit(href_absolute_url)
+    logger.debug(f'href_parts: {href_parts}')
+    href_docname = href_parts[2].replace('.html', '')
+    # Find the dynamic link if it has been defined.
+    replacement_href_value = dyn_links.get(href_docname)
+    if replacement_href_value is None:
+        replacement_href_value = href_absolute_url.replace(server, dyn_base + '/')
+        replacements_tags = []
+    else:
+        replacements_tags = extract_tags_from_path(replacement_href_value)
+    subst = f'href="{replacement_href_value}" orig_href="{href_value}"'
+    modified_line = re.sub(pattern, subst, line)
+    return modified_line, replacements_tags
+
+
+def wrap_in_jinja2_loop(line_with_angled_tags, tags):
+
+    line_with_jinja2_substitutions = line_with_angled_tags
+    for tag in tags:
+        jinja2_variable = tag.replace('<', '{{ ').replace('>', '.value }}')
+        line_with_jinja2_substitutions = line_with_jinja2_substitutions.replace(tag, jinja2_variable)
+    loop_variable = tags[-1].replace('<', '').replace('>', '')
+    # TODO: Replace link text
+    lines = []
+    indentation = line_with_angled_tags.replace(line_with_angled_tags.lstrip(), '')
+    indent = '    '
+    loop_list = loop_variable + '_list'
+    lines.append(indentation + '{% for ' + loop_variable + ' in ' + loop_list + '  %}')
+    lines.append(indent + line_with_jinja2_substitutions)
+    lines.append(indentation + '{% endfor  %}')
+    lines.append(indentation + '{% if ' + loop_list + ' is not defined %}')
+    # Use the undefined loop_list variable in the template in a fashion that will trigger a server error
+    # with easy-to-debug traceback:
+    #    jinja2.exceptions.UndefinedError: 'idx_list_____must_be_defined_in_template_call' is undefined
+    lines.append(indentation + indent + '{{ ' + loop_list + '_____must_be_defined_in_template_call.__' + ' }}')
+    lines.append(indentation + '{% endif  %}')
+    return lines
+
+
+def fix_navigation_hrefs(html_text, docname, dyn_link_list, dyn_base):
+    ''' Fix up hrefs used in table of contents. '''
+    # For this implementation, want the dynamic links as a dictionary, not a list
+    dyn_links = {}
+    for link in dyn_link_list:
+        # path includes leading slash when parsing urls, docnames do not, and
+        # are relative to the top.  Best to just fix it up.
+        key = '/' + link['docname']
+        dyn_links[key] = link['replacement_url']
+    # Use simple state machine to process the document on a line-by-line basis.
+    output_chunks = []
+    state = 'outside_nav'
+    for line in html_text.splitlines():
+        if state == 'outside_nav':
+            output_chunks.append(line)
+            # Handle side bar menu in read-the-docs theme:
+            # <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+            if 'wy-menu-vertical' in line and '<div ' in line:
+                state = 'in_nav'
+            # Handle embedded toc links: <div class="toctree-wrapper compound">
+            elif 'toctree-wrapper' in line and '<div ' in line:
+                state = 'in_nav'
+        elif state == 'in_nav':
+            # Handle a link like this:
+            # <li class="toctree-l2"><a class="reference internal" href="raspi/dyn_raspi.html">Raspberry Pi’s</a></li>
+            if '<li class="toctree' in line:
+                # Replace relative href with an absolute href based on the doc and dynamic link modifications.
+                modified_line, tags = replace_relative_href(line, docname, dyn_links, dyn_base)
+                if len(tags) == 0:
+                    output_chunks.append(modified_line)
+                else:
+                    output_chunks.extend(wrap_in_jinja2_loop(modified_line, tags))
+            elif '</div>' in line:
+                state = 'outside_nav'
+                output_chunks.append(line)
+            else:
+                output_chunks.append(line)
+    return "\n".join(output_chunks)
+
+
+def process_dynamic_template(input_path, output_basepath, docname, dyn_link_list, dyn_base):
     """  Process the Sphinx generated html file to produced a styled Jinja template
 
     The destination filepath can be automatically derived from the input
@@ -179,6 +289,7 @@ def process_dynamic_template(input_path, output_basepath):
     html_text = prepare_breadcrumbs_navigation(html_text)
     html_text = apply_line_oriented_replacements(html_text)
     html_text = indent_html_text(html_text)
+    html_text = fix_navigation_hrefs(html_text, docname, dyn_link_list, dyn_base)
 
     if '<!-- DYNAMIC_TEMPLATE_OUTPUT_FILE' not in html_text:
         # skip this file
@@ -191,29 +302,40 @@ def process_dynamic_template(input_path, output_basepath):
     pattern = r'\<!--\s+DYNAMIC_TEMPLATE_OUTPUT_FILE\s+([\w,\/,\.]+)\s-->'
     matches = re.search(pattern, html_text)
     output_relative_filepath = matches.group(1)
-    output_path = os.path.join(output_basepath, output_relative_filepath)
+    output_path = os.path.join(output_basepath, output_relative_filepath).strip()
 
     output_dir = os.path.dirname(output_path)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     with open(output_path, "w") as output_file:
         output_file.write(html_text)
-    print(f"INFO: Wrote out file output_path: {output_path}\n")
+    log_as_info(f"Wrote out file output_path: {output_path}")
 
 
 def post_process(app, exception):
-    logger.warn("Got to post process")
+    log_as_info("Got to post process")
     # logger.warn(f"app: {dir(app)}")
-    logger.warn(f"outdir: {app.outdir}")
+    log_as_info(f"outdir: {app.outdir}")
     source_dir = pathlib.Path(app.outdir) / app.config.astutus_dyn_pages_dir
-    logger.warn(f"source_dir: {source_dir}")
+    log_as_info(f"source_dir: {source_dir}")
     destin_dir = pathlib.Path(app.outdir).parent / app.config.astutus_dynamic_templates
     os.makedirs(destin_dir)
-    logger.warn(f"destin_dir: {destin_dir}")
+    log_as_info(f"destin_dir: {destin_dir}")
+
+    # log_as_info(f"app.env.tocs: {app.env.tocs}")
+    log_as_info(f"app.env.astutus_dyn_link_list: {app.env.astutus_dyn_link_list}")
 
     for dirpath, dirnames, filenames in os.walk(source_dir):
-        print(f"dirpath: {dirpath}\n")
+        log_as_info(f"dirpath: {dirpath}")
         for filename in filenames:
             input_path = os.path.join(dirpath, filename)
-            print(f"input_path: {input_path}")
-            process_dynamic_template(input_path, destin_dir)
+            log_as_info(f"input_path: {input_path}")
+#
+            relative_path = os.path.relpath(input_path, app.outdir)
+            log_as_info(f"relative_path: {relative_path} ")
+            docname, extension = relative_path.rsplit('.', 1)
+            log_as_info(f"docname: {docname}")
+            # log_as_info(f"toc: {app.env.tocs[docname]}")
+            process_dynamic_template(
+                input_path, destin_dir, docname, app.env.astutus_dyn_link_list, app.config.astutus_dyn_base)
+            # logger.info(f"examine_toctree env.tocs.get: {app.env.tocs.get(fromdocname)}")

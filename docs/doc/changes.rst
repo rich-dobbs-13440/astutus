@@ -42,8 +42,9 @@ let us know!
 
 
 Backlog:
-
   * Task: Use id's rather than direct docnames for identifying dynamic replacements.
+  * Task: Backout dead javascript and Sphinx extension code
+  * Story: Polish sphinx extension so that it is good-enough to be used by others.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
@@ -70,6 +71,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |done| 2021-01-22 21:30
   * |done| 2021-01-22 12:27 Task: Move Toggle styling to a static CSS file.
   * |done| 2021-01-22 11:24 Task: Handle markup within astutus_toggle_note content.
   * |done| 2021-01-22 09:31 Task: Directive astutus_toggle_note working in basic form.

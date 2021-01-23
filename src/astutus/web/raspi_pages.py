@@ -1,4 +1,3 @@
-import json
 import logging
 from http import HTTPStatus
 
@@ -24,12 +23,12 @@ def process_raspi_search_using_nmap(args):
     return display_raspi_find(search_result=search_result, filter=filter)
 
 
-def get_items_list_as_json():
+def get_items_list():
     items = astutus.db.RaspberryPi.query.all()
     items_list = []
     for item in items:
-        items_list.append({'value': item.id, 'innerHTML': item.ipv4})
-    return json.dumps(items_list)
+        items_list.append({'value': item.id, 'link_text': item.ipv4})
+    return items_list
 
 
 def display_raspi_find(*, search_result, filter):
@@ -47,7 +46,7 @@ def display_raspi_find(*, search_result, filter):
         breadcrumbs_list_items=breadcrumbs_list_items,
         search_result=search_result,
         filter=filter,
-        raspi_items_list=get_items_list_as_json())
+        idx_list=get_items_list())
 
 
 @raspi_page.route('/astutus/app/raspi/dyn_raspi.html', methods=['GET'])
@@ -75,7 +74,7 @@ def handle_raspi():
             static_base=static_base,
             breadcrumbs_list_items=breadcrumbs_list_items,
             filter=["Raspberry"],
-            raspi_items_list=get_items_list_as_json())
+            idx_list=get_items_list())
 
     if flask.request.method == 'POST':
         form = flask.request.form
@@ -149,7 +148,7 @@ def handle_raspi_item(idx):
             breadcrumbs_list_items=breadcrumbs_list_items,
             item=item,
             idx=idx,
-            raspi_items_list=get_items_list_as_json())
+            idx_list=get_items_list())
 
 
 @raspi_page.route('/astutus/app/raspi/<int:idx>/ifconfig.html', methods=['GET'])
@@ -173,4 +172,4 @@ def handle_raspi_item_ifconfig(idx):
             breadcrumbs_list_items=breadcrumbs_list_items,
             idx=idx,
             ifconfig=ifconfig,
-            raspi_items_list=get_items_list_as_json())
+            idx_list=get_items_list())
