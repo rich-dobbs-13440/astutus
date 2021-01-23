@@ -20,18 +20,6 @@ def log_as_info(msg):
     logger.info(f"{start(info)}{msg}{end(info)}")
 
 
-class DynLinkNode(docutils.nodes.General, docutils.nodes.Element):
-    pass
-
-
-def visit_dyn_link_node(self, node):
-    pass
-
-
-def depart_dyn_link_node(self, node):
-    pass
-
-
 def visit_generic_node(self, node):
     logger.debug(f"Visiting node: {node} ")
 
@@ -40,28 +28,18 @@ def depart_generic_node(self, node):
     logger.debug(f"Departing node: {node} ")
 
 
-class ScriptNode(docutils.nodes.General, docutils.nodes.Element):
+class LinkNode(docutils.nodes.General, docutils.nodes.Element):
     pass
 
 
-class DynBookmarkNode(docutils.nodes.General, docutils.nodes.Element):
-    pass
-
-
-class DynIncludeNode(docutils.nodes.General, docutils.nodes.Element):
-    pass
-
-
-class DynDestinationNode(docutils.nodes.General, docutils.nodes.Element):
-    pass
-
-
-class DynLinkDirective(SphinxDirective):
+class LinkDirective(SphinxDirective):
 
     required_arguments = 1
+    optional_arguments = 1
+    final_argument_whitespace = True
 
     def run(self):
-        logger.debug("DynLinkDirective.run")
+        logger.debug("LinkDirective.run")
 
         if not hasattr(self.env, 'astutus_dyn_link_list'):
             self.env.astutus_dyn_link_list = []
@@ -69,71 +47,111 @@ class DynLinkDirective(SphinxDirective):
         # Some inconsistency in whether the argument will come back with
         # quotes or not.  Need to figure out how to use converters and use path as type.
         replacement_url = self.arguments[0].replace('"', '').replace("'", '')
+        if len(self.arguments) > 1:
+            replacement_text = self.arguments[1]
+        else:
+            replacement_text = None
+
         self.env.astutus_dyn_link_list.append({
             'docname': self.env.docname,
-            'replacement_url': replacement_url
+            'replacement_url': replacement_url,
+            'replacement_text': replacement_text,
         })
         return []
 
 
-class DynBookmarkDirective(SphinxDirective):
+class BreadCrumbNode(docutils.nodes.General, docutils.nodes.Element):
+    pass
+
+
+class BreadCrumbDirective(SphinxDirective):
+    required_arguments = 1
+    final_argument_whitespace = True
+
+    def run(self):
+        log_as_info("DynBreadCrumbDirective.run")
+        node = BreadCrumbNode('')
+        replacement_text = self.arguments[0]
+        node.markup = f'\n««BREADCRUMB»» {replacement_text} ««END_BREADCRUMB»»\n'
+        return [node]
+
+    @staticmethod
+    def handle_insert_markup(app, doctree, fromdocname):
+        for node in doctree.traverse(BreadCrumbNode):
+            replacement_node = docutils.nodes.raw('', node.markup, format='html')
+            node.replace_self(replacement_node)
+
+
+class BookmarkNode(docutils.nodes.General, docutils.nodes.Element):
+    pass
+
+
+class BookmarkDirective(SphinxDirective):
 
     required_arguments = 1
     final_argument_whitespace = True
 
     def run(self):
-        log_as_info("\nDynBookmarkDirective.run")
-        node = DynBookmarkNode('')
+        log_as_info("\nBookmarkDirective.run")
+        node = BookmarkNode('')
         node.value = self.arguments[0]
         return [node]
 
     @staticmethod
     def handle_insert_markup(app, doctree, fromdocname):
         """ Handle title modification by inserting post processing markup. """
-        for node in doctree.traverse(DynBookmarkNode):
-            log_as_info("\nDynBookmarkDirective.handle_insert_markup")
+        for node in doctree.traverse(BookmarkNode):
+            log_as_info("\nBookmarkDirective.handle_insert_markup")
             jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
             replacement = f'\n««HTML_TITLE»» {jinja2_value} ««END_HTML_TITLE»»\n'
             replacement_node = docutils.nodes.raw('', replacement, format='html')
             node.replace_self(replacement_node)
 
 
-class DynIncludeDirective(SphinxDirective):
+class IncludeNode(docutils.nodes.General, docutils.nodes.Element):
+    pass
+
+
+class IncludeDirective(SphinxDirective):
 
     required_arguments = 1
 
     def run(self):
-        log_as_info("\nDynIncludeDirective.run")
-        node = DynIncludeNode('')
+        log_as_info("\nIncludeDirective.run")
+        node = IncludeNode('')
         node.value = self.arguments[0]
         return [node]
 
     @staticmethod
     def handle_insert_markup(app, doctree, fromdocname):
         """ Handle include modification by inserting post processing markup. """
-        for node in doctree.traverse(DynIncludeNode):
-            logger.debug("DynBookmarkDirective.handle_title_modification")
+        for node in doctree.traverse(IncludeNode):
+            logger.debug("BookmarkDirective.handle_title_modification")
             jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
             replacement = f'\n««INCLUDE»» {jinja2_value} ««END_INCLUDE»»\n'
             replacement_node = docutils.nodes.raw('', replacement, format='html')
             node.replace_self(replacement_node)
 
 
-class DynDestinationDirective(SphinxDirective):
+class DestinationNode(docutils.nodes.General, docutils.nodes.Element):
+    pass
+
+
+class DestinationDirective(SphinxDirective):
 
     required_arguments = 1
 
     def run(self):
-        log_as_info("\nDynDestinationDirective.run")
-        node = DynDestinationNode('')
+        log_as_info("\nDestinationDirective.run")
+        node = DestinationNode('')
         node.value = self.arguments[0]
         return [node]
 
     @staticmethod
     def handle_insert_markup(app, doctree, fromdocname):
         """ Handle title modification by inserting post processing markup. """
-        for node in doctree.traverse(DynDestinationNode):
-            log_as_info("\nDynDestinationDirective.handle_insert_markup")
+        for node in doctree.traverse(DestinationNode):
+            log_as_info("\nDestinationDirective.handle_insert_markup")
             jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
             replacement = f'\n««DESTINATION»» {jinja2_value} ««END_DESTINATION»»\n'
             replacement_node = docutils.nodes.raw('', replacement, format='html')
@@ -210,13 +228,6 @@ class ToggleNoteDirective(SphinxDirective):
             node.replace_self(container)
 
 
-def examine_toctree(app, doctree, fromdocname):
-    pass
-    # log_as_info(f"\nexamine_toctree env.tocs.get: {app.env.tocs.get(fromdocname)} ")
-    # for node in doctree.traverse(sphinx.addnodes.toctree):
-    #     log_as_info(f"\nexamine_toctree docname: {fromdocname} ")
-
-
 def config_inited(app, config):
     """ Check that the required configuration variables have been initialized"""
     log_as_info('Got to config_inited')
@@ -242,18 +253,15 @@ def setup(app):
     app.add_config_value('astutus_dynamic_templates', 'astutus_dynamic_templates', 'html')
 
     app.add_node(
-        DynLinkNode,
-        html=(visit_dyn_link_node, depart_dyn_link_node)
-    )
-    # app.add_node(
-    #     DynLinksInMenuListNode,
-    # )
-    app.add_node(
-        ScriptNode,
+        LinkNode,
         html=(visit_generic_node, depart_generic_node)
     )
     app.add_node(
-        DynBookmarkNode,
+        BreadCrumbNode,
+        html=(visit_generic_node, depart_generic_node)
+    )
+    app.add_node(
+        BookmarkNode,
         html=(visit_generic_node, depart_generic_node)
     )
     app.add_node(
@@ -261,21 +269,22 @@ def setup(app):
         html=(visit_generic_node, depart_generic_node)
     )
 
-    app.add_directive('astutus_dyn_link', DynLinkDirective)
+    app.add_directive('astutus_dyn_link', LinkDirective)
 
-    app.add_directive('astutus_dyn_bookmark', DynBookmarkDirective)
-    app.connect('doctree-resolved', DynBookmarkDirective.handle_insert_markup)
+    app.add_directive('astutus_dyn_breadcrumb', BreadCrumbDirective)
+    app.connect('doctree-resolved', BreadCrumbDirective.handle_insert_markup)
 
-    app.add_directive('astutus_dyn_include', DynIncludeDirective)
-    app.connect('doctree-resolved', DynIncludeDirective.handle_insert_markup)
+    app.add_directive('astutus_dyn_bookmark', BookmarkDirective)
+    app.connect('doctree-resolved', BookmarkDirective.handle_insert_markup)
 
-    app.add_directive('astutus_dyn_destination', DynDestinationDirective)
-    app.connect('doctree-resolved', DynDestinationDirective.handle_insert_markup)
+    app.add_directive('astutus_dyn_include', IncludeDirective)
+    app.connect('doctree-resolved', IncludeDirective.handle_insert_markup)
+
+    app.add_directive('astutus_dyn_destination', DestinationDirective)
+    app.connect('doctree-resolved', DestinationDirective.handle_insert_markup)
 
     app.add_directive('astutus_toggle_note', ToggleNoteDirective)
     app.connect('doctree-resolved', ToggleNoteDirective.handle_insert_markup)
-
-    app.connect('doctree-resolved', examine_toctree)
 
     app.connect('config-inited', config_inited)
     app.connect('build-finished', astutus.sphinx.post_process.post_process)
