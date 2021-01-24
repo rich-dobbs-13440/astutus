@@ -66,6 +66,31 @@ def extract_tags_from_path(path):
     return tags
 
 
+def extract_tags_from_fragment(fragment):
+    tag_search_pattern = r'(\<\w+\>)'
+    matches = re.search(tag_search_pattern, fragment)
+    if matches:
+        tags = list(matches.groups())
+    else:
+        tags = []
+    return tags
+
+
+def wrap_breadcrumb_in_jinja2(line, tags):
+    ''' Create the Jinja2 syntax needed for this case.
+
+    If we start with a line like this:
+          <li><breadcrumb_ipv4></li>
+    and tags of ['breadcrumb_ipv4>'],  we want:
+          <li>{{ breadcrump_ipv4.value }}</li>
+
+    '''
+    for tag in tags:
+        tag_replacement = tag.replace('<', '{{ ').replace('>', '.value }}')
+        line = line.replace(tag, tag_replacement)
+    return line
+
+
 class FilePostProcessor:
 
     def apply_line_oriented_replacements(self, html_text):
@@ -254,7 +279,14 @@ class FilePostProcessor:
                     if self.breadcrumb is None:
                         output_chunks.append(line)
                     else:
-                        output_chunks.append(f'<li>{self.breadcrumb}<li>')
+                        # Bread crumb modified line might contain a tag
+                        tags = extract_tags_from_fragment(self.breadcrumb)
+                        logger.warning(f'tags: {tags}')
+                        modified_line = f'<li>{self.breadcrumb}<li>'
+                        if len(tags) == 0:
+                            output_chunks.append(modified_line)
+                        else:
+                            output_chunks.append(wrap_breadcrumb_in_jinja2(modified_line, tags))
                 elif '</div>' in line:
                     state = 'outside_nav'
                     output_chunks.append(line)
