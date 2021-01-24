@@ -235,7 +235,7 @@ def handle_usb_alias():
             'usb/dyn_alias.html',
             static_base=static_base,
             aliases=aliases,
-            path_item_list=get_alias_path_item_list())
+            nodepath_item_list=get_alias_path_item_list())
 
 
 @usb_page.route('/astutus/app/usb/alias/<path:nodepath>/index.html', methods=['GET', "DELETE", "POST"])
@@ -247,9 +247,6 @@ def handle_usb_alias_item(nodepath):
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
 
         alias = aliases.get(nodepath)
-        breadcrumb_alias_path = {
-            'value': nodepath,
-        }
         if alias is not None:
             return flask.render_template(
                 'usb/dyn_alias_item.html',
@@ -257,8 +254,7 @@ def handle_usb_alias_item(nodepath):
                 item=item,
                 nodepath=nodepath,
                 alias=alias,
-                path_item_list=get_alias_path_item_list(),
-                breadcrumb_alias_path=breadcrumb_alias_path)
+                nodepath_item_list=get_alias_path_item_list())
         return f"No alias for {nodepath} found.", HTTPStatus.BAD_REQUEST
     if flask.request.method == 'DELETE':
         logger.debug(f"Delete the item now: {nodepath}")

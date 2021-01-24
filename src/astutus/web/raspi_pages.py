@@ -119,16 +119,12 @@ def handle_raspi_item(idx):
         if item is None:
             # Create a dummy item to display error message
             item = astutus.db.RaspberryPi(id=f"non-existent {idx}", ipv4="no such id", mac_addr="no such id")
-        breadcrumb_ipv4 = {
-            'value': item.ipv4
-        }
         return flask.render_template(
             'raspi/dyn_raspi_item.html',
             static_base=static_base,
             item=item,
             idx=idx,
-            idx_item_list=get_items_list(),
-            breadcrumb_ipv4=breadcrumb_ipv4)
+            idx_item_list=get_items_list())
 
 
 @raspi_page.route('/astutus/app/raspi/<int:idx>/ifconfig.html', methods=['GET'])

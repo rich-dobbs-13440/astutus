@@ -78,21 +78,10 @@ def extract_tags_from_fragment(fragment):
 
 def wrap_breadcrumb_in_jinja2(line, tags):
     ''' Create the Jinja2 syntax needed for this case.
-
-    If we start with a line like this:
-          <li><breadcrumb_ipv4></li>
-    and tags of ['breadcrumb_ipv4>'],  we want:
-          <li>{{ breadcrump_ipv4.value }}</li>
-
     '''
-    if False:
-        for tag in tags:
-            tag_replacement = tag.replace('<', '{{ ').replace('>', '.value }}')
-            line = line.replace(tag, tag_replacement)
-    else:
-        for tag in tags:
-            tag_replacement = tag.replace('<', '{{ ').replace('>', '_item_list[0].value }}')
-            line = line.replace(tag, tag_replacement)
+    for tag in tags:
+        tag_replacement = tag.replace('<', '{{ ').replace('>', '_item_list[0].value }}')
+        line = line.replace(tag, tag_replacement)
     return line
 
 
@@ -226,21 +215,21 @@ class FilePostProcessor:
         lines = []
         # Indentation is the leading blanks in the initial line.  At this point, the assumption is that the
         # the raw HTML has been indented.
-        indentation = line_with_angled_tags.replace(line_with_angled_tags.lstrip(), '')
-        indent = '    '
+        # indentation = line_with_angled_tags.replace(line_with_angled_tags.lstrip(), '')
+        # indent = '    '
         loop_list = loop_variable + '_list'
-        lines.append(indentation + '{% for ' + loop_variable + ' in ' + loop_list + '  %}')
-        lines.append(indent + line_with_jinja2_substitutions)
-        lines.append(indentation + '{% endfor  %}')
+        lines.append('{% for ' + loop_variable + ' in ' + loop_list + '  %}')
+        lines.append(line_with_jinja2_substitutions)
+        lines.append('{% endfor  %}')
         # Handle the case where the developer has forgotten to include the loop list variable
         # in the call to the Jinja2 template:
         #   Tactic: Use the undefined loop_list variable in the template in a fashion
         #           that will trigger a server error with an easy-to-diagnose exception and traceback:
         #
         #               jinja2.exceptions.UndefinedError: 'idx_list_____must_be_defined_in_template_call' is undefined
-        lines.append(indentation + '{% if ' + loop_list + ' is not defined %}')
-        lines.append(indentation + indent + '{{ ' + loop_list + '_____must_be_defined_in_template_call.__' + ' }}')
-        lines.append(indentation + '{% endif  %}')
+        lines.append('{% if ' + loop_list + ' is not defined %}')
+        lines.append('{{ ' + loop_list + '_____must_be_defined_in_template_call.__' + ' }}')
+        lines.append('{% endif  %}')
         return lines
 
     def fix_navigation_hrefs(self, html_text):
