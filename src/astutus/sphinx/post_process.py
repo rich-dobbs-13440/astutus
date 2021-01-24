@@ -20,7 +20,7 @@ def log_as_info(msg):
 # Since the Jinja2 templates may not be legal HTML5, this process will be based
 # on text manipulation, rather than DOM transformation or XSLT transformations.
 
-def indent_html_text(html_text):
+def indented_html_text_from_html_lines(html_lines):
     """ Attempts to indent html in a somewhat meaningful fashion.
 
     Presumes that the html_text provide is not indented at all.
@@ -32,7 +32,7 @@ def indent_html_text(html_text):
     nesting = 0
     indent = "  "
     state = 'regular'
-    for line in html_text.splitlines():
+    for line in html_lines:
         # Remove any leading spaces that have got back in.
         line = line.strip()
         # In case head is messed up, get things back to sanity.
@@ -332,7 +332,9 @@ class FilePostProcessor:
 
         html_text = self.apply_line_oriented_replacements(html_text)
         html_text = self.fix_navigation_hrefs(html_text)
-        html_text = indent_html_text(html_text)
+
+        html_lines = [line.strip() for line in html_text.splitlines()]
+        html_text = indented_html_text_from_html_lines(html_lines)
 
         self.write_template(output_basepath, html_text)
 

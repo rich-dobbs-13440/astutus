@@ -43,7 +43,7 @@ let us know!
 
 Backlog:
 
-  * Task: Keep HTML lines as list in post processing, rather than combining and splitting.
+  * |in_progress| Task: Keep HTML lines as list in post processing, rather than combining and splitting.
   * Task: Cleanup and generalize reading and processing of post processing directives.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
   * Task: Provide a link to the RPi's astutus-web-app.

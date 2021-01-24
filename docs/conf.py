@@ -59,7 +59,11 @@ nitpick_ignore = [
 rst_prolog = """
 .. |done| raw:: html
 
-  <input checked=""  disabled="" type="checkbox" style="cursor: default">
+    <input checked=""  disabled="" type="checkbox" style="cursor: default">
+
+.. |in_progress| raw:: html
+
+    <input checked disabled type="radio" style="cursor: default">
 
 """
 
