@@ -85,9 +85,14 @@ def wrap_breadcrumb_in_jinja2(line, tags):
           <li>{{ breadcrump_ipv4.value }}</li>
 
     '''
-    for tag in tags:
-        tag_replacement = tag.replace('<', '{{ ').replace('>', '.value }}')
-        line = line.replace(tag, tag_replacement)
+    if False:
+        for tag in tags:
+            tag_replacement = tag.replace('<', '{{ ').replace('>', '.value }}')
+            line = line.replace(tag, tag_replacement)
+    else:
+        for tag in tags:
+            tag_replacement = tag.replace('<', '{{ ').replace('>', '_item_list[0].value }}')
+            line = line.replace(tag, tag_replacement)
     return line
 
 
@@ -282,7 +287,7 @@ class FilePostProcessor:
                         # Bread crumb modified line might contain a tag
                         tags = extract_tags_from_fragment(self.breadcrumb)
                         logger.warning(f'tags: {tags}')
-                        modified_line = f'<li>{self.breadcrumb}<li>'
+                        modified_line = f'<li>{self.breadcrumb}</li>'
                         if len(tags) == 0:
                             output_chunks.append(modified_line)
                         else:
@@ -347,8 +352,8 @@ class FilePostProcessor:
         self.find_breadcrumb_override(html_text)
 
         html_text = self.apply_line_oriented_replacements(html_text)
-        html_text = indent_html_text(html_text)
         html_text = self.fix_navigation_hrefs(html_text)
+        html_text = indent_html_text(html_text)
 
         self.write_template(output_basepath, html_text)
 

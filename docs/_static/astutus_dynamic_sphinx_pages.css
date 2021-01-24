@@ -1,12 +1,12 @@
 div.astutus-toggle input[type=checkbox] {
-    display: none;
+	display: none;
 }
-div.astutus-toggle input[type=checkbox]:checked ~ div.astutus-toggle {
-    display: none;
-}
-input[type=checkbox]:checked + label p.astutus-toggle-symbol:before {
+input[type=checkbox]:checked + label span.astutus-toggle:before {
     content: "⊞";
 }
-input[type=checkbox] + label p.astutus-toggle-symbol:before {
+input[type=checkbox] + label span.astutus-toggle:before {
     content: "⊟";
+}
+div.astutus-toggle input[type=checkbox]:checked ~ p.astutus-toggle {
+	display: none;
 }
