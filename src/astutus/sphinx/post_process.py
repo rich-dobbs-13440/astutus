@@ -33,7 +33,7 @@ def indent_html_text(html_text):
     indent = "  "
     state = 'regular'
     for line in html_text.splitlines():
-        # Remove any leading spaces that have got back in.  
+        # Remove any leading spaces that have got back in.
         line = line.strip()
         # In case head is messed up, get things back to sanity.
         if '<body' in line:
@@ -337,8 +337,8 @@ class FilePostProcessor:
         self.write_template(output_basepath, html_text)
 
 
-def post_process(app, exception):
-    log_as_info("Got to post process")
+def handle_build_finished(app, exception):
+    log_as_info("Got handle_build_finished")
     # logger.warn(f"app: {dir(app)}")
     log_as_info(f"outdir: {app.outdir}")
     source_dir = pathlib.Path(app.outdir) / app.config.astutus_dyn_pages_dir

@@ -234,16 +234,12 @@ def config_inited(app, config):
     if app.config.astutus_dyn_pages_dir == "":
         raise ValueError("You must define 'astutus_dyn_pages_dir' if you are using Astutus capabilities.")
 
-    # For now, keep the original extension source files in the docs directory, but
+    # For now, keep the original standard source files in the docs directory, but
     # longer term, they should be installed there when the extension
-    # is installed, or diynamically copied there.
+    # is installed.
 
-    # Implementation approace - Add the standard material before the user specified values
-    std_css = f'{app.config.astutus_dyn_base}/_static/astutus_dynamic_sphinx_pages.css'
-    app.config.astutus_dyn_extra_head_material = (
-        f'<link rel="stylesheet" href="{std_css}" type="text/css" />'
-        + app.config.astutus_dyn_extra_head_material
-    )
+    # Add to every page to support toggling:
+    app.add_css_file('astutus_dynamic_sphinx_pages.css')
 
 
 def setup(app):
@@ -288,7 +284,7 @@ def setup(app):
     app.connect('doctree-resolved', ToggleNoteDirective.handle_insert_markup)
 
     app.connect('config-inited', config_inited)
-    app.connect('build-finished', astutus.sphinx.post_process.post_process)
+    app.connect('build-finished', astutus.sphinx.post_process.handle_build_finished)
 
     return {
         'version': astutus.__version__,

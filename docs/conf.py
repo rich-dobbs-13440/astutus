@@ -54,6 +54,15 @@ nitpick_ignore = [
     ('py:class', "[<class 'dict'>]"),
     ('py:class', "[(<class 'int'>, <class 'str'>, <class 'str'>)]")
 ]
+
+# These definition(s) are added to the top of every page.
+rst_prolog = """
+.. |done| raw:: html
+
+  <input checked=""  disabled="" type="checkbox" style="cursor: default">
+
+"""
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

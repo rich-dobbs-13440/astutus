@@ -56,10 +56,6 @@ Backlog:
   * Epic: Get repository good enough to be publically visible.
 
 
-.. |done| raw:: html
-
-    <input checked=""  disabled="" type="checkbox">
-
 What's New
 ----------
 
