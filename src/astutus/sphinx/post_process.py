@@ -77,7 +77,7 @@ def wrap_breadcrumb_in_jinja2(line, tags):
 
 class FilePostProcessor:
 
-    def apply_line_oriented_replacements(self, html_text):
+    def apply_line_oriented_replacements(self, input_html_lines):
         output_lines = []
 
         # Create a closure to produce output
@@ -89,7 +89,7 @@ class FilePostProcessor:
             if stripped_line != "":
                 output_lines.append(stripped_line)
 
-        for line in html_text.splitlines():
+        for line in input_html_lines:
             if 'rel="next"' in line:
                 pass  # Remove the next link and button
             elif 'rel="prev"' in line:
@@ -144,7 +144,7 @@ class FilePostProcessor:
                 add_to_output(modified_line)
             else:
                 add_to_output(line)
-        return "\n".join(output_lines)
+        return output_lines
 
     def replace_relative_href(self, line: str) -> (str, list):
         # Extract out the value of the href using regexp
@@ -218,17 +218,17 @@ class FilePostProcessor:
         lines.append('{% endif  %}')
         return lines
 
-    def fix_navigation_hrefs(self, html_text):
+    def fix_navigation_hrefs(self, input_html_lines):
         ''' Fix up hrefs used in table of contents. '''
 
         # Use simple state machine to process the document on a line-by-line basis.
-        output_chunks = []
+        output_lines = []
         state = 'outside_nav'
         substate = None
         li_selector = None
-        for line in html_text.splitlines():
+        for line in input_html_lines:
             if state == 'outside_nav':
-                output_chunks.append(line)
+                output_lines.append(line)
                 # Handle side bar menu in read-the-docs theme:
                 # <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
                 if 'wy-menu-vertical' in line and '<div ' in line:
@@ -252,20 +252,20 @@ class FilePostProcessor:
                     # Replace relative href with an absolute href based on the doc and dynamic link modifications.
                     modified_line, tags, replacement_text = self.replace_relative_href(line)
                     if len(tags) == 0:
-                        output_chunks.append(modified_line)
+                        output_lines.append(modified_line)
                     else:
-                        output_chunks.extend(self.wrap_in_jinja2_loop(modified_line, tags, replacement_text))
+                        output_lines.extend(self.wrap_in_jinja2_loop(modified_line, tags, replacement_text))
                 elif substate == 'breadcrumbs' and '<li>' in line:
                     if self.breadcrumb is None:
-                        output_chunks.append(line)
+                        output_lines.append(line)
                     else:
-                        output_chunks.append(f'<li>{self.breadcrumb}</li>')
+                        output_lines.append(f'<li>{self.breadcrumb}</li>')
                 elif '</div>' in line:
                     state = 'outside_nav'
-                    output_chunks.append(line)
+                    output_lines.append(line)
                 else:
-                    output_chunks.append(line)
-        return "\n".join(output_chunks)
+                    output_lines.append(line)
+        return output_lines
 
     def __init__(self, input_path, docname, dyn_link_list, dyn_base, extra_head_material):
         self.input_path = input_path
@@ -330,10 +330,10 @@ class FilePostProcessor:
         self.find_title_override(html_text)
         self.find_breadcrumb_override(html_text)
 
-        html_text = self.apply_line_oriented_replacements(html_text)
-        html_text = self.fix_navigation_hrefs(html_text)
-
         html_lines = [line.strip() for line in html_text.splitlines()]
+        html_lines = self.apply_line_oriented_replacements(html_lines)
+        html_lines = self.fix_navigation_hrefs(html_lines)
+
         html_text = indented_html_text_from_html_lines(html_lines)
 
         self.write_template(output_basepath, html_text)

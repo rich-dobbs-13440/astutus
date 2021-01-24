@@ -57,15 +57,22 @@ nitpick_ignore = [
 
 # These definition(s) are added to the top of every page.
 rst_prolog = """
-.. |done| raw:: html
-
-    <input checked=""  disabled="" type="checkbox" style="cursor: default">
 
 .. |in_progress| raw:: html
 
-    <input checked disabled type="radio" style="cursor: default">
+    <span style="background-color: light-gray">⦿</span>
+
+.. |done| raw:: html
+
+    <span style="background-color: light-gray">✔</span>
+
+.. |newly_done| raw:: html
+
+    <span style="background-color: yellow">✔</span>
 
 """
+# <input checked=""  disabled="" type="checkbox" style="cursor: default">
+# <input checked disabled type="radio" style="cursor: default">
 
 # -- Options for HTML output -------------------------------------------------
 

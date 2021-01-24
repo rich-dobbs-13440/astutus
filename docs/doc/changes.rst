@@ -43,9 +43,9 @@ let us know!
 
 Backlog:
 
-  * |in_progress| Task: Keep HTML lines as list in post processing, rather than combining and splitting.
-  * Task: Cleanup and generalize reading and processing of post processing directives.
+  * |in_progress| Task: Cleanup and generalize reading and processing of post processing directives.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
+  * Add a progress list directive.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
@@ -68,6 +68,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-01-24 13:03 Task: Keep HTML lines as list in post processing, rather than combining and splitting.
   * |done| 2021-01-24 11:56 Task: Work out search page with new structure.
   * |done| 2021-01-24 11:56 Task: Work out Index with new structure.
   * |done| 2021-01-24 11:56 Task: Work out module Index with new structure.
