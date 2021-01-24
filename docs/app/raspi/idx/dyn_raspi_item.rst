@@ -1,7 +1,7 @@
 Raspberry Pi
 ============
 
-.. astutus_dyn_bookmark:: Raspberry Pi's - /astutus/app/raspi/<idx>
+.. astutus_dyn_bookmark:: Raspberry Pi's - /astutus/app/raspi/<item.ipv4>
 
 .. astutus_dyn_destination:: raspi/dyn_raspi_item.html
 
@@ -16,4 +16,4 @@ Raspberry Pi
 
 .. astutus_dyn_link:: "/astutus/app/raspi/<idx>/index.html"
 
-.. astutus_dyn_breadcrumb:: <idx>
+.. astutus_dyn_breadcrumb:: <item.ipv4>

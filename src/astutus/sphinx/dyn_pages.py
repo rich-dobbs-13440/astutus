@@ -20,6 +20,31 @@ def log_as_info(msg):
     logger.info(f"{start(info)}{msg}{end(info)}")
 
 
+def create_post_processing_markup(tag, value):
+    return f'\n««{tag}»»{value}««END_{tag}»»\n'
+
+
+def read_post_processing_mark(tag, text):
+    start_marker = f"««{tag}»»"
+    idx = text.find(start_marker)
+    if idx >= 0:
+        start_idx = idx + len(start_marker)
+        end_marker = f"««END_{tag}»»"
+        end_idx = text.find(end_marker, idx)
+        assert end_idx >= 0, f'Failed to find {end_marker}'
+        return text[start_idx:end_idx]
+
+
+def post_processing_mark_found(tag, text):
+    if tag is not None:
+        start_marker = f"««{tag}»»"
+        return text.find(start_marker) >= 0
+    else:
+        if "««" in text and "»»" in text:
+            return True
+        return False
+
+
 def visit_generic_node(self, node):
     logger.debug(f"Visiting node: {node} ")
 
@@ -72,7 +97,7 @@ class BreadCrumbDirective(SphinxDirective):
         log_as_info("DynBreadCrumbDirective.run")
         node = BreadCrumbNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
-        node.markup = f'\n««BREADCRUMB»» {jinja2_value} ««END_BREADCRUMB»»\n'
+        node.markup = create_post_processing_markup("BREADCRUMB", jinja2_value)
         return [node]
 
     @staticmethod
@@ -95,7 +120,7 @@ class BookmarkDirective(SphinxDirective):
         log_as_info("\nBookmarkDirective.run")
         node = BookmarkNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
-        node.markup = f'\n««HTML_TITLE»» {jinja2_value} ««END_HTML_TITLE»»\n'
+        node.markup = create_post_processing_markup("HTML_TITLE", jinja2_value)
         return [node]
 
     @staticmethod
@@ -117,17 +142,15 @@ class IncludeDirective(SphinxDirective):
     def run(self):
         log_as_info("\nIncludeDirective.run")
         node = IncludeNode('')
-        node.value = self.arguments[0]
+        jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
+        node.markup = create_post_processing_markup("INCLUDE", jinja2_value)
         return [node]
 
     @staticmethod
     def handle_insert_markup(app, doctree, fromdocname):
         """ Handle include modification by inserting post processing markup. """
         for node in doctree.traverse(IncludeNode):
-            logger.debug("BookmarkDirective.handle_title_modification")
-            jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
-            replacement = f'\n««INCLUDE»» {jinja2_value} ««END_INCLUDE»»\n'
-            replacement_node = docutils.nodes.raw('', replacement, format='html')
+            replacement_node = docutils.nodes.raw('', node.markup, format='html')
             node.replace_self(replacement_node)
 
 
@@ -142,17 +165,15 @@ class DestinationDirective(SphinxDirective):
     def run(self):
         log_as_info("\nDestinationDirective.run")
         node = DestinationNode('')
-        node.value = self.arguments[0]
+        jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
+        node.markup = create_post_processing_markup("DESTINATION", jinja2_value)
         return [node]
 
     @staticmethod
     def handle_insert_markup(app, doctree, fromdocname):
         """ Handle title modification by inserting post processing markup. """
         for node in doctree.traverse(DestinationNode):
-            log_as_info("\nDestinationDirective.handle_insert_markup")
-            jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
-            replacement = f'\n««DESTINATION»» {jinja2_value} ««END_DESTINATION»»\n'
-            replacement_node = docutils.nodes.raw('', replacement, format='html')
+            replacement_node = docutils.nodes.raw('', node.markup, format='html')
             node.replace_self(replacement_node)
 
 

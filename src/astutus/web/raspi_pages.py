@@ -118,7 +118,6 @@ def handle_raspi_item(idx):
         return flask.render_template(
             'raspi/dyn_raspi_item.html',
             item=item,
-            idx=idx,
             idx_item_list=get_items_list())
 
 

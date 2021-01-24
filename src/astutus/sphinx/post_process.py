@@ -5,6 +5,7 @@ import urllib.parse
 
 import sphinx.util
 import astutus.util
+import astutus.sphinx.dyn_pages
 
 logger = sphinx.util.logging.getLogger(__name__)
 
@@ -35,6 +36,8 @@ def indented_html_text_from_html_lines(html_lines):
     for line in html_lines:
         # Remove any leading spaces that have got back in.
         line = line.strip()
+        if line == '':
+            continue
         # In case head is messed up, get things back to sanity.
         if '<body' in line:
             nesting = 1
@@ -66,29 +69,51 @@ def extract_tags_from_path(path):
     return tags
 
 
-def wrap_breadcrumb_in_jinja2(line, tags):
-    ''' Create the Jinja2 syntax needed for this case.
-    '''
-    for tag in tags:
-        tag_replacement = tag.replace('<', '{{ ').replace('>', '_item_list[0].value }}')
-        line = line.replace(tag, tag_replacement)
-    return line
-
-
 class FilePostProcessor:
+
+    def __init__(self, input_path, docname, dyn_link_list, dyn_base, extra_head_material):
+        self.input_path = input_path
+        self.docname = docname
+        self.dyn_link_list = dyn_link_list
+        self.dyn_base = dyn_base
+        self.extra_head_material = extra_head_material
+        self.breadcrumb = None
+        self.destination_filename = None
+        self.title = None
+
+        # For this implementation, want the dynamic links as a dictionary, not a list
+        self.dyn_links = {}
+        for link in self.dyn_link_list:
+            # path includes leading slash when parsing urls, docnames do not, and
+            # are relative to the top.  Best to just fix it up.
+            key = '/' + link['docname']
+            self.dyn_links[key] = link
+
+    def execute_and_write(self, output_basepath):
+        """  Process the Sphinx generated html file to produced a styled Jinja template
+
+        The destination filepath can be automatically derived from the input
+        name, or may be explicitly specified by a directive in the template rst file.
+
+        """
+        with open(self.input_path, "r") as input_file:
+            html_text = input_file.read()
+
+        self.title = astutus.sphinx.dyn_pages.read_post_processing_mark('HTML_TITLE', html_text)
+        self.breadcrumb = astutus.sphinx.dyn_pages.read_post_processing_mark('BREADCRUMB', html_text)
+        self.destination_filename = astutus.sphinx.dyn_pages.read_post_processing_mark('DESTINATION', html_text)
+
+        html_lines = [line.strip() for line in html_text.splitlines() if line.strip() != '']
+        html_lines = self.apply_line_oriented_replacements(html_lines)
+        html_lines = self.fix_navigation_hrefs(html_lines)
+        html_lines = self.strip_post_processing_markup(html_lines)
+
+        html_text = indented_html_text_from_html_lines(html_lines)
+
+        self.write_template(output_basepath, html_text)
 
     def apply_line_oriented_replacements(self, input_html_lines):
         output_lines = []
-
-        # Create a closure to produce output
-        def add_to_output(line):
-            # Strip all whitespace from lines, since the sphinx generated pages are completely inconsistent.
-            # HTML will be pretty printed at the end.
-            stripped_line = line.strip()
-            # print(f"stripped_line: {stripped_line}")
-            if stripped_line != "":
-                output_lines.append(stripped_line)
-
         for line in input_html_lines:
             if 'rel="next"' in line:
                 pass  # Remove the next link and button
@@ -97,53 +122,38 @@ class FilePostProcessor:
             elif 'View page source' in line:
                 pass
             elif '<![endif]-->' in line:
-                add_to_output('<!-- Indenting fix for if lt IE 9 pragma: /> /> -->')
+                output_lines.append('<!-- Indenting fix for if lt IE 9 pragma: /> /> -->')
             elif '</head>' in line:
                 # Add additional head material.
-                add_to_output(self.extra_head_material)
-                add_to_output(line)
-            elif '««INCLUDE»»' in line:
-                pattern = r"««INCLUDE»»\s*([\w,\.,/]+)\s*««END_INCLUDE»»"
-                matches = re.search(pattern, line)
-                if not matches:
-                    assert False, line
-                filename = matches.group(1)
-                add_to_output('{% include "' + filename + '" %}')
-            elif '««DESTINATION»»' in line:
-                pattern = r"««DESTINATION»»\s*([\w,\.,/]+)\s*««END_DESTINATION»»"
-                matches = re.search(pattern, line)
-                if not matches:
-                    assert False, line
-                filename = matches.group(1)
-                self.destination_filename = filename
+                output_lines.append(self.extra_head_material)
+                output_lines.append(line)
+            elif astutus.sphinx.dyn_pages.post_processing_mark_found('INCLUDE', line):
+                filename = astutus.sphinx.dyn_pages.read_post_processing_mark('INCLUDE', line)
+                output_lines.append('{% include "' + filename + '" %}')
             elif '<link rel="search" title="Search" href="' in line:
-                add_to_output(f'<link rel="search" title="Search" href="{self.dyn_base}/search.html" />')
+                output_lines.append(f'<link rel="search" title="Search" href="{self.dyn_base}/search.html" />')
             elif 'action=' in line and 'search.html"' in line:
                 # Handle: <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-                add_to_output(
+                output_lines.append(
                     f'<form id="rtd-search-form" class="wy-form" action="{self.dyn_base}/search.html" method="get">')
             elif 'genindex.html' in line:
-                add_to_output(f'<link rel="index" title="Index" href="{self.dyn_base}/genindex.html" />')
+                output_lines.append(f'<link rel="index" title="Index" href="{self.dyn_base}/genindex.html" />')
             elif 'icon-home' in line and 'index.html' in line and '<li' not in line:
                 # Handle <a href="../../index.html" class="icon icon-home"> Astutus
                 idx = line.find('>')
-                add_to_output(f'<a href="{self.dyn_base}/index.html" class="icon icon-home">' + line[idx+1:])
+                output_lines.append(f'<a href="{self.dyn_base}/index.html" class="icon icon-home">' + line[idx+1:])
             elif '<title>' in line:
                 if self.title is not None:
-                    add_to_output(f'<title>{self.title}</title>')
+                    output_lines.append(f'<title>{self.title}</title>')
                 else:
-                    add_to_output(line)
-            elif '««HTML_TITLE»»' in line:
-                pass
-            elif '««BREADCRUMB»»' in line:
-                pass
+                    output_lines.append(line)
             elif '../_static/' in line:
                 pattern = r"\"(\.\.\/)*_static/"
                 subst = f"\"{self.dyn_base}/_static/"
                 modified_line = re.sub(pattern, subst, line)
-                add_to_output(modified_line)
+                output_lines.append(modified_line)
             else:
-                add_to_output(line)
+                output_lines.append(line)
         return output_lines
 
     def replace_relative_href(self, line: str) -> (str, list):
@@ -267,43 +277,12 @@ class FilePostProcessor:
                     output_lines.append(line)
         return output_lines
 
-    def __init__(self, input_path, docname, dyn_link_list, dyn_base, extra_head_material):
-        self.input_path = input_path
-        self.docname = docname
-        self.dyn_link_list = dyn_link_list
-        self.dyn_base = dyn_base
-        self.extra_head_material = extra_head_material
-        self.breadcrumb = None
-        self.destination_filename = None
-        self.title = None
-
-        # For this implementation, want the dynamic links as a dictionary, not a list
-        self.dyn_links = {}
-        for link in self.dyn_link_list:
-            # path includes leading slash when parsing urls, docnames do not, and
-            # are relative to the top.  Best to just fix it up.
-            key = '/' + link['docname']
-            self.dyn_links[key] = link
-
-    def find_breadcrumb_override(self, html_text):
-        # Check for breadcrumb override:
-        breadcrumb_idx = html_text.find('««BREADCRUMB»»')
-        if breadcrumb_idx >= 0:
-            breadcrumb_pattern = r'««BREADCRUMB»»([^«]+)««END_BREADCRUMB»»'
-            matches = re.search(breadcrumb_pattern, html_text)
-            # logger.warning(html_text[breadcrumb_idx:breadcrumb_idx + 300])
-            if matches:
-                self.breadcrumb = matches.group(1).strip()
-            else:
-                assert False, html_text[breadcrumb_idx:breadcrumb_idx + 300]
-
-    def find_title_override(self, html_text):
-        # This pattern matches every thing between markers.
-        # Whitespace needs to be stripped out to make a good title.
-        pattern = r'««HTML_TITLE»»([^«]+)««END_HTML_TITLE»»'
-        matches = re.search(pattern, html_text)
-        if matches:
-            self.title = matches.group(1).strip()
+    def strip_post_processing_markup(self, input_html_lines):
+        output_lines = []
+        for line in input_html_lines:
+            if not astutus.sphinx.dyn_pages.post_processing_mark_found(None, line):
+                output_lines.append(line)
+        return output_lines
 
     def write_template(self, output_basepath, html_text):
         output_relative_filepath = self.destination_filename
@@ -316,27 +295,6 @@ class FilePostProcessor:
         with open(output_path, "w") as output_file:
             output_file.write(html_text)
         log_as_info(f"Wrote out file output_path: {output_path}")
-
-    def execute_and_write(self, output_basepath):
-        """  Process the Sphinx generated html file to produced a styled Jinja template
-
-        The destination filepath can be automatically derived from the input
-        name, or may be explicitly specified by a directive in the template rst file.
-
-        """
-        with open(self.input_path, "r") as input_file:
-            html_text = input_file.read()
-
-        self.find_title_override(html_text)
-        self.find_breadcrumb_override(html_text)
-
-        html_lines = [line.strip() for line in html_text.splitlines()]
-        html_lines = self.apply_line_oriented_replacements(html_lines)
-        html_lines = self.fix_navigation_hrefs(html_lines)
-
-        html_text = indented_html_text_from_html_lines(html_lines)
-
-        self.write_template(output_basepath, html_text)
 
 
 def handle_build_finished(app, exception):

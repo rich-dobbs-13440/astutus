@@ -297,16 +297,15 @@ def handle_usb_configuration():
             nodeid_item_list=get_config_items_list())
 
 
-@usb_page.route('/astutus/app/usb/configuration/<node_id>/index.html', methods=['GET'])
-def handle_usb_configuration_item(node_id):
+@usb_page.route('/astutus/app/usb/configuration/<nodeid>/index.html', methods=['GET'])
+def handle_usb_configuration_item(nodeid):
     if flask.request.method == 'GET':
-        logger.debug(f"node_id: {node_id}")
         device_configurations = astutus.usb.DeviceConfigurations()
-        device_config = device_configurations.get_item(node_id)
+        device_config = device_configurations.get_item(nodeid)
         return flask.render_template(
             'usb/dyn_configuration_item.html',
-            item=node_id,
-            nodeid=get_config_items_list()[0],
+            item=nodeid,
+            nodeid=nodeid,
             device_config=device_config,
             nodeid_item_list=get_config_items_list())
 

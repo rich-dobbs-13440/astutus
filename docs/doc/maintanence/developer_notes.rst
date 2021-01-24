@@ -1,15 +1,6 @@
 Developer Notes
 ===============
 
-
-.. |done| raw:: html
-
-    <input checked=""  disabled="" type="checkbox">
-
-.. |in_progress| raw:: html
-
-    <input checked=""  disabled="" type="radio">
-
 Plan:
 
 * Note: To control relays, need to be able to select them by topology it turns out.
