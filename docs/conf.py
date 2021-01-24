@@ -77,5 +77,12 @@ def setup(app):
 
 # Options for the Astutus dynamic pages custom extension.
 astutus_dyn_pages_dir = "app"  # relative to the configuration directory.
-astutus_docs_base = "/astutus/doc"  # web app URL path
 astutus_dyn_base = "/astutus"  # web app URL path to get to top of dynamic pages.
+astutus_dyn_extra_head_material = """
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>
+    <link rel="manifest" href="/static/site.webmanifest"/>
+    <link rel="stylesheet" href="/static/app.css" />
+    <script src="/static/app.js"></script>
+"""  # only inserted on dynamic pages.

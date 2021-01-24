@@ -229,26 +229,29 @@ class ToggleNoteDirective(SphinxDirective):
 def config_inited(app, config):
     """ Check that the required configuration variables have been initialized"""
     log_as_info('Got to config_inited')
-    if app.config.astutus_docs_base == '':
-        raise ValueError("You must define 'astutus_docs_base' if you are using Astutus capabilities.")
     if app.config.astutus_dyn_base == "":
         raise ValueError("You must define 'astutus_dyn_base' if you are using Astutus capabilities.")
     if app.config.astutus_dyn_pages_dir == "":
         raise ValueError("You must define 'astutus_dyn_pages_dir' if you are using Astutus capabilities.")
 
-    # For now, keep the original source files in the docs directory, but
+    # For now, keep the original extension source files in the docs directory, but
     # longer term, they should be installed there when the extension
-    # is installed.  Haven't figured out a way to selectively
-    # add this only to the files where the directives are used.
-    app.add_css_file('astutus_dynamic_sphinx_pages.css')
+    # is installed, or diynamically copied there.
+
+    # Implementation approace - Add the standard material before the user specified values
+    std_css = f'{app.config.astutus_dyn_base}/_static/astutus_dynamic_sphinx_pages.css'
+    app.config.astutus_dyn_extra_head_material = (
+        f'<link rel="stylesheet" href="{std_css}" type="text/css" />'
+        + app.config.astutus_dyn_extra_head_material
+    )
 
 
 def setup(app):
 
-    app.add_config_value('astutus_docs_base', '', 'html')
     app.add_config_value('astutus_dyn_base', '', 'html')
     app.add_config_value('astutus_dyn_pages_dir', 'astutus_dyn_pages', 'html')
     app.add_config_value('astutus_dynamic_templates', 'astutus_dynamic_templates', 'html')
+    app.add_config_value('astutus_dyn_extra_head_material', 'astutus_dyn_pages', 'html')
 
     app.add_node(
         LinkNode,

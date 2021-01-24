@@ -43,10 +43,8 @@ let us know!
 
 Backlog:
 
-  * Task: Work out search page with new structure.
-  * Task: Work out Index with new structure.
-  * Task: Work out module Index with new structure.
-  * Task: Generalize inclusion of new header material for astutus dynamic pages.
+  * Task: Keep HTML lines as list in post processing, rather than combining and splitting.
+  * Task: Cleanup and generalize reading and processing of post processing directives.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
@@ -74,6 +72,10 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |done| 2021-01-24 11:56 Task: Work out search page with new structure.
+  * |done| 2021-01-24 11:56 Task: Work out Index with new structure.
+  * |done| 2021-01-24 11:56 Task: Work out module Index with new structure.
+  * |done| 2021-01-24 11:56 Task: Generalize inclusion of new header material for astutus dynamic pages.
   * |done| 2021-01-23 17:18 Task: Automate generation of breadcrumbs for dynamic pages.
   * |done| 2021-01-23 10:00 Task: Backout dead javascript and Sphinx extension code
   * |done| 2021-01-23 09:07 Task: Use id's rather than direct docnames for identifying dynamic replacements.

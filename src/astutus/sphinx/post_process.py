@@ -33,6 +33,8 @@ def indent_html_text(html_text):
     indent = "  "
     state = 'regular'
     for line in html_text.splitlines():
+        # Remove any leading spaces that have got back in.  
+        line = line.strip()
         # In case head is messed up, get things back to sanity.
         if '<body' in line:
             nesting = 1
@@ -97,13 +99,8 @@ class FilePostProcessor:
             elif '<![endif]-->' in line:
                 add_to_output('<!-- Indenting fix for if lt IE 9 pragma: /> /> -->')
             elif '</head>' in line:
-                # Add additional head material
-                add_to_output('<link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png"/>')
-                add_to_output('<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>')
-                add_to_output('<link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>')
-                add_to_output('<link rel="manifest" href="/static/site.webmanifest"/>')
-                add_to_output('<link rel="stylesheet" href="/static/app.css" />')
-                add_to_output('<script src="/static/app.js"></script>')
+                # Add additional head material.
+                add_to_output(self.extra_head_material)
                 add_to_output(line)
             elif '««INCLUDE»»' in line:
                 pattern = r"««INCLUDE»»\s*([\w,\.,/]+)\s*««END_INCLUDE»»"
@@ -270,11 +267,12 @@ class FilePostProcessor:
                     output_chunks.append(line)
         return "\n".join(output_chunks)
 
-    def __init__(self, input_path, docname, dyn_link_list, dyn_base):
+    def __init__(self, input_path, docname, dyn_link_list, dyn_base, extra_head_material):
         self.input_path = input_path
         self.docname = docname
         self.dyn_link_list = dyn_link_list
         self.dyn_base = dyn_base
+        self.extra_head_material = extra_head_material
         self.breadcrumb = None
         self.destination_filename = None
         self.title = None
@@ -362,5 +360,9 @@ def post_process(app, exception):
             docname, extension = relative_path.rsplit('.', 1)
             log_as_info(f"docname: {docname}")
             processor = FilePostProcessor(
-                input_path, docname, app.env.astutus_dyn_link_list, app.config.astutus_dyn_base)
+                input_path,
+                docname,
+                app.env.astutus_dyn_link_list,
+                app.config.astutus_dyn_base,
+                app.config.astutus_dyn_extra_head_material)
             processor.execute_and_write(destin_dir)
