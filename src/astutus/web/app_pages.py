@@ -10,12 +10,12 @@ app_page = flask.Blueprint('app_bp', __name__, template_folder='templates')
 @app_page.route('/')
 def handle_top():
     """ app_page.route('/') """
-    return flask.redirect(flask.url_for("handle_astutus"))
+    return flask.redirect(flask.url_for("app_bp.handle_astutus"))
 
 
 @app_page.route('/astutus/app/dyn_index.html', methods=['GET'])
 def handle_app_index_from_doc():
-    return flask.redirect(flask.url_for("handle_astutus"))
+    return flask.redirect(flask.url_for("app_bp.handle_astutus"))
 
 
 @app_page.route('/astutus/app/index.html')

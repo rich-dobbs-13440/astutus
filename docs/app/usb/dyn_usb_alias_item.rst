@@ -1,7 +1,7 @@
 Device Alias
 ============
 
-.. astutus_dyn_bookmark:: USB Alias - /astutus/alias/{{ nodepath }}
+.. astutus_dyn_bookmark:: USB Alias - /astutus/alias/<nodepath>
 
 .. astutus_dyn_destination:: usb/dyn_alias_item.html
 

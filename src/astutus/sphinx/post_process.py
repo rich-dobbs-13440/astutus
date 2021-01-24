@@ -28,8 +28,6 @@ def indent_html_text(html_text):
     Needs some semi-manual patch up to take care of HTML comments.
 
     """
-    # Note:  Doesn't handle embedded javascript.  Move that to a Jinja2 template?
-    # Or app.js?  Or make this function smart for indentation of Javascript?
     output_chunks = []
     nesting = 0
     indent = "  "
@@ -66,16 +64,6 @@ def extract_tags_from_path(path):
     return tags
 
 
-def extract_tags_from_fragment(fragment):
-    tag_search_pattern = r'(\<\w+\>)'
-    matches = re.search(tag_search_pattern, fragment)
-    if matches:
-        tags = list(matches.groups())
-    else:
-        tags = []
-    return tags
-
-
 def wrap_breadcrumb_in_jinja2(line, tags):
     ''' Create the Jinja2 syntax needed for this case.
     '''
@@ -93,7 +81,7 @@ class FilePostProcessor:
         # Create a closure to produce output
         def add_to_output(line):
             # Strip all whitespace from lines, since the sphinx generated pages are completely inconsistent.
-            # Probably should pretty print html at the end.
+            # HTML will be pretty printed at the end.
             stripped_line = line.strip()
             # print(f"stripped_line: {stripped_line}")
             if stripped_line != "":
@@ -131,20 +119,21 @@ class FilePostProcessor:
                     assert False, line
                 filename = matches.group(1)
                 self.destination_filename = filename
-            elif '<link rel="search" title="Search" href="../search.html" />' in line:
-                # src/astutus/web/static/_docs/search.html
-                add_to_output('<link rel="search" title="Search" href="/static/_docs/search.html" />')
-            elif 'action="../search.html"' in line:
+            elif '<link rel="search" title="Search" href="' in line:
+                add_to_output(f'<link rel="search" title="Search" href="{self.dyn_base}/search.html" />')
+            elif 'action=' in line and 'search.html"' in line:
                 # Handle: <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-                add_to_output(line.replace('action="../search.html"', 'action="/static/_docs/search.html"'))
+                add_to_output(
+                    f'<form id="rtd-search-form" class="wy-form" action="{self.dyn_base}/search.html" method="get">')
+            elif 'genindex.html' in line:
+                add_to_output(f'<link rel="index" title="Index" href="{self.dyn_base}/genindex.html" />')
+            elif 'icon-home' in line and 'index.html' in line and '<li' not in line:
+                # Handle <a href="../../index.html" class="icon icon-home"> Astutus
+                idx = line.find('>')
+                add_to_output(f'<a href="{self.dyn_base}/index.html" class="icon icon-home">' + line[idx+1:])
             elif '<title>' in line:
-                # This pattern matches every thing between markers.
-                # Whitespace needs to be stripped out to make a good title.
-                pattern = r'««HTML_TITLE»»([^«]+)««END_HTML_TITLE»»'
-                matches = re.search(pattern, html_text)
-                if matches:
-                    title_text = matches.group(1).strip()
-                    add_to_output(f'<title>{title_text}</title>')
+                if self.title is not None:
+                    add_to_output(f'<title>{self.title}</title>')
                 else:
                     add_to_output(line)
             elif '««HTML_TITLE»»' in line:
@@ -153,7 +142,7 @@ class FilePostProcessor:
                 pass
             elif '../_static/' in line:
                 pattern = r"\"(\.\.\/)*_static/"
-                subst = "\"/astutus/_static/"
+                subst = f"\"{self.dyn_base}/_static/"
                 modified_line = re.sub(pattern, subst, line)
                 add_to_output(modified_line)
             else:
@@ -273,14 +262,7 @@ class FilePostProcessor:
                     if self.breadcrumb is None:
                         output_chunks.append(line)
                     else:
-                        # Bread crumb modified line might contain a tag
-                        tags = extract_tags_from_fragment(self.breadcrumb)
-                        logger.warning(f'tags: {tags}')
-                        modified_line = f'<li>{self.breadcrumb}</li>'
-                        if len(tags) == 0:
-                            output_chunks.append(modified_line)
-                        else:
-                            output_chunks.append(wrap_breadcrumb_in_jinja2(modified_line, tags))
+                        output_chunks.append(f'<li>{self.breadcrumb}</li>')
                 elif '</div>' in line:
                     state = 'outside_nav'
                     output_chunks.append(line)
@@ -295,6 +277,7 @@ class FilePostProcessor:
         self.dyn_base = dyn_base
         self.breadcrumb = None
         self.destination_filename = None
+        self.title = None
 
         # For this implementation, want the dynamic links as a dictionary, not a list
         self.dyn_links = {}
@@ -315,6 +298,14 @@ class FilePostProcessor:
                 self.breadcrumb = matches.group(1).strip()
             else:
                 assert False, html_text[breadcrumb_idx:breadcrumb_idx + 300]
+
+    def find_title_override(self, html_text):
+        # This pattern matches every thing between markers.
+        # Whitespace needs to be stripped out to make a good title.
+        pattern = r'««HTML_TITLE»»([^«]+)««END_HTML_TITLE»»'
+        matches = re.search(pattern, html_text)
+        if matches:
+            self.title = matches.group(1).strip()
 
     def write_template(self, output_basepath, html_text):
         output_relative_filepath = self.destination_filename
@@ -338,6 +329,7 @@ class FilePostProcessor:
         with open(self.input_path, "r") as input_file:
             html_text = input_file.read()
 
+        self.find_title_override(html_text)
         self.find_breadcrumb_override(html_text)
 
         html_text = self.apply_line_oriented_replacements(html_text)

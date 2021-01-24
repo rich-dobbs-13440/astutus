@@ -1,7 +1,7 @@
-Device Name
-===========
+Device Identification
+=====================
 
-.. astutus_dyn_bookmark:: USB Configuration - /astutus/app/usb/device_configuration/{{ nodeid }}
+.. astutus_dyn_bookmark:: USB Configuration - /astutus/app/usb/device_id/<nodeid>
 
 .. warning::  This page is under construction and can't be used to modify configurations.
 

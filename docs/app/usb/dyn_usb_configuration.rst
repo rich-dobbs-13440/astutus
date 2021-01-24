@@ -1,9 +1,9 @@
-Device Names
-============
+Device Identification
+=====================
 
-Device names are determined for a particular USB device vendor and product,
+Devices are identified for a particular USB device vendor and product,
 regardless of where it is located in relationship to other devices.  The
-name can vary depending on the contents of values for the device.
+identity of a device can vary depending on the contents of values for the device.
 For example, the same vendor and product values are used for both
 Logitech mouses and keyboard receivers, but there are other values inside the
 /sys/devices/... structure to differentiate them.
@@ -15,7 +15,7 @@ device_configurations.json file.
 
 Soon, these links should allow you to make local customizations.
 
-.. astutus_dyn_bookmark:: USB Device Configurations - /astutus/app/usb/device_configurations
+.. astutus_dyn_bookmark:: USB Device ID - /astutus/app/usb/device_configurations
 
 .. astutus_dyn_destination:: usb/dyn_device_configurations.html
 

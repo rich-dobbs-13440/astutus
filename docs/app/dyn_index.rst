@@ -1,5 +1,7 @@
-Astutus From the Browser
-========================
+Application
+===========
+
+.. astutus_dyn_bookmark:: Astutus Dynamic Pages - /astutus/app
 
 .. astutus_dyn_link:: "/astutus/app/index.html"
 
@@ -12,7 +14,6 @@ a lot of investment in custom styling.  It provides a high degree of
 integration between end user functionality, system documentation, and
 development planning and execution.
 
-.. astutus_dyn_bookmark:: Astutus Dynamic Pages - /astutus
 
 .. toctree::
     :caption: Current Capabilities:

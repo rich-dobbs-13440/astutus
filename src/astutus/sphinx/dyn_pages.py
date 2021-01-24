@@ -71,8 +71,8 @@ class BreadCrumbDirective(SphinxDirective):
     def run(self):
         log_as_info("DynBreadCrumbDirective.run")
         node = BreadCrumbNode('')
-        replacement_text = self.arguments[0]
-        node.markup = f'\n««BREADCRUMB»» {replacement_text} ««END_BREADCRUMB»»\n'
+        jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
+        node.markup = f'\n««BREADCRUMB»» {jinja2_value} ««END_BREADCRUMB»»\n'
         return [node]
 
     @staticmethod
@@ -94,17 +94,15 @@ class BookmarkDirective(SphinxDirective):
     def run(self):
         log_as_info("\nBookmarkDirective.run")
         node = BookmarkNode('')
-        node.value = self.arguments[0]
+        jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
+        node.markup = f'\n««HTML_TITLE»» {jinja2_value} ««END_HTML_TITLE»»\n'
         return [node]
 
     @staticmethod
     def handle_insert_markup(app, doctree, fromdocname):
         """ Handle title modification by inserting post processing markup. """
         for node in doctree.traverse(BookmarkNode):
-            log_as_info("\nBookmarkDirective.handle_insert_markup")
-            jinja2_value = node.value.replace('<', '{{ ').replace('>', ' }}')
-            replacement = f'\n««HTML_TITLE»» {jinja2_value} ««END_HTML_TITLE»»\n'
-            replacement_node = docutils.nodes.raw('', replacement, format='html')
+            replacement_node = docutils.nodes.raw('', node.markup, format='html')
             node.replace_self(replacement_node)
 
 
