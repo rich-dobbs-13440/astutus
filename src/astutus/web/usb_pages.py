@@ -12,8 +12,6 @@ logger.addHandler(flask.logging.default_handler)
 
 usb_page = flask.Blueprint('usb', __name__, template_folder='templates')
 
-static_base = None  # Will be set when pages are registered.
-
 
 def get_alias_path_item_list():
     aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
@@ -62,7 +60,6 @@ def handle_usb():
         links = "\n".join(links_list)
         return flask.render_template(
             'usb/dyn_usb.html',
-            static_base=static_base,
             links=links)
 
 
@@ -199,7 +196,6 @@ def handle_usb_device():
 
         return flask.render_template(
             'usb/dyn_usb_device.html',
-            static_base=static_base,
             bare_tree=bare_tree_html,
             aliases_javascript=aliases.to_javascript(),
             configurations_javascript=device_configurations.to_javascript(),
@@ -233,7 +229,6 @@ def handle_usb_alias():
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         return flask.render_template(
             'usb/dyn_alias.html',
-            static_base=static_base,
             aliases=aliases,
             nodepath_item_list=get_alias_path_item_list())
 
@@ -250,7 +245,6 @@ def handle_usb_alias_item(nodepath):
         if alias is not None:
             return flask.render_template(
                 'usb/dyn_alias_item.html',
-                static_base=static_base,
                 item=item,
                 nodepath=nodepath,
                 alias=alias,
@@ -299,7 +293,6 @@ def handle_usb_configuration():
         device_configurations = astutus.usb.DeviceConfigurations()
         return flask.render_template(
             'usb/dyn_device_configurations.html',
-            static_base=static_base,
             device_configurations=device_configurations,
             nodeid_item_list=get_config_items_list())
 
@@ -312,7 +305,6 @@ def handle_usb_configuration_item(node_id):
         device_config = device_configurations.get_item(node_id)
         return flask.render_template(
             'usb/dyn_configuration_item.html',
-            static_base=static_base,
             item=node_id,
             nodeid=get_config_items_list()[0],
             device_config=device_config,

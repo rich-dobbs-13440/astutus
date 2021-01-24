@@ -9,8 +9,6 @@ logger = logging.getLogger(__name__)
 raspi_page = flask.Blueprint('raspi', __name__, template_folder='templates')
 db = None
 
-static_base = "/static/_docs/_static"
-
 
 def process_raspi_search_using_nmap(args):
     ipv4 = args.get("ipv4")
@@ -34,7 +32,6 @@ def get_items_list():
 def display_raspi_find(*, search_result, filter):
     return flask.render_template(
         'raspi/dyn_raspi.html',
-        static_base=static_base,
         search_result=search_result,
         filter=filter,
         idx_item_list=get_items_list())
@@ -56,7 +53,6 @@ def handle_raspi():
             return display_raspi_find(search_result=None, filter=["Raspberry"])
         return flask.render_template(
             'raspi/dyn_raspi.html',
-            static_base=static_base,
             filter=["Raspberry"],
             idx_item_list=get_items_list())
 
@@ -121,7 +117,6 @@ def handle_raspi_item(idx):
             item = astutus.db.RaspberryPi(id=f"non-existent {idx}", ipv4="no such id", mac_addr="no such id")
         return flask.render_template(
             'raspi/dyn_raspi_item.html',
-            static_base=static_base,
             item=item,
             idx=idx,
             idx_item_list=get_items_list())
@@ -135,7 +130,6 @@ def handle_raspi_item_ifconfig(idx):
         ifconfig = raspi.get_ifconfig()
         return flask.render_template(
             'raspi/dyn_item_ifconfig.html',
-            static_base=static_base,
             idx=idx,
             ifconfig=ifconfig,
             idx_item_list=get_items_list())

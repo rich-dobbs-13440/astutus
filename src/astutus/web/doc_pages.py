@@ -7,7 +7,6 @@ import flask.logging
 
 logger = logging.getLogger(__name__)
 db = None
-static_base = None
 doc_page = flask.Blueprint('doc', __name__, template_folder='templates')
 
 

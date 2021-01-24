@@ -38,7 +38,7 @@ import flask.logging
 logger = logging.getLogger(__name__)
 
 
-def create_app_and_db(static_base):
+def create_app_and_db():
 
     try:
         app = flask.Flask('astutus.web.flask_app', template_folder='templates')
@@ -50,11 +50,8 @@ def create_app_and_db(static_base):
             astutus.db.initialize_db_if_needed()
             app.register_blueprint(astutus.web.raspi_pages.raspi_page)
             astutus.web.raspi_pages.db = db
-            astutus.web.raspi_pages.static_base = static_base
             app.register_blueprint(astutus.web.usb_pages.usb_page)
-            astutus.web.usb_pages.static_base = static_base
             app.register_blueprint(astutus.web.log_pages.log_page)
-            astutus.web.log_pages.static_base = static_base
             astutus.web.log_pages.db = db
             app.register_blueprint(astutus.web.doc_pages.doc_page)
             astutus.web.doc_pages.doc_page.root_path = app.root_path
@@ -73,8 +70,7 @@ def create_app_and_db(static_base):
     raise RuntimeError("Please delete out-of-date database.")
 
 
-static_base = "/static/_docs/_static"
-app, db = create_app_and_db(static_base=static_base)
+app, db = create_app_and_db()
 
 
 @app.template_filter('tojson_pretty')
@@ -107,7 +103,6 @@ def handle_astutus():
     links = "\n".join(links_list)
     return flask.render_template(
         'dyn_index.html',
-        static_base=static_base,
         links=links)
 
 
