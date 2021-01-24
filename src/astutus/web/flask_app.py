@@ -28,6 +28,7 @@ import astutus.log
 import astutus.raspi
 import astutus.util
 import astutus.web.flask_app
+import astutus.web.app_pages
 import astutus.web.log_pages
 import astutus.web.raspi_pages
 import astutus.web.usb_pages
@@ -55,6 +56,7 @@ def create_app_and_db():
             astutus.web.log_pages.db = db
             app.register_blueprint(astutus.web.doc_pages.doc_page)
             astutus.web.doc_pages.doc_page.root_path = app.root_path
+            app.register_blueprint(astutus.web.app_pages.app_page)
             # Handle logging configuration
             flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
             level_by_logger_name = {}
@@ -78,32 +80,6 @@ def tojson_pretty_jinja2_template_file(json_text):
     logger.debug(f"json_text: {json_text}")
     parsed_json = json.loads(json_text)
     return json.dumps(parsed_json, indent=2, sort_keys=True)
-
-
-@app.route('/')
-def handle_top():
-    """ app.route('/') """
-    return flask.redirect(flask.url_for("handle_astutus"))
-
-
-@app.route('/astutus/app/dyn_index.html', methods=['GET'])
-def handle_app_index_from_doc():
-    return flask.redirect(flask.url_for("handle_astutus"))
-
-
-@app.route('/astutus/app/index.html')
-def handle_astutus():
-
-    """ app.route('/astutus') """
-    links_list = [
-        '<li><p>Control the <a class="reference internal" href="/astutus/log">logging</a> in the web application.</p></li>'  # noqa
-        '<li><p>Discover and work with <a class="reference internal" href="/astutus/app/raspi"><span class="doc">Raspberry Pi\'s</span> on your system</a></p></li>',  # noqa
-        '<li><p>Understand the <a class="reference internal" href="/astutus/app/usb"><span class="doc">USB devices</span></a> on you system</p></li>',  # noqa
-    ]
-    links = "\n".join(links_list)
-    return flask.render_template(
-        'dyn_index.html',
-        links=links)
 
 
 def run_with_standard_options():
