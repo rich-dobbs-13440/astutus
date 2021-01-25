@@ -1,7 +1,12 @@
+""" Module level docstring
+
+More explaination goes here.
+"""
 import os
 import pathlib
 import re
 import urllib.parse
+from typing import List, Set, Dict, Tuple, Optional  # noqa
 
 import sphinx.util
 import astutus.util
@@ -10,7 +15,8 @@ import astutus.sphinx.dyn_pages
 logger = sphinx.util.logging.getLogger(__name__)
 
 
-def log_as_info(msg):
+def log_as_info(msg: str):
+    """ Log at the information for this module in a distinct color for development and troubleshooting."""
     ansi = astutus.util.AnsiSequenceStack()
     start = ansi.push
     info = '#FFFF33'  # Color our info messages as yellow
@@ -21,7 +27,7 @@ def log_as_info(msg):
 # Since the Jinja2 templates may not be legal HTML5, this process will be based
 # on text manipulation, rather than DOM transformation or XSLT transformations.
 
-def indented_html_text_from_html_lines(html_lines):
+def indented_html_text_from_html_lines(html_lines: List[str]):
     """ Attempts to indent html in a somewhat meaningful fashion.
 
     Needs some semi-manual patch up to take care of HTML comments.
@@ -57,7 +63,8 @@ def indented_html_text_from_html_lines(html_lines):
     return "".join(output_chunks)
 
 
-def extract_tags_from_path(path):
+def extract_tags_from_path(path: str) -> List[str]:
+    r""" For something that looks like a path, extract tags indicated by angle brackets, such as <idx>. """
     tag_search_pattern = r'\/(\<\w+\>)\/'
     matches = re.search(tag_search_pattern, path)
     if matches:
@@ -67,8 +74,8 @@ def extract_tags_from_path(path):
     return tags
 
 
-class FilePostProcessor:
-    """ Convert a Sphinx generated *.html file into a Jinja2 template for use with Flask.
+class FilePostProcessor(object):
+    r""" Convert a Sphinx generated *.html file into a Jinja2 template for use with Flask.
 
     Any post-processing directives are read and implemented, and then the result is written
     as a reasonably-well indented Jinja2 template for use in creating dynamic HTML pages.
@@ -82,12 +89,21 @@ class FilePostProcessor:
     as well as the bread crumb navigation at the top of the page.
 
     """
-    def __init__(self, input_path, docname, dyn_link_list, dyn_base, extra_head_material):
+    def __init__(
+            self,
+            input_path: str,
+            docname: str,
+            dyn_link_list: List,
+            dyn_base: str,
+            extra_head_material: str,
+            default_template_prefix: str):
+
         self.input_path = input_path
         self.docname = docname
         self.dyn_link_list = dyn_link_list
         self.dyn_base = dyn_base
         self.extra_head_material = extra_head_material
+        self.default_template_prefix = default_template_prefix
         self.breadcrumb = None
         self.destination_relative_filepath = None
         self.title = None
@@ -100,7 +116,7 @@ class FilePostProcessor:
             key = '/' + link['docname']
             self.dyn_links[key] = link
 
-    def set_destination_filename(self, relative_file_path):
+    def set_destination_filename(self, relative_file_path: str):
         """ Set the destination relative filepath based on the provided input.
 
         The destination relative filepat may be specified by the
@@ -112,10 +128,10 @@ class FilePostProcessor:
         if relative_file_path is None:
             # Take docname, split into path and filename
             if self.docname.find('/') == -1:
-                self.destination_relative_filepath = 'dyn_' + self.docname + '.html'
+                self.destination_relative_filepath = self.default_template_prefix + self.docname + '.html'
             else:
                 path, name = self.docname.rsplit('/', 1)
-                self.destination_relative_filepath = path + '/dyn_' + name + '.html'
+                self.destination_relative_filepath = path + '/' + self.default_template_prefix + name + '.html'
         else:
             self.destination_relative_filepath = relative_file_path
 
@@ -198,12 +214,15 @@ class FilePostProcessor:
                 output_lines.append(line)
         return output_lines
 
-    def replace_relative_href(self, line: str) -> (str, list):
-        """ Method used in toctree processing."""
+    def parse_li_a_href_link_line(self, original_li_line: str) -> (str, list, str):
+        """ Takes a line containing a <li><a href="...">link_text</a></li> and parses it.
+
+        :return: li_template, replacements_tags, link_replacement_text
+        """
         # Extract out the value of the href using regexp
-        # <li class="toctree-l2"><a class="reference internal" href="raspi/dyn_raspi.html">Raspberry Pi’s</a></li>
+        # <li class="toctree-l2"><a class="reference internal" href="raspi/styled_raspi.html">Raspberry Pi’s</a></li>
         pattern = r'href=\"([^\"]+)\"'
-        matches = re.search(pattern, line)
+        matches = re.search(pattern, original_li_line)
         href_value = matches.group(1)
         # Make a fake http url from the docname, and use that to resolve relative paths including "#"
         server = "http://fake/"
@@ -216,30 +235,35 @@ class FilePostProcessor:
         # Find the dynamic link if it has been defined.
         dyn_link = self.dyn_links.get(href_docname)
         if dyn_link is None:
+            # Just make the href an absolute path, but otherwise don't change it.
             replacement_href_value = href_absolute_url.replace(server, self.dyn_base + '/')
             replacements_tags = []
-            replacement_text = None
+            # Keep the same link text in this this case.
+            link_replacement_text = None
         else:
+            # If a dyn_link is found, the url for the href is replaced, as well as the link text.
+            # These may contain tags to indicate variable aspects of the href and link text.
             replacement_href_value = dyn_link['replacement_url']
             replacements_tags = extract_tags_from_path(replacement_href_value)
-            replacement_text = dyn_link['replacement_text']
+            link_replacement_text = dyn_link['replacement_text']
         subst = f'href="{replacement_href_value}" orig_href="{href_value}"'
-        modified_line = re.sub(pattern, subst, line)
-        return modified_line, replacements_tags, replacement_text
+        li_template = re.sub(pattern, subst, original_li_line)
+        # At this juncture, the variabls are still marked with angled brackets, rather than
+        # Jinja2 braces.
+        return li_template, replacements_tags, link_replacement_text
 
-    def wrap_in_jinja2_loop(self, line_with_angled_tags, tags, replacement_text):
+    def wrap_in_jinja2_loop(self, list_item_line_with_angled_tags, tags, link_text):
         """ Take a list item wrapped anchor and replace it with a Jinja2 loop.
 
         The Flask application will provide data when rendering the template
         to provide a menu with a dynamic number of entries.
         """
-        line_with_jinja2_substitutions = line_with_angled_tags
+        line_with_jinja2_substitutions = list_item_line_with_angled_tags
         for tag in tags:
             jinja2_variable = tag.replace('<', '{{ ').replace('>', '_item.value }}')
             line_with_jinja2_substitutions = line_with_jinja2_substitutions.replace(tag, jinja2_variable)
         loop_variable = tags[-1].replace('<', '').replace('>', '') + '_item'
-        # TODO: Replace link text
-        log_as_info(f'line_with_angled_tags: {line_with_angled_tags}')
+        log_as_info(f'line_with_angled_tags: {list_item_line_with_angled_tags}')
         # Pattern in plain language:
         #       Find the anchor element, including all of its attributes.
         #          This assumes that attribute values are double quoted without any sort of embedded quotes.
@@ -248,11 +272,11 @@ class FilePostProcessor:
         # pattern_to_pick_out_link_text = r'<a\s+([\w]+\=\"[^\"]+\"\s*)*>([^>]*)</a>'
         pattern_to_pick_out_link_text = r'(<a\s+(?:[\w]+\=\"[^\"]+\"\s*)*>?)([^>]*?)(</a>?)'
         # Replace the second matching group, keeping the first and third just like that originally are.
-        if replacement_text is None:
+        if link_text is None:
             substitution = r'\g<1>{{ ' + loop_variable + r'.link_text }}\g<3>'
         else:
-            log_as_info(f"replacement_text: {replacement_text}")
-            substitution = r'\g<1>' + replacement_text + r'\g<3>'
+            log_as_info(f"link_text: {link_text}")
+            substitution = r'\g<1>' + link_text + r'\g<3>'
         line_with_jinja2_substitutions = re.sub(
             pattern_to_pick_out_link_text, substitution, line_with_jinja2_substitutions)
         log_as_info(f'line_with_jinja2_substitutions: {line_with_jinja2_substitutions}')
@@ -277,8 +301,15 @@ class FilePostProcessor:
         return lines
 
     def fix_navigation_hrefs(self, input_html_lines):
-        ''' Fix up hrefs used in table of contents. '''
+        ''' Fix up hrefs used in table of contents.
 
+        The original hrefs do not necessarily have the right nesting for routes used in the Flask application.
+        They also may need to be converted to elements that represent variable parts of the route, such as
+        used with RESTful web applications.  The variable parts of the route are identified by angle brackets
+        similar to that used in Flask routing in the replacement dynamic links.  These are expanded into
+        Jinja2 variables and loops.
+
+        '''
         # Use simple state machine to process the document on a line-by-line basis.
         output_lines = []
         state = 'outside_nav'
@@ -305,14 +336,14 @@ class FilePostProcessor:
                     substate = 'breadcrumbs'
             elif state == 'in_nav':
                 # Handle a link like this:
-                # <li class="toctree-l2"><a class="reference internal" href="raspi/dyn_raspi.html">Raspberry Pi’s</a></li>  # noqa
+                # <li class="toctree-l2"><a class="reference internal" href="raspi/styled_index.html">Raspberry Pi’s</a></li>  # noqa
                 if li_selector in line:
                     # Replace relative href with an absolute href based on the doc and dynamic link modifications.
-                    modified_line, tags, replacement_text = self.replace_relative_href(line)
+                    li_template, tags, replacement_link_text = self.parse_li_a_href_link_line(line)
                     if len(tags) == 0:
-                        output_lines.append(modified_line)
+                        output_lines.append(li_template)
                     else:
-                        output_lines.extend(self.wrap_in_jinja2_loop(modified_line, tags, replacement_text))
+                        output_lines.extend(self.wrap_in_jinja2_loop(li_template, tags, replacement_link_text))
                 elif substate == 'breadcrumbs' and '<li>' in line:
                     if self.breadcrumb is None:
                         output_lines.append(line)
@@ -348,13 +379,25 @@ class FilePostProcessor:
 
 
 def handle_build_finished(app, exception):
-    """ Post-process all *.html in the astutus_dyn_pages_dir when triggered by the 'build-finished' event."""
+    """ Post-process all generated HTML files that will be used as styled Jinja2 templates.
+
+    This method is triggered by the 'build-finished' event.  It connects the Sphinx application
+    to the post processing class astutus.sphinx.post_process.FilePostProcessor.
+
+    At this time, the source styled *.html are found by examining the contents within the
+    directory identified by the astutus_dyn_pages_dir configuration variable.
+
+    The files are placed in a location identified by the astutus_dyn_styled_templates_path
+    configuration variable.
+    """
+    # TODO: Replace walking through the directory with keeping a list as files are identified.
+
     log_as_info("Got handle_build_finished")
     # logger.warn(f"app: {dir(app)}")
     log_as_info(f"outdir: {app.outdir}")
     source_dir = pathlib.Path(app.outdir) / app.config.astutus_dyn_pages_dir
     log_as_info(f"source_dir: {source_dir}")
-    destin_dir = pathlib.Path(app.outdir).parent / app.config.astutus_dynamic_templates
+    destin_dir = pathlib.Path(app.outdir).parent / app.config.astutus_dyn_styled_templates_path
     os.makedirs(destin_dir)
     log_as_info(f"destin_dir: {destin_dir}")
 
@@ -375,5 +418,6 @@ def handle_build_finished(app, exception):
                 docname,
                 app.env.astutus_dyn_link_list,
                 app.config.astutus_dyn_base,
-                app.config.astutus_dyn_extra_head_material)
+                app.config.astutus_dyn_extra_head_material,
+                app.config.astutus_dyn_default_template_prefix)
             processor.execute_and_write(destin_dir)

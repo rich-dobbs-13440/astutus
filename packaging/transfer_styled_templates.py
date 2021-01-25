@@ -5,7 +5,7 @@ import os.path
 import shutil
 
 print("Copying the dynamic templates from docs to the web application")
-source_templates = '../docs/_build/astutus_dynamic_templates'
+source_templates = '../docs/_build/astutus_dyn_styled_templates'
 print(f"source_templates: {source_templates}")
 templates_dirpath = '../src/astutus/web/templates'
 

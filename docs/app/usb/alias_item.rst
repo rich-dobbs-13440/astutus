@@ -9,7 +9,7 @@ Device Alias
 
 .. astutus_dyn_link:: /astutus/app/usb/alias/<nodepath>/index.html
 
-.. astutus_dyn_destination:: app/usb/alias/nodepath/dyn_index.html
+.. astutus_dyn_destination:: app/usb/alias/nodepath/styled_index.html
 
 .. astutus_dyn_bookmark:: USB Alias - /astutus/alias/<nodepath>
 

@@ -15,7 +15,7 @@ Raspberry Pi
 
 .. astutus_dyn_link:: /astutus/app/raspi/<idx>/index.html
 
-.. astutus_dyn_destination:: app/raspi/idx/dyn_index.html
+.. astutus_dyn_destination:: app/raspi/idx/styled_index.html
 
 .. astutus_dyn_bookmark:: Raspberry Pi's - /astutus/app/raspi/<item.ipv4>
 

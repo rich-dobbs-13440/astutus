@@ -15,7 +15,7 @@ def handle_log():
     if flask.request.method == 'GET':
         loggers = astutus.log.get_loggers()
         return flask.render_template(
-            'app/log/dyn_index.html',
+            'app/log/styled_index.html',
             loggers=loggers)
     if flask.request.method == 'POST':
         # loglevel = getattr(logging, args.loglevel)

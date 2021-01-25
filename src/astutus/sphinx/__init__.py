@@ -1,4 +1,4 @@
-""" A Sphinx extension for styled, dynamic web pages with Flask web applications.
+r""" A Sphinx extension for styled, dynamic web pages with Flask web applications.
 
 At this time, the extension is targeted at the  **sphinx_rtd_theme** Sphinx theme.
 
@@ -33,7 +33,7 @@ Optional configuration variables have good-enough default values that it is not 
 user's of the extension will need to customize them.  At this time, the extension has one
 optional configuration variable:
 
-    astutus_dynamic_templates = 'astutus_dynamic_templates'
+    astutus_dyn_styled_templates_path = 'astutus_dyn_styled_templates'
 
 
 Directives
@@ -41,17 +41,17 @@ Directives
 
 The directives implemented are:
 
-**.\. astutus_dyn_include::** *use Jinja2 template into a styled page*
+**.\. astutus_dyn_include::** *use Jinja2 template in a styled page*
 
-**.\. astutus_dyn_link::** *fixes up the .\.toc_tree:: directive to work with dynamic pages*
+**.\. astutus_dyn_link::** *fix up the .\.toc_tree:: directive to work with the page*
 
-**.\. astutus_dyn_bookmark::** *customizes browser bookmarks (and tab titles)*
+**.\. astutus_dyn_bookmark::** *customize the browser bookmark (and tab title) for a page*
 
-**.\. astutus_dyn_breadcrumb::** *customizes the Read-the-Docs breadcrumb navigation*
+**.\. astutus_dyn_breadcrumb::** *customize the Read-the-Docs breadcrumb navigation for a page*
 
-**.\. astutus_dyn_destination::** *lays out the structure of styled templates files*
+**.\. astutus_dyn_destination::** *place the styled template in a particular location*
 
-**.\. astutus_toggle_note::** *a note directive that can be expanded or collapsed*
+**.\. astutus_toggle_note::** *write a note that can be expanded or collapsed*
 
 
 """

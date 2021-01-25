@@ -15,4 +15,4 @@ def handle_top():
 
 @app_page.route('/astutus/app/index.html')
 def handle_astutus():
-    return flask.render_template('app/dyn_index.html')
+    return flask.render_template('app/styled_index.html')

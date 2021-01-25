@@ -113,7 +113,7 @@ class BookmarkNode(docutils.nodes.General, docutils.nodes.Element):
 
 
 class BookmarkDirective(SphinxDirective):
-    """ Implements the .\. astutus_dyn_bookmark:: directive.
+    r""" Implements the .\. astutus_dyn_bookmark:: directive.
 
     This directive allows customizing the title tag in the head section
     of the HTML tag.  This tag is used in labeling browser tabs and suggested
@@ -199,12 +199,37 @@ class ToggleNoteNode(docutils.nodes.note):
 
 
 class ToggleNoteDirective(SphinxDirective):
+    r""" Implements a note directive that allows the content of the note to be collapsed by the browser user.
+
+    Usage:
+
+        .\.  astutus_toggle_note:: [ expanded|collapsed   [extra_title_text]]
+
+            indented block of text for note
+            ...
+
+    If the first argument is omitted, it defaults to expanded.
+
+    If extra_title_text is to be provided, the author must explicitly specify the toggle state.
+    The argument extra_title_text may contain whitespace.
+
+    """
 
     has_content = True
     optional_arguments = 2
     final_argument_whitespace = True
 
-    def run(self):
+    def run(self) -> list:
+        """ Parses the directive when encountered in a *.rst file, returning a ToggleNoteNode to be added to the document tree.
+
+        At the time this method is called, the arguments, options, and content
+        for the directive have been store in initializing the object.  This
+        method returns a list containing any nodes to be inserted into the Docutils document.
+
+        For this directive, all useful directive values are stored in a specialized node
+        for subsequent processing after the document tree has been resolved.
+        """
+
         log_as_info("\nToggleNoteDirective.run")
         if len(self.arguments) > 0:
             toggle_start = self.arguments[0]
@@ -216,10 +241,6 @@ class ToggleNoteDirective(SphinxDirective):
         else:
             extra_title_text = ''
 
-        # node = ToggleNoteNode('')
-
-        # node += docutils.nodes.raw('', '\n'.join(self.content), format='html')
-        # return [node]
         self.assert_has_content()
         text = '\n'.join(self.content)
         # Create the admonition node, to be populated by `nested_parse`.
@@ -231,7 +252,8 @@ class ToggleNoteDirective(SphinxDirective):
         else:
             raise ValueError("For the ToggleNoteDirective, expecting the first argument to be collapsed or expanded")
         node.extra_title_text = extra_title_text
-        # Parse the directive contents.
+        # Parse the directive contents.  This takes care of any Spinx markup in the
+        # content of the directive.
         self.state.nested_parse(self.content, self.content_offset, node)
         return [node]
 
@@ -288,10 +310,14 @@ def setup(app):
     the connection between Sphinx events and the functions that implement
     the extension.
     """
+    # Configuration variables that the user must override:
     app.add_config_value('astutus_dyn_base', '', 'html')
     app.add_config_value('astutus_dyn_pages_dir', 'astutus_dyn_pages', 'html')
-    app.add_config_value('astutus_dynamic_templates', 'astutus_dynamic_templates', 'html')
-    app.add_config_value('astutus_dyn_extra_head_material', 'astutus_dyn_pages', 'html')
+    # Optional configuration variables that the user may want to override:
+    app.add_config_value('astutus_dyn_extra_head_material', '', 'html')
+    # Optional configuration variables that the user probably should not override:
+    app.add_config_value('astutus_dyn_styled_templates_path', 'astutus_dyn_styled_templates', 'html')
+    app.add_config_value('astutus_dyn_default_template_prefix', 'styled_', 'html')
 
     app.add_node(
         LinkNode,
