@@ -43,7 +43,8 @@ let us know!
 
 Backlog:
 
-  * |in_progress| Task: Style Raspberry Pi ifconfig page.
+  * Task: Style Raspberry Pi ifconfig page.
+  * |in_progress| Task: Update astutus.sphinx doc strings for good presentation in the API docs.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
   * Add a progress list directive.
   * Task: Provide a link to the RPi's astutus-web-app.
