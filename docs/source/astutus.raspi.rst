@@ -1,6 +1,11 @@
 astutus.raspi package
 =====================
 
+.. automodule:: astutus.raspi
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -16,14 +21,6 @@ astutus.raspi.raspi\_impl module
 --------------------------------
 
 .. automodule:: astutus.raspi.raspi_impl
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: astutus.raspi
    :members:
    :undoc-members:
    :show-inheritance:

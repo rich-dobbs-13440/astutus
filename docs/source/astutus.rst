@@ -1,6 +1,11 @@
 astutus package
 ===============
 
+.. automodule:: astutus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
@@ -22,14 +27,6 @@ astutus.version module
 ----------------------
 
 .. automodule:: astutus.version
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: astutus
    :members:
    :undoc-members:
    :show-inheritance:

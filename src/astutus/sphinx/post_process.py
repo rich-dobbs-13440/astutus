@@ -24,8 +24,6 @@ def log_as_info(msg):
 def indented_html_text_from_html_lines(html_lines):
     """ Attempts to indent html in a somewhat meaningful fashion.
 
-    Presumes that the html_text provide is not indented at all.
-
     Needs some semi-manual patch up to take care of HTML comments.
 
     """
@@ -70,7 +68,20 @@ def extract_tags_from_path(path):
 
 
 class FilePostProcessor:
+    """ Convert a Sphinx generated *.html file into a Jinja2 template for use with Flask.
 
+    Any post-processing directives are read and implemented, and then the result is written
+    as a reasonably-well indented Jinja2 template for use in creating dynamic HTML pages.
+
+    The key directive to allow dynamic pages is .\. astutus_dyn_include::, which
+    allows variable-driven content generation templates created by the web site
+    developer to be placed into the Read-the-Docs styled page.
+
+    Other directives are used to fix up navigation to dynamic pages using the vertical
+    side bar menu generated from the toc_tree directive styled usin the Read-the-Docs theme,
+    as well as the bread crumb navigation at the top of the page.
+
+    """
     def __init__(self, input_path, docname, dyn_link_list, dyn_base, extra_head_material):
         self.input_path = input_path
         self.docname = docname
@@ -90,6 +101,14 @@ class FilePostProcessor:
             self.dyn_links[key] = link
 
     def set_destination_filename(self, relative_file_path):
+        """ Set the destination relative filepath based on the provided input.
+
+        The destination relative filepat may be specified by the
+        astutus_dyn_destination directive.
+
+        If no directive is provided, the system uses a reasonable default
+        destination based on the docname of the file.
+        """
         if relative_file_path is None:
             # Take docname, split into path and filename
             if self.docname.find('/') == -1:
@@ -103,8 +122,11 @@ class FilePostProcessor:
     def execute_and_write(self, output_basepath):
         """  Process the Sphinx generated html file to produced a styled Jinja template
 
-        The destination filepath can be automatically derived from the input
-        name, or may be explicitly specified by a directive in the template rst file.
+        The phases of the processing are:
+
+            * Read whole-file related post processing directives from the HTML text.
+            * Process the file line-by-line to make appropriate and necessary modifications.
+            * Write the resulting processed lines out as Jinja2 template file.
 
         """
         with open(self.input_path, "r") as input_file:
@@ -124,6 +146,15 @@ class FilePostProcessor:
         self.write_template(output_basepath, html_text)
 
     def apply_line_oriented_replacements(self, input_html_lines):
+        """ Applies line oriented replacements, but does not handle table-of-contents modifications.
+
+        Line oriented replacements include:
+            * Remove HTML navigation features not supported for dynamic pages.
+            * Fixing up general links as needed to work with the Flask application.
+
+        Table of contents fix-ups are handled in a separate method.
+
+        """
         output_lines = []
         for line in input_html_lines:
             if 'rel="next"' in line:
@@ -168,6 +199,7 @@ class FilePostProcessor:
         return output_lines
 
     def replace_relative_href(self, line: str) -> (str, list):
+        """ Method used in toctree processing."""
         # Extract out the value of the href using regexp
         # <li class="toctree-l2"><a class="reference internal" href="raspi/dyn_raspi.html">Raspberry Pi’s</a></li>
         pattern = r'href=\"([^\"]+)\"'
@@ -196,6 +228,11 @@ class FilePostProcessor:
         return modified_line, replacements_tags, replacement_text
 
     def wrap_in_jinja2_loop(self, line_with_angled_tags, tags, replacement_text):
+        """ Take a list item wrapped anchor and replace it with a Jinja2 loop.
+
+        The Flask application will provide data when rendering the template
+        to provide a menu with a dynamic number of entries.
+        """
         line_with_jinja2_substitutions = line_with_angled_tags
         for tag in tags:
             jinja2_variable = tag.replace('<', '{{ ').replace('>', '_item.value }}')
@@ -289,6 +326,7 @@ class FilePostProcessor:
         return output_lines
 
     def strip_post_processing_markup(self, input_html_lines):
+        """ Remove any post processing markup.  This markup should not be in the template."""
         output_lines = []
         for line in input_html_lines:
             if not astutus.sphinx.dyn_pages.post_processing_mark_found(None, line):
@@ -296,6 +334,11 @@ class FilePostProcessor:
         return output_lines
 
     def write_template(self, output_basepath, html_text):
+        """ Write the processed template to a location relative to the output base path.
+
+        The actual location is derived from the output base path combined with a file-specific
+        relative filepath.
+        """
         output_path = os.path.join(output_basepath, self.destination_relative_filepath).strip()
         output_dir = os.path.dirname(output_path)
         os.makedirs(output_dir, exist_ok=True)
@@ -305,6 +348,7 @@ class FilePostProcessor:
 
 
 def handle_build_finished(app, exception):
+    """ Post-process all *.html in the astutus_dyn_pages_dir when triggered by the 'build-finished' event."""
     log_as_info("Got handle_build_finished")
     # logger.warn(f"app: {dir(app)}")
     log_as_info(f"outdir: {app.outdir}")

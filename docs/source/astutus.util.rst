@@ -1,6 +1,11 @@
 astutus.util package
 ====================
 
+.. automodule:: astutus.util
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -24,14 +29,6 @@ astutus.util.util\_impl module
 ------------------------------
 
 .. automodule:: astutus.util.util_impl
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: astutus.util
    :members:
    :undoc-members:
    :show-inheritance:

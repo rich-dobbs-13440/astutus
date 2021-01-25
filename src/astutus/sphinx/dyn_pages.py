@@ -108,15 +108,32 @@ class BreadCrumbDirective(SphinxDirective):
 
 
 class BookmarkNode(docutils.nodes.General, docutils.nodes.Element):
+    """ Stores the processed value of the argument to the directive. """
     pass
 
 
 class BookmarkDirective(SphinxDirective):
+    """ Implements the .\. astutus_dyn_bookmark:: directive.
 
+    This directive allows customizing the title tag in the head section
+    of the HTML tag.  This tag is used in labeling browser tabs and suggested
+    values for browser book marks.
+
+    The one required argument specifies replacement bookmark text.
+
+    The argument can contain values in angled brackets that are translated
+    into Jinja2 variables.  This is useful when corresponding page should be
+    dynamically labeled.
+
+    The directive should be used once on a particular page, if the default
+    bookmark is not adequate.
+
+    """
     required_arguments = 1
     final_argument_whitespace = True
 
     def run(self):
+        """ Replaces the directive in the *.rst file with a BookMarkNode"""
         log_as_info("\nBookmarkDirective.run")
         node = BookmarkNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -264,7 +281,13 @@ def config_inited(app, config):
 
 
 def setup(app):
+    """ This is the standard set function for the extension.
 
+    It specifies extension configuration values, directives implemented by
+    the extension, nodes used in processing the directives, and
+    the connection between Sphinx events and the functions that implement
+    the extension.
+    """
     app.add_config_value('astutus_dyn_base', '', 'html')
     app.add_config_value('astutus_dyn_pages_dir', 'astutus_dyn_pages', 'html')
     app.add_config_value('astutus_dynamic_templates', 'astutus_dynamic_templates', 'html')
@@ -289,14 +312,14 @@ def setup(app):
 
     app.add_directive('astutus_dyn_link', LinkDirective)
 
-    app.add_directive('astutus_dyn_breadcrumb', BreadCrumbDirective)
-    app.connect('doctree-resolved', BreadCrumbDirective.handle_insert_markup)
+    app.add_directive('astutus_dyn_include', IncludeDirective)
+    app.connect('doctree-resolved', IncludeDirective.handle_insert_markup)
 
     app.add_directive('astutus_dyn_bookmark', BookmarkDirective)
     app.connect('doctree-resolved', BookmarkDirective.handle_insert_markup)
 
-    app.add_directive('astutus_dyn_include', IncludeDirective)
-    app.connect('doctree-resolved', IncludeDirective.handle_insert_markup)
+    app.add_directive('astutus_dyn_breadcrumb', BreadCrumbDirective)
+    app.connect('doctree-resolved', BreadCrumbDirective.handle_insert_markup)
 
     app.add_directive('astutus_dyn_destination', DestinationDirective)
     app.connect('doctree-resolved', DestinationDirective.handle_insert_markup)

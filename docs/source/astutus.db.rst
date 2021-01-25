@@ -1,6 +1,11 @@
 astutus.db package
 ==================
 
+.. automodule:: astutus.db
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
 
@@ -24,14 +29,6 @@ astutus.db.sqlite\_db module
 ----------------------------
 
 .. automodule:: astutus.db.sqlite_db
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: astutus.db
    :members:
    :undoc-members:
    :show-inheritance:
