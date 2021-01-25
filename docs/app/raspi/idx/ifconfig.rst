@@ -5,7 +5,7 @@ Raspberry Pi Ethernet Internet Configuration
 
 
 
-.. astutus_dyn_link:: "/astutus/app/raspi/<idx>/ifconfig.html" Internet Configuration
+.. astutus_dyn_link:: /astutus/app/raspi/<idx>/ifconfig.html Internet Configuration
 
 .. astutus_dyn_bookmark:: RPi ifconfig - /astutus/app/raspi/<idx>/ifconfig
 

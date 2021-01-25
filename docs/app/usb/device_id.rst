@@ -24,6 +24,6 @@ Soon, these links should allow you to make local customizations.
     device_id_item
 
 
-.. astutus_dyn_link:: "/astutus/app/usb/configuration.html"
+.. astutus_dyn_link:: /astutus/app/usb/configuration.html
 
 .. astutus_dyn_bookmark:: USB Device ID - /astutus/app/usb/device_configurations

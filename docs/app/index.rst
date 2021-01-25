@@ -18,6 +18,6 @@ development planning and execution.
     log/index
 
 
-.. astutus_dyn_link:: "/astutus/app/index.html"
+.. astutus_dyn_link:: /astutus/app/index.html
 
 .. astutus_dyn_bookmark:: Astutus Dynamic Pages - /astutus/app

@@ -1,8 +1,8 @@
-USB Aliases
-===========
+Aliases
+=======
 
-Aliases allow providing meaningful human names to USB devices despite
-the challenges of the USB implementation:
+Aliases allow providing meaningful human names to USB devices and the
+PCI buses and devices connecting them despite the challenges of the USB implementation:
 
     * Physical devices consist of multiple USB components.
     * USB components present different logical USB devices to the host computer

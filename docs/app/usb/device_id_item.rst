@@ -17,7 +17,7 @@ Device Identification
 
 
 
-.. astutus_dyn_link:: "/astutus/app/usb/configuration/<nodeid>/index.html"
+.. astutus_dyn_link:: /astutus/app/usb/configuration/<nodeid>/index.html
 
 .. astutus_dyn_destination:: app/usb/device_id/nodeid/dyn_index.html
 

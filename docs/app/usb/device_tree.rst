@@ -16,6 +16,6 @@ To define an alias, click on a button associated with the node.
 
 
 
-.. astutus_dyn_link:: "/astutus/app/usb/device_tree.html"
+.. astutus_dyn_link:: /astutus/app/usb/device_tree.html
 
 .. astutus_dyn_bookmark::  USB Devices - /astutus/app/usb/device_tree
