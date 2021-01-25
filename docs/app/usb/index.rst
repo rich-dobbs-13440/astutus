@@ -7,10 +7,8 @@ USB Devices
     :maxdepth: 1
     :caption: You can:
 
-    View USB devices as a tree <dyn_usb_device>
-    Manage device aliases <dyn_usb_alias>
-    Manage device names <dyn_usb_configuration>
+    View USB devices as a tree <device_tree>
+    Manage device aliases <alias>
+    Manage device names <device_id>
 
 .. astutus_dyn_bookmark:: USB - /astutus/app/usb
-
-.. astutus_dyn_destination:: usb/dyn_usb.html

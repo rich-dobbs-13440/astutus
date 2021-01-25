@@ -10,17 +10,12 @@ db = None
 log_page = flask.Blueprint('log', __name__, template_folder='templates')
 
 
-@log_page.route('/astutus/app/log/dyn_log.html', methods=['GET'])
-def handle_log_from_doc():
-    return flask.redirect(flask.url_for("log.handle_log"))
-
-
 @log_page.route('/astutus/app/log/index.html', methods=['GET'])
 def handle_log():
     if flask.request.method == 'GET':
         loggers = astutus.log.get_loggers()
         return flask.render_template(
-            'log/dyn_log.html',
+            'app/log/dyn_index.html',
             loggers=loggers)
     if flask.request.method == 'POST':
         # loglevel = getattr(logging, args.loglevel)

@@ -43,9 +43,8 @@ let us know!
 
 Backlog:
 
-  * |in_progress| Task: Useful defaults if .. astutus_dyn_destination::  is omitted.
+  * |in_progress| Task: Style Raspberry Pi ifconfig page.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
-  * Task: Style Raspberry Pi ifconfig page.
   * Add a progress list directive.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
@@ -69,6 +68,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-01-24 20:05 Task: Useful defaults if .. astutus_dyn_destination::  is omitted.
   * |newly_done| 2021-01-24 16:22 Task: Cleanup and generalize reading and processing of post processing directives.
   * |done| 2021-01-24 13:03 Task: Keep HTML lines as list in post processing, rather than combining and splitting.
   * |done| 2021-01-24 11:56 Task: Work out search page with new structure.

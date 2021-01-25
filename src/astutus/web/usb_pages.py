@@ -44,9 +44,9 @@ def get_config_items_list():
     return items_list
 
 
-@usb_page.route('/astutus/app/usb/dyn_usb.html', methods=['GET'])
-def handle_usb_from_doc():
-    return flask.redirect(flask.url_for("usb.handle_usb"))
+# @usb_page.route('/astutus/app/usb/dyn_usb.html', methods=['GET'])
+# def handle_usb_from_doc():
+#     return flask.redirect(flask.url_for("usb.handle_usb"))
 
 
 @usb_page.route('/astutus/app/usb/index.html', methods=['GET'])
@@ -59,7 +59,7 @@ def handle_usb():
         ]
         links = "\n".join(links_list)
         return flask.render_template(
-            'usb/dyn_usb.html',
+            'app/usb/dyn_index.html',
             links=links)
 
 
@@ -178,7 +178,7 @@ def handle_device_tree_item(path):
     return data_for_return, HTTPStatus.OK
 
 
-@usb_page.route('/astutus/app/usb/device.html', methods=['GET', 'POST'])
+@usb_page.route('/astutus/app/usb/device_tree.html', methods=['GET', 'POST'])
 def handle_usb_device():
     if flask.request.method == 'GET':
         begin = datetime.now()
@@ -195,7 +195,7 @@ def handle_usb_device():
         logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
 
         return flask.render_template(
-            'usb/dyn_usb_device.html',
+            'app/usb/dyn_device_tree.html',
             bare_tree=bare_tree_html,
             aliases_javascript=aliases.to_javascript(),
             configurations_javascript=device_configurations.to_javascript(),
@@ -228,7 +228,7 @@ def handle_usb_alias():
     if flask.request.method == 'GET':
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         return flask.render_template(
-            'usb/dyn_alias.html',
+            'app/usb/dyn_alias.html',
             aliases=aliases,
             nodepath_item_list=get_alias_path_item_list())
 
@@ -244,7 +244,7 @@ def handle_usb_alias_item(nodepath):
         alias = aliases.get(nodepath)
         if alias is not None:
             return flask.render_template(
-                'usb/dyn_alias_item.html',
+                'app/usb/alias/nodepath/dyn_index.html',
                 item=item,
                 nodepath=nodepath,
                 alias=alias,
@@ -292,7 +292,7 @@ def handle_usb_configuration():
     if flask.request.method == 'GET':
         device_configurations = astutus.usb.DeviceConfigurations()
         return flask.render_template(
-            'usb/dyn_device_configurations.html',
+            'app/usb/dyn_device_id.html',
             device_configurations=device_configurations,
             nodeid_item_list=get_config_items_list())
 
@@ -303,7 +303,7 @@ def handle_usb_configuration_item(nodeid):
         device_configurations = astutus.usb.DeviceConfigurations()
         device_config = device_configurations.get_item(nodeid)
         return flask.render_template(
-            'usb/dyn_configuration_item.html',
+            'app/usb/device_id/nodeid/dyn_index.html',
             item=nodeid,
             nodeid=nodeid,
             device_config=device_config,

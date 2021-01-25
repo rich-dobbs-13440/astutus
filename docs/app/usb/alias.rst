@@ -1,10 +1,6 @@
 USB Aliases
 ===========
 
-.. astutus_dyn_bookmark:: USB Aliases - /astutus/alias
-
-.. astutus_dyn_destination:: usb/dyn_alias.html
-
 Aliases allow providing meaningful human names to USB devices despite
 the challenges of the USB implementation:
 
@@ -20,12 +16,14 @@ the challenges of the USB implementation:
   in the device tree.  But you might find this page useful for seeing all
   of the aliases that you have defined, and editing specific aliases.
 
+.. astutus_dyn_include:: app/usb/device_aliases.html
 
-.. astutus_dyn_include:: usb/device_aliases.html
-
-.. astutus_dyn_link:: "/astutus/app/usb/alias.html"
 
 .. toctree::
     :hidden:
 
-    dyn_usb_alias_item
+    alias_item
+
+
+
+.. astutus_dyn_bookmark:: USB Aliases - /astutus/app/alias

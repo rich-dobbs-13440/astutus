@@ -31,15 +31,10 @@ def get_items_list():
 
 def display_raspi_find(*, search_result, filter):
     return flask.render_template(
-        'raspi/dyn_raspi.html',
+        'app/raspi/dyn_index.html',
         search_result=search_result,
         filter=filter,
         idx_item_list=get_items_list())
-
-
-@raspi_page.route('/astutus/app/raspi/dyn_raspi.html', methods=['GET'])
-def handle_raspi_from_doc():
-    return flask.redirect(flask.url_for("raspi.handle_raspi"))
 
 
 @raspi_page.route('/astutus/app/raspi/index.html', methods=['POST', 'GET'])
@@ -52,7 +47,7 @@ def handle_raspi():
             logger.debug("Go to display_raspi_find")
             return display_raspi_find(search_result=None, filter=["Raspberry"])
         return flask.render_template(
-            'raspi/dyn_raspi.html',
+            'app/raspi/dyn_index.html',
             filter=["Raspberry"],
             idx_item_list=get_items_list())
 
@@ -116,7 +111,7 @@ def handle_raspi_item(idx):
             # Create a dummy item to display error message
             item = astutus.db.RaspberryPi(id=f"non-existent {idx}", ipv4="no such id", mac_addr="no such id")
         return flask.render_template(
-            'raspi/dyn_raspi_item.html',
+            'app/raspi/idx/dyn_index.html',
             item=item,
             idx_item_list=get_items_list())
 
@@ -128,7 +123,7 @@ def handle_raspi_item_ifconfig(idx):
         raspi = astutus.raspi.RaspberryPi(db_data=item)
         ifconfig = raspi.get_ifconfig()
         return flask.render_template(
-            'raspi/dyn_item_ifconfig.html',
+            'app/raspi/idx/dyn_ifconfig.html',
             idx=idx,
             ifconfig=ifconfig,
             idx_item_list=get_items_list())

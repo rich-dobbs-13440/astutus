@@ -15,15 +15,15 @@ device_configurations.json file.
 
 Soon, these links should allow you to make local customizations.
 
-.. astutus_dyn_bookmark:: USB Device ID - /astutus/app/usb/device_configurations
+.. astutus_dyn_include:: app/usb/device_configurations.html
 
-.. astutus_dyn_destination:: usb/dyn_device_configurations.html
-
-.. astutus_dyn_include:: usb/device_configurations.html
-
-.. astutus_dyn_link:: "/astutus/app/usb/configuration.html"
 
 .. toctree::
     :hidden:
 
-    dyn_usb_configuration_item
+    device_id_item
+
+
+.. astutus_dyn_link:: "/astutus/app/usb/configuration.html"
+
+.. astutus_dyn_bookmark:: USB Device ID - /astutus/app/usb/device_configurations

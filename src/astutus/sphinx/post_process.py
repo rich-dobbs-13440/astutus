@@ -78,7 +78,7 @@ class FilePostProcessor:
         self.dyn_base = dyn_base
         self.extra_head_material = extra_head_material
         self.breadcrumb = None
-        self.destination_filename = None
+        self.destination_relative_filepath = None
         self.title = None
 
         # For this implementation, want the dynamic links as a dictionary, not a list
@@ -88,6 +88,17 @@ class FilePostProcessor:
             # are relative to the top.  Best to just fix it up.
             key = '/' + link['docname']
             self.dyn_links[key] = link
+
+    def set_destination_filename(self, relative_file_path):
+        if relative_file_path is None:
+            # Take docname, split into path and filename
+            if self.docname.find('/') == -1:
+                self.destination_relative_filepath = 'dyn_' + self.docname + '.html'
+            else:
+                path, name = self.docname.rsplit('/', 1)
+                self.destination_relative_filepath = path + '/dyn_' + name + '.html'
+        else:
+            self.destination_relative_filepath = relative_file_path
 
     def execute_and_write(self, output_basepath):
         """  Process the Sphinx generated html file to produced a styled Jinja template
@@ -101,7 +112,7 @@ class FilePostProcessor:
 
         self.title = astutus.sphinx.dyn_pages.read_post_processing_mark('HTML_TITLE', html_text)
         self.breadcrumb = astutus.sphinx.dyn_pages.read_post_processing_mark('BREADCRUMB', html_text)
-        self.destination_filename = astutus.sphinx.dyn_pages.read_post_processing_mark('DESTINATION', html_text)
+        self.set_destination_filename(astutus.sphinx.dyn_pages.read_post_processing_mark('DESTINATION', html_text))
 
         html_lines = [line.strip() for line in html_text.splitlines() if line.strip() != '']
         html_lines = self.apply_line_oriented_replacements(html_lines)
@@ -285,13 +296,9 @@ class FilePostProcessor:
         return output_lines
 
     def write_template(self, output_basepath, html_text):
-        output_relative_filepath = self.destination_filename
-        if output_relative_filepath is None:
-            raise NotImplementedError('Need to implement processing with default destination')
-        output_path = os.path.join(output_basepath, output_relative_filepath).strip()
+        output_path = os.path.join(output_basepath, self.destination_relative_filepath).strip()
         output_dir = os.path.dirname(output_path)
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        os.makedirs(output_dir, exist_ok=True)
         with open(output_path, "w") as output_file:
             output_file.write(html_text)
         log_as_info(f"Wrote out file output_path: {output_path}")

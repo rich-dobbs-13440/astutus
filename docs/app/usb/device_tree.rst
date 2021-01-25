@@ -11,10 +11,11 @@ for devices, and implement a color coding for these devices.
 
 To define an alias, click on a button associated with the node.
 
-.. astutus_dyn_link:: "/astutus/app/usb/device.html"
+.. astutus_dyn_include:: app/usb/device_tree.html
 
-.. astutus_dyn_bookmark::  USB Devices - /astutus/app/usb/device
 
-.. astutus_dyn_destination:: usb/dyn_usb_device.html
 
-.. astutus_dyn_include:: usb/device_tree.html
+
+.. astutus_dyn_link:: "/astutus/app/usb/device_tree.html"
+
+.. astutus_dyn_bookmark::  USB Devices - /astutus/app/usb/device_tree
