@@ -166,7 +166,7 @@ class IncludeDirective(SphinxDirective):
 
     required_arguments = 1
 
-    def run(self) -> List[docutils]:
+    def run(self) -> List[docutils.nodes.Node]:
         log_as_info("\nIncludeDirective.run")
         node = IncludeNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
