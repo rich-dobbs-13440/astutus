@@ -10,14 +10,7 @@ Documentation
    changes
    roadmap_to_documentation
    maintanence/guidelines
-   ../../source/modules
-
-
-.. autosummary::
-   :toctree: DIRNAME
-
-   astutus.sphinx.post_process.FilePostProcessor
-   astutus.sphinx.post_process.handle_build_finished
+   ../source/modules
 
 
 Indices and tables

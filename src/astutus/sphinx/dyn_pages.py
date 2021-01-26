@@ -1,3 +1,5 @@
+from typing import Dict, List, Optional, Set, Tuple  # noqa
+
 import astutus
 import astutus.sphinx.post_process
 import astutus.util
@@ -10,7 +12,8 @@ from sphinx.util.docutils import SphinxDirective
 logger = sphinx.util.logging.getLogger(__name__)
 
 
-def log_as_info(msg):
+def log_as_info(msg: str) -> None:
+    """ Convenience function to log with colored output."""
     # Kludgy to use a closure to get colored logging specific to our code,
     # but easier than modifying logger format.
     ansi = astutus.util.AnsiSequenceStack()
@@ -20,11 +23,17 @@ def log_as_info(msg):
     logger.info(f"{start(info)}{msg}{end(info)}")
 
 
-def create_post_processing_markup(tag, value):
+def create_post_processing_markup(tag: str, value: str) -> str:
+    """ Create the markup to be embedded in the HTML used to communicate to the post processor.
+
+    At this time, the markup looks like this:
+    ««TAG»»**value**««END_TAG»»
+
+    """
     return f'\n««{tag}»»{value}««END_{tag}»»\n'
 
 
-def read_post_processing_mark(tag, text):
+def read_post_processing_directive_value(tag: str, text: str) -> str:
     start_marker = f"««{tag}»»"
     idx = text.find(start_marker)
     if idx >= 0:
@@ -101,7 +110,7 @@ class BreadCrumbDirective(SphinxDirective):
         return [node]
 
     @staticmethod
-    def handle_insert_markup(app, doctree, fromdocname):
+    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname):
         for node in doctree.traverse(BreadCrumbNode):
             replacement_node = docutils.nodes.raw('', node.markup, format='html')
             node.replace_self(replacement_node)
@@ -134,7 +143,7 @@ class BookmarkDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self):
-        """ Replaces the directive in the \*.rst file with a BookMarkNode"""
+        r""" Replaces the directive in the \*.rst file with a BookMarkNode"""
         log_as_info("\nBookmarkDirective.run")
         node = BookmarkNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -142,7 +151,7 @@ class BookmarkDirective(SphinxDirective):
         return [node]
 
     @staticmethod
-    def handle_insert_markup(app, doctree, fromdocname):
+    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname):
         """ Handle title modification by inserting post processing markup. """
         for node in doctree.traverse(BookmarkNode):
             replacement_node = docutils.nodes.raw('', node.markup, format='html')
@@ -157,7 +166,7 @@ class IncludeDirective(SphinxDirective):
 
     required_arguments = 1
 
-    def run(self):
+    def run(self) -> List[docutils]:
         log_as_info("\nIncludeDirective.run")
         node = IncludeNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -165,7 +174,7 @@ class IncludeDirective(SphinxDirective):
         return [node]
 
     @staticmethod
-    def handle_insert_markup(app, doctree, fromdocname):
+    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname):
         """ Handle include modification by inserting post processing markup. """
         for node in doctree.traverse(IncludeNode):
             replacement_node = docutils.nodes.raw('', node.markup, format='html')
@@ -180,7 +189,7 @@ class DestinationDirective(SphinxDirective):
 
     required_arguments = 1
 
-    def run(self):
+    def run(self) -> List[docutils.nodes.Node]:
         log_as_info("\nDestinationDirective.run")
         node = DestinationNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -188,7 +197,7 @@ class DestinationDirective(SphinxDirective):
         return [node]
 
     @staticmethod
-    def handle_insert_markup(app, doctree, fromdocname):
+    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname) -> None:
         """ Handle title modification by inserting post processing markup. """
         for node in doctree.traverse(DestinationNode):
             replacement_node = docutils.nodes.raw('', node.markup, format='html')
@@ -220,14 +229,14 @@ class ToggleNoteDirective(SphinxDirective):
     optional_arguments = 2
     final_argument_whitespace = True
 
-    def run(self) -> list:
-        """ Parses the directive when encountered in a \*.rst file, returning a ToggleNoteNode to be added to the document tree.
+    def run(self) -> List[ToggleNoteNode]:
+        r""" Parses the directive when encountered in a \*.rst file.
 
         At the time this method is called, the arguments, options, and content
-        for the directive have been store in initializing the object.  This
+        for the directive have been store in initializing the directive object.  This
         method returns a list containing any nodes to be inserted into the Docutils document.
 
-        For this directive, all useful directive values are stored in a specialized node
+        For this directive, all useful directive values are stored in a single specialized node
         for subsequent processing after the document tree has been resolved.
         """
 
@@ -259,7 +268,7 @@ class ToggleNoteDirective(SphinxDirective):
         return [node]
 
     @staticmethod
-    def handle_insert_markup(app, doctree, fromdocname):
+    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname) -> None:
         logger.debug(f"ToggleNoteDirective.handle_insert_markup  fromdocname: {fromdocname}")
         idx = 0
         for node in doctree.traverse(ToggleNoteNode):
@@ -287,7 +296,7 @@ class ToggleNoteDirective(SphinxDirective):
             node.replace_self(container)
 
 
-def config_inited(app, config):
+def config_inited(app: sphinx.application.Sphinx, config: sphinx.config.Config) -> None:
     """ Check that the required configuration variables have been initialized"""
     log_as_info('Got to config_inited')
     if app.config.astutus_dyn_base == "":
@@ -303,7 +312,7 @@ def config_inited(app, config):
     app.add_css_file('astutus_dynamic_sphinx_pages.css')
 
 
-def setup(app):
+def setup(app: sphinx.application.Sphinx) -> Tuple:
     """ This is the standard set function for the extension.
 
     It specifies extension configuration values, directives implemented by

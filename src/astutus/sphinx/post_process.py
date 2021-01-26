@@ -21,16 +21,17 @@ import os
 import pathlib
 import re
 import urllib.parse
-from typing import List, Set, Dict, Tuple, Optional  # noqa
+from typing import Dict, List, Optional, Set, Tuple  # noqa
+
+import astutus.sphinx
+import astutus.util
 
 import sphinx.util
-import astutus.util
-import astutus.sphinx.dyn_pages
 
 logger = sphinx.util.logging.getLogger(__name__)
 
 
-def log_as_info(msg: str):
+def log_as_info(msg: str) -> None:
     """ Log at the information for this module in a distinct color for development and troubleshooting."""
     ansi = astutus.util.AnsiSequenceStack()
     start = ansi.push
@@ -42,7 +43,7 @@ def log_as_info(msg: str):
 # Since the Jinja2 templates may not be legal HTML5, this process will be based
 # on text manipulation, rather than DOM transformation or XSLT transformations.
 
-def indented_html_text_from_html_lines(html_lines: List[str]):
+def indented_html_text_from_html_lines(html_lines: List[str]) -> str:
     """ Attempts to indent html in a somewhat meaningful fashion.
 
     Needs some semi-manual patch up to take care of HTML comments.
@@ -108,7 +109,7 @@ class FilePostProcessor(object):
             self,
             input_path: str,
             docname: str,
-            dyn_link_list: List,
+            dyn_link_list: List[Dict],
             dyn_base: str,
             extra_head_material: str,
             default_template_prefix: str):
@@ -131,7 +132,7 @@ class FilePostProcessor(object):
             key = '/' + link['docname']
             self.dyn_links[key] = link
 
-    def set_destination_filename(self, relative_file_path: str):
+    def set_destination_filename(self, relative_file_path: str) -> None:
         """ Set the destination relative filepath based on the provided input.
 
         The destination relative filepat may be specified by the
@@ -150,7 +151,7 @@ class FilePostProcessor(object):
         else:
             self.destination_relative_filepath = relative_file_path
 
-    def execute_and_write(self, output_basepath):
+    def execute_and_write(self, output_basepath: str) -> None:
         """  Process the Sphinx generated html file to produced a styled Jinja template
 
         The phases of the processing are:
@@ -163,9 +164,10 @@ class FilePostProcessor(object):
         with open(self.input_path, "r") as input_file:
             html_text = input_file.read()
 
-        self.title = astutus.sphinx.dyn_pages.read_post_processing_mark('HTML_TITLE', html_text)
-        self.breadcrumb = astutus.sphinx.dyn_pages.read_post_processing_mark('BREADCRUMB', html_text)
-        self.set_destination_filename(astutus.sphinx.dyn_pages.read_post_processing_mark('DESTINATION', html_text))
+        self.title = astutus.sphinx.read_post_processing_directive_value('HTML_TITLE', html_text)
+        self.breadcrumb = astutus.sphinx.read_post_processing_directive_value('BREADCRUMB', html_text)
+        self.set_destination_filename(
+            astutus.sphinx.read_post_processing_directive_value('DESTINATION', html_text))
 
         html_lines = [line.strip() for line in html_text.splitlines() if line.strip() != '']
         html_lines = self.apply_line_oriented_replacements(html_lines)
@@ -176,7 +178,7 @@ class FilePostProcessor(object):
 
         self.write_template(output_basepath, html_text)
 
-    def apply_line_oriented_replacements(self, input_html_lines):
+    def apply_line_oriented_replacements(self, input_html_lines: List[str]) -> List[str]:
         """ Applies line oriented replacements, but does not handle table-of-contents modifications.
 
         Line oriented replacements include:
@@ -201,7 +203,7 @@ class FilePostProcessor(object):
                 output_lines.append(self.extra_head_material)
                 output_lines.append(line)
             elif astutus.sphinx.dyn_pages.post_processing_mark_found('INCLUDE', line):
-                filename = astutus.sphinx.dyn_pages.read_post_processing_mark('INCLUDE', line)
+                filename = astutus.sphinx.read_post_processing_directive_value('INCLUDE', line)
                 output_lines.append('{% include "' + filename + '" %}')
             elif '<link rel="search" title="Search" href="' in line:
                 output_lines.append(f'<link rel="search" title="Search" href="{self.dyn_base}/search.html" />')
@@ -229,7 +231,7 @@ class FilePostProcessor(object):
                 output_lines.append(line)
         return output_lines
 
-    def parse_li_a_href_link_line(self, original_li_line: str) -> (str, list, str):
+    def parse_li_a_href_link_line(self, original_li_line: str) -> Tuple[str, List[str], str]:
         """ Takes a line containing a <li><a href="...">link_text</a></li> and parses it.
 
         :return: li_template, replacements_tags, link_replacement_text
@@ -267,8 +269,8 @@ class FilePostProcessor(object):
         # Jinja2 braces.
         return li_template, replacements_tags, link_replacement_text
 
-    def wrap_in_jinja2_loop(self, list_item_line_with_angled_tags, tags, link_text):
-        """ Take a list item wrapped anchor and replace it with a Jinja2 loop.
+    def wrap_in_jinja2_loop(self, list_item_line_with_angled_tags: str, tags: List[str], link_text: str) -> List[str]:
+        """ Take a list item wrapped anchor and returns lines that implement with a Jinja2 loop around it.
 
         The Flask application will provide data when rendering the template
         to provide a menu with a dynamic number of entries.
@@ -315,7 +317,7 @@ class FilePostProcessor(object):
         lines.append('{% endif  %}')
         return lines
 
-    def fix_navigation_hrefs(self, input_html_lines):
+    def fix_navigation_hrefs(self, input_html_lines: List[str]) -> List[str]:
         ''' Fix up hrefs used in table of contents.
 
         The original hrefs do not necessarily have the right nesting for routes used in the Flask application.
@@ -371,7 +373,7 @@ class FilePostProcessor(object):
                     output_lines.append(line)
         return output_lines
 
-    def strip_post_processing_markup(self, input_html_lines):
+    def strip_post_processing_markup(self, input_html_lines: List[str]) -> List[str]:
         """ Remove any post processing markup.  This markup should not be in the template."""
         output_lines = []
         for line in input_html_lines:
@@ -379,7 +381,7 @@ class FilePostProcessor(object):
                 output_lines.append(line)
         return output_lines
 
-    def write_template(self, output_basepath, html_text):
+    def write_template(self, output_basepath: str, html_text: str) -> None:
         """ Write the processed template to a location relative to the output base path.
 
         The actual location is derived from the output base path combined with a file-specific
@@ -393,8 +395,8 @@ class FilePostProcessor(object):
         log_as_info(f"Wrote out file output_path: {output_path}")
 
 
-def handle_build_finished(app, exception):
-    """ Post-process all generated HTML files that will be used as styled Jinja2 templates.
+def handle_build_finished(app: sphinx.application.Sphinx, exception) -> None:
+    r""" Post-process all generated HTML files that will be used as styled Jinja2 templates.
 
     This method is triggered by the 'build-finished' event.  It connects the Sphinx application
     to the post processing class astutus.sphinx.post_process.FilePostProcessor.

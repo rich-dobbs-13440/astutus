@@ -91,7 +91,7 @@ html_static_path = ['_static']
 html_favicon = '_static/favicon.ico'
 
 html_theme_options = {
-    'style_nav_header_background': 'orange',
+    # 'style_nav_header_background': 'orange',
     'navigation_depth': 8,
 }
 
