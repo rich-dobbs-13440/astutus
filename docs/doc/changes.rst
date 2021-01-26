@@ -43,6 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * Task: Add type hints to most code.
   * Task: Style Raspberry Pi ifconfig page.
   * |in_progress| Task: Update astutus.sphinx doc strings for good presentation in the API docs.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
