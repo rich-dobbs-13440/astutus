@@ -8,6 +8,7 @@ Guidelines for Maintaining the System
     packaging
     documenting
     developer_notes
+    design
     templates
     readme
     macosx

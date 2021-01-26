@@ -34,6 +34,7 @@ release = version + "a2021.01.14.22.19"
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'astutus.sphinx.dyn_pages',
 ]
 
@@ -88,6 +89,11 @@ html_static_path = ['_static']
 
 # Use the ringtail cat icon for docs too.
 html_favicon = '_static/favicon.ico'
+
+html_theme_options = {
+    'style_nav_header_background': 'orange',
+    'navigation_depth': 8,
+}
 
 
 # Override theme to issue with tables.

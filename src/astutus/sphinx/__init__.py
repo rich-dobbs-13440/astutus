@@ -1,5 +1,8 @@
 r""" A Sphinx extension for styled, dynamic web pages with Flask web applications.
 
+Overview
+--------
+
 At this time, the extension is targeted at the  **sphinx_rtd_theme** Sphinx theme.
 
 At this time, the Sphinx extension is not designed to be installed separately from the
@@ -10,6 +13,8 @@ Configuration
 -------------
 
 The package can be used by adding this line into your Sphinx documentation conf.py file:
+
+.. code-block:: python
 
     extensions = [
         ...,

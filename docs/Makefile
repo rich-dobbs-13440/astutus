@@ -19,5 +19,5 @@ help:
 # For now, overwrite existing module api docs.  There is no special
 # customizations, and new things are being created all the time.
 %: Makefile
-	sphinx-apidoc -d 6 --module-first --force -o source/ ../src/astutus sphinx-apidoc
+	# sphinx-apidoc -d 8 --doc-project "API Documentation" --module-first --force -o source/ ../src/astutus sphinx-apidoc
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

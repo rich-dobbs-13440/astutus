@@ -1,6 +1,21 @@
-""" Module level docstring
+""" Handle the post processing step that converts the styled html pages to Jinja2 templates.
 
-More explaination goes here.
+Implementation
+
+
+At this time, the details of how the toctree directive works are not understood,
+nor the process by which the html writer interacts with the theme.  Consequently,
+for pragmatic reasons, instead of creating a specialized builder or writer, the insertion of
+Jinja2 markup for use in the Flask application is handled as a post processing step.
+
+The information needed for this step comes from post processing "directive markup" embedded in
+Sphinx generated documents, as well as Sphinx application configuration and environment values.
+
+The markup is described in astutus.sphinx.dyn_pages module documentation.
+
+The resulting Jinja templates are stored in a distinct subdirectory directory within the Sphinx _build
+directory.  It is expected that the astutus.sphinx extension user's build process will move the
+resulting files as required by the flask application that they are developing.
 """
 import os
 import pathlib
@@ -75,7 +90,7 @@ def extract_tags_from_path(path: str) -> List[str]:
 
 
 class FilePostProcessor(object):
-    r""" Convert a Sphinx generated *.html file into a Jinja2 template for use with Flask.
+    r""" Convert a Sphinx generated \*.html file into a Jinja2 template for use with Flask.
 
     Any post-processing directives are read and implemented, and then the result is written
     as a reasonably-well indented Jinja2 template for use in creating dynamic HTML pages.
@@ -384,7 +399,7 @@ def handle_build_finished(app, exception):
     This method is triggered by the 'build-finished' event.  It connects the Sphinx application
     to the post processing class astutus.sphinx.post_process.FilePostProcessor.
 
-    At this time, the source styled *.html are found by examining the contents within the
+    At this time, the source styled \*.html are found by examining the contents within the
     directory identified by the astutus_dyn_pages_dir configuration variable.
 
     The files are placed in a location identified by the astutus_dyn_styled_templates_path

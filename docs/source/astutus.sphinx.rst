@@ -9,6 +9,7 @@ astutus.sphinx package
 Submodules
 ----------
 
+
 astutus.sphinx.dyn\_pages module
 --------------------------------
 

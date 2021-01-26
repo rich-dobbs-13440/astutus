@@ -113,7 +113,8 @@ class BookmarkNode(docutils.nodes.General, docutils.nodes.Element):
 
 
 class BookmarkDirective(SphinxDirective):
-    r""" Implements the .\. astutus_dyn_bookmark:: directive.
+    r""" Implements the  .\. astutus_dyn_bookmark::  directive. """
+    """
 
     This directive allows customizing the title tag in the head section
     of the HTML tag.  This tag is used in labeling browser tabs and suggested
@@ -133,7 +134,7 @@ class BookmarkDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self):
-        """ Replaces the directive in the *.rst file with a BookMarkNode"""
+        """ Replaces the directive in the \*.rst file with a BookMarkNode"""
         log_as_info("\nBookmarkDirective.run")
         node = BookmarkNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -220,7 +221,7 @@ class ToggleNoteDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self) -> list:
-        """ Parses the directive when encountered in a *.rst file, returning a ToggleNoteNode to be added to the document tree.
+        """ Parses the directive when encountered in a \*.rst file, returning a ToggleNoteNode to be added to the document tree.
 
         At the time this method is called, the arguments, options, and content
         for the directive have been store in initializing the object.  This

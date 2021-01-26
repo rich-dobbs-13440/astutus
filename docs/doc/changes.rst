@@ -70,7 +70,7 @@ hand waving, but not as detailed as repository commits.
 Done:
 
   * |newly_done| 2021-01-25 11:15 Task: Change to a better prefix for styled templates.
-    dyn_ was dumb, since most Jinja2 templates are dynamic.  styled_ is more to the point.
+    dyn\_ was dumb, since most Jinja2 templates are dynamic.  styled\_ is more to the point.
   * |done| 2021-01-24 20:05 Task: Useful defaults if .. astutus_dyn_destination::  is omitted.
   * |done| 2021-01-24 16:22 Task: Cleanup and generalize reading and processing of post processing directives.
   * |done| 2021-01-24 13:03 Task: Keep HTML lines as list in post processing, rather than combining and splitting.

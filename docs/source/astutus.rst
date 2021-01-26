@@ -10,7 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 8
 
    astutus.db
    astutus.log
