@@ -1,7 +1,7 @@
 """ Handle the post processing step that converts the styled html pages to Jinja2 templates.
 
 Implementation
-
+--------------
 
 At this time, the details of how the toctree directive works are not understood,
 nor the process by which the html writer interacts with the theme.  Consequently,
@@ -16,6 +16,7 @@ The markup is described in astutus.sphinx.dyn_pages module documentation.
 The resulting Jinja templates are stored in a distinct subdirectory directory within the Sphinx _build
 directory.  It is expected that the astutus.sphinx extension user's build process will move the
 resulting files as required by the flask application that they are developing.
+
 """
 import os
 import pathlib
@@ -27,17 +28,22 @@ import astutus.sphinx
 import astutus.util
 
 import sphinx.util
+import sphinx.application
 
 logger = sphinx.util.logging.getLogger(__name__)
 
 
 def log_as_info(msg: str) -> None:
     """ Log at the information for this module in a distinct color for development and troubleshooting."""
-    ansi = astutus.util.AnsiSequenceStack()
-    start = ansi.push
-    info = '#FFFF33'  # Color our info messages as yellow
-    end = ansi.end
-    logger.info(f"{start(info)}{msg}{end(info)}")
+    make_distinct = False
+    if make_distinct:
+        ansi = astutus.util.AnsiSequenceStack()
+        start = ansi.push
+        info = '#FFFF33'  # Color our info messages as yellow
+        end = ansi.end
+        logger.info(f"{start(info)}{msg}{end(info)}")
+    else:
+        logger.info(msg)
 
 
 # Since the Jinja2 templates may not be legal HTML5, this process will be based
@@ -103,6 +109,23 @@ class FilePostProcessor(object):
     Other directives are used to fix up navigation to dynamic pages using the vertical
     side bar menu generated from the toc_tree directive styled usin the Read-the-Docs theme,
     as well as the bread crumb navigation at the top of the page.
+
+
+    .. currentmodule:: astutus.sphinx.post_process
+
+    .. rubric:: Methods
+
+    .. autosummary::
+
+        ~FilePostProcessor.__init__
+        ~FilePostProcessor.apply_line_oriented_replacements
+        ~FilePostProcessor.execute_and_write
+        ~FilePostProcessor.fix_navigation_hrefs
+        ~FilePostProcessor.parse_li_a_href_link_line
+        ~FilePostProcessor.set_destination_filename
+        ~FilePostProcessor.strip_post_processing_markup
+        ~FilePostProcessor.wrap_in_jinja2_loop
+        ~FilePostProcessor.write_template
 
     """
     def __init__(

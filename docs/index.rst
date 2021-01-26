@@ -21,5 +21,4 @@ Introduction
 
    app/index
    doc/index
-   source/astutus.sphinx
 

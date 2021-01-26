@@ -72,7 +72,8 @@ class LinkDirective(SphinxDirective):
     optional_arguments = 1
     final_argument_whitespace = True
 
-    def run(self):
+    def run(self) -> List[LinkNode]:
+        """ Processes the directive argument and stores it."""
         logger.debug("LinkDirective.run")
 
         if not hasattr(self.env, 'astutus_dyn_link_list'):
@@ -102,7 +103,7 @@ class BreadCrumbDirective(SphinxDirective):
     required_arguments = 1
     final_argument_whitespace = True
 
-    def run(self):
+    def run(self) -> List[BreadCrumbNode]:
         log_as_info("DynBreadCrumbDirective.run")
         node = BreadCrumbNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -142,7 +143,7 @@ class BookmarkDirective(SphinxDirective):
     required_arguments = 1
     final_argument_whitespace = True
 
-    def run(self):
+    def run(self) -> List[BookmarkNode]:
         r""" Replaces the directive in the \*.rst file with a BookMarkNode"""
         log_as_info("\nBookmarkDirective.run")
         node = BookmarkNode('')
@@ -151,8 +152,8 @@ class BookmarkDirective(SphinxDirective):
         return [node]
 
     @staticmethod
-    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname):
-        """ Handle title modification by inserting post processing markup. """
+    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname: str) -> None:
+        """ Handle title modification by inserting post processing markup in the doctree. """
         for node in doctree.traverse(BookmarkNode):
             replacement_node = docutils.nodes.raw('', node.markup, format='html')
             node.replace_self(replacement_node)
@@ -174,7 +175,7 @@ class IncludeDirective(SphinxDirective):
         return [node]
 
     @staticmethod
-    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname):
+    def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname) -> None:
         """ Handle include modification by inserting post processing markup. """
         for node in doctree.traverse(IncludeNode):
             replacement_node = docutils.nodes.raw('', node.markup, format='html')
