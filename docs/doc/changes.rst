@@ -43,9 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * |in_progress| Task: Add type hints to most code.
-  * |in_progress| Task: Update astutus.sphinx doc strings for good presentation in the API docs.
-  * Story: Polish sphinx extension so that it is good-enough to be used by others.
+  * Story Improve Application of Continuous Integration / Continuous Deployment.
   * Add a progress list directive.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
@@ -69,11 +67,13 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
-  * |newly_done| 2021-01-26 20:35 Task: Add Ringtail Cat as logo on the page.
-  * |newly_done| 2021-01-26 20:35 Task: Style Raspberry Pi ifconfig page.
-  * |newly_done| 2021-01-26 17:08 Task: Style Raspberry Pi ifconfig page.
-  * 2021-01-25 11:15 Task: Change to a better prefix for styled templates.
-    dyn\_ was dumb, since most Jinja2 templates are dynamic.  styled\_ is more to the point.
+  * |newly_done| Task: Add type hints to most code.
+  * |newly_done| Task: Update astutus.sphinx doc strings for good presentation in the API docs.
+  * |newly_done| Story: Polish sphinx extension so that it is good-enough to be used by others.
+  * |done| 2021-01-26 20:35 Task: Add Ringtail Cat as logo on the page.
+  * |done| 2021-01-26 20:35 Task: Style Raspberry Pi ifconfig page.
+  * |done| 2021-01-26 17:08 Task: Style Raspberry Pi ifconfig page.
+  * |done| 2021-01-25 11:15 Task: Change to a better prefix for styled templates.
   * |done| 2021-01-24 20:05 Task: Useful defaults if .. astutus_dyn_destination::  is omitted.
   * |done| 2021-01-24 16:22 Task: Cleanup and generalize reading and processing of post processing directives.
   * |done| 2021-01-24 13:03 Task: Keep HTML lines as list in post processing, rather than combining and splitting.

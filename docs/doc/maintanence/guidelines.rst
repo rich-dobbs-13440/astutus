@@ -8,6 +8,7 @@ Guidelines for Maintaining the System
     packaging
     documenting
     developer_notes
+    developer_notes_older
     design
     templates
     readme

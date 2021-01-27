@@ -16,7 +16,7 @@ Introduction
      team setting.
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: Table of Contents:
 
    app/index
