@@ -1,7 +1,9 @@
 import logging
 import re
+from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
+from astutus.usb.device_configurations import DeviceConfiguration
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +13,12 @@ class DeviceNode(dict):
 
     verbose = False
 
-    def __init__(self, data, config, alias, cls_order):
+    def __init__(
+            self,
+            data: Dict,
+            config: DeviceConfiguration,
+            alias: Dict,
+            cls_order: str):  # Should probably migrate cls order to be an int.
         dirpath = data['dirpath']
         # Sanitize dirpath to an acceptable CSS selector:
         idx = dirpath.replace(':', '_C_')
@@ -60,13 +67,13 @@ class DeviceNode(dict):
         # Inititialize super to support JSON serialization.
         super(DeviceNode, self).__init__(data)
 
-    def key(self):
+    def key(self) -> str:
         key_value = f"{self.cls_order} - {self.order} - {self.data['dirname']}"
         logger.debug(f"key_value: {key_value}")
         return key_value
 
     @property
-    def colorized_node_label_for_terminal(self):
+    def colorized_node_label_for_terminal(self) -> str:
         if self.verbose:
             return self.data['terminal_colored_node_label_verbose']
         return self.data['terminal_colored_node_label_concise']
@@ -77,17 +84,17 @@ class OtherDeviceNodeData(DeviceNode):
     cls_order = "05"
 
     @staticmethod
-    def node_id_from_data(data):
+    def node_id_from_data(data: Dict) -> str:
         return f'other({data.get("dirname", "???")})'
 
     @classmethod
-    def extract_data(cls, dirpath):
+    def extract_data(cls, dirpath: str) -> Dict:
         data = astutus.usb.usb_impl.extract_specified_data(dirpath, astutus.usb.usb_impl.PCI_KEY_ATTRIBUTES)
         data['node_id'] = cls.node_id_from_data(data)
         data['ilk'] = 'other'
         return data
 
-    def __init__(self, *, data, config, alias):
+    def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
         assert data.get('dirpath') is not None, data
         data["description"] = data['dirpath']
         super(OtherDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
@@ -98,17 +105,17 @@ class PciDeviceNodeData(DeviceNode):
     cls_order = "10"
 
     @staticmethod
-    def node_id_from_data(data):
+    def node_id_from_data(data: Dict) -> str:
         return f"pci({data.get('vendor', '-')}:{data.get('device', '-')})"
 
     @classmethod
-    def extract_data(cls, dirpath):
+    def extract_data(cls, dirpath: str) -> Dict:
         data = astutus.usb.usb_impl.extract_specified_data(dirpath, astutus.usb.usb_impl.PCI_KEY_ATTRIBUTES)
         data['node_id'] = cls.node_id_from_data(data)
         data['ilk'] = 'pci'
         return data
 
-    def __init__(self, *, data, config, alias):
+    def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
         assert data.get('dirpath') is not None, data
         data["description"] = "{Device}"  # f"data: {data}"
         super(PciDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
@@ -119,7 +126,7 @@ class UsbDeviceNodeData(DeviceNode):
     cls_order = "00"
 
     @staticmethod
-    def node_id_from_data(data):
+    def node_id_from_data(data: Dict) -> str:
         return f"usb({data['idVendor']}:{data['idProduct']})"
 
     @classmethod
@@ -129,7 +136,7 @@ class UsbDeviceNodeData(DeviceNode):
         data['ilk'] = 'usb'
         return data
 
-    def __init__(self, *, data, config, alias):
+    def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
         busnum = int(data['busnum'])
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
@@ -140,7 +147,7 @@ class UsbDeviceNodeData(DeviceNode):
         super(UsbDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
 
 
-def node_id_for_dirpath(dirpath):
+def node_id_for_dirpath(dirpath: str) -> str:
     data = UsbDeviceNodeData.extract_data(dirpath)
     if data.get("busnum") is not None:
         return UsbDeviceNodeData.node_id_from_data(data)
@@ -150,7 +157,7 @@ def node_id_for_dirpath(dirpath):
     return None
 
 
-def parse_value(value):
+def parse_value(value: str) -> Tuple[str, str, str]:
     """ Given a value break it down by the ilk of node (usb or pci), the vendor, and the device or product."""
     value_pattern = r'^(usb|pci)\(([^:]{4}):([^:]{4})\)$'
     matches = re.match(value_pattern, value)
