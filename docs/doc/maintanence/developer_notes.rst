@@ -89,6 +89,75 @@ get automation working to build the package and place it in the correct location
 Added the Python package workflow to branch.  Will try get it to run.  Will probably
 need to disable things within pytest.
 
+Here is the current status of the build:
+
+.. code-block:: console:
+
+  Run cd pytests; pytest
+  ============================= test session starts ==============================
+  platform linux -- Python 3.9.1, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
+  rootdir: /home/runner/work/astutus/astutus/pytests, configfile: pytest.ini
+  collected 0 items / 5 errors
+
+  ==================================== ERRORS ====================================
+  _______________ ERROR collecting test_colored_terminal_output.py _______________
+  ImportError while importing test module '/home/runner/work/astutus/astutus/pytests/test_colored_terminal_output.py'.
+  Hint: make sure your test modules/packages have valid Python names.
+  Traceback:
+  /opt/hostedtoolcache/Python/3.9.1/x64/lib/python3.9/importlib/__init__.py:127: in import_module
+      return _bootstrap._gcd_import(name[level:], package, level)
+  test_colored_terminal_output.py:1: in <module>
+      import astutus.util
+  E   ModuleNotFoundError: No module named 'astutus'
+  ________________________ ERROR collecting test_pyusb.py ________________________
+  ImportError while importing test module '/home/runner/work/astutus/astutus/pytests/test_pyusb.py'.
+  Hint: make sure your test modules/packages have valid Python names.
+  Traceback:
+  /opt/hostedtoolcache/Python/3.9.1/x64/lib/python3.9/importlib/__init__.py:127: in import_module
+      return _bootstrap._gcd_import(name[level:], package, level)
+  test_pyusb.py:1: in <module>
+      import usb.core
+  E   ModuleNotFoundError: No module named 'usb'
+  ________________________ ERROR collecting test_raspi.py ________________________
+  ImportError while importing test module '/home/runner/work/astutus/astutus/pytests/test_raspi.py'.
+  Hint: make sure your test modules/packages have valid Python names.
+  Traceback:
+  /opt/hostedtoolcache/Python/3.9.1/x64/lib/python3.9/importlib/__init__.py:127: in import_module
+      return _bootstrap._gcd_import(name[level:], package, level)
+  test_raspi.py:3: in <module>
+      import astutus.raspi
+  E   ModuleNotFoundError: No module named 'astutus'
+  _________________________ ERROR collecting test_usb.py _________________________
+  ImportError while importing test module '/home/runner/work/astutus/astutus/pytests/test_usb.py'.
+  Hint: make sure your test modules/packages have valid Python names.
+  Traceback:
+  /opt/hostedtoolcache/Python/3.9.1/x64/lib/python3.9/importlib/__init__.py:127: in import_module
+      return _bootstrap._gcd_import(name[level:], package, level)
+  test_usb.py:5: in <module>
+      import astutus.usb
+  E   ModuleNotFoundError: No module named 'astutus'
+  ______________ ERROR collecting test_usb_device_configurations.py ______________
+  ImportError while importing test module '/home/runner/work/astutus/astutus/pytests/test_usb_device_configurations.py'.
+  Hint: make sure your test modules/packages have valid Python names.
+  Traceback:
+  /opt/hostedtoolcache/Python/3.9.1/x64/lib/python3.9/importlib/__init__.py:127: in import_module
+      return _bootstrap._gcd_import(name[level:], package, level)
+  test_usb_device_configurations.py:4: in <module>
+      from astutus.usb import DeviceConfigurations
+  E   ModuleNotFoundError: No module named 'astutus'
+  =========================== short test summary info ============================
+  ERROR test_colored_terminal_output.py
+  ERROR test_pyusb.py
+  ERROR test_raspi.py
+  ERROR test_usb.py
+  ERROR test_usb_device_configurations.py
+  !!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
+  ============================== 5 errors in 0.13s ===============================
+  Error: Process completed with exit code 2.
+  0s
+
+So, need to set PYTHON_PATH with current code organization.
+
 Sphinx Preview Broken Currently
 -------------------------------
 
