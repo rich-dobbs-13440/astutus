@@ -1,12 +1,13 @@
 import subprocess
 import logging
 import re
+from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 
 logger = logging.getLogger(__name__)
 
 
-def parse_section_to_dictionary(section: str) -> {}:
+def parse_section_to_dictionary(section: str) -> Dict:
     # Nmap scan report for 192.168.0.65
     # Host is up (0.00022s latency).
     # Not shown: 998 closed ports
@@ -30,7 +31,7 @@ def parse_section_to_dictionary(section: str) -> {}:
     return parsed_section
 
 
-def search_using_nmap(ipv4: str, mask: int, filter: [str]):
+def search_using_nmap(ipv4: str, mask: int, filter: [str]) -> List[Dict]:
     logger.debug(f"ipv4: {ipv4}")
     logger.debug(f"mask: {mask}")
     logger.debug(f"filter: {filter}")

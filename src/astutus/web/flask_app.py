@@ -28,6 +28,7 @@ import astutus.log
 import astutus.raspi
 import astutus.util
 import astutus.web.flask_app
+import astutus.web.app_pages
 import astutus.web.log_pages
 import astutus.web.raspi_pages
 import astutus.web.usb_pages
@@ -38,7 +39,7 @@ import flask.logging
 logger = logging.getLogger(__name__)
 
 
-def create_app_and_db(static_base):
+def create_app_and_db():
 
     try:
         app = flask.Flask('astutus.web.flask_app', template_folder='templates')
@@ -50,14 +51,12 @@ def create_app_and_db(static_base):
             astutus.db.initialize_db_if_needed()
             app.register_blueprint(astutus.web.raspi_pages.raspi_page)
             astutus.web.raspi_pages.db = db
-            astutus.web.raspi_pages.static_base = static_base
             app.register_blueprint(astutus.web.usb_pages.usb_page)
-            astutus.web.usb_pages.static_base = static_base
             app.register_blueprint(astutus.web.log_pages.log_page)
-            astutus.web.log_pages.static_base = static_base
             astutus.web.log_pages.db = db
             app.register_blueprint(astutus.web.doc_pages.doc_page)
             astutus.web.doc_pages.doc_page.root_path = app.root_path
+            app.register_blueprint(astutus.web.app_pages.app_page)
             # Handle logging configuration
             flask.logging.default_handler.setFormatter(astutus.log.standard_formatter)
             level_by_logger_name = {}
@@ -73,8 +72,7 @@ def create_app_and_db(static_base):
     raise RuntimeError("Please delete out-of-date database.")
 
 
-static_base = "/static/_docs/_static"
-app, db = create_app_and_db(static_base=static_base)
+app, db = create_app_and_db()
 
 
 @app.template_filter('tojson_pretty')
@@ -82,39 +80,6 @@ def tojson_pretty_jinja2_template_file(json_text):
     logger.debug(f"json_text: {json_text}")
     parsed_json = json.loads(json_text)
     return json.dumps(parsed_json, indent=2, sort_keys=True)
-
-
-@app.route('/')
-def handle_top():
-    """ app.route('/') """
-    return flask.redirect(flask.url_for("handle_astutus"))
-
-
-@app.route('/astutus/app/dyn_index.html', methods=['GET'])
-def handle_app_index_from_doc():
-    return flask.redirect(flask.url_for("handle_astutus"))
-
-
-@app.route('/astutus/app/index.html')
-def handle_astutus():
-
-    """ app.route('/astutus') """
-    breadcrumbs_list = [
-        '<li><a href="/astutus/doc" class="icon icon-home"></a> &raquo;</li>',
-        '<li>/astutus</li>',
-    ]
-    breadcrumbs_list_items = "\n".join(breadcrumbs_list)
-    links_list = [
-        '<li><p>Control the <a class="reference internal" href="/astutus/log">logging</a> in the web application.</p></li>'  # noqa
-        '<li><p>Discover and work with <a class="reference internal" href="/astutus/raspi"><span class="doc">Raspberry Pi\'s</span> on your system</a></p></li>',  # noqa
-        '<li><p>Understand the <a class="reference internal" href="/astutus/usb"><span class="doc">USB devices</span></a> on you system</p></li>',  # noqa
-    ]
-    links = "\n".join(links_list)
-    return flask.render_template(
-        'dyn_index.html',
-        static_base=static_base,
-        breadcrumbs_list_items=breadcrumbs_list_items,
-        links=links)
 
 
 def run_with_standard_options():

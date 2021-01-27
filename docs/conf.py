@@ -34,6 +34,7 @@ release = version + "a2021.01.14.22.19"
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'astutus.sphinx.dyn_pages',
 ]
 
@@ -54,6 +55,26 @@ nitpick_ignore = [
     ('py:class', "[<class 'dict'>]"),
     ('py:class', "[(<class 'int'>, <class 'str'>, <class 'str'>)]")
 ]
+
+# These definition(s) are added to the top of every page.
+rst_prolog = """
+
+.. |in_progress| raw:: html
+
+    <span style="background-color: light-gray">⦿</span>
+
+.. |done| raw:: html
+
+    <span style="background-color: light-gray">✔</span>
+
+.. |newly_done| raw:: html
+
+    <span style="background-color: yellow">✔</span>
+
+"""
+# <input checked=""  disabled="" type="checkbox" style="cursor: default">
+# <input checked disabled type="radio" style="cursor: default">
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -68,14 +89,28 @@ html_static_path = ['_static']
 
 # Use the ringtail cat icon for docs too.
 html_favicon = '_static/favicon.ico'
+html_logo = '_static/favicon.ico'
+# html_logo = '_static/android-chrome-192x192.png'
+
+html_theme_options = {
+    # 'style_nav_header_background': 'orange',
+    'navigation_depth': 8,
+}
 
 
-# Override theme to issue with tables.
 def setup(app):
-    app.add_css_file('css/theme_overrides.css')
+    app.add_css_file('css/theme_overrides.css')  # Override theme to issue with tables.
+    app.add_css_file('css/app.css')  # Want this on all pages.
 
 
 # Options for the Astutus dynamic pages custom extension.
 astutus_dyn_pages_dir = "app"  # relative to the configuration directory.
-astutus_docs_base = "/astutus/doc"  # web app URL path
 astutus_dyn_base = "/astutus"  # web app URL path to get to top of dynamic pages.
+astutus_dyn_extra_head_material = """
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>
+    <link rel="manifest" href="/static/site.webmanifest"/>
+
+    <script src="/static/app.js"></script>
+"""  # only inserted on dynamic pages.

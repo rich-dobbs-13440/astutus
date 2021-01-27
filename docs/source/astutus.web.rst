@@ -1,8 +1,21 @@
 astutus.web package
 ===================
 
+.. automodule:: astutus.web
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Submodules
 ----------
+
+astutus.web.app\_pages module
+-----------------------------
+
+.. automodule:: astutus.web.app_pages
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 astutus.web.doc\_pages module
 -----------------------------
@@ -40,14 +53,6 @@ astutus.web.usb\_pages module
 -----------------------------
 
 .. automodule:: astutus.web.usb_pages
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: astutus.web
    :members:
    :undoc-members:
    :show-inheritance:

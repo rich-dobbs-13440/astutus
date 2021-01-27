@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import pathlib
+from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
 import flask_sqlalchemy
@@ -13,11 +14,11 @@ logger = logging.getLogger(__name__)
 db = flask_sqlalchemy.SQLAlchemy()
 
 
-def get_instance():
+def get_instance() -> flask_sqlalchemy.SQLAlchemy:
     return db
 
 
-def initialize_db_if_needed():
+def initialize_db_if_needed() -> None:
     """ Initialize the database for the application as and if needed.
 
     The directory implied by the sqlite database URL is created,
@@ -45,7 +46,7 @@ def initialize_db_if_needed():
     assert 'raspberry_pi' in metadata.tables.keys()
 
 
-def get_url():
+def get_url() -> str:
     """  Get the sqlite database URL used for this application.
 
     Defaults to sqlite:////~/.astutus/astutus.db, where ~ is replaced by the

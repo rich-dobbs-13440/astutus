@@ -5,8 +5,26 @@
     --popup-dialog-initial-width: 900px;
     --astutus-table-scroll-static-height: 0px;
 }
+
+/* div.wy-side-scroll a.icon {
+    background-color: magenta;
+} */
+
+div.wy-side-scroll a.icon img.logo {
+    position: absolute;
+    left: 30px;
+    top: -5px;
+
+}
+
+/* div.wy-side-scroll a ~ div.version {
+    background-color: yellow;
+} */
+
+
 .wy-nav-content {
-    /* Override width for dynamic pages: */
+    /* Override width for dynamic pages: should be moved to specific pages
+    */
     max-width: 1200px;
 }
 div.astutus-popup {
@@ -43,15 +61,4 @@ input[type=color].astutus-color {
     width: 26px;
     padding: 1px;
 }
-div.astutus-toggle input[type=checkbox] {
-	display: none;
-}
-input[type=checkbox]:checked + label span.astutus-toggle:before {
-    content: "⊞";
-}
-input[type=checkbox] + label span.astutus-toggle:before {
-    content: "⊟";
-}
-div.astutus-toggle input[type=checkbox]:checked ~ p.astutus-toggle {
-	display: none;
-}
+

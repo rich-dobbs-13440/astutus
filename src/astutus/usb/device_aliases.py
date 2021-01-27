@@ -32,6 +32,7 @@ The nodes are identified as:
 import json
 import logging
 import os
+from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.usb.node
 import astutus.usb.usb_impl
@@ -39,21 +40,21 @@ import astutus.usb.usb_impl
 logger = logging.getLogger(__name__)
 
 
-def matches_as_usb_node(dirpath, vendor, product):
+def matches_as_usb_node(dirpath: str, vendor: str, product: str) -> bool:
     data = astutus.usb.usb_impl.extract_specified_data(dirpath, ['idVendor', 'idProduct'])
     if data.get('idVendor') == vendor and data.get('idProduct') == product:
         return True
     return False
 
 
-def matches_as_pci_node(dirpath, vendor, device):
+def matches_as_pci_node(dirpath: str, vendor: str, device: str) -> bool:
     data = astutus.usb.usb_impl.extract_specified_data('', dirpath, ['vendor', 'device'])
     if data.get('vendor') == vendor and data.get('device') == device:
         return True
     return False
 
 
-def matches_as_node(dirpath, ilk, vendor, device):
+def matches_as_node(dirpath: str, ilk: str, vendor: str, device: str) -> bool:
     if ilk == "usb":
         if matches_as_usb_node(dirpath, vendor, device):
             return True
@@ -65,7 +66,7 @@ def matches_as_node(dirpath, ilk, vendor, device):
     return False
 
 
-def find_all_pci_paths(value):
+def find_all_pci_paths(value: str) -> List[str]:
     """ Find all that terminate with a node that matches the value.
 
     The value is something like usb(1a86:7523) or pci(0x1002:0x5a19)
@@ -83,7 +84,7 @@ def find_all_pci_paths(value):
     return device_paths
 
 
-def find_node_paths(value):
+def find_node_paths(value: str) -> List[str]:
     node_paths = []
     pci_paths = find_all_pci_paths(value)
     logger.debug(f"pci_paths {pci_paths}")
@@ -146,14 +147,14 @@ class DeviceAliases(dict):
     """
 
     @staticmethod
-    def write_raw_as_json(filepath, raw_aliases):
+    def write_raw_as_json(filepath: str, raw_aliases: Dict) -> None:
         if filepath is None:
             filepath = os.path.join(astutus.util.get_user_data_path(), 'device_aliases.json')
         with open(filepath, 'w') as aliases_file:
             json.dump(raw_aliases, aliases_file, indent=4, sort_keys=True)
 
     @staticmethod
-    def read_raw_from_json(filepath):
+    def read_raw_from_json(filepath: str) -> Dict:
         if filepath is None:
             filepath = os.path.join(astutus.util.get_user_data_path(), 'device_aliases.json')
             if not os.path.isfile(filepath):
@@ -166,7 +167,7 @@ class DeviceAliases(dict):
         return raw_device_aliases
 
     @staticmethod
-    def parse_raw_aliases(raw_aliases):
+    def parse_raw_aliases(raw_aliases: Dict) -> Dict:
         aliases = {}
         for pattern, value in raw_aliases.items():
             alias = value
@@ -176,7 +177,7 @@ class DeviceAliases(dict):
             aliases[pattern] = value
         return aliases
 
-    def __init__(self, *, filepath):
+    def __init__(self, *, filepath: str):
         self.filepath = filepath
         logger.info("Initializing DeviceAliases")
         super(DeviceAliases, self).__init__()
@@ -184,7 +185,7 @@ class DeviceAliases(dict):
 
         self.update(self.parse_raw_aliases(raw_aliases))
 
-    def find(self, nodepath: str) -> [dict]:
+    def find(self, nodepath: str) -> [Dict]:
         """ Find all aliases that partially match the nodepath.  """
         logger.debug(f"nodepath: {nodepath}")
         if nodepath is None:
@@ -196,7 +197,8 @@ class DeviceAliases(dict):
         logger.debug(f"aliases: {aliases}")
         return aliases
 
-    def find_highest_priority(self, nodepath: str) -> dict:
+    def find_highest_priority(self, nodepath: str) -> Dict:
+        """ Find the alias with the highest priority."""
         aliases = self.find(nodepath)
         highest = None
         for alias in aliases:
@@ -207,7 +209,7 @@ class DeviceAliases(dict):
                     highest = alias
         return highest
 
-    def get(self, pattern):
+    def get(self, pattern: str) -> Dict:
         """ Get the alias that exactly matches the pattern"""
         logger.debug(f'pattern: {pattern}')
         value = super().get(pattern)
@@ -220,7 +222,7 @@ class DeviceAliases(dict):
         logger.debug(f'alias: {alias}')
         return alias
 
-    def write(self, filepath=None):
+    def write(self, filepath=None) -> None:
         """ Writes the aliases to filepath
 
         if filepath is None, then write to original path
@@ -229,7 +231,7 @@ class DeviceAliases(dict):
             filepath = self.filepath
         self.write_raw_as_json(filepath=filepath, raw_aliases=self)
 
-    def to_javascript(self):
+    def to_javascript(self) -> str:
         """ Provides the device aliases as a Javascript object with a small set of methods. """
         chunks = []
         chunks.append("<script>")

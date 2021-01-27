@@ -1,8 +1,9 @@
 import json
 import logging
+import pathlib
 import re
 import subprocess
-import pathlib
+from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
 
@@ -15,7 +16,7 @@ class RaspberryPiRuntimeError(RuntimeError):
 
 class RaspberryPi():
 
-    def __init__(self, *, db_data=None, ipv4=None):
+    def __init__(self, *, db_data=None, ipv4: str = None):
         if db_data is not None:
             self.id = db_data.id
             self.ipv4 = db_data.ipv4
@@ -25,14 +26,17 @@ class RaspberryPi():
         else:
             raise ValueError("Must somehow provide ipv4")
 
-    def parse_ifconfig_section_to_kvs(self, section):
+    def parse_ifconfig_section_to_kvs(self, section: str) -> Tuple[str, Dict]:
         logger.debug(f"section: \n{section}")
         interface_pattern = r"(\w+): flags="
         matches = re.search(interface_pattern, section)
         interface = matches.group(1)
         logger.debug(f"interface: {interface}")
+        interface, lines_as_text = section.split(':', 1)
+        lines = [line.strip() for line in lines_as_text.splitlines()]
         parsed_section = {
-            "content": f"{section}",
+            "interface": interface,
+            "lines": lines,
         }
         flags_pattern = r'flags=\d+<(.*)>'
         matches = re.search(flags_pattern, section, re.MULTILINE)
@@ -52,7 +56,7 @@ class RaspberryPi():
             parsed_section['inet'] = inet
         return interface, parsed_section
 
-    def get_ifconfig(self):
+    def get_ifconfig(self) -> str:
         cmd = f"ssh pi@{self.ipv4} /usr/sbin/ifconfig"
         logger.debug(f"cmd: {cmd}")
         output = subprocess.getoutput(cmd)
@@ -63,7 +67,7 @@ class RaspberryPi():
             results[key] = value
         return json.dumps(results)
 
-    def publish_wheels(self):
+    def publish_wheels(self) -> None:
         working_dir = (pathlib.Path(__file__).parent.parent / 'wheels').absolute()
         logger.debug(f"working_dir: {working_dir}")
         cmd = f'/usr/bin/rsync --human-readable --verbose --progress * pi@{self.ipv4}:wheels'
@@ -80,7 +84,7 @@ class RaspberryPi():
         if completed_process.returncode != 0:
             raise RaspberryPiRuntimeError(completed_process)
 
-    def uninstall_and_then_install_astutus(self):
+    def uninstall_and_then_install_astutus(self) -> None:
         # Since the version may not be an identified version upgrade during devlopment,
         # uninstall the old version and install the new one from the wheel.
         cmds = [
@@ -100,7 +104,7 @@ class RaspberryPi():
             if completed_process.returncode != 0:
                 raise RaspberryPiRuntimeError(completed_process)
 
-    def launch_web_app(self):
+    def launch_web_app(self) -> Tuple[bool, Tuple]:
         cmds = [
             f'ssh -v pi@{self.ipv4} "sudo pkill -f \'/usr/bin/python3 /home/pi/.local/bin/astutus-web-app\'"',
             f'ssh -f pi@{self.ipv4} "nohup /home/pi/.local/bin/astutus-web-app < /dev/null > std.out 2> std.err & "',

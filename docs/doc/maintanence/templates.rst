@@ -1,21 +1,15 @@
-Flask Application Templates
-===========================
+Styled Flask Application Templates
+==================================
 
-These Restructured Text pages are used to generate styled HTML pages that
-contain placeholders.
-
-The placeholders are then replaced with Jinja2 dynamic markup, and
-stored as templates to be used by the Flask application.
-
-The names of the templates should all start with "dyn" since
-that is used in generating the destination name in script that
-processes the files.
+The pages within the 'app' directory are used to generate styled HTML pages that
+contain Jinja2 markup.  They contain directives defined by a custom extension
+to Sphinx. The subpackage that implements the extension is astutus.sphinx.
 
 
 To create a new dynamic page, here are some steps that you'll need to do:
 
     - Create a rst file with that name in the docs/flask_app/templates/ with
-      appropriate placeholders and directives.
+      appropriate directives.
     - Create a new app.route handler in flask_app, or a blueprint used by flask_app.
     - Create or updated any include Jinja2 templates that are included.
     - Customize the breadcrumbs.

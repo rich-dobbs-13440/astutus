@@ -3,14 +3,14 @@ Documentation
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 6
    :caption: Table of Contents:
 
    welcome
    changes
    roadmap_to_documentation
    maintanence/guidelines
-   ../../source/modules
+   ../source/modules
 
 
 Indices and tables

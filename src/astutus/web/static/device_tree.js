@@ -75,7 +75,7 @@ function onBackgroundColorChange(colorInput) {
             alert('Updating color failed.  xhr:' + xhr)
         }
     };
-    xhr.open('PATCH', '/astutus/usb/settings');
+    xhr.open('PATCH', '/astutus/app/usb/settings');
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify(data));
 }
@@ -178,7 +178,7 @@ function updateNodeData(button, buttonData) {
             console.log('Request data:', data);
         }
     };
-    xhr.open('PUT', '/astutus/usb/label' + dirpath);
+    xhr.open('PUT', '/astutus/app/usb/label' + dirpath);
     xhr.setRequestHeader('Content-Type', 'application/json');
     console.log('data:', data)
     xhr.send(JSON.stringify(data));
@@ -218,7 +218,7 @@ function updateButtonData(button) {
             console.log('Request data:', data);
         }
     };
-    xhr.open('PUT', '/astutus/usb' + dirpath);
+    xhr.open('PUT', '/astutus/app/usb' + dirpath);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send(JSON.stringify(data));
 }

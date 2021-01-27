@@ -1,14 +1,7 @@
-Modules in the **astutus** package
-==================================
+API Documentation
+=================
 
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 8
 
    astutus
-   astutus.db
-   astutus.log
-   astutus.sphinx
-   astutus.raspi
-   astutus.usb
-   astutus.util
-   astutus.web

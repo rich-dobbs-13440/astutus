@@ -1,6 +1,7 @@
 import logging
 import re
 import os
+from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
 
@@ -8,7 +9,7 @@ import astutus.util
 logger = logging.getLogger(__name__)
 
 
-def find_paths_for_vendor_and_product(vendor_id: str, product_id: str):
+def find_paths_for_vendor_and_product(vendor_id: str, product_id: str) -> List[str]:
     return_code, stdout, stderr = astutus.util.run_cmd(f'grep -r . -e "{vendor_id}" 2>/dev/null', cwd="/sys/devices")
     paths = []
     for line in stdout.splitlines():
@@ -24,7 +25,7 @@ def find_paths_for_vendor_and_product(vendor_id: str, product_id: str):
     return paths
 
 
-def find_busnum_and_devnum_for_sys_device(pci_path) -> (int, int):
+def find_busnum_and_devnum_for_sys_device(pci_path: str) -> Tuple[int, int]:
     if pci_path.startswith("/sys/devices"):
         abs_path = pci_path
     else:
@@ -40,7 +41,7 @@ def find_busnum_and_devnum_for_sys_device(pci_path) -> (int, int):
     return busnum, devnum
 
 
-def find_sym_link_for_tty(tty):
+def find_sym_link_for_tty(tty: str) -> str:
     return_code, stdout, stderr = astutus.util.run_cmd(f"ls -l {tty}")
     if return_code == 2:
         return None
@@ -61,7 +62,7 @@ def find_sym_link_for_tty(tty):
     return sym_link
 
 
-def find_busnum_and_devnum_for_sym_link(sym_link):
+def find_busnum_and_devnum_for_sym_link(sym_link: str) -> Tuple[int, int]:
     for pci_path in find_paths_for_vendor_and_product('1a86', '7523'):
         if pci_path in sym_link:
             busnum, devnum = find_busnum_and_devnum_for_sys_device(pci_path)
@@ -69,7 +70,7 @@ def find_busnum_and_devnum_for_sym_link(sym_link):
     raise ValueError(f"No busnum, devnum found for symbolic link: {sym_link}")
 
 
-def find_busnum_and_devnum_for_tty(tty):
+def find_busnum_and_devnum_for_tty(tty: str) -> Tuple[int, int]:
     sym_link = find_sym_link_for_tty(tty)
     if sym_link is None:
         return -1, -1
@@ -77,7 +78,7 @@ def find_busnum_and_devnum_for_tty(tty):
     return busnum, devnum
 
 
-def find_tty_for_busnum_and_devnum(busnum, devnum):
+def find_tty_for_busnum_and_devnum(busnum: int, devnum: int) -> str:
     logger.debug(f"Searching for tty for busnum: {busnum} devnum: {devnum}")
     # Issue:  The coding convention may be platform dependent
     return_code, stdout, stderr = astutus.util.run_cmd('ls /dev/tty*USB* /dev/tty*usb*')
@@ -96,7 +97,10 @@ def find_tty_for_busnum_and_devnum(busnum, devnum):
     raise ValueError(f"No tty USB device found for busnum: {busnum} devnum: {devnum}")
 
 
-def find_vendor_info_from_busnum_and_devnum(busnum: int, devnum: int):
+def find_vendor_info_from_busnum_and_devnum(busnum: int, devnum: int) -> Tuple[str, str, str]:
+    """
+    returns vendorid, productid, description
+    """
     cmd = f"lsusb -s {busnum}:{devnum}"
     logger.debug(f"cmd: {cmd}")
     return_code, stdout, stderr = astutus.util.run_cmd(cmd)
@@ -112,14 +116,15 @@ def find_vendor_info_from_busnum_and_devnum(busnum: int, devnum: int):
     return vendorid, productid, description
 
 
-def find_tty_description_from_pci_path(pci_path):
+def find_tty_description_from_pci_path(pci_path: str) -> Tuple[str, str, str, str, str, str]:
+    """ returns tty, busnum, devnum, vendorid, productid, description  """
     busnum, devnum = find_busnum_and_devnum_for_sys_device(pci_path)
     tty = find_tty_for_busnum_and_devnum(busnum, devnum)
     vendorid, productid, description = find_vendor_info_from_busnum_and_devnum(busnum, devnum)
     return tty, busnum, devnum, vendorid, productid, description
 
 
-def extract_specified_data(dirpath, filenames):
+def extract_specified_data(dirpath: str, filenames: List[str]) -> Dict:
     parent_dirpath, dirname = dirpath.rsplit('/', 1)
     data = {
         'dirpath': dirpath,

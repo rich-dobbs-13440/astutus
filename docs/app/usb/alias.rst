@@ -1,12 +1,8 @@
-USB Aliases
-===========
+Aliases
+=======
 
-.. astutus_dyn_bookmark:: USB Aliases - /astutus/alias
-
-.. astutus_dyn_destination:: usb/dyn_alias.html
-
-Aliases allow providing meaningful human names to USB devices despite
-the challenges of the USB implementation:
+Aliases allow providing meaningful human names to USB devices and the
+PCI buses and devices connecting them despite the challenges of the USB implementation:
 
     * Physical devices consist of multiple USB components.
     * USB components present different logical USB devices to the host computer
@@ -20,16 +16,14 @@ the challenges of the USB implementation:
   in the device tree.  But you might find this page useful for seeing all
   of the aliases that you have defined, and editing specific aliases.
 
+.. astutus_dyn_include:: app/usb/device_aliases.html
 
-.. astutus_dyn_include:: usb/device_aliases.html
-
-.. astutus_dyn_link:: "/astutus/app/usb/alias.html"
 
 .. toctree::
     :hidden:
 
-    dyn_usb_alias_item
+    alias_item
 
-.. astutus_dyn_include:: usb/alias_items_list_js.html
 
-.. astutus_dyn_links_in_menus:: alias_items_list <path>
+
+.. astutus_dyn_bookmark:: USB Aliases - /astutus/app/alias

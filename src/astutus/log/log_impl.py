@@ -1,6 +1,6 @@
 import logging
 import pkgutil
-# import os
+from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -9,7 +9,7 @@ console_format = "File \"%(pathname)s:%(lineno)d\" : \n    %(asctime)s [%(leveln
 standard_formatter = logging.Formatter(console_format)
 
 
-def get_loggers():
+def get_loggers() -> List[logging.Logger]:
     loggers = []
     # Attempt to avoid a circular dependency
     import astutus
@@ -23,7 +23,7 @@ def get_loggers():
     return loggers
 
 
-def set_level(logger_name, level):
+def set_level(logger_name: str, level: int) -> None:
     for logger_for_module in get_loggers():
         if logger_for_module.name == logger_name:
             logger.debug(f"logger_for_module: {logger_for_module.name} was found. ")

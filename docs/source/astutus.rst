@@ -1,11 +1,16 @@
 astutus package
 ===============
 
+.. automodule:: astutus
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 8
 
    astutus.db
    astutus.log
@@ -22,14 +27,6 @@ astutus.version module
 ----------------------
 
 .. automodule:: astutus.version
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: astutus
    :members:
    :undoc-members:
    :show-inheritance:

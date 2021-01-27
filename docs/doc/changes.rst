@@ -1,9 +1,7 @@
 Changes
 =======
 
-Here's where you find out what we are working on, and what we've worked on -- and you can now use!
-
-.. astutus_toggle_note:: collapsed To the Developer
+.. astutus_toggle_note:: collapsed To Developers
 
   To the developer:  With incremental, test-driven development, it should be possible to deliver
   `Frequent, Tangible, Working Results  <https://en.wikipedia.org/wiki/Peter_Coad>`_
@@ -17,10 +15,12 @@ Here's where you find out what we are working on, and what we've worked on -- an
 What's Up
 ---------
 
-Here's where you find what we are working on.  Rather we work on something else?  Just
-let us know!
+Here's where you can find what we are working on.
 
-.. astutus_toggle_note:: collapsed To the Developer
+
+Rather we work on something else?  Just let us know!
+
+.. astutus_toggle_note:: collapsed To Developers
 
   To the developer:  Your **backlog** should consist of epics, stories, tasks, and spikes. For planning purposes,
   your backlog shouldn't be too large and it shouldn't be too small.  You'll need to
@@ -43,7 +43,8 @@ let us know!
 
 Backlog:
 
-  * Task: Use id's rather than direct docnames for identifying dynamic replacements.
+  * Story Improve Application of Continuous Integration / Continuous Deployment.
+  * Add a progress list directive.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
@@ -53,10 +54,6 @@ Backlog:
   * Task: Some tests of USB devices that are independent of current /sys/devices structure.
   * Epic: Get repository good enough to be publically visible.
 
-
-.. |done| raw:: html
-
-    <input checked=""  disabled="" type="checkbox">
 
 What's New
 ----------
@@ -70,6 +67,23 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| Task: Add type hints to most code.
+  * |newly_done| Task: Update astutus.sphinx doc strings for good presentation in the API docs.
+  * |newly_done| Story: Polish sphinx extension so that it is good-enough to be used by others.
+  * |done| 2021-01-26 20:35 Task: Add Ringtail Cat as logo on the page.
+  * |done| 2021-01-26 20:35 Task: Style Raspberry Pi ifconfig page.
+  * |done| 2021-01-26 17:08 Task: Style Raspberry Pi ifconfig page.
+  * |done| 2021-01-25 11:15 Task: Change to a better prefix for styled templates.
+  * |done| 2021-01-24 20:05 Task: Useful defaults if .. astutus_dyn_destination::  is omitted.
+  * |done| 2021-01-24 16:22 Task: Cleanup and generalize reading and processing of post processing directives.
+  * |done| 2021-01-24 13:03 Task: Keep HTML lines as list in post processing, rather than combining and splitting.
+  * |done| 2021-01-24 11:56 Task: Work out search page with new structure.
+  * |done| 2021-01-24 11:56 Task: Work out Index with new structure.
+  * |done| 2021-01-24 11:56 Task: Work out module Index with new structure.
+  * |done| 2021-01-24 11:56 Task: Generalize inclusion of new header material for astutus dynamic pages.
+  * |done| 2021-01-23 17:18 Task: Automate generation of breadcrumbs for dynamic pages.
+  * |done| 2021-01-23 10:00 Task: Backout dead javascript and Sphinx extension code
+  * |done| 2021-01-23 09:07 Task: Use id's rather than direct docnames for identifying dynamic replacements.
   * |done| 2021-01-22 12:27 Task: Move Toggle styling to a static CSS file.
   * |done| 2021-01-22 11:24 Task: Handle markup within astutus_toggle_note content.
   * |done| 2021-01-22 09:31 Task: Directive astutus_toggle_note working in basic form.
