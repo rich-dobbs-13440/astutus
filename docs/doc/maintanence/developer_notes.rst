@@ -73,9 +73,21 @@ Changed the password on PyPi to a truely random generated on Wendy using:
 
   openssl rand -base64 32
 
-Stored this as a repository secret on Github with the name PYPI_PASSWORD.
+|done| Stored this as a repository secret on Github with the name PYPI_PASSWORD.
 
-Tweak the Astutus version number, and start trying to use the workflow.
+|done| Tweak the Astutus version number, and start trying to use the workflow.
+
+On the main page of https://github.com/rich-dobbs-13440/astutus, there
+is a section called Releases and another that is called Packages.  My guess
+is that I need to create a release, and then publish the package.  This would
+be using the workflow, but triggering it manually.  A good step towards
+CI/CD.
+
+Tried to publish first package, but it says 0 packages.  Will probably need to
+get automation working to build the package and place it in the correct location.
+
+Added the Python package workflow to branch.  Will try get it to run.  Will probably
+need to disable things within pytest.
 
 Sphinx Preview Broken Currently
 -------------------------------
