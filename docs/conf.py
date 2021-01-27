@@ -89,6 +89,8 @@ html_static_path = ['_static']
 
 # Use the ringtail cat icon for docs too.
 html_favicon = '_static/favicon.ico'
+html_logo = '_static/favicon.ico'
+# html_logo = '_static/android-chrome-192x192.png'
 
 html_theme_options = {
     # 'style_nav_header_background': 'orange',
@@ -96,9 +98,9 @@ html_theme_options = {
 }
 
 
-# Override theme to issue with tables.
 def setup(app):
-    app.add_css_file('css/theme_overrides.css')
+    app.add_css_file('css/theme_overrides.css')  # Override theme to issue with tables.
+    app.add_css_file('css/app.css')  # Want this on all pages.
 
 
 # Options for the Astutus dynamic pages custom extension.
@@ -109,6 +111,6 @@ astutus_dyn_extra_head_material = """
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>
     <link rel="manifest" href="/static/site.webmanifest"/>
-    <link rel="stylesheet" href="/static/app.css" />
+
     <script src="/static/app.js"></script>
 """  # only inserted on dynamic pages.

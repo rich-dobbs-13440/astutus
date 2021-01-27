@@ -43,8 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * Task: Add type hints to most code.
-  * Task: Style Raspberry Pi ifconfig page.
+  * |in_progress| Task: Add type hints to most code.
   * |in_progress| Task: Update astutus.sphinx doc strings for good presentation in the API docs.
   * Story: Polish sphinx extension so that it is good-enough to be used by others.
   * Add a progress list directive.
@@ -69,6 +68,9 @@ hand waving, but not as detailed as repository commits.
   To the developer: Just move items from the backlog to here as you make commits.
 
 Done:
+
+  * |newly_done| 2021-01-26 20:35 Task: Add Ringtail Cat as logo on the page.
+  * |newly_done| 2021-01-26 20:35 Task: Style Raspberry Pi ifconfig page.
   * |newly_done| 2021-01-26 17:08 Task: Style Raspberry Pi ifconfig page.
   * 2021-01-25 11:15 Task: Change to a better prefix for styled templates.
     dyn\_ was dumb, since most Jinja2 templates are dynamic.  styled\_ is more to the point.
