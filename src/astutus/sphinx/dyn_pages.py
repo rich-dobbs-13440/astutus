@@ -13,14 +13,16 @@ logger = sphinx.util.logging.getLogger(__name__)
 
 
 def log_as_info(msg: str) -> None:
-    """ Convenience function to log with colored output."""
-    # Kludgy to use a closure to get colored logging specific to our code,
-    # but easier than modifying logger format.
-    ansi = astutus.util.AnsiSequenceStack()
-    start = ansi.push
-    info = '#FFA500'  # Color our info messages as orange
-    end = ansi.end
-    logger.info(f"{start(info)}{msg}{end(info)}")
+    """ Convenience function to log with colored output if desired for development or debugging."""
+    emphasize_this_module = False
+    if emphasize_this_module:
+        ansi = astutus.util.AnsiSequenceStack()
+        start = ansi.push
+        info = '#FFA500'  # Color our info messages as orange
+        end = ansi.end
+        logger.info(f"{start(info)}{msg}{end(info)}")
+    else:
+        logger.info(msg)
 
 
 def create_post_processing_markup(tag: str, value: str) -> str:
@@ -34,6 +36,10 @@ def create_post_processing_markup(tag: str, value: str) -> str:
 
 
 def read_post_processing_directive_value(tag: str, text: str) -> str:
+    """ Searches the text for the post processing directive identified by the tag, and return the value.
+
+    Returns None if the tag is not found.
+    """
     start_marker = f"««{tag}»»"
     idx = text.find(start_marker)
     if idx >= 0:
@@ -44,7 +50,8 @@ def read_post_processing_directive_value(tag: str, text: str) -> str:
         return text[start_idx:end_idx]
 
 
-def post_processing_mark_found(tag, text):
+def post_processing_mark_found(tag: str, text: str) -> bool:
+    """Search the text for the post processing directive identified by the tag.  Returns true if found. """
     if tag is not None:
         start_marker = f"««{tag}»»"
         return text.find(start_marker) >= 0
@@ -55,25 +62,35 @@ def post_processing_mark_found(tag, text):
 
 
 def visit_generic_node(self, node):
+    """ Does nothing."""
     logger.debug(f"Visiting node: {node} ")
 
 
 def depart_generic_node(self, node):
+    """ Does nothing."""
     logger.debug(f"Departing node: {node} ")
 
 
-class LinkNode(docutils.nodes.General, docutils.nodes.Element):
-    pass
-
-
 class LinkDirective(SphinxDirective):
+    r""" Implements the  .\. astutus_dyn_link::  directive.
 
+    Usage:
+        .\. astutus_dyn_link:: link_path [link_replacement_text]
+
+    The replacement text may contain whitespace.
+
+    This directive is required on all dynamic styled pages.
+
+    """
     required_arguments = 1
     optional_arguments = 1
     final_argument_whitespace = True
 
-    def run(self) -> List[LinkNode]:
-        """ Processes the directive argument and stores it."""
+    def run(self) -> List[docutils.nodes.Node]:
+        """ Processes the astutus_dyn_link directive arguments and stores them in the environmment.
+
+        No node is added to the docutils doctree.
+        """
         logger.debug("LinkDirective.run")
 
         if not hasattr(self.env, 'astutus_dyn_link_list'):
@@ -96,10 +113,28 @@ class LinkDirective(SphinxDirective):
 
 
 class BreadCrumbNode(docutils.nodes.General, docutils.nodes.Element):
+    """ Stores the processed value of the argument to the directive. """
     pass
 
 
 class BreadCrumbDirective(SphinxDirective):
+    r""" Implements the  .\. astutus_dyn_breadcrumb:: directive.
+
+    This directive allows overriding the final entry in the breadcrumb navigation
+    displayed by the Read-the-Docs theme near the top of the page.
+    The last entry is for the current page, and is static text, rather than being
+    a link like the rest of the breadcrumbs.
+
+    This directive is optional, and is typically used for item pages where the
+    value normally derived from the title of the page is not informative.
+    It should only be used once on a dynamic page.
+
+    Usage:
+        .\. astutus_dyn_breadcrumb:: breadcrumb_text
+
+    The breadcrumb text may contain whitespace and variables marked with angle brackets.
+
+    """
     required_arguments = 1
     final_argument_whitespace = True
 
@@ -118,13 +153,12 @@ class BreadCrumbDirective(SphinxDirective):
 
 
 class BookmarkNode(docutils.nodes.General, docutils.nodes.Element):
-    """ Stores the processed value of the argument to the directive. """
+    """ Stores the processed value of the argument to the directive."""
     pass
 
 
 class BookmarkDirective(SphinxDirective):
-    r""" Implements the  .\. astutus_dyn_bookmark::  directive. """
-    """
+    r""" Implements the  .\. astutus_dyn_bookmark::  directive.
 
     This directive allows customizing the title tag in the head section
     of the HTML tag.  This tag is used in labeling browser tabs and suggested
@@ -144,7 +178,7 @@ class BookmarkDirective(SphinxDirective):
     final_argument_whitespace = True
 
     def run(self) -> List[BookmarkNode]:
-        r""" Replaces the directive in the \*.rst file with a BookMarkNode"""
+        r""" Replaces the directive in the \*.rst file with a BookMarkNode."""
         log_as_info("\nBookmarkDirective.run")
         node = BookmarkNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -160,14 +194,27 @@ class BookmarkDirective(SphinxDirective):
 
 
 class IncludeNode(docutils.nodes.General, docutils.nodes.Element):
+    """ Stores the processed value of the argument to the directive. """
     pass
 
 
 class IncludeDirective(SphinxDirective):
+    r""" Implements the  .\. astutus_dyn_include::  directive.
 
+    This directive allows inserting functional Jinja2 templates into the
+    styled template generated for dynamic pages.
+
+    The one required argument specifies a relative filepath to locate the
+    template within the template directory of the Flask application.
+
+    This directive is optional.  It may be used multiple times on a dynamic
+    page as needed for the layout of the page.
+
+    """
     required_arguments = 1
 
     def run(self) -> List[docutils.nodes.Node]:
+        r""" Replaces the directive in the \*.rst file with a IncludeNode."""
         log_as_info("\nIncludeDirective.run")
         node = IncludeNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -183,14 +230,25 @@ class IncludeDirective(SphinxDirective):
 
 
 class DestinationNode(docutils.nodes.General, docutils.nodes.Element):
+    """ Stores the processed value of the argument to the directive. """
     pass
 
 
 class DestinationDirective(SphinxDirective):
+    r""" Implements the  .\. astutus_dyn_destintation::  directive.
 
+    The one required argument specifies a relative filepath where to write
+    the styled template.
+
+    Its optional, and is for the convenience of the web developer.  In most
+    cases, the default location based on the name and location the dynamic
+    page.
+
+    """
     required_arguments = 1
 
     def run(self) -> List[docutils.nodes.Node]:
+        r""" Replaces the directive in the \*.rst file with a DestinationNode."""
         log_as_info("\nDestinationDirective.run")
         node = DestinationNode('')
         jinja2_value = self.arguments[0].replace('<', '{{ ').replace('>', ' }}')
@@ -206,6 +264,7 @@ class DestinationDirective(SphinxDirective):
 
 
 class ToggleNoteNode(docutils.nodes.note):
+    """ Stores the processed values of the arguments and content of the directive. """
     pass
 
 
@@ -223,6 +282,9 @@ class ToggleNoteDirective(SphinxDirective):
 
     If extra_title_text is to be provided, the author must explicitly specify the toggle state.
     The argument extra_title_text may contain whitespace.
+
+    This directive does not require support from Flask.  It is implemented using CSS and
+    HTML.  It can be used on any page.
 
     """
 
@@ -270,6 +332,7 @@ class ToggleNoteDirective(SphinxDirective):
 
     @staticmethod
     def handle_insert_markup(app: sphinx.application.Sphinx, doctree, fromdocname) -> None:
+        """ This method converts any ToggleNoteNodes into docutil nodes for HTML."""
         logger.debug(f"ToggleNoteDirective.handle_insert_markup  fromdocname: {fromdocname}")
         idx = 0
         for node in doctree.traverse(ToggleNoteNode):
@@ -330,10 +393,6 @@ def setup(app: sphinx.application.Sphinx) -> Tuple:
     app.add_config_value('astutus_dyn_styled_templates_path', 'astutus_dyn_styled_templates', 'html')
     app.add_config_value('astutus_dyn_default_template_prefix', 'styled_', 'html')
 
-    app.add_node(
-        LinkNode,
-        html=(visit_generic_node, depart_generic_node)
-    )
     app.add_node(
         BreadCrumbNode,
         html=(visit_generic_node, depart_generic_node)

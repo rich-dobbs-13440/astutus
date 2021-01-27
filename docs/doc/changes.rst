@@ -69,8 +69,8 @@ hand waving, but not as detailed as repository commits.
   To the developer: Just move items from the backlog to here as you make commits.
 
 Done:
-
-  * |newly_done| 2021-01-25 11:15 Task: Change to a better prefix for styled templates.
+  * |newly_done| 2021-01-26 17:08 Task: Style Raspberry Pi ifconfig page.
+  * 2021-01-25 11:15 Task: Change to a better prefix for styled templates.
     dyn\_ was dumb, since most Jinja2 templates are dynamic.  styled\_ is more to the point.
   * |done| 2021-01-24 20:05 Task: Useful defaults if .. astutus_dyn_destination::  is omitted.
   * |done| 2021-01-24 16:22 Task: Cleanup and generalize reading and processing of post processing directives.

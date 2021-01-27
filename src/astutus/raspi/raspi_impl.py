@@ -32,8 +32,11 @@ class RaspberryPi():
         matches = re.search(interface_pattern, section)
         interface = matches.group(1)
         logger.debug(f"interface: {interface}")
+        interface, lines_as_text = section.split(':', 1)
+        lines = [line.strip() for line in lines_as_text.splitlines()]
         parsed_section = {
-            "content": f"{section}",
+            "interface": interface,
+            "lines": lines,
         }
         flags_pattern = r'flags=\d+<(.*)>'
         matches = re.search(flags_pattern, section, re.MULTILINE)
