@@ -19,10 +19,10 @@ Install and update using `pip`_:
 
 .. code-block:: text
 
-    pip install -U astutus
+    pip install -U astutus --pre
 
-At this time, this code is Alpha quality, having only been used
-on the development machine.
+Please note the use of **--pre** option.  With the current build
+automation, the packages published to PyPI are all marked as alpha.
 
 
 Technologies
