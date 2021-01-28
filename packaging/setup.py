@@ -27,9 +27,7 @@ major_minor_patch_string = matches.group(1)
 utcmoment = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
 denvernow = utcmoment.astimezone(pytz.timezone('America/Denver'))
 # Don't use dots within timestamp, since we're using timestamp as a number for PEP 440.
-# With this abbreviated timestamp, the patch version must be incremented come January 1st,
-# so that the overall version number monotonically increases!
-timestamp_number = denvernow.strftime("%m%d%H%M")
+timestamp_number = denvernow.strftime("%Y%m%d%H%M")
 
 # For now, take all builds as being final.
 version_string = f'{major_minor_patch_string}.{timestamp_number}'
