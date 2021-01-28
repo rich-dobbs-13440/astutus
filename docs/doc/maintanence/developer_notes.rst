@@ -158,6 +158,18 @@ Here is the current status of the build:
 
 So, need to set PYTHON_PATH with current code organization.
 
+The syntax for this in the yaml is:  PYTHONPATH: ${{ github.workspace }}/src
+
+.. code-block:: console
+
+  SUCCESS: All steps done
+  --------------------------------------- End Building and Configuring Package ---------------------------------------
+  InvalidDistribution: Unknown distribution format: 'content'
+  Uploading distributions to https://upload.pypi.org/legacy/
+  Error: Process completed with exit code 1.
+
+My guess is this from the command trying to deal with the astutus-0.1.9.tar.gz.  Use a different wildcard. 
+
 Sphinx Preview Broken Currently
 -------------------------------
 
