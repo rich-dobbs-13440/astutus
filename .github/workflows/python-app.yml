@@ -10,7 +10,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      PYTHONPATH: $GITHUB_WORKSPACE/src
+      PYTHONPATH: ${{ env.GITHUB_WORKSPACE }}/src
 
     steps:
     - uses: actions/checkout@v2
