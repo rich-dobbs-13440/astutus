@@ -44,6 +44,7 @@ package_data.append("wheels/purpose.txt")
 
 
 setuptools.setup(
+    setup_requires=['wheel'],  # Trying to avoid error in building wheel for treelib, future from tar.gz source
     version=version_string,
     long_description=long_description,
     long_description_content_type="text/x-rst",

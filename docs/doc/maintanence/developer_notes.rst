@@ -168,7 +168,8 @@ The syntax for this in the yaml is:  PYTHONPATH: ${{ github.workspace }}/src
   Uploading distributions to https://upload.pypi.org/legacy/
   Error: Process completed with exit code 1.
 
-My guess is this from the command trying to deal with the astutus-0.1.9.tar.gz.  Use a different wildcard. 
+My guess is this from the command trying to deal with the astutus-0.1.9.tar.gz.  Use a different wildcard.
+That worked!
 
 Sphinx Preview Broken Currently
 -------------------------------
