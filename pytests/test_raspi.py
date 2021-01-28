@@ -1,6 +1,7 @@
 import logging
 
 import astutus.raspi
+import pytest
 
 logger = logging.getLogger(__name__)
 
