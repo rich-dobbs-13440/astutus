@@ -4,19 +4,32 @@ import setuptools.command.develop
 import os
 import os.path
 import re
+import pytz
+import datetime
 
 
 with open("../README.rst", "r") as fh:
     long_description = fh.read()
 
-# Version is in this format:  __version__ = '0.1.5'
+# Use PEP 440 compliant versioning.
+#
+# At this time, not distinguishing between production and other builds.
 
+# Version is in this format:  __version__ = '0.1.5'
 with open("../src/astutus/version.py") as fh:
     version_content = fh.read()
 
 pattern = r"__version__\s*=\s*'([^']+)'"
 matches = re.search(pattern, version_content)
-version_string = matches.group(1)
+major_minor_patch_string = matches.group(1)
+
+utcmoment = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+denvernow = utcmoment.astimezone(pytz.timezone('America/Denver'))
+# Don't use dots within timestamp, since we're using timestamp as a number for PEP 440.
+timestamp_number = denvernow.strftime("%Y%m%d%H%M")
+
+# For now, take all builds as being final.
+version_string = f'{major_minor_patch_string}.{timestamp_number}'
 
 
 # Create list for package data manually, since wildcard are not universally supported
@@ -44,6 +57,7 @@ package_data.append("wheels/purpose.txt")
 
 
 setuptools.setup(
+    setup_requires=['wheel'],  # Trying to avoid error in building wheel for treelib, future from tar.gz source
     version=version_string,
     long_description=long_description,
     long_description_content_type="text/x-rst",

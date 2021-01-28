@@ -9,12 +9,13 @@ source "${this_dir}/utilities.sh"
 mark_sub_section "Install Astutus Package In a Virtual Environment"
 cd ${this_dir}/dist
 unset PYTHONPATH
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv dist_venv
+source dist_venv/bin/activate
+# pip  install --upgrade pip wheel setuptools
 pip install astutus-*-py3-none-any.whl
 # Hardcode python version for now.
 python_lib_dir="python3.8"
-wheels_destination="${this_dir}/dist/venv/lib/${python_lib_dir}/site-packages/astutus/wheels/"
+wheels_destination="${this_dir}/dist/dist_venv/lib/${python_lib_dir}/site-packages/astutus/wheels/"
 
 mark_sub_section "Self-publish Package Wheels"
 source "${this_dir}/fetch_wheels.sh"

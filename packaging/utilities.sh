@@ -2,6 +2,11 @@
 
 # This file should be sourced, not called.
 
+# Turn off echoing during defining these capabilities.  The output is not useful
+# in the logs, and messes up identification of real errors
+
+set +x
+
 if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
     printf "DEBUG: Associative array usage requires 4 or greater."
     >&2 printf "\e[31mERROR: This script requires BASH to be greater than 4\e[0m\n"
@@ -9,6 +14,7 @@ if [ "${BASH_VERSINFO:-0}" -lt 4 ]; then
     printf "\x1b[33m                $ brew install bash\n"
     exit 203
 fi
+
 
 declare -A ANSI
 
