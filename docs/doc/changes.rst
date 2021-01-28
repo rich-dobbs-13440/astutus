@@ -43,9 +43,10 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * Bug: Error message during package installation: ERROR: Failed building wheel for treelib
-  * Task: Test out current PyPI release to see how it works, and identify issues.
-  * Task: Update versions for merge to master.
+  * |in-progress| Bug: Error message during package installation: ERROR: Failed building wheel for treelib
+  * |in-progress| Task: Test out current PyPI release to see how it works, and identify issues.
+  * |in-progress| Task: Build number as part of packge identification
+  * Task: Update semantic patch version for merge to master.
   * Task: Automate releases for merge to master.
   * Story Improve Application of Continuous Integration / Continuous Deployment.
   * Add a progress list directive.
