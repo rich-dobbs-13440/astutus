@@ -4,19 +4,34 @@ import setuptools.command.develop
 import os
 import os.path
 import re
+import pytz
+import datetime
 
 
 with open("../README.rst", "r") as fh:
     long_description = fh.read()
 
-# Version is in this format:  __version__ = '0.1.5'
+# Use PEP 440 compliant versioning.
+#   * Use a local version label to timestamp build - useful for PyPI publishing.
+#   * At this time, not distinguishing between production and other builds.
+#
+#  Since this code always uses a local version label, this isn't using the final version concept.
+#  For automation purposes, may want to identify git branch as part of local version label in future.
 
+# Version is in this format:  __version__ = '0.1.5'
 with open("../src/astutus/version.py") as fh:
     version_content = fh.read()
 
 pattern = r"__version__\s*=\s*'([^']+)'"
 matches = re.search(pattern, version_content)
-version_string = matches.group(1)
+public_version_string = matches.group(1)
+
+utcmoment = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+denvernow = utcmoment.astimezone(pytz.timezone('America/Denver'))
+# Don't use dots within local version label, since then setup tools will strip out leading zeros.
+local_version_label = denvernow.strftime("%Y%m%d%H%M%S")
+
+version_string = f'{public_version_string}+{local_version_label}'
 
 
 # Create list for package data manually, since wildcard are not universally supported

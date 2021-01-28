@@ -4,8 +4,8 @@ Packaging
 Build
 -----
 
-At this time, the building is being done on Wendy (a desktop 
-machine that I built in 2014).  It is currently running 
+At this time, the building is being done on Wendy (a desktop
+machine that I built in 2014).  It is currently running
 Linux Mint 20 (Ulyana) with the Cinnamon desktop.
 
 In theory, the process is:
@@ -37,7 +37,7 @@ Should be discussed.
 Publication
 -----------
 
-The aim is to publish to PyPi.  Working at getting things good
+The aim is to publish to PyPI.  Working at getting things good
 enough for initial publication.  Basically should get
 licensed defined adequately, and minimal command.
 
@@ -54,7 +54,7 @@ sudo apt install twine
 (dist_venv) rich@wendy:~/src/github.com/rich-dobbs-13440/astutus/packaging/dist$ twine upload astutus-0.1.2-py3-none-any.whl
 Uploading distributions to https://upload.pypi.org/legacy/
 Enter your username: rich.dobbs.13440
-Enter your password: 
+Enter your password:
 Uploading astutus-0.1.2-py3-none-any.whl
 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10.5M/10.5M [00:19<00:00, 559kB/s]
 NOTE: Try --verbose to see response content.
