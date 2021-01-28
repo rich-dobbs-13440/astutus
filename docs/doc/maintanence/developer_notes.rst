@@ -9,11 +9,11 @@ Steps:
 
   * Start using GitHub Automation
 
-  * Start updating PyPi with each merge to "Master"
+  * Start updating PyPI with each merge to "Master"
 
   * Automate versioning for developer versus production builds
 
-  * Work on automated testing for gatekeeping prior to PyPi publication.
+  * Work on automated testing for gatekeeping prior to PyPI publication.
 
   * Backfill automated testing for USB functionality, that can be run inside GitHub
 
@@ -67,7 +67,7 @@ At this time, manual upload worked:
   https://pypi.org/project/astutus/0.1.8/
   (venv) rich@wendy:~/src/github.com/rich-dobbs-13440/astutus/packaging/dist$
 
-Changed the password on PyPi to a truely random generated on Wendy using:
+Changed the password on PyPI to a truely random generated on Wendy using:
 
 .. code-block:: console
 

@@ -44,7 +44,7 @@ Rather we work on something else?  Just let us know!
 Backlog:
 
   * Bug: Error message during package installation: ERROR: Failed building wheel for treelib
-  * Task: Test out current PyPi release to see how it works, and identify issues.
+  * Task: Test out current PyPI release to see how it works, and identify issues.
   * Task: Update versions for merge to master.
   * Task: Automate releases for merge to master.
   * Story Improve Application of Continuous Integration / Continuous Deployment.
@@ -150,7 +150,7 @@ Done:
   * |done| 2021-01-01 11:22 Task: First pass at displaying USB device tree with Jinja2 template include.
   * |done| 2020-12-31 19:30 Spike: Try to use Sphinx to generate a styled base for a Jinja2 template.
   * |done| 2020-12-30 20:13 Task: Create a verbose mode for the astutus-usb-tree
-  * |done| 2020-12-29 19:13 Epic: Get package available on PyPi
+  * |done| 2020-12-29 19:13 Epic: Get package available on PyPI
   * |done| 2020-12-29 18:17 Task: Create the docstring for the DeviceAliases class.
   * |done| 2020-12-29 14:51 Task: Create an initial pass for module docstring for astutus.usb.tree
   * |done| 2020-12-29 12:00 Task: Update for autodocs for all modules.
