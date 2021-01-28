@@ -43,9 +43,10 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * Bug: Error message during package installation: ERROR: Failed building wheel for treelib
   * Task: Test out current PyPi release to see how it works, and identify issues.
   * Task: Update versions for merge to master.
-  * Task: Automate releases for merge to master.  
+  * Task: Automate releases for merge to master.
   * Story Improve Application of Continuous Integration / Continuous Deployment.
   * Add a progress list directive.
   * Task: Provide a link to the RPi's astutus-web-app.
