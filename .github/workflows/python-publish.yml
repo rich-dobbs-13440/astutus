@@ -30,4 +30,5 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
         ./packaging/build.sh
-        twine upload packaging/dist/*
+        twine --version
+        twine upload packaging/dist/*.whl
