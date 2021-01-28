@@ -151,6 +151,7 @@ def test_usb_device_node_data_json_serializable():
     json.dumps(node)
 
 
+@pytest.mark.skip(reason="Obsolete Maybe?")
 def test_execute_tree_cmd():
     usb_tree = astutus.usb.UsbDeviceTree(
         basepath=None,
