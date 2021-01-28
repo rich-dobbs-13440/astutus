@@ -43,16 +43,13 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * |in-progress| Task: Add classifiers to setup for better PyPI searchs.
-  * |in-progress| Task: Test out current PyPI release to see how it works, and identify issues.
-  * Task: Update semantic patch version for merge to master.
-  * Story Improve Application of Continuous Integration / Continuous Deployment.
   * Add a progress list directive.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
   * Task: Mark relay tests as slow.
   * Task: Get color sensor working on RPi.
+  * Task: Update semantic patch version for merge to master.
   * Task: Write test with relays controlling lights and monitored by color sensor.
   * Task: Some tests of USB devices that are independent of current /sys/devices structure.
   * Epic: Get repository good enough to be publically visible.
@@ -70,10 +67,13 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-01-28 13:58 Task: Test out current PyPI release to see how it works, and identify issues.
+  * |newly_done| 2021-01-28 13:58 Story Improve Application of Continuous Integration / Continuous Deployment.
+  * |newly_done| 2021-01-28 13:56 Task: Add classifiers to setup for better PyPI searchs.
   * |newly_done| 2021-01-28 12:52 Task: Switch over to publishing upon merges to main.
-  * |dropped| Task: Automate releases for merge to master.
   * |newly_done| 2021-01-28 11:58 Task: Build number as part of packge identification
   * |newly_done| 2021-01-28 11:58 Bug: Error message during package installation: ERROR: Failed building wheel for treelib
+  * |dropped| Task: Automate releases for merge to master.
   * |done| 2021-01-27 20:33 Task: Get PyPy publishing workflow running - manual steps.
   * |done| 2021-01-27 19:04 Task: Get a build step running with GitHub automation.
   * |done| 2021-01-27 11:00 Task: Add type hints to most code.
