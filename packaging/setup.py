@@ -81,5 +81,11 @@ setuptools.setup(
             'astutus-usb-tree=astutus.usb.tree:main',
             'astutus-web-app=astutus.web.flask_app:run_with_standard_options',
         ]
-    }
+    },
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Framework :: Flask",
+        "Framework :: Sphinx :: Extension",
+        "Operating System :: POSIX :: Linux",
+    ]
 )

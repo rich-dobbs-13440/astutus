@@ -43,7 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * |in-progress| Task: Switch over to publishing upon merges to main.
+  * |in-progress| Task: Add classifiers to setup for better PyPI searchs.
   * |in-progress| Task: Test out current PyPI release to see how it works, and identify issues.
   * Task: Update semantic patch version for merge to master.
   * Story Improve Application of Continuous Integration / Continuous Deployment.
@@ -70,6 +70,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-01-28 12:52 Task: Switch over to publishing upon merges to main.
   * |dropped| Task: Automate releases for merge to master.
   * |newly_done| 2021-01-28 11:58 Task: Build number as part of packge identification
   * |newly_done| 2021-01-28 11:58 Bug: Error message during package installation: ERROR: Failed building wheel for treelib
