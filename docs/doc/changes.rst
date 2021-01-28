@@ -43,6 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * Task Get PyPy publishing workflow running.
   * Story Improve Application of Continuous Integration / Continuous Deployment.
   * Add a progress list directive.
   * Task: Provide a link to the RPi's astutus-web-app.
@@ -67,9 +68,10 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
-  * |newly_done| Task: Add type hints to most code.
-  * |newly_done| Task: Update astutus.sphinx doc strings for good presentation in the API docs.
-  * |newly_done| Story: Polish sphinx extension so that it is good-enough to be used by others.
+  * |newly_done| 2027-01-27 19:04 Task: Get a build step running with GitHub automation.
+  * |newly_done| 2021-01-27 11:00 Task: Add type hints to most code.
+  * |newly_done| 2021-01-27 11:00 Task: Update astutus.sphinx doc strings for good presentation in the API docs.
+  * |newly_done| 2021-01-27 11:00 Story: Polish sphinx extension so that it is good-enough to be used by others.
   * |done| 2021-01-26 20:35 Task: Add Ringtail Cat as logo on the page.
   * |done| 2021-01-26 20:35 Task: Style Raspberry Pi ifconfig page.
   * |done| 2021-01-26 17:08 Task: Style Raspberry Pi ifconfig page.
