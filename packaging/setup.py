@@ -12,9 +12,8 @@ with open("../README.rst", "r") as fh:
     long_description = fh.read()
 
 # Use PEP 440 compliant versioning.
-#   * Use a pre-release segement to timestamp build - useful for PyPI publishing.
-#   * At this time, not distinguishing between production and other builds.
 #
+# At this time, not distinguishing between production and other builds.
 
 # Version is in this format:  __version__ = '0.1.5'
 with open("../src/astutus/version.py") as fh:
