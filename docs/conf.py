@@ -56,12 +56,12 @@ nitpick_ignore = [
     ('py:class', "[(<class 'int'>, <class 'str'>, <class 'str'>)]")
 ]
 
-# These definition(s) are added to the top of every page.
+# These definition(s) are added to the top of every page - used in progress lists
 rst_prolog = """
 
 .. |in_progress| raw:: html
 
-    <span style="background-color: light-gray">⦿</span>
+    <span style="background-color: light-gray">◉</span>
 
 .. |done| raw:: html
 
@@ -70,6 +70,10 @@ rst_prolog = """
 .. |newly_done| raw:: html
 
     <span style="background-color: yellow">✔</span>
+
+.. |dropped| raw:: html
+
+    <span style="background-color: light-gray">🗴</span>
 
 """
 # <input checked=""  disabled="" type="checkbox" style="cursor: default">
