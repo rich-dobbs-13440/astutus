@@ -148,11 +148,9 @@ function onTreeButtonClick(button) {
     placeAndDisplayContainer(button, "#button-menu")
 }
 
-function handleDisplayWorkWithDeviceForm() {
-    handleButtonMenuHide()
-    console.log(current_button_data)
-    alert("Ya got to handleDisplayWorkWithDeviceForm: " + current_button_data['nodepath'])
-
+function HandleWorkWithDevice() {
+    workWithUrl = '/astutus/app/usb/device/' + current_button_data['nodepath'] + '/index.html'
+    window.location.replace(workWithUrl);
 }
 
 function handleButtonMenuHide() {

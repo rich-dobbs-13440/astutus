@@ -317,3 +317,14 @@ def handle_usb_settings():
             astutus.util.persist_setting('/astutus/app/usb/settings', 'background_color', background_color)
             return "Setting persisted", HTTPStatus.OK
         return "Need to persist settings here", HTTPStatus.NOT_IMPLEMENTED
+
+
+@usb_page.route('/astutus/app/usb/device/<path:nodepath>/index.html', methods=['GET'])
+def handle_usb_device_item(nodepath):
+    if flask.request.method == 'GET':
+        return flask.render_template(
+            'app/usb/device/nodepath/styled_index.html')
+        #     item=item,
+        #     nodepath=nodepath,
+        #     alias=alias,
+        #     nodepath_item_list=get_alias_path_item_list())
