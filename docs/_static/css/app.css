@@ -2,27 +2,14 @@
     --read-the-docs-background-color:#fcfcfc;
     --read-the-docs-accent-color: #2980b9;
     --popup-dialog-background-color: rgb(212, 229, 241);
-    --popup-dialog-initial-height: 405px;
-    --popup-dialog-initial-width: 900px;
     --astutus-table-scroll-static-height: 0px;
 }
-
-/* div.wy-side-scroll a.icon {
-    background-color: magenta;
-} */
-
 div.wy-side-scroll a.icon img.logo {
     position: absolute;
     left: 30px;
     top: -5px;
 
 }
-
-/* div.wy-side-scroll a ~ div.version {
-    background-color: yellow;
-} */
-
-
 .wy-nav-content {
     /* Override width for dynamic pages: should be moved to specific pages
     */
@@ -56,27 +43,16 @@ input[type=color].astutus-color {
     width: 26px;
     padding: 1px;
 }
-div#add-alias-form-container {
-    /* Specify top and left to give units for vanilla JS: */
-    top: 30px;
-    left: 30px;
-    padding: 3ch;
-    height: var(--popup-dialog-initial-height);
-    width: var(--popup-dialog-initial-width);
-    resize: both;
-    overflow: auto;
-}
-div#button-menu-container {
+div.astutus-menu {
     padding: 4px 0px 4px 0px;
     border-style: thin;
 }
-div#button-menu-container div {
+div.astutus-menu div {
     padding: 0px 15px 0px 15px;
 }
-
-div#button-menu-container div:hover {
+div.astutus-menu div:hover {
     background-color: var(--read-the-docs-accent-color);
 }
-div#button-menu-container div a:hover {
+div.astutus-menu div:hover  a {
     color: var(--read-the-docs-background-color);
 }

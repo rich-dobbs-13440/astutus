@@ -145,16 +145,18 @@ function onTreeButtonClick(button) {
     }
     current_button_data = data;
     current_button = button;
-    placeAndDisplayContainer(button, "#button-menu-container")
+    placeAndDisplayContainer(button, "#button-menu")
 }
 
 function handleDisplayWorkWithDeviceForm() {
     handleButtonMenuHide()
-    alert("Ya got to handleDisplayWorkWithDeviceForm")
+    console.log(current_button_data)
+    alert("Ya got to handleDisplayWorkWithDeviceForm: " + current_button_data['nodepath'])
+
 }
 
 function handleButtonMenuHide() {
-    var container = document.querySelector("#button-menu-container");
+    var container = document.querySelector("#button-menu");
     container.style.display = "none";
 }
 

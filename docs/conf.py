@@ -64,8 +64,7 @@ nitpick_ignore = [
 
 # These definition(s) are added to the top of every page - used in progress lists
 
-start_block = "{"
-end_block = "}"
+
 rst_prolog = f"""
 
 .. |in_progress| raw:: html
