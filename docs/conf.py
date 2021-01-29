@@ -11,6 +11,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import datetime
+import pytz
 import sys
 sys.path.insert(0, os.path.abspath('../src'))
 import astutus  # noqa
@@ -24,7 +26,11 @@ author = 'Rich Dobbs'
 
 # The full version, including alpha/beta/rc tags
 version = astutus.__version__
-release = version + "a2021.01.14.22.19"
+utcmoment = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+denvernow = utcmoment.astimezone(pytz.timezone('America/Denver'))
+timestamp_number = denvernow.strftime("%Y.%m.%d.%H.%M")
+
+release = version + "rc" + timestamp_number
 
 
 # -- General configuration ---------------------------------------------------
@@ -57,7 +63,10 @@ nitpick_ignore = [
 ]
 
 # These definition(s) are added to the top of every page - used in progress lists
-rst_prolog = """
+
+start_block = "{"
+end_block = "}"
+rst_prolog = f"""
 
 .. |in_progress| raw:: html
 
@@ -74,6 +83,15 @@ rst_prolog = """
 .. |dropped| raw:: html
 
     <span style="background-color: light-gray">🗴</span>
+
+.. |flush_cache_on_release_change| raw:: html
+
+    <script>
+       if ("{release}" != localStorage.getItem("release")) {start_block}
+           localStorage.setItem("release", "{release}");
+           localStorage.clear();
+       {end_block}
+    </script>
 
 """
 # <input checked=""  disabled="" type="checkbox" style="cursor: default">
