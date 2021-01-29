@@ -1,34 +1,25 @@
-function handleAliasAddForm(placementElement, data) {
-
-    var nodePathElement = document.querySelector("#nodepath");
-    nodePathElement.value = data["nodepath"];
-    templateElement = document.querySelector("#template");
-    templateElement.value = data["alias_description_template"];
-    var color = data["alias_color"];
-    if (color != "") {
-        colorElement = document.querySelector("#color");
-        colorElement.value = color;
+function onBackgroundColorChange(colorInput) {
+    const color = colorInput.value
+    const treeHtmlNodes = document.querySelectorAll('.astutus-tree-html');
+    treeHtmlNodes.forEach(element => {
+        element.style.background = color;
+      });
+    data = {
+        "background-color": color
     }
 
-    var rect = placementElement.getBoundingClientRect();
-    var container = document.querySelector("#add-alias-form-container");
-    container.style.top = `${rect.top + window.scrollY + 30}px`;
-    container.style.left = `${rect.left + window.scrollX + 30}px`;
-
-    updatePlaceholderTable('#alias-placeholder-table', data);
-
-    container.style.display = "block";
-
-    if (!isElementInViewport(container)) {
-      // Form will be below button
-      console.log("Scrolling element into view.")
-      container.scrollIntoView(false);
-    }
-}
-
-function handleAddAliasFormCancel() {
-    var container = document.querySelector("#add-alias-form-container");
-    container.style.display = "none";
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            // Nothing needed
+        } else {
+            console.log('Updating color failed.  xhr:', xhr);
+            alert('Updating color failed.  xhr:' + xhr)
+        }
+    };
+    xhr.open('PATCH', '/astutus/app/usb/settings');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify(data));
 }
 
 function isElementInViewport(el) {
@@ -56,28 +47,23 @@ function toggleVisibility(checkbox, cssClass, displayValue) {
     });
 }
 
-function onBackgroundColorChange(colorInput) {
-    const color = colorInput.value
-    const treeHtmlNodes = document.querySelectorAll('.astutus-tree-html');
-    treeHtmlNodes.forEach(element => {
-        element.style.background = color;
-      });
-    data = {
-        "background-color": color
-    }
+function handleAliasAddForm(placementElement, data) {
 
-    const xhr = new XMLHttpRequest();
-    xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-            // Nothing needed
-        } else {
-            console.log('Updating color failed.  xhr:', xhr);
-            alert('Updating color failed.  xhr:' + xhr)
-        }
-    };
-    xhr.open('PATCH', '/astutus/app/usb/settings');
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.send(JSON.stringify(data));
+    var nodePathElement = document.querySelector("#nodepath");
+    nodePathElement.value = data["nodepath"];
+    templateElement = document.querySelector("#template");
+    templateElement.value = data["alias_description_template"];
+    var color = data["alias_color"];
+    if (color != "") {
+        colorElement = document.querySelector("#color");
+        colorElement.value = color;
+    }
+    updatePlaceholderTable('#alias-placeholder-table', data);
+}
+
+function handleAddAliasFormCancel() {
+    var container = document.querySelector("#add-alias-form-container");
+    container.style.display = "none";
 }
 
 function getSortedKeys(obj) {
@@ -135,6 +121,8 @@ function handleInsertButtonClick(value) {
     templateElement.selectionEnd = currentInsert
 }
 
+
+
 function onTreeButtonClick(button) {
     data = {};
     nodedata = JSON.parse(button.dataset['nodedata']);
@@ -150,8 +138,29 @@ function onTreeButtonClick(button) {
         deviceInfo = JSON.parse()
         Object.assign(data, deviceInfo);
     }
+    // Show menu
+    // handleButtonMenu(button, data);
+
+    placeAndDisplayContainer(button, "#add-alias-form-container")
     handleAliasAddForm(button, data);
 }
+
+function placeAndDisplayContainer(placementElement, containerId) {
+
+    var rect = placementElement.getBoundingClientRect();
+    var container = document.querySelector(containerId);
+    container.style.top = `${rect.top + window.scrollY + 30}px`;
+    container.style.left = `${rect.left + window.scrollX + 30}px`;
+
+    container.style.display = "block";
+
+    if (!isElementInViewport(container)) {
+        // Container will be below button
+        console.log("Scrolling element into view.")
+        container.scrollIntoView(false);
+    }
+}
+
 
 function updateNodeData(button, buttonData) {
     // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
@@ -225,7 +234,7 @@ function updateButtonData(button) {
 
 function updateDescription(buttonIdx) {
     // Start with the first button, and eventually process all buttons asynchronously.
-    updateButtonData(buttons[buttonIdx])
+    updateButtonData(buttons[buttonIdx]);
 }
 
 var nodePathByDirPath = {}
