@@ -1,4 +1,6 @@
 :root {
+    --popup-dialog-initial-height: 405px;
+    --popup-dialog-initial-width: 900px;
     --alias-editor-height: 170px;
     --placeholder-instructions-height: 30px;
     --other-height: 20px;
@@ -75,3 +77,13 @@
     margin-bottom: 2px;
     margin-top: 2px
   }
+  div#add-alias-form-container {
+    /* Specify top and left to give units for vanilla JS: */
+    top: 30px;
+    left: 30px;
+    padding: 3ch;
+    height: var(--popup-dialog-initial-height);
+    width: var(--popup-dialog-initial-width);
+    resize: both;
+    overflow: auto;
+}

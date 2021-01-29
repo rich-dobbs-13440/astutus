@@ -22,3 +22,6 @@ Introduction
    app/index
    doc/index
 
+The  full version of this application is: |release|.
+
+|flush_cache_on_release_change|

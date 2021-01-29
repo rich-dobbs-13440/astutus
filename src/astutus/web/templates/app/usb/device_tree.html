@@ -70,7 +70,17 @@
     </div>
   </div>
 </div>
-
+<div id="button-menu" class="astutus-popup astutus-menu">
+  <div>
+    <a onclick="handleDisplayAliasAddForm()">Edit alias...</a>
+  </div>
+  <div>
+    <a onclick="handleDisplayWorkWithDeviceForm()">Work with device...</a>
+  </div>
+  <div>
+    <a onclick="handleButtonMenuHide()">Cancel</a>
+  </div>
+</div>
 {% if aliases_javascript is not none %}
 {{ aliases_javascript | safe }}
 {% endif %}

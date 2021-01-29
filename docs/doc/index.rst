@@ -21,4 +21,4 @@ Indices and tables
 * :ref:`search`
 
 
-This documentation for |release| was produced at sometime on |today|.
+|flush_cache_on_release_change|

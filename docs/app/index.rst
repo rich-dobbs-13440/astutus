@@ -18,6 +18,9 @@ development planning and execution.
     log/index
 
 
+|flush_cache_on_release_change|
+
+
 .. astutus_dyn_link:: /astutus/app/index.html
 
 .. astutus_dyn_bookmark:: Astutus Dynamic Pages - /astutus/app
