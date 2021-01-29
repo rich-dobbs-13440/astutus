@@ -21,3 +21,4 @@ Indices and tables
 * :ref:`search`
 
 
+|flush_cache_on_release_change|
