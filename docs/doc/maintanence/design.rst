@@ -70,7 +70,7 @@ The following functions are associated with the Add Alias form:
 
 .. code-block:: javascript
 
-    function handleAliasAddForm(placementElement, data)
+    function handleAliasAddForm()
 
     function handleAddAliasFormCancel()
 

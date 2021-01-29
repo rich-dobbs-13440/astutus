@@ -47,7 +47,11 @@ function toggleVisibility(checkbox, cssClass, displayValue) {
     });
 }
 
-function handleAliasAddForm(placementElement, data) {
+function handleDisplayAliasAddForm() {
+
+    handleButtonMenuHide()
+    data = current_button_data;
+    placeAndDisplayContainer(current_button, "#add-alias-form-container")
 
     var nodePathElement = document.querySelector("#nodepath");
     nodePathElement.value = data["nodepath"];
@@ -121,6 +125,7 @@ function handleInsertButtonClick(value) {
     templateElement.selectionEnd = currentInsert
 }
 
+var current_button_data;
 
 
 function onTreeButtonClick(button) {
@@ -138,11 +143,19 @@ function onTreeButtonClick(button) {
         deviceInfo = JSON.parse()
         Object.assign(data, deviceInfo);
     }
-    // Show menu
-    // handleButtonMenu(button, data);
+    current_button_data = data;
+    current_button = button;
+    placeAndDisplayContainer(button, "#button-menu-container")
+}
 
-    placeAndDisplayContainer(button, "#add-alias-form-container")
-    handleAliasAddForm(button, data);
+function handleDisplayWorkWithDeviceForm() {
+    handleButtonMenuHide()
+    alert("Ya got to handleDisplayWorkWithDeviceForm")
+}
+
+function handleButtonMenuHide() {
+    var container = document.querySelector("#button-menu-container");
+    container.style.display = "none";
 }
 
 function placeAndDisplayContainer(placementElement, containerId) {
