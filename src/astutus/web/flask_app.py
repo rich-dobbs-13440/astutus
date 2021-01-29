@@ -45,6 +45,7 @@ def create_app_and_db():
         app = flask.Flask('astutus.web.flask_app', template_folder='templates')
         app.config["SQLALCHEMY_DATABASE_URI"] = astutus.db.get_url()
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 300  # seconds - 5 minutes
         db = astutus.db.get_instance()
         db.init_app(app)
         with app.app_context():

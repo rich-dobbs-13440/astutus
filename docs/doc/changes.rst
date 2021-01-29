@@ -43,15 +43,18 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * Add a progress list directive.
+  * Task: Flush browsers site cache when a new version of application is used.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
-  * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
-  * Task: Mark relay tests as slow.
+  * Task: I can control SMAKN relay via web interface.
   * Task: Get color sensor working on RPi.
-  * Task: Update semantic patch version for merge to master.
   * Task: Write test with relays controlling lights and monitored by color sensor.
   * Task: Some tests of USB devices that are independent of current /sys/devices structure.
+  * Task: Mark relay tests as slow.
+  * Story: I can use Raspi as a controller and sensor via web interface.
+  * Task: Update semantic patch version for merge to master.
+  * Add a progress list directive.
+  * Task: Fetch Wheels from Internet from Flask App - At least for same platform.
   * Epic: Get repository good enough to be publically visible.
 
 
@@ -161,3 +164,5 @@ Done:
   * |done| 2020-12-28 13:06 Story: As a developer, the database is operational in the Flask App.
   * |done| 2020-12-27 21:42 Story: As a developer, I have instructions on how to build the package.
   * |done| 2020-12-27 10:50 Use selector searches to allow relay test to work after rebooting.
+
+|flush_cache_on_release_change|

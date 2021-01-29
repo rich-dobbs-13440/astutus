@@ -201,3 +201,18 @@ between the preview and the Astutus Sphinx Extension.
   Handler  for event 'build-finished' threw an exception (exception: [Errno 17] File exists: '/home/rich/src/github.com/rich-dobbs-13440/astutus/docs/_build/astutus_dyn_styled_templates')
 
 Probably need to turn off execution of the post processing when the build is triggered by the preview.
+
+
+Flushing browser cache
+----------------------
+
+This approach didn't flush the entire cache. It seemed to be for the entirie site.
+
+.. code-block:: javascript
+    <script>
+       if ("{release}" != localStorage.getItem("release")) {start_block}
+           localStorage.setItem("release", "{release}");
+           localStorage.clear();
+           alert("localStorage cleared!")
+       {end_block}
+    </script>
