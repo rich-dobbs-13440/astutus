@@ -91,8 +91,6 @@ rst_prolog = f"""
     </script>
 
 """
-# <input checked=""  disabled="" type="checkbox" style="cursor: default">
-# <input checked disabled type="radio" style="cursor: default">
 
 # -- Options for HTML output -------------------------------------------------
 
