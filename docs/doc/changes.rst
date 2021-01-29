@@ -43,6 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * Task: Flush browsers site cache when a new version of application is used.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
   * Task: I can control SMAKN relay via web interface.
@@ -69,7 +70,6 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
-  * |newly_done| 2021-01-29 02:03 Task: Flush browsers site cache when a new version of application is used.
   * |newly_done| 2021-01-28 13:58 Task: Test out current PyPI release to see how it works, and identify issues.
   * |newly_done| 2021-01-28 13:58 Story Improve Application of Continuous Integration / Continuous Deployment.
   * |newly_done| 2021-01-28 13:56 Task: Add classifiers to setup for better PyPI searchs.

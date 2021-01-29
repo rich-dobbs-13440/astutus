@@ -87,10 +87,7 @@ rst_prolog = f"""
 .. |flush_cache_on_release_change| raw:: html
 
     <script>
-       if ("{release}" != localStorage.getItem("release")) {start_block}
-           localStorage.setItem("release", "{release}");
-           localStorage.clear();
-       {end_block}
+    // Not implemented yet, but should use: "{release}"
     </script>
 
 """
