@@ -40,7 +40,7 @@ def get_config_items_list():
     device_configurations = astutus.usb.DeviceConfigurations()
     items_list = []
     for config in device_configurations.items():
-        items_list.append({'value': config['id'], 'link_text': config['name']})
+        items_list.append({'value': config.idx, 'link_text': config.name})
     return items_list
 
 
@@ -58,7 +58,7 @@ def handle_usb():
             links=links)
 
 
-def item_to_html(item, device_info_map):
+def item_to_html(item, pci_device_info_map):
     if isinstance(item, str):
         return [item]
     elif isinstance(item, dict):
@@ -68,7 +68,7 @@ def item_to_html(item, device_info_map):
                 lines.append('<ul>')
                 for child in item['children']:
                     lines.append('<li>')
-                    lines.extend(item_to_html(child, device_info_map))
+                    lines.extend(item_to_html(child, pci_device_info_map))
                     lines.append('</li>')
                 lines.append('</ul>')
             elif key == 'data':
@@ -77,25 +77,25 @@ def item_to_html(item, device_info_map):
                 dirpath = value['data']['dirpath']
                 dirname = value['data']['dirname']
                 maybe_slot = dirname[5:]
-                device_info = device_info_map.get(maybe_slot)
-                if device_info is not None:
-                    data_info = f' data-info="{device_info}"'
+                pci_device_info = pci_device_info_map.get(maybe_slot)
+                if pci_device_info is not None:
+                    data_pci = f' data-pci="{pci_device_info}"'
                 else:
-                    data_info = ""
+                    data_pci = ""
                 button_class = 'class="astutus-tree-item-button"'
-                lines.append(f'<button data-dirpath="{dirpath}" {button_class}{data_info}>{dirname}</button>')
+                lines.append(f'<button data-dirpath="{dirpath}" {button_class}{data_pci}>{dirname}</button>')
                 lines.append('<span></span>')
-                lines.extend(item_to_html(value, device_info_map))
+                lines.extend(item_to_html(value, pci_device_info_map))
         return lines
     elif isinstance(item, list):
         assert False, item
     assert False, type(item)
 
 
-def tree_to_html(tree_dict, device_info_map):
+def tree_to_html(tree_dict, pci_device_info_map):
     lines = []
     lines.append('<ul class="ast"><li>')
-    lines.extend(item_to_html(tree_dict, device_info_map))
+    lines.extend(item_to_html(tree_dict, pci_device_info_map))
     lines.append('</li></ul>')
     return '\n' + '\n'.join(lines)
 
@@ -155,18 +155,18 @@ def handle_device_tree_item(path):
         }
         return data, HTTPStatus.OK
     request_data = flask.request.get_json(force=True)
-    device_info_arg = request_data.get('info')
-    logger.debug(f'device_info_arg: {device_info_arg}')
+    pci_device_info_arg = request_data.get('pciDeviceInfo')
+    logger.debug(f'pci_device_info_arg: {pci_device_info_arg}')
     if path == 'devices/pci0000:00':
-        device_info = None
+        pci_device_info = None
         ilk = "other"
-    elif device_info_arg == "Nothing!":
-        device_info = None
+    elif pci_device_info_arg == "Nothing!":
+        pci_device_info = None
         ilk = "usb"
     else:
-        device_info = json.loads(device_info_arg.replace("'", '"'))
+        pci_device_info = json.loads(pci_device_info_arg.replace("'", '"'))
         ilk = "pci"
-    data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path, device_info)
+    data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path, pci_device_info)
     data_for_return = {
         'data_for_dir': data,
     }
@@ -178,12 +178,12 @@ def handle_usb_device():
     if flask.request.method == 'GET':
         begin = datetime.now()
         logger.info("Start device tree data creation")
-        device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
-        logger.debug(f"device_info_map: {device_info_map}")
+        pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
+        logger.debug(f"pci_device_info_map: {pci_device_info_map}")
         device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
         device_configurations = astutus.usb.DeviceConfigurations()
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
-        bare_tree_html = tree_to_html(bare_tree_dict, device_info_map)
+        bare_tree_html = tree_to_html(bare_tree_dict, pci_device_info_map)
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         background_color = astutus.util.get_setting('/astutus/app/usb/settings', 'background_color', "#fcfcfc")
         delta = datetime.now() - begin
@@ -206,8 +206,12 @@ def handle_usb_device():
             logger.debug(f"template: {template}")
             color = form.get('color')
             logger.debug(f"color: {color}")
+            name = form.get('name')
+            if name is None:
+                name = nodepath
             aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
             aliases[nodepath] = {
+                "name": name,
                 "color": f"{color}",
                 "description_template": f"{template}",
                 "order": "00",
@@ -235,7 +239,6 @@ def handle_usb_alias_item(nodepath):
             'id': nodepath,
         }
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-
         alias = aliases.get(nodepath)
         if alias is not None:
             return flask.render_template(
@@ -286,6 +289,7 @@ def handle_usb_alias_item(nodepath):
 def handle_usb_configuration():
     if flask.request.method == 'GET':
         device_configurations = astutus.usb.DeviceConfigurations()
+        logger.debug(f"device_configurations: {device_configurations}")
         return flask.render_template(
             'app/usb/styled_device_id.html',
             device_configurations=device_configurations,
@@ -322,9 +326,59 @@ def handle_usb_settings():
 @usb_page.route('/astutus/app/usb/device/<path:nodepath>/index.html', methods=['GET'])
 def handle_usb_device_item(nodepath):
     if flask.request.method == 'GET':
+
+        sys_devices_path = flask.request.args.get('sys_device_path')
+        sys_devices_path += '/'  # to pick up last element
+        device_paths = []
+        idx = 5
+        while idx > 0:
+            idx = sys_devices_path.find('/', idx + 1)
+            if idx > 0:
+                device_paths.append(sys_devices_path[:idx])
+        logger.debug(f"device_paths: {device_paths}")
+        node_data_searcher = astutus.usb.NodeDataSearcher()
+        node_data_list = []
+        for device_path in device_paths:
+            node_data_list.append(node_data_searcher.get_node_data(device_path))
+
+        # dirname_list = [dirname for dirname in sys_devices_path.replace('/sys/', '').split('/')]
+
+        # logger.debug(f"dirname_list {dirname_list}")
+
+        # pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
+
+        # device_configurations = astutus.usb.DeviceConfigurations()
+        # aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
+        # for key, alias in aliases.items():
+        #     if alias.get('name') is None:
+        #         alias['name'] = alias['pattern']
+        #         aliases[key] = alias
+        # device_id_list = []
+        # alias_list = []
+        # node_data_list = []
+        # nodepath_for_node = ""
+        # sys_devices_path_for_node = "/sys"
+        # idx = 0
+        # for nodeid in nodepath.split('/'):
+        #     ilk, _ = nodeid.split('(')
+        #     if nodepath_for_node != '':
+        #         nodepath_for_node += '/'
+        #     nodepath_for_node += nodeid
+        #     device_id = device_configurations.get_item_from_nodeid(nodeid)
+        #     device_id_list.append(device_id)
+        #     alias = aliases.find_highest_priority(nodepath_for_node)
+        #     alias_list.append(alias)
+        #     dirname = dirname_list[idx]
+        #     sys_devices_path_for_node += '/' + dirname
+        #     idx += 1
+        #     logger.debug(f"nodeid: {nodeid} - dirname: {dirname}")
+        #     # TODO: Use map to look up pci_device_info
+        #     pci_device_info = astutus.util.pci.get_device_info_from_dirname(pci_device_info_map, dirname)
+        #     data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path_for_node, pci_device_info)
+        #     node_data = astutus.usb.tree.get_node_data(data, device_id, alias)
+        #     node_data_list.append(node_data)
         return flask.render_template(
-            'app/usb/device/nodepath/styled_index.html')
-        #     item=item,
-        #     nodepath=nodepath,
-        #     alias=alias,
-        #     nodepath_item_list=get_alias_path_item_list())
+            'app/usb/device/nodepath/styled_index.html',
+            device_id_list=[],
+            alias_list=[],
+            node_data_list=node_data_list)

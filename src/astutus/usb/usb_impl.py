@@ -140,6 +140,16 @@ def extract_specified_data(dirpath: str, filenames: List[str]) -> Dict:
     return data
 
 
+def find_ilk_for_dirpath(dirpath):
+    _, dirnames, filenames = next(os.walk(dirpath))
+    if "busnum" in filenames and "devnum" in filenames:
+        return "usb"
+    elif "vendor" in filenames and "device" in filenames:
+        return "pci"
+    else:
+        return "other"
+
+
 USB_KEY_ATTRIBUTES = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
 
 PCI_KEY_ATTRIBUTES = ['vendor', 'device', 'class']

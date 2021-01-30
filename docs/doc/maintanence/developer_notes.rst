@@ -91,7 +91,7 @@ need to disable things within pytest.
 
 Here is the current status of the build:
 
-.. code-block:: console:
+.. code-block:: console
 
   Run cd pytests; pytest
   ============================= test session starts ==============================
@@ -209,10 +209,9 @@ Flushing browser cache
 This approach didn't flush the entire cache. It seemed to be for the entirie site.
 
 .. code-block:: javascript
-    <script>
-       if ("{release}" != localStorage.getItem("release")) {start_block}
-           localStorage.setItem("release", "{release}");
-           localStorage.clear();
-           alert("localStorage cleared!")
-       {end_block}
-    </script>
+
+  if ("{release}" != localStorage.getItem("release")) {
+      localStorage.setItem("release", "{release}");
+      localStorage.clear();
+      alert("localStorage cleared!")
+  }

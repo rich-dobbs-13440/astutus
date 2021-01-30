@@ -53,6 +53,8 @@ function handleDisplayAliasAddForm() {
     data = current_button_data;
     placeAndDisplayContainer(current_button, "#add-alias-form-container")
 
+    var aliasNameElement = document.querySelector("#name");
+    aliasNameElement.value = data["alias_name"];
     var nodePathElement = document.querySelector("#nodepath");
     nodePathElement.value = data["nodepath"];
     templateElement = document.querySelector("#template");
@@ -75,6 +77,25 @@ function getSortedKeys(obj) {
     return keys.sort();
 }
 
+function do_include_in_placeholder_table(key) {
+    if (key == 'idx') {
+        return false;
+    }
+    if (key == 'idx') {
+        return false;
+    }
+    if (key.startsWith('alias_')) {
+        return false;
+    }
+    if (key.startsWith('resolved_')) {
+        return false;
+    }
+    if (key.startsWith('terminal_')) {
+        return false;
+    }
+    return true;
+}
+
 function updatePlaceholderTable(table_id, data) {
     const tableElement = document.querySelector(table_id);
     var dataKeys = getSortedKeys(data);
@@ -85,7 +106,7 @@ function updatePlaceholderTable(table_id, data) {
     lines = [];
     for (idx = 0; idx < dataKeys.length; idx++) {
         key = dataKeys[idx];
-        if (key != 'idx') {
+        if (do_include_in_placeholder_table(key)) {
             value = data[key];
             placeholder = `{${key}}`
             tdPlaceholder = `<td><div class="astutus-placeholder">${placeholder}</div></td>`;
@@ -135,13 +156,13 @@ function onTreeButtonClick(button) {
     dataForDir = JSON.parse(button.dataset['data_for_dir']);
     Object.assign(data, dataForDir);
     data["nodepath"] = button.dataset['nodepath'];
-    // Currently button.dataset['info'] uses single quotes, but the JSON parser wants double quotes.
-    info = button.dataset['info']
-    if (info) {
-        info = info.replace("'", '"')
-        console.log('info: ', info)
-        deviceInfo = JSON.parse()
-        Object.assign(data, deviceInfo);
+    // Currently button.dataset['pci'] uses single quotes, but the JSON parser wants double quotes.
+    pciDeviceText = button.dataset['pci']
+    if (pciDeviceText) {
+        pciDeviceText = pciDeviceText.replace(/'/g, '"')
+        console.log('pciDeviceText: ', pciDeviceText)
+        pciDeviceInfo = JSON.parse(pciDeviceText)
+        Object.assign(data, pciDeviceInfo);
     }
     current_button_data = data;
     current_button = button;
@@ -149,7 +170,9 @@ function onTreeButtonClick(button) {
 }
 
 function HandleWorkWithDevice() {
-    workWithUrl = '/astutus/app/usb/device/' + current_button_data['nodepath'] + '/index.html'
+    console.log(current_button_data)
+    workWithUrl = '/astutus/app/usb/device/' + current_button_data['nodepath'] +
+        '/index.html?sys_device_path=' + current_button_data['dirpath'];
     window.location.replace(workWithUrl);
 }
 
@@ -207,14 +230,18 @@ function updateNodeData(button, buttonData) {
 }
 
 function updateButtonData(button) {
+    if (button == undefined) {
+        // All done!
+        return;
+    }
     var dirpath = button.dataset['dirpath'];
     console.log("dirpath: ", dirpath)
-    var deviceInfo = button.dataset['info'];
-    if (deviceInfo == undefined) {
-        deviceInfo = "Nothing!"
+    var pciDeviceInfo = button.dataset['pci'];
+    if (pciDeviceInfo == undefined) {
+        pciDeviceInfo = "Nothing!"
     }
     data = {
-        'info': deviceInfo,
+        'pciDeviceInfo': pciDeviceInfo,
     };
     const xhr = new XMLHttpRequest();
     xhr.onload = () => {
@@ -233,7 +260,9 @@ function updateButtonData(button) {
             nodePathByDirPath[data_for_dir["dirpath"]] = nodePath;
             button.dataset['nodepath'] = nodePath;
             buttonIdx++;
-            updateButtonData(buttons[buttonIdx]);
+            if (buttonIdx < buttons.length) {
+                updateButtonData(buttons[buttonIdx]);
+            }
             updateNodeData(button, data_for_dir);
         } else {
             console.log('Failure in updateNodeData.  xhr:', xhr);

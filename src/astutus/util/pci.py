@@ -1,6 +1,11 @@
 import astutus.util.util_impl
 
 
+def get_device_info_from_dirname(device_info_map, dirname):
+    slot = dirname[5:]
+    return device_info_map.get(slot)
+
+
 def get_slot_to_device_info_map_from_lspci(*, command_runner=None) -> dict:
     """ Find PCI information by running the lspci command and parsing the output.
 

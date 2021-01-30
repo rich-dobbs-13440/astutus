@@ -29,14 +29,14 @@ def key_by_node_data_key(node):
     return node.data.key()
 
 
-def get_data_for_dirpath(ilk, dirpath, device_info):
+def get_data_for_dirpath(ilk, dirpath, pci_device_info):
     if ilk == 'usb':
         data = astutus.usb.node.UsbDeviceNodeData.extract_data(dirpath)
         assert data.get('dirpath') is not None, data
     elif ilk == 'pci':
         data = astutus.usb.node.PciDeviceNodeData.extract_data(dirpath)
-        if device_info is not None:
-            data.update(device_info)
+        if pci_device_info is not None:
+            data.update(pci_device_info)
         assert data.get('dirpath') is not None, data
     else:
         _, dirname = dirpath.rsplit("/", 1)

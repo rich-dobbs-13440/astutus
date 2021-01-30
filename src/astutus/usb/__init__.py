@@ -53,7 +53,8 @@ from astutus.usb.device_aliases import DeviceAliases  # noqa
 from astutus.usb.lcus_1_usb_relay import UsbRelayLcus1  # noqa
 from astutus.usb.device_configurations import DeviceConfigurations  # noqa
 from astutus.usb.device_configurations import DeviceConfiguration  # noqa
-#from astutus.usb.tree import print_tree  # noqa
+from astutus.usb.node_data import NodeDataSearcher  # noqa
+
 from astutus.usb.node import node_id_for_dirpath  # noqa
 from astutus.usb.tree import UsbDeviceTree  # noqa
 from astutus.usb.usb_impl import find_busnum_and_devnum_for_sym_link  # noqa

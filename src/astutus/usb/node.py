@@ -1,5 +1,6 @@
 import logging
 import re
+import copy
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
@@ -27,15 +28,21 @@ class DeviceNode(dict):
         idx = idx.replace('-', '_D_')
         data['idx'] = idx
         assert dirpath is not None, data
-        data['config_description'] = config.generate_description(dirpath, data)
-        data['config_color'] = config.get_color(dirpath)
+        if config is not None:
+            data['config_description'] = config.generate_description(dirpath, data)
+            data['config_color'] = config.get_color(dirpath)
+        else:
+            data['config_description'] = ''
+            data['config_color'] = 'cyan'
         if alias is not None:
+            data['alias_name'] = alias['name']
             data['alias_description_template'] = alias['description_template']
             data['alias_description'] = data['alias_description_template'].format_map(data)
             data['alias_color'] = alias['color']
             data['resolved_description'] = data['alias_description']
             data['resolved_color'] = data['alias_color']
         else:
+            data['alias_name'] = ''
             data['alias_description_template'] = ''
             data['alias_description'] = ''
             data['alias_color'] = ''
@@ -95,6 +102,7 @@ class OtherDeviceNodeData(DeviceNode):
         return data
 
     def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+        data = copy.deepcopy(data)
         assert data.get('dirpath') is not None, data
         data["description"] = data['dirpath']
         super(OtherDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
@@ -116,6 +124,7 @@ class PciDeviceNodeData(DeviceNode):
         return data
 
     def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+        data = copy.deepcopy(data)
         assert data.get('dirpath') is not None, data
         data["description"] = "{Device}"  # f"data: {data}"
         super(PciDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
@@ -137,6 +146,7 @@ class UsbDeviceNodeData(DeviceNode):
         return data
 
     def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+        data = copy.deepcopy(data)
         busnum = int(data['busnum'])
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
