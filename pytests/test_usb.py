@@ -22,16 +22,16 @@ def test_find_dev_tty_for_each_relay():
         logger.warning(f"No tty {tty} found in system at this time")
 
 
-def test_find_tty_from_busnum_and_devnum():
-    tty_original = '/dev/ttyUSB0'
-    busnum, devnum = astutus.usb.find_busnum_and_devnum_for_tty(tty_original)
-    if busnum < 0:
-        msg = f"No tty {tty_original} found in system at this time"
-        logger.warning(msg)
-        pytest.skip(msg)
-    tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
-    logger.info(f"busnum: {busnum} devnum: {devnum} tty: {tty}")
-    assert tty == tty_original
+# def test_find_tty_from_busnum_and_devnum():
+#     tty_original = '/dev/ttyUSB0'
+#     busnum, devnum = astutus.usb.find_busnum_and_devnum_for_tty(tty_original)
+#     if busnum < 0:
+#         msg = f"No tty {tty_original} found in system at this time"
+#         logger.warning(msg)
+#         pytest.skip(msg)
+#     tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+#     logger.info(f"busnum: {busnum} devnum: {devnum} tty: {tty}")
+#     assert tty == tty_original
 
 
 # def test_current_selector():

@@ -203,20 +203,6 @@ class DeviceConfigurations(object):
 
     def get_item(self, key):
         return self.device_map.get(key)
-        # if config is None:
-        #     config = {
-        #         'id': key,
-        #         'name': '???',
-        #         'stylers': []
-        #     }
-        #     return DeviceConfiguration(config)
-        # device_config = DeviceConfiguration(config)
-        # config = {
-        #     'id': key,
-        #     'name': device_config.get_name(),
-        #     'stylers': device_config.get_stylers()
-        # }
-        # return DeviceConfiguration(config)
 
     def get_item_from_nodeid(self, nodeid):
         # At this time configs are not stored using the full node id, so strip off the

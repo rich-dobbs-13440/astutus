@@ -38,12 +38,6 @@ class DeviceNode(dict):
             alias: Dict,
             cls_order: str):  # Should probably migrate cls order to be an int.
         dirpath = data['dirpath']
-        # Sanitize dirpath to an acceptable CSS selector:
-        idx = dirpath.replace(':', '_C_')
-        idx = idx.replace('.', '_P_')
-        idx = idx.replace('/', '_S_')
-        idx = idx.replace('-', '_D_')
-        data['idx'] = idx
         assert dirpath is not None, data
         if config is not None:
             data['config_description'] = config.generate_description(dirpath, data)
@@ -169,7 +163,7 @@ class UsbDeviceNodeData(DeviceNode):
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
         data["description"] = description
         if config is not None and config.find_tty():
-            tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+            tty = astutus.usb.find_tty_from_pci_path(data['dirpath'])
             data['tty'] = tty
         super(UsbDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
 
