@@ -9,6 +9,23 @@ from astutus.usb.device_configurations import DeviceConfiguration
 logger = logging.getLogger(__name__)
 
 
+def robust_format_map(template, data):
+    data = copy.deepcopy(data)
+    max_count = template.count('{')
+    count = 0
+    while True:
+        try:
+            value = template.format_map(data)
+            return value
+        except KeyError as exception:
+            logger.error(f'exception: {exception}')
+            data[exception.args[0]] = f"--{exception.args[0]} missing--"
+            count += 1
+            if count > max_count:
+                # Just a double check to prevent infinite loop in case of coding error'
+                return f'robust_format_map error. template: {template} - data: {data}'
+
+
 class DeviceNode(dict):
     """ Base class for particular device nodes """
 
@@ -37,7 +54,7 @@ class DeviceNode(dict):
         if alias is not None:
             data['alias_name'] = alias['name']
             data['alias_description_template'] = alias['description_template']
-            data['alias_description'] = data['alias_description_template'].format_map(data)
+            data['alias_description'] = robust_format_map(data['alias_description_template'], data)
             data['alias_color'] = alias['color']
             data['resolved_description'] = data['alias_description']
             data['resolved_color'] = data['alias_color']

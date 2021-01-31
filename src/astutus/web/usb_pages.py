@@ -8,7 +8,6 @@ import flask
 import flask.logging
 
 logger = logging.getLogger(__name__)
-logger.addHandler(flask.logging.default_handler)
 
 usb_page = flask.Blueprint('usb', __name__, template_folder='templates')
 
