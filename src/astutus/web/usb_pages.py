@@ -38,15 +38,14 @@ def get_alias_path_item_list():
 @usb_page.route('/astutus/app/usb/index.html', methods=['GET'])
 def handle_usb():
     if flask.request.method == 'GET':
-        links_list = [
-            '<li><p>See <a class="reference internal" href="/astutus/app/usb/device.html"><span class="doc">Devices</span></a></p></li>',  # noqa
-            '<li><p>See <a class="reference internal" href="/astutus/app/usb/alias.html"><span class="doc">Device Aliases</span></a></p></li>',  # noqa
-            '<li><p>See <a class="reference internal" href="/astutus/app/usb/configuration.html"><span class="doc">Device Configurations</span></a></p></li>',  # noqa
-        ]
-        links = "\n".join(links_list)
+        # links_list = [
+        #     '<li><p>See <a class="reference internal" href="/astutus/app/usb/device.html"><span class="doc">Devices</span></a></p></li>',  # noqa
+        #     '<li><p>See <a class="reference internal" href="/astutus/app/usb/alias.html"><span class="doc">Device Aliases</span></a></p></li>',  # noqa
+        #     '<li><p>See <a class="reference internal" href="/astutus/app/usb/configuration.html"><span class="doc">Device Configurations</span></a></p></li>',  # noqa
+        # ]
+        # links = "\n".join(links_list)
         return flask.render_template(
-            'app/usb/styled_index.html',
-            links=links)
+            'app/usb/styled_index.html')
 
 
 def item_to_html(item, pci_device_info_map):
@@ -374,7 +373,5 @@ def handle_usb_device_item(nodepath):
 
         return flask.render_template(
             'app/usb/device/nodepath/styled_index.html',
-            device_id_list=[],
-            alias_list=[],
             device_data_list=device_data_list,
             labels=labels)

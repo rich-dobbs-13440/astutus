@@ -222,6 +222,7 @@ Memcached
 https://www.linuxhowto.info/how-to-install-memcached-on-linux-mint-20/
 
 .. code-block:: console
+
   sudo apt update
   sudo apt install memcached libmemcached-tools
 
