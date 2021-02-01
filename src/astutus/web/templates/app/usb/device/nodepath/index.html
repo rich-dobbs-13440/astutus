@@ -6,14 +6,6 @@
     </pre>
 </div>
 {% endfor %}
-alias_list:
-{% for alias in alias_list%}
-<div>
-<pre>
-{{ alias }}
-</pre>
-</div>
-{% endfor %}
 
 <h3>Device Labels</h3>
 {% for label in labels%}
@@ -22,21 +14,7 @@ alias_list:
 </div>
 {% endfor %}
 
-<h3>item.node_data.html_label</h3>
-{% for item in node_data_list%}
-<div>
-{{ item.node_data.html_label | safe }}
-</div>
-{% endfor %}
-
-<h3>node_data_list</h3>
-{% for node_data in node_data_list%}
-<pre>
-{{ node_data | tojson_pretty }}
-</pre>
-{% endfor %}
-
-device_data_list
+<h3>device_data_list</h3>
 {% for device_data in device_data_list%}
 <pre>
 {{ device_data | tojson_pretty }}

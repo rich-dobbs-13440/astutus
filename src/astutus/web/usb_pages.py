@@ -334,10 +334,6 @@ def handle_usb_device_item(nodepath):
             if idx > 0:
                 device_paths.append(sys_devices_path[:idx])
         logger.debug(f"device_paths: {device_paths}")
-        node_data_searcher = astutus.usb.NodeDataSearcher()
-        node_data_list = []
-        for device_path in device_paths:
-            node_data_list.append(node_data_searcher.get_node_data(device_path))
 
         extra_fields_for_ilk = {
             'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
@@ -414,6 +410,5 @@ def handle_usb_device_item(nodepath):
             'app/usb/device/nodepath/styled_index.html',
             device_id_list=[],
             alias_list=[],
-            node_data_list=node_data_list,
             device_data_list=device_data_list,
             labels=labels)
