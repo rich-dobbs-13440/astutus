@@ -325,7 +325,6 @@ def handle_usb_settings():
 @usb_page.route('/astutus/app/usb/device/<path:nodepath>/index.html', methods=['GET'])
 def handle_usb_device_item(nodepath):
     if flask.request.method == 'GET':
-
         sys_devices_path = flask.request.args.get('sys_device_path')
         sys_devices_path += '/'  # to pick up last element
         device_paths = []
@@ -340,22 +339,81 @@ def handle_usb_device_item(nodepath):
         for device_path in device_paths:
             node_data_list.append(node_data_searcher.get_node_data(device_path))
 
-        extra_field_for_ilk = {
+        extra_fields_for_ilk = {
             'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
             'pci': ['nodepath'],
-            'other': [],
         }
         device_classifier = astutus.usb.DeviceClassifier(expire_seconds=10)
         device_data_list = []
         for device_path in device_paths:
             device_data = device_classifier.get_device_data(device_path)
-            ilk = device_data['ilk']
-            device_data = device_classifier.get_device_data(device_path, extra_field_for_ilk[ilk])
+            extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
+            if extra_fields is not None:
+                device_data = device_classifier.get_device_data(device_path, extra_fields)
             device_data_list.append(device_data)
+
+        extra_fields_for_node_id = {
+            'usb(046d:c52b)': ['logitech_unifying_receiver_input_type'],
+        }
+        for device_path in device_paths:
+            device_data = device_classifier.get_device_data(device_path)
+            extra_fields = extra_fields_for_node_id.get(device_data['node_id'])
+            if extra_fields is not None:
+                device_classifier.get_device_data(device_path, extra_fields)
+        rules = [
+            {
+                'checks': [
+                    {'field': 'ilk', 'equals': 'usb'},
+                    {'field': 'node_id', 'equals': 'usb(1a86:7523)'},
+                    {'field': 'nodepath', 'contains': 'usb(05e3:0610)'},
+                ],
+                'extra_fields': ['tty'],
+                'template': '{color_purple} {vendor} {product_text} {tty} {end_color}'
+            },
+            {
+                'checks': [
+                    {'field': 'ilk', 'equals': 'usb'},
+                    {'field': 'node_id', 'equals': 'usb(1a86:7523)'},
+                ],
+                'extra_fields': ['tty'],
+                'template': '{color_for_usb} {vendor} {product_text} {tty} {end_color}'
+            },
+            {
+                'checks': [{'field': 'ilk', 'equals': 'pci'}],
+                'template': '{color_for_pci} {vendor} {product_text} {end_color}'
+            },
+            {
+                'checks': [{'field': 'ilk', 'equals': 'usb'}],
+                'template': '{color_for_usb} {vendor} {product_text} {end_color}'
+            },
+            {
+                'checks': [{'field': 'ilk', 'equals': 'other'}],
+                'template': '{color_for_other} {node_id} {end_color}'
+            },
+            {
+                'template': '{node_id}'
+            }
+        ]
+        html_formatting_data = {
+            'color_for_usb': '<span style="color:ForestGreen">',
+            'color_for_pci': '<span style="color:DarkOrange">',
+            'color_for_other': '<span style="color:DarkOrange">',
+            'color_purple': '<span style="color:Purple">',
+            'end_color': '</span>'
+        }
+
+        labels = []
+        for device_path in device_paths:
+            device_data = device_classifier.get_device_data(device_path)
+            template = device_classifier.get_template(device_path, rules)
+            label = device_classifier.get_label(device_path, rules, html_formatting_data)
+            augumented_label = f"{device_data['dirname']} {label}  - template: {template}"
+            labels.append(augumented_label)
 
         return flask.render_template(
             'app/usb/device/nodepath/styled_index.html',
             device_id_list=[],
             alias_list=[],
             node_data_list=node_data_list,
-            device_data_list=device_data_list)
+            device_data_list=device_data_list,
+            labels=labels)

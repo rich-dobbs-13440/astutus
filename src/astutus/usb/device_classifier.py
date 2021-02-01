@@ -1,5 +1,6 @@
 import logging
 import re
+import copy
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util.pci
@@ -7,6 +8,29 @@ import pymemcache
 import pymemcache.client.base
 
 logger = logging.getLogger(__name__)
+
+
+# Make this a plain function, to support eventual registration process
+# for custom field searchers
+def get_logitech_unifying_receiver_input_type(dirpath: str, device_data: Dict[str, str]):
+    tests = [
+        {
+            'cmd': 'grep -r . -e "mouse" 2>/dev/null',
+            'value': 'mouse',
+        },
+        {
+            'cmd': 'grep -r . -e "kbd-numlock" 2>/dev/null',
+            'value': 'kbd-numlock',
+            'type': 'keyboard'
+        }
+    ]
+    input_types = []
+    for test in tests:
+        cmd = test.get('cmd')
+        _, stdout, stderr = astutus.util.run_cmd(cmd, cwd=dirpath)
+        if test.get('value') in stdout:
+            input_types.append(test.get('type'))
+    return ','.join(input_types)
 
 
 class DeviceClassifier(object):
@@ -121,6 +145,9 @@ class DeviceClassifier(object):
                 else:
                     parent_device_data = self.get_device_data(device_data['parent_dirpath'], ['nodepath'])
                     device_data['nodepath'] = parent_device_data['nodepath'] + '/' + device_data['node_id']
+            elif field == 'logitech_unifying_receiver_input_type':
+                device_data['logitech_unifying_receiver_input_type'] = get_logitech_unifying_receiver_input_type(
+                    dirpath, device_data)
             else:
                 raise NotImplementedError(f'No method identified for augmenting device date for field {field}')
             changed = True
@@ -130,7 +157,7 @@ class DeviceClassifier(object):
                 self.map_dirpath_to_device_data_key,
                 self.map_dirpath_to_device_data,
                 expire=self.expire_seconds)
-            logger.error("Wrote to cache")
+            logger.error('Wrote to cache')
 
     def augument_from_lsusb(self, device_data: Dict[str, str]) -> None:
         cmd = f"lsusb -s {device_data['busnum']}:{device_data['devnum']} --verbose"
@@ -142,14 +169,83 @@ class DeviceClassifier(object):
             line = line.strip()
             if line.startswith('idVendor'):
                 matches = re.search(r'idVendor\s+\w+\s+([^\n]+)', line)
-                device_data['vendor'] = matches.group(1)
+                if matches:
+                    device_data['vendor'] = matches.group(1)
+                else:
+                    assert False, line
             elif line.startswith('idProduct'):
                 matches = re.search(r'idProduct\s+\w+\s+([^\n]+)', line)
-                device_data['product_text'] = matches.group(1)
+                if matches:
+                    device_data['product_text'] = matches.group(1)
+                else:
+                    assert False, line
             elif line.startswith('bDeviceClass '):
                 matches = re.search(r'bDeviceClass\s+\w+\s+([^\n]+)', line)
-                device_data['device_class'] = matches.group(1)
+                if matches:
+                    device_data['device_class'] = matches.group(1)
+                else:
+                    _, device_data['device_class'] = line.rsplit(' ', 1)
             elif line.startswith('bInterfaceClass '):
                 matches = re.search(r'bInterfaceClass\s+\w+\s+([^\n]+)', line)
-                interface_class_list.append(matches.group(1))
+                if matches:
+                    interface_class_list.append(matches.group(1))
+                else:
+                    assert False, line
         device_data['interface_class_list'] = ','.join(interface_class_list)
+
+    def get_template(self, device_path: str, rules: List[Dict]) -> str:
+        device_data = self.get_device_data(device_path)
+        for rule in rules:
+            if self.rule_applies(rule, device_data):
+                extra_fields = rule.get('extra_fields')
+                if extra_fields is not None:
+                    # Need to augment data before using the this template,
+                    # so do so now.
+                    self.get_device_data(device_path, extra_fields)
+                return rule.get('template')
+        return '-- no rule_applies --'
+
+    @staticmethod
+    def rule_applies(rule, device_data) -> bool:
+        checks = rule.get('checks')
+        if checks is None:
+            return True
+        for check in checks:
+            field = check.get('field')
+            value = device_data.get(field)
+            equals_value = check.get('equals')
+            contains_value = check.get('contains')
+            if equals_value is not None:
+                if value != equals_value:
+                    return False
+            elif contains_value is not None:
+                if contains_value not in value:
+                    return False
+            else:
+                raise NotImplementedError()
+        return True
+
+    def get_label(self, device_path: str, rules: List[Dict], formatting_data: Dict[str, str] = []) -> str:
+        template = self.get_template(device_path, rules)
+        device_data = self.get_device_data(device_path)
+        label = self.robust_format_map(template, device_data, formatting_data)
+        return label
+
+    @staticmethod
+    def robust_format_map(template: str, device_data: Dict[str, str], formatting_data: Dict[str, str]):
+        data = copy.deepcopy(device_data)
+        data.update(formatting_data)
+        data
+        max_count = template.count('{')
+        count = 0
+        while True:
+            try:
+                value = template.format_map(data)
+                return value
+            except KeyError as exception:
+                logger.error(f'exception: {exception}')
+                data[exception.args[0]] = f"--{exception.args[0]} missing--"
+                count += 1
+                if count > max_count:
+                    # Just a double check to prevent infinite loop in case of coding error'
+                    return f'robust_format_map error. template: {template} - data: {data}'
