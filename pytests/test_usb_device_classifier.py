@@ -1,6 +1,7 @@
 import json
 import logging
 
+import pytest
 from astutus.usb import DeviceClassifier
 
 logger = logging.getLogger(__name__)
@@ -12,6 +13,7 @@ def test_instantiation():
     assert deviceClassifier is not None
 
 
+@pytest.mark.skip(reason="Need faking technique")
 def test_get_ilk():
     for i in range(1000):
         deviceClassifier = DeviceClassifier(expire_seconds=10)
@@ -20,6 +22,7 @@ def test_get_ilk():
         assert ilk == 'usb'
 
 
+@pytest.mark.skip(reason="Need faking technique")
 def test_get_device_data_ilk_usb():
     for i in range(1000):
         deviceClassifier = DeviceClassifier(expire_seconds=10)
@@ -30,6 +33,7 @@ def test_get_device_data_ilk_usb():
     logger.error(json.dumps(device_data, indent=2, sort_keys=True))
 
 
+@pytest.mark.skip(reason="Need faking technique")
 def test_get_device_data_ilk_pci():
     for i in range(1000):
         deviceClassifier = DeviceClassifier(expire_seconds=10)
@@ -39,6 +43,7 @@ def test_get_device_data_ilk_pci():
     # logger.error(json.dumps(device_data, indent=2, sort_keys=True))
 
 
+@pytest.mark.skip(reason="Need faking technique")
 def test_get_device_data_ilk_other():
     for i in range(1000):
         deviceClassifier = DeviceClassifier(expire_seconds=10)
@@ -48,6 +53,7 @@ def test_get_device_data_ilk_other():
     # logger.error(json.dumps(device_data, indent=2, sort_keys=True))
 
 
+@pytest.mark.skip(reason="Need faking technique")
 def test_get_device_data_ilk_other_sys():
     for i in range(1000):
         deviceClassifier = DeviceClassifier(expire_seconds=10)
@@ -57,6 +63,7 @@ def test_get_device_data_ilk_other_sys():
     # logger.error(json.dumps(device_data, indent=2, sort_keys=True))
 
 
+@pytest.mark.skip(reason="Need faking technique")
 def test_get_device_data_ilk_other_sys_nodepath():
     for i in range(1000):
         deviceClassifier = DeviceClassifier(expire_seconds=10)
@@ -66,6 +73,7 @@ def test_get_device_data_ilk_other_sys_nodepath():
     # logger.error(json.dumps(device_data, indent=2, sort_keys=True))
 
 
+@pytest.mark.skip(reason="Need faking technique")
 def test_get_device_data_ilk_usb_augment():
     for i in range(1000):
         deviceClassifier = DeviceClassifier(expire_seconds=30)
