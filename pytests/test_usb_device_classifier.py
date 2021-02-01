@@ -7,8 +7,8 @@ from astutus.usb import DeviceClassifier
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.skip(reason="Need to install memcached")
 def test_instantiation():
-
     deviceClassifier = DeviceClassifier(expire_seconds=5)
     assert deviceClassifier is not None
 
