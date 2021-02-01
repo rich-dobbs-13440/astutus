@@ -2,7 +2,7 @@
 
 {% if aliases | length > 1 %}
     <h2>Items</h2>
-    {% for key, alias in aliases.items() | sort(attribute='1.name') %}
+    {% for key, alias in aliases.items() %}
         <div>
             <table>
                 <tr>

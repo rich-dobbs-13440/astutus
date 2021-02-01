@@ -1,11 +1,29 @@
 import logging
 import re
+import copy
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
 from astutus.usb.device_configurations import DeviceConfiguration
 
 logger = logging.getLogger(__name__)
+
+
+def robust_format_map(template, data):
+    data = copy.deepcopy(data)
+    max_count = template.count('{')
+    count = 0
+    while True:
+        try:
+            value = template.format_map(data)
+            return value
+        except KeyError as exception:
+            logger.error(f'exception: {exception}')
+            data[exception.args[0]] = f"--{exception.args[0]} missing--"
+            count += 1
+            if count > max_count:
+                # Just a double check to prevent infinite loop in case of coding error'
+                return f'robust_format_map error. template: {template} - data: {data}'
 
 
 class DeviceNode(dict):
@@ -20,22 +38,22 @@ class DeviceNode(dict):
             alias: Dict,
             cls_order: str):  # Should probably migrate cls order to be an int.
         dirpath = data['dirpath']
-        # Sanitize dirpath to an acceptable CSS selector:
-        idx = dirpath.replace(':', '_C_')
-        idx = idx.replace('.', '_P_')
-        idx = idx.replace('/', '_S_')
-        idx = idx.replace('-', '_D_')
-        data['idx'] = idx
         assert dirpath is not None, data
-        data['config_description'] = config.generate_description(dirpath, data)
-        data['config_color'] = config.get_color(dirpath)
+        if config is not None:
+            data['config_description'] = config.generate_description(dirpath, data)
+            data['config_color'] = config.get_color(dirpath)
+        else:
+            data['config_description'] = ''
+            data['config_color'] = 'cyan'
         if alias is not None:
+            data['alias_name'] = alias['name']
             data['alias_description_template'] = alias['description_template']
-            data['alias_description'] = data['alias_description_template'].format_map(data)
+            data['alias_description'] = robust_format_map(data['alias_description_template'], data)
             data['alias_color'] = alias['color']
             data['resolved_description'] = data['alias_description']
             data['resolved_color'] = data['alias_color']
         else:
+            data['alias_name'] = ''
             data['alias_description_template'] = ''
             data['alias_description'] = ''
             data['alias_color'] = ''
@@ -95,6 +113,7 @@ class OtherDeviceNodeData(DeviceNode):
         return data
 
     def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+        data = copy.deepcopy(data)
         assert data.get('dirpath') is not None, data
         data["description"] = data['dirpath']
         super(OtherDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
@@ -116,6 +135,7 @@ class PciDeviceNodeData(DeviceNode):
         return data
 
     def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+        data = copy.deepcopy(data)
         assert data.get('dirpath') is not None, data
         data["description"] = "{Device}"  # f"data: {data}"
         super(PciDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
@@ -137,12 +157,13 @@ class UsbDeviceNodeData(DeviceNode):
         return data
 
     def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+        data = copy.deepcopy(data)
         busnum = int(data['busnum'])
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
         data["description"] = description
         if config is not None and config.find_tty():
-            tty = astutus.usb.find_tty_for_busnum_and_devnum(busnum, devnum)
+            tty = astutus.usb.find_tty_from_pci_path(data['dirpath'])
             data['tty'] = tty
         super(UsbDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
 

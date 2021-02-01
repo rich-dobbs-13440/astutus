@@ -2,8 +2,8 @@ import copy
 import json
 import logging
 import os
+import re
 import shutil
-import operator
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.log
@@ -14,12 +14,14 @@ import astutus.util.pci
 logger = logging.getLogger(__name__)
 
 
-class DeviceConfiguration(object):
+class DeviceConfiguration(dict):
 
     def __init__(self, config, command_runner=astutus.util.run_cmd):
         self.config = config
         # Command runner is a dependency injection point to make code more testable
         self.command_runner = command_runner
+        config['stylers'] = self.stylers
+        super().update(config)
 
     def __repr__(self):
         return f"DeviceConfiguration(config={self.config})"
@@ -27,7 +29,16 @@ class DeviceConfiguration(object):
     def find_tty(self):
         return self.config.get('find_tty')
 
-    def get_stylers(self):
+    @property
+    def idx(self):
+        return self.config['idx']
+
+    @property
+    def name(self):
+        return self.config['name_of_config']
+
+    @property
+    def stylers(self):
         stylers = self.config.get('stylers')
         if stylers is None:
             # This is a simple config, where style attributes are directly expressed in the configuration.
@@ -65,7 +76,7 @@ class DeviceConfiguration(object):
             return f"exception: {exception}, description_template{description_template}, data{data}"
 
     def find_styler(self, dirpath):
-        for styler in self.get_stylers():
+        for styler in self.stylers:
             styler['color'] = astutus.util.convert_color_for_html_input_type_color(styler.get('color'))
             if styler.get('test') is None:
                 return styler
@@ -124,10 +135,10 @@ class DeviceConfigurations(object):
 
     def __init__(self, filepath=None, command_runner=astutus.util.run_cmd):
         logger.info("Initializing device configurations")
+        self.command_runner = command_runner
         self.device_map = None
         self.read_from_json(filepath)
-        self.command_runner = command_runner
-        self.pci_device_info = None
+        self.pci_device_info_map = None
         logger.info("Done initializing device configurations")
 
     def __len__(self):
@@ -142,10 +153,10 @@ class DeviceConfigurations(object):
             return self.make_generic_other_configuration(data, self.command_runner)
 
     def find_device_info(self, slot: str) -> dict:
-        if self.pci_device_info is None:
-            self.pci_device_info = astutus.util.pci.get_slot_to_device_info_map_from_lspci(
+        if self.pci_device_info_map is None:
+            self.pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci(
                 command_runner=self.command_runner)
-        return self.pci_device_info.get(slot)
+        return self.pci_device_info_map.get(slot)
 
     def find_pci_configuration(self, data):
         return self.make_pci_configuration(data, self.command_runner)
@@ -183,24 +194,32 @@ class DeviceConfigurations(object):
                 source_path = os.path.join(astutus.usb.__path__[0], 'device_configurations.json')
                 shutil.copyfile(source_path, filepath)
         with open(filepath, 'r') as config_file:
-            device_map = json.load(config_file)
-        self.device_map = device_map
+            configuration_map = json.load(config_file)
+        self.device_map = {}
+        for key, config in configuration_map.items():
+            config['idx'] = key
+            device_config = DeviceConfiguration(config, self.command_runner)
+            self.device_map[key] = device_config
 
     def get_item(self, key):
-        config = self.device_map[key]
-        device_config = DeviceConfiguration(config)
-        item = {
-            'id': key,
-            'name': device_config.get_name(),
-            'stylers': device_config.get_stylers()
-        }
-        return item
+        return self.device_map.get(key)
+
+    def get_item_from_nodeid(self, nodeid):
+        # At this time configs are not stored using the full node id, so strip off the
+        # ilk marker.
+        pattern = r'\(([^\)]+)\)'
+        matches = re.search(pattern, nodeid)
+        if matches:
+            key = matches.group(1)
+            return self.get_item(key)
+        return None
 
     def items(self):
         item_list = []
         for key in self.device_map:
             item_list.append(self.get_item(key))
-        item_list.sort(key=operator.itemgetter('name'))
+        # item_list.sort(key=operator.itemgetter('name'))
+        item_list.sort(key=lambda x: x.get_name())
         return item_list
 
     def to_javascript(self):

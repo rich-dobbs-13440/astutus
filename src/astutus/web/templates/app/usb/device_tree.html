@@ -23,6 +23,10 @@
     <form method="POST">
       <table id="astutus-add-alias-table">
       <tr>
+        <td><label for="name">Name:</label></td>
+        <td><input  name="name" id="name" type="text" value="need to populate"/></td>
+      </tr>
+      <tr>
         <td><label for="nodepath">Node path:</label></td>
         <td>
           <textarea name="nodepath" id="nodepath" rows="3" cols="50" wrap="soft"></textarea>
@@ -75,7 +79,7 @@
     <a onclick="handleDisplayAliasAddForm()">Edit alias...</a>
   </div>
   <div>
-    <a onclick="handleDisplayWorkWithDeviceForm()">Work with device...</a>
+    <a onclick="HandleWorkWithDevice()">Work with device...</a>
   </div>
   <div>
     <a onclick="handleButtonMenuHide()">Cancel</a>

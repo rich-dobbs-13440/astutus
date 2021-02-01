@@ -17,20 +17,22 @@ import sys
 sys.path.insert(0, os.path.abspath('../src'))
 import astutus  # noqa
 
+utcmoment = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+denvernow = utcmoment.astimezone(pytz.timezone('America/Denver'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'Astutus'
-copyright = '2021, Rich Dobbs'
+year = denvernow.strftime('%Y')
+copyright = f'{year}, Rich Dobbs'
 author = 'Rich Dobbs'
 
 # The full version, including alpha/beta/rc tags
 version = astutus.__version__
-utcmoment = datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
-denvernow = utcmoment.astimezone(pytz.timezone('America/Denver'))
-timestamp_number = denvernow.strftime("%Y.%m.%d.%H.%M")
 
-release = version + "rc" + timestamp_number
+timestamp_number = denvernow.strftime('%Y.%m.%d.%H.%M')
+
+release = version + 'rc' + timestamp_number
 
 
 # -- General configuration ---------------------------------------------------
@@ -55,17 +57,18 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # For now, ignore warnings like this:
 # WARNING: py:class reference target not found: sqlalchemy.ext.declarative.api.Model
 # Sphinx does not handle complicated type hints, at least as currently configured.
+# (Maybe need to defined in term of typing)
 nitpick_ignore = [
     ('py:class', 'sqlalchemy.ext.declarative.api.Model'),
     ('py:class', '{}'),
-    ('py:class', "[<class 'dict'>]"),
-    ('py:class', "[(<class 'int'>, <class 'str'>, <class 'str'>)]")
+    # ('py:class', "[<class 'dict'>]"),
+    # ('py:class', "[(<class 'int'>, <class 'str'>, <class 'str'>)]")
 ]
 
 # These definition(s) are added to the top of every page - used in progress lists
 
 
-rst_prolog = f"""
+rst_prolog = f'''
 
 .. |in_progress| raw:: html
 
@@ -89,7 +92,7 @@ rst_prolog = f"""
     // Not implemented yet, but should use: "{release}"
     </script>
 
-"""
+'''
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -120,13 +123,13 @@ def setup(app):
 
 
 # Options for the Astutus dynamic pages custom extension.
-astutus_dyn_pages_dir = "app"  # relative to the configuration directory.
-astutus_dyn_base = "/astutus"  # web app URL path to get to top of dynamic pages.
-astutus_dyn_extra_head_material = """
+astutus_dyn_pages_dir = 'app'  # relative to the configuration directory.
+astutus_dyn_base = '/astutus'  # web app URL path to get to top of dynamic pages.
+astutus_dyn_extra_head_material = '''
     <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png"/>
     <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png"/>
     <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png"/>
     <link rel="manifest" href="/static/site.webmanifest"/>
 
     <script src="/static/app.js"></script>
-"""  # only inserted on dynamic pages.
+'''  # only inserted on dynamic pages.
