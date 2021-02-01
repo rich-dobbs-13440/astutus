@@ -202,11 +202,9 @@ function updateNodeData(button, buttonData) {
     // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
     var dirpath = button.dataset['dirpath'];
     var nodepath = button.dataset['nodepath'];
-    var alias = aliases.findLongest(nodepath)
     var span = button.nextElementSibling
     data = {
         'data': buttonData,
-        'alias': alias,
     }
     const xhr = new XMLHttpRequest();
     xhr.onload = () => {

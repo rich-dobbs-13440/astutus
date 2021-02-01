@@ -43,6 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |in_progress| Task: Refactor to replace configuration with DeviceClassifier in device tree.
   * Task: Flush browsers site cache when a new version of application is used.
   * Task: Provide a link to the RPi's astutus-web-app.
