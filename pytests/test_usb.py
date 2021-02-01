@@ -37,16 +37,6 @@ def test_parse_args():
     assert args.verbose is True
 
 
-def test_device_configuration_write_to_file():
-    device_configurations = astutus.usb.DeviceConfigurations()
-    device_configurations.write_as_json("device_configurations.json")
-
-
-def test_device_configuration_read_from_file():
-    device_configurations = astutus.usb.DeviceConfigurations()
-    device_configurations.read_from_json()
-
-
 def test_device_aliases_write_raw_as_json():
     sample_hardcoded_aliases = {
         'pci(0x1002:0x5a19)': {
