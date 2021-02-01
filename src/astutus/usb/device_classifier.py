@@ -68,6 +68,30 @@ class DeviceClassifier(object):
                 ilk,
                 dirpath,
                 self.get_pci_device_info(dirpath))
+            if ilk == 'pci':
+                # Fix up pci keys to be more consistent with USB fields
+                key_changes = [
+                    ('Class', 'device_class'),
+                    ('Slot', 'slot'),
+                    ('Vendor', 'vendor'),
+                    ('Device', 'product_text'),
+                    ('SVendor', 'subsystem_vendor'),
+                    ('SDevice', 'subsystem_device'),
+                    ('NUMANode', 'numa_node'),
+                    ('ProgIf', 'programming_interface_register')
+                ]
+            elif ilk == 'usb':
+                key_changes = [
+                    ('product', 'product_text'),
+                ]
+            else:
+                key_changes = []
+            for old_key, new_key in key_changes:
+                value = device_data.get(old_key)
+                if value is None:
+                    continue
+                device_data[new_key] = value
+                device_data.pop(old_key, None)
             self.augment_device_data(dirpath, device_data, extra_fields)
             self.map_dirpath_to_device_data[dirpath] = device_data
             self.cache.set(
@@ -86,7 +110,7 @@ class DeviceClassifier(object):
                 device_data['tty'] = astutus.usb.find_tty_from_pci_path(dirpath)
             elif field == 'vendor':
                 self.augument_from_lsusb(device_data)
-            elif field == 'product_from_id':
+            elif field == 'product_text':
                 self.augument_from_lsusb(device_data)
             elif field == 'device_class':
                 self.augument_from_lsusb(device_data)
@@ -113,6 +137,7 @@ class DeviceClassifier(object):
         return_code, stdout, stderr = astutus.util.run_cmd(cmd)
         if return_code != 0:
             raise RuntimeError(return_code, stderr, stdout)
+        interface_class_list = []
         for line in stdout.splitlines():
             line = line.strip()
             if line.startswith('idVendor'):
@@ -120,16 +145,11 @@ class DeviceClassifier(object):
                 device_data['vendor'] = matches.group(1)
             elif line.startswith('idProduct'):
                 matches = re.search(r'idProduct\s+\w+\s+([^\n]+)', line)
-                device_data['product_from_id'] = matches.group(1)
+                device_data['product_text'] = matches.group(1)
             elif line.startswith('bDeviceClass '):
                 matches = re.search(r'bDeviceClass\s+\w+\s+([^\n]+)', line)
                 device_data['device_class'] = matches.group(1)
-
-        # parent_node_data = self.node_data_by_dirpath.get(parent_dirpath)
-        # if parent_node_data is None:
-        #     if parent_dirpath == '/sys':
-        #         parent_node_data = None
-        #         parent_nodepath = ""
-        #     else:
-        #         parent_node_data = self.get_node_data(parent_dirpath)
-        #         parent_nodepath = parent_node_data.get('nodepath')
+            elif line.startswith('bInterfaceClass '):
+                matches = re.search(r'bInterfaceClass\s+\w+\s+([^\n]+)', line)
+                interface_class_list.append(matches.group(1))
+        device_data['interface_class_list'] = ','.join(interface_class_list)

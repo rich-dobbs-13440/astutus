@@ -9,20 +9,26 @@ device_id_list:
 alias_list:
 {% for alias in alias_list%}
 <div>
-    <pre>
-        {{ alias }}
-    </pre>
+<pre>
+{{ alias }}
+</pre>
 </div>
 {% endfor %}
 node_data_list:
 {% for node_data in node_data_list%}
 <div>
-    {{ node_data.node_data.html_label | safe }}
+{{ node_data.node_data.html_label | safe }}
 </div>
 {% endfor %}
 
 {% for node_data in node_data_list%}
 <pre>
-    {{ node_data | tojson_pretty }}
+{{ node_data | tojson_pretty }}
+</pre>
+{% endfor %}
+device_data_list
+{% for device_data in device_data_list%}
 <pre>
+{{ device_data | tojson_pretty }}
+</pre>
 {% endfor %}

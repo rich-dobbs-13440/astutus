@@ -71,7 +71,7 @@ def test_get_device_data_ilk_usb_augment():
         deviceClassifier = DeviceClassifier(expire_seconds=30)
         smakn_path = '/sys/devices/pci0000:00/0000:00:07.0/0000:08:00.0/usb10/10-2/10-2.3/10-2.3.2'
         extra_fields = [
-            'vendor', 'product_from_id', 'device_class', 'tty', 'nodepath'
+            'vendor', 'product_text', 'device_class', 'tty', 'nodepath'
         ]
         device_data = deviceClassifier.get_device_data(smakn_path, extra_fields)
         assert device_data['ilk'] == 'usb', device_data
