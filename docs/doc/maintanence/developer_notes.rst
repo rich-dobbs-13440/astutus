@@ -215,3 +215,14 @@ This approach didn't flush the entire cache. It seemed to be for the entirie sit
       localStorage.clear();
       alert("localStorage cleared!")
   }
+
+Memcached
+---------
+
+https://www.linuxhowto.info/how-to-install-memcached-on-linux-mint-20/
+
+.. code-block:: console
+  sudo apt update
+  sudo apt install memcached libmemcached-tools
+
+  sudo systemctl status memcached

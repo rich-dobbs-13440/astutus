@@ -41,62 +41,6 @@ def find_busnum_and_devnum_for_sys_device(pci_path: str) -> Tuple[int, int]:
     return busnum, devnum
 
 
-# def find_sym_link_for_tty(tty: str) -> str:
-#     return_code, stdout, stderr = astutus.util.run_cmd(f"ls -l {tty}")
-#     if return_code == 2:
-#         return None
-#     elif return_code != 0:
-#         raise RuntimeError(return_code, stderr, stdout)
-#     logger.debug(f"stdout: {stdout}")
-#     major_minor_pattern = r"dialout\s+(\d+),\s+(\d+)\s"
-#     matches = re.search(major_minor_pattern, stdout)
-#     major, minor = matches.group(1), matches.group(2)
-#     logger.debug(f"major: {major}  minor: {minor}")
-#     cmd = f"ls -l /sys/dev/char/{major}:{minor}"
-#     logger.debug(f"cmd: {cmd}")
-#     return_code, stdout, stderr = astutus.util.run_cmd(cmd)
-#     if return_code != 0:
-#         raise RuntimeError(return_code, stderr, stdout)
-#     logger.debug(f"stdout: {stdout}")
-#     sym_link = stdout.strip()
-#     return sym_link
-
-
-# def find_busnum_and_devnum_for_sym_link(sym_link: str) -> Tuple[int, int]:
-#     for pci_path in find_paths_for_vendor_and_product('1a86', '7523'):
-#         if pci_path in sym_link:
-#             busnum, devnum = find_busnum_and_devnum_for_sys_device(pci_path)
-#             return busnum, devnum
-#     raise ValueError(f"No busnum, devnum found for symbolic link: {sym_link}")
-
-
-# def find_busnum_and_devnum_for_tty(tty: str) -> Tuple[int, int]:
-#     sym_link = find_sym_link_for_tty(tty)
-#     if sym_link is None:
-#         return -1, -1
-#     busnum, devnum = find_busnum_and_devnum_for_sym_link(sym_link)
-#     return busnum, devnum
-
-
-# def find_tty_for_busnum_and_devnum(busnum: int, devnum: int) -> str:
-#     logger.debug(f"Searching for tty for busnum: {busnum} devnum: {devnum}")
-#     # Issue:  The coding convention may be platform dependent
-#     return_code, stdout, stderr = astutus.util.run_cmd('ls /dev/tty*USB* /dev/tty*usb*')
-#     if return_code == 0:
-#         pass
-#     elif return_code == 2:
-#         pass
-#     else:
-#         raise RuntimeError(return_code, stderr, stdout)
-#     tty_devices = stdout.splitlines()
-#     for tty in tty_devices:
-#         busnum_for_tty, devnum_for_tty = find_busnum_and_devnum_for_tty(tty)
-#         logger.debug(f"tty: '{tty}' busnum_for_tty: '{busnum_for_tty}' devnum_for_tty: '{devnum_for_tty}'")
-#         if busnum_for_tty == busnum and devnum_for_tty == devnum:
-#             return tty
-#     raise ValueError(f"No tty USB device found for busnum: {busnum} devnum: {devnum}")
-
-
 def find_vendor_info_from_busnum_and_devnum(busnum: int, devnum: int) -> Tuple[str, str, str]:
     """
     returns vendorid, productid, description
