@@ -9,6 +9,11 @@ USB Devices
     Manage device aliases <alias>
     Manage device names <device_id>
 
+.. toctree::
+    :hidden:
+
+    device_item
+
 
 .. astutus_dyn_link:: /astutus/app/usb/index.html
 

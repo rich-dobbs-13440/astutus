@@ -77,10 +77,12 @@ app, db = create_app_and_db()
 
 
 @app.template_filter('tojson_pretty')
-def tojson_pretty_jinja2_template_file(json_text):
-    logger.debug(f"json_text: {json_text}")
-    parsed_json = json.loads(json_text)
-    return json.dumps(parsed_json, indent=2, sort_keys=True)
+def tojson_pretty_jinja2_template_file(arg):
+    if isinstance(arg, dict):
+        dumpable = arg
+    else:
+        dumpable = json.loads(arg)
+    return json.dumps(dumpable, indent=2, sort_keys=True)
 
 
 def run_with_standard_options():
