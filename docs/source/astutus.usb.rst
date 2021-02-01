@@ -49,14 +49,6 @@ astutus.usb.node module
    :undoc-members:
    :show-inheritance:
 
-astutus.usb.node\_data module
------------------------------
-
-.. automodule:: astutus.usb.node_data
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 astutus.usb.tree module
 -----------------------
 

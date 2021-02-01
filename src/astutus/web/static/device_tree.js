@@ -203,11 +203,9 @@ function updateNodeData(button, buttonData) {
     var dirpath = button.dataset['dirpath'];
     var nodepath = button.dataset['nodepath'];
     var alias = aliases.findLongest(nodepath)
-    var device_configuration = device_configurations.get(buttonData['node_id'])
     var span = button.nextElementSibling
     data = {
         'data': buttonData,
-        'device_config': device_configuration,
         'alias': alias,
     }
     const xhr = new XMLHttpRequest();

@@ -35,14 +35,6 @@ def get_alias_path_item_list():
     return items_list
 
 
-def get_config_items_list():
-    device_configurations = astutus.usb.DeviceConfigurations()
-    items_list = []
-    for config in device_configurations.items():
-        items_list.append({'value': config.idx, 'link_text': config.name})
-    return items_list
-
-
 @usb_page.route('/astutus/app/usb/index.html', methods=['GET'])
 def handle_usb():
     if flask.request.method == 'GET':
@@ -119,11 +111,11 @@ def handle_label(path):
             device_config = astutus.usb.DeviceConfiguration(config_data)
         else:
             if data.get('ilk') == 'pci':
-                device_config = astutus.usb.DeviceConfigurations.make_pci_configuration(data)
+                device_config = astutus.usb.DeviceConfiguration.make_pci_configuration(data)
             elif data.get('ilk') == 'usb':
-                device_config = astutus.usb.DeviceConfigurations.make_generic_usb_configuration(data)
+                device_config = astutus.usb.DeviceConfiguration.make_generic_usb_configuration(data)
             elif data.get('ilk') == 'other':
-                device_config = astutus.usb.DeviceConfigurations.make_generic_other_configuration(data)
+                device_config = astutus.usb.DeviceConfiguration.make_generic_other_configuration(data)
             else:
                 raise NotImplementedError(f"Unhandled ilk: {data.get('ilk')}")
         logger.debug(f"device_config: {device_config}")
@@ -180,7 +172,6 @@ def handle_usb_device():
         pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
         logger.debug(f"pci_device_info_map: {pci_device_info_map}")
         device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
-        device_configurations = astutus.usb.DeviceConfigurations()
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
         bare_tree_html = tree_to_html(bare_tree_dict, pci_device_info_map)
         aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
@@ -192,7 +183,6 @@ def handle_usb_device():
             'app/usb/styled_device_tree.html',
             bare_tree=bare_tree_html,
             aliases_javascript=aliases.to_javascript(),
-            configurations_javascript=device_configurations.to_javascript(),
             tree_html=None,
             tree_html_background_color=background_color)
     if flask.request.method == 'POST':
@@ -282,30 +272,6 @@ def handle_usb_alias_item(nodepath):
         aliases[pattern] = alias
         aliases.write(filepath=None)
         return flask.redirect(flask.url_for('usb.handle_usb_alias'))
-
-
-@usb_page.route('/astutus/app/usb/configuration.html', methods=['GET'])
-def handle_usb_configuration():
-    if flask.request.method == 'GET':
-        device_configurations = astutus.usb.DeviceConfigurations()
-        logger.debug(f"device_configurations: {device_configurations}")
-        return flask.render_template(
-            'app/usb/styled_device_id.html',
-            device_configurations=device_configurations,
-            nodeid_item_list=get_config_items_list())
-
-
-@usb_page.route('/astutus/app/usb/configuration/<nodeid>/index.html', methods=['GET'])
-def handle_usb_configuration_item(nodeid):
-    if flask.request.method == 'GET':
-        device_configurations = astutus.usb.DeviceConfigurations()
-        device_config = device_configurations.get_item(nodeid)
-        return flask.render_template(
-            'app/usb/device_id/nodeid/styled_index.html',
-            item=nodeid,
-            nodeid=nodeid,
-            device_config=device_config,
-            nodeid_item_list=get_config_items_list())
 
 
 @usb_page.route('/astutus/app/usb/settings', methods=['GET', 'PATCH'])
