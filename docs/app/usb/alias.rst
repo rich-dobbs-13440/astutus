@@ -16,7 +16,7 @@ PCI buses and devices connecting them despite the challenges of the USB implemen
   in the device tree.  But you might find this page useful for seeing all
   of the aliases that you have defined, and editing specific aliases.
 
-.. astutus_dyn_include:: app/usb/device_aliases.html
+.. astutus_dyn_include:: app/usb/label_rules.html
 
 
 .. toctree::

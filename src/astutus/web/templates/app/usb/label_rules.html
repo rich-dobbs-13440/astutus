@@ -1,0 +1,28 @@
+
+
+{% if label_rules | length > 1 %}
+    <h2>Items</h2>
+    {% for rule in label_rules%}
+        <div>
+            <table>
+                <tr>
+                    <td>Name</td><td>{{ rule.name }}</td>
+                </tr>
+            </table>
+            <table>
+                <tr>
+                    <td><button onclick="window.location.href='/astutus/app/usb/labelrule/{{ rule.id }}/editor.html'">Edit</button></td>
+                    <td>
+                        <form onsubmit="return deleteViaJavascript('{{ rule.id }}' );">
+                            <button type="submit">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </table>
+            <hr/>
+        </div>
+    {% endfor %}
+{% else %}
+    There are no rules defined.
+{% endif %}
+

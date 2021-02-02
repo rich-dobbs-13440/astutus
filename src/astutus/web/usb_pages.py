@@ -4,6 +4,7 @@ from datetime import datetime
 from http import HTTPStatus
 
 import astutus.usb
+import astutus.usb.label
 import flask
 import flask.logging
 
@@ -11,49 +12,6 @@ logger = logging.getLogger(__name__)
 
 usb_page = flask.Blueprint('usb', __name__, template_folder='templates')
 
-
-rules = [
-    {
-        'checks': [
-            {'field': 'ilk', 'equals': 'usb'},
-            {'field': 'node_id', 'equals': 'usb(1a86:7523)'},
-            {'field': 'nodepath', 'contains': 'usb(05e3:0610)'},
-        ],
-        'extra_fields': ['tty'],
-        'template': '{color_purple} {vendor} {product_text} {tty} {end_color}'
-    },
-    {
-        'checks': [
-            {'field': 'ilk', 'equals': 'usb'},
-            {'field': 'node_id', 'equals': 'usb(1a86:7523)'},
-        ],
-        'extra_fields': ['tty'],
-        'template': '{color_for_usb} {vendor} {product_text} {tty} {end_color}'
-    },
-    {
-        'checks': [{'field': 'ilk', 'equals': 'pci'}],
-        'template': '{color_for_pci} {vendor} {product_text} {end_color}'
-    },
-    {
-        'checks': [{'field': 'ilk', 'equals': 'usb'}],
-        'template': '{color_for_usb} {vendor} {product_text} {end_color}'
-    },
-    {
-        'checks': [{'field': 'ilk', 'equals': 'other'}],
-        'template': '{color_for_other} {node_id} {end_color}'
-    },
-    {
-        'template': '{node_id}'
-    }
-]
-
-html_formatting_data = {
-    'color_for_usb': '<span style="color:ForestGreen">',
-    'color_for_pci': '<span style="color:DarkOrange">',
-    'color_for_other': '<span style="color:DarkOrange">',
-    'color_purple': '<span style="color:Purple">',
-    'end_color': '</span>'
-}
 
 extra_fields_for_ilk = {
     'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
@@ -136,39 +94,18 @@ def tree_to_html(tree_dict, pci_device_info_map):
 @usb_page.route('/astutus/app/usb/label/sys/<path:path>', methods=['PUT'])
 def handle_label(path):
     # Intent is to get JSON here, rather than form data.
-    # logger.info(f"flask.request.data: {flask.request.data}")
-    # logger.info(f"flask.request.headers: {flask.request.headers}")
-    # logger.info(f"flask.request.is_json: {flask.request.is_json}")
     if flask.request.is_json:
         request_data = flask.request.get_json(force=True)
         logger.debug(f"request_data: {request_data}")
-        # logger.info(f"request_data.get('alias'): {request_data.get('alias')}")
-        # alias = request_data.get('alias')
         sys_devices_path = '/sys/' + path
-        # data = request_data.get('data')
-        # TODO: Pass configuration from web page.  Maybe security risk.  Need to consider protection from
-        #       running arbitrary code.
-        # config_data = request_data.get('device_config')
-        # if config_data is not None:
-        #     device_config = astutus.usb.DeviceConfiguration(config_data)
-        # else:
-        #     if data.get('ilk') == 'pci':
-        #         device_config = astutus.usb.DeviceConfiguration.make_pci_configuration(data)
-        #     elif data.get('ilk') == 'usb':
-        #         device_config = astutus.usb.DeviceConfiguration.make_generic_usb_configuration(data)
-        #     elif data.get('ilk') == 'other':
-        #         device_config = astutus.usb.DeviceConfiguration.make_generic_other_configuration(data)
-        #     else:
-        #         raise NotImplementedError(f"Unhandled ilk: {data.get('ilk')}")
-        # logger.debug(f"device_config: {device_config}")
-        # node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
         device_classifier = astutus.usb.DeviceClassifier(expire_seconds=10)
         device_data = device_classifier.get_device_data(sys_devices_path)
         extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
         if extra_fields is not None:
             device_data = device_classifier.get_device_data(sys_devices_path, extra_fields)
         logger.debug(f"node_data: {device_data}")
-        label = device_classifier.get_label(sys_devices_path, rules, html_formatting_data)
+        label = device_classifier.get_label(
+            sys_devices_path, astutus.usb.label.get_rules(), astutus.usb.label.get_formatting_data('html'))
         device_data['html_label'] = label
         result = {
             'html_label': device_data.get('html_label'),
@@ -262,11 +199,25 @@ def handle_usb_device():
 @usb_page.route('/astutus/app/usb/alias.html', methods=['GET'])
 def handle_usb_alias():
     if flask.request.method == 'GET':
-        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         return flask.render_template(
             'app/usb/styled_alias.html',
-            aliases=aliases,
+            label_rules=astutus.usb.label.get_rules(),
             nodepath_item_list=get_alias_path_item_list())
+
+
+@usb_page.route('/astutus/app/usb/labelrule/<int:idx>/editor.html', methods=['GET', 'POST'])
+def handle_usb_edit_label_rule(idx: int):
+    if flask.request.method == 'GET':
+        rule = astutus.usb.label.get_rule(idx)
+        if rule is None:
+            return f'No such label rule: {idx}', HTTPStatus.BAD_REQUEST
+        return flask.render_template(
+            'app/usb/styled_label_rule_editor.html',
+            rule=rule)
+    if flask.request.method == 'POST':
+        check_value = flask.request.form.getlist('check_value')
+        logger.debug(f'check_value: {check_value}')
+        return "Look at the log", HTTPStatus.OK
 
 
 @usb_page.route('/astutus/app/usb/alias/<path:nodepath>/index.html', methods=['GET', "DELETE", "POST"])
@@ -374,9 +325,9 @@ def handle_usb_device_item(nodepath):
         labels = []
         for device_path in device_paths:
             device_data = device_classifier.get_device_data(device_path)
-            template = device_classifier.get_template(device_path, rules)
-            label = device_classifier.get_label(device_path, rules, html_formatting_data)
-            augumented_label = f"{device_data['dirname']} {label}  - template: {template}"
+            label = device_classifier.get_label(
+                device_path, astutus.usb.label.get_rules(), astutus.usb.label.get_formatting_data('html'))
+            augumented_label = f"{device_data['dirname']} {label}"
             labels.append(augumented_label)
 
         return flask.render_template(

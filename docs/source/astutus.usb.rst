@@ -33,6 +33,14 @@ astutus.usb.device\_configurations module
    :undoc-members:
    :show-inheritance:
 
+astutus.usb.label module
+------------------------
+
+.. automodule:: astutus.usb.label
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 astutus.usb.lcus\_1\_usb\_relay module
 --------------------------------------
 

@@ -4,6 +4,7 @@ import copy
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util.pci
+import astutus.usb.label
 import pymemcache
 import pymemcache.client.base
 
@@ -157,7 +158,7 @@ class DeviceClassifier(object):
                 self.map_dirpath_to_device_data_key,
                 self.map_dirpath_to_device_data,
                 expire=self.expire_seconds)
-            logger.error('Wrote to cache')
+            logger.debug('Wrote to cache')
 
     def augument_from_lsusb(self, device_data: Dict[str, str]) -> None:
         cmd = f"lsusb -s {device_data['busnum']}:{device_data['devnum']} --verbose"
@@ -178,7 +179,15 @@ class DeviceClassifier(object):
                 if matches:
                     device_data['product_text'] = matches.group(1)
                 else:
-                    assert False, line
+                    # Fall back to parsing the line like this:
+                    #  Bus 011 Device 002: ID 05e3:0626 Genesys Logic, Inc. USB3.1 Hub
+                    matches = re.search(r'Bus\s+\d+\s+Device\s+\d+:\s+ID\s\w+:\w+\s([^\n]+)', stdout)
+                    if matches:
+                        vendor_and_product = matches.group(1)
+                        device_data['product_text'] = vendor_and_product.replace(device_data['vendor'], '')
+                    else:
+                        # If this fails just fall back to the hex number.
+                        device_data['product_text'] = line.replace('idProduct', '').strip()
             elif line.startswith('bDeviceClass '):
                 matches = re.search(r'bDeviceClass\s+\w+\s+([^\n]+)', line)
                 if matches:
@@ -196,7 +205,7 @@ class DeviceClassifier(object):
     def get_template(self, device_path: str, rules: List[Dict]) -> str:
         device_data = self.get_device_data(device_path)
         for rule in rules:
-            if self.rule_applies(rule, device_data):
+            if astutus.usb.label.rule_applies(rule, device_data):
                 extra_fields = rule.get('extra_fields')
                 if extra_fields is not None:
                     # Need to augment data before using the this template,
@@ -204,26 +213,6 @@ class DeviceClassifier(object):
                     self.get_device_data(device_path, extra_fields)
                 return rule.get('template')
         return '-- no rule_applies --'
-
-    @staticmethod
-    def rule_applies(rule, device_data) -> bool:
-        checks = rule.get('checks')
-        if checks is None:
-            return True
-        for check in checks:
-            field = check.get('field')
-            value = device_data.get(field)
-            equals_value = check.get('equals')
-            contains_value = check.get('contains')
-            if equals_value is not None:
-                if value != equals_value:
-                    return False
-            elif contains_value is not None:
-                if contains_value not in value:
-                    return False
-            else:
-                raise NotImplementedError()
-        return True
 
     def get_label(self, device_path: str, rules: List[Dict], formatting_data: Dict[str, str] = []) -> str:
         template = self.get_template(device_path, rules)
