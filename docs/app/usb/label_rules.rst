@@ -1,5 +1,7 @@
-Aliases
-=======
+Label Rules
+===========
+
+Label rules are used to identify aliases for USB and PCI devices.
 
 Aliases allow providing meaningful human names to USB devices and the
 PCI buses and devices connecting them despite the challenges of the USB implementation:
@@ -12,9 +14,6 @@ PCI buses and devices connecting them despite the challenges of the USB implemen
     * The sys/device file structure is not persistent or consistent against
       system reboot timing and plug-and-play.
 
-  Typically, you will define aliases interactively, by clicking on the buttons
-  in the device tree.  But you might find this page useful for seeing all
-  of the aliases that you have defined, and editing specific aliases.
 
 .. astutus_dyn_include:: app/usb/label_rules.html
 
@@ -22,8 +21,10 @@ PCI buses and devices connecting them despite the challenges of the USB implemen
 .. toctree::
     :hidden:
 
-    alias_item
+    label_rule_editor
 
+.. astutus_dyn_link:: /astutus/app/usb/labelrule/index.html
 
+.. astutus_dyn_destination:: app/usb/labelrule/styled_index.html
 
-.. astutus_dyn_bookmark:: USB Aliases - /astutus/app/alias
+.. astutus_dyn_bookmark:: USB Aliases - /astutus/app/usb/labelrule

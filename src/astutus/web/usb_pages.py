@@ -196,11 +196,11 @@ def handle_usb_device():
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
 
 
-@usb_page.route('/astutus/app/usb/alias.html', methods=['GET'])
+@usb_page.route('/astutus/app/usb/labelrule/index.html', methods=['GET'])
 def handle_usb_alias():
     if flask.request.method == 'GET':
         return flask.render_template(
-            'app/usb/styled_alias.html',
+            'app/usb/labelrule/styled_index.html',
             label_rules=astutus.usb.label.get_rules(),
             nodepath_item_list=get_alias_path_item_list())
 
@@ -216,11 +216,12 @@ def handle_usb_edit_label_rule(idx: int):
             rule=rule)
     if flask.request.method == 'POST':
         check_value = flask.request.form.getlist('check_value')
+
         logger.debug(f'check_value: {check_value}')
         return "Look at the log", HTTPStatus.OK
 
 
-@usb_page.route('/astutus/app/usb/alias/<path:nodepath>/index.html', methods=['GET', "DELETE", "POST"])
+@usb_page.route('/astutus/app/usb/labelrule/<path:nodepath>/index.html', methods=['GET', "DELETE", "POST"])
 def handle_usb_alias_item(nodepath):
     if flask.request.method == 'GET':
         item = {
@@ -230,7 +231,7 @@ def handle_usb_alias_item(nodepath):
         alias = aliases.get(nodepath)
         if alias is not None:
             return flask.render_template(
-                'app/usb/alias/nodepath/styled_index.html',
+                'app/usb/labelrule/nodepath/styled_index.html',
                 item=item,
                 nodepath=nodepath,
                 alias=alias,
@@ -245,7 +246,7 @@ def handle_usb_alias_item(nodepath):
         aliases.write(filepath=None)
         logger.debug(f"After write: aliases: {aliases}")
         data = {
-            "redirect_url": "/astutus/app/usb/alias.html"
+            "redirect_url": "/astutus/app/usb/labelrule.html"
         }
         return data, HTTPStatus.ACCEPTED
     if flask.request.method == 'POST':

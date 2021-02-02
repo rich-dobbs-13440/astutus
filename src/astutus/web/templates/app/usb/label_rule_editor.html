@@ -1,12 +1,3 @@
-<style>
-    input.template {
-        width: 700px;
-    }
-</style>
-<pre>
-
-    {{ rule | tojson_pretty }}
-</pre>
 
 {% macro define_check_row(field, operator, value) %}
 <tr>
@@ -29,11 +20,11 @@
 
 <script>
     function addCheckRow() {
-        var templateTable = document.querySelector("#rule-table-row-template-holder");
+        var templateTable = document.querySelector('#rule-table-row-template-holder');
         var rows = templateTable.rows
         const lastRow = rows[rows.length -1];
         var clonedRow = lastRow.cloneNode(true);
-        var checkTable = document.querySelector("#rule-table");
+        var checkTable = document.querySelector('#rule-table');
         checkTable.appendChild(clonedRow);
     }
 
@@ -54,36 +45,92 @@
         }
     }
 </script>
-<form method="POST">
-
-<label for="label_rule_name">Name</label>
-<input name='label_rule_name' id='label_rule_name' value="{{ rule.name}}" class="label_rule_name"/>
-
-<div>Checks</div>
+<style>
+    div.buttons {
+        padding-top: 2ch;
+    }
+    input#cancel-button {
+        margin-left: 25ch;
+    }
+    input#submit-button {
+        margin-left: 10ch;
+    }
+    button#new-check {
+        margin-bottom: 2ch;
+    }
+    table#rule-table select,
+    table#rule-table input {
+        margin-right: 2ch;
+    }
+    table#rule-table td {
+        vertical-align: middle;
+    }
+    table#layout-table {
+        border-spacing: 2ch;
+        border-collapse: separate;
+    }
+    input.template {
+        width: 700px;
+    }
+</style>
 
 <table id="rule-table-row-template-holder" style="display: none">
     {{ define_check_row('--field--', 'equals', '--value--') }}
 </table>
 
-<table id="rule-table">
-{% for check in rule.checks %}
-    {{ define_check_row(check.field, check.operator, check.value) }}
-{% endfor %}
+<form method="POST">
+
+<table id="layout-table">
+
+
+<tr>
+    <td>
+        <label for="label_rule_name">Name</label>
+    </td>
+    <td>
+        <input name="label_rule_name" id="label_rule_name" value="{{ rule.name}}" class="label_rule_name"/>
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+        Checks
+    </td>
+    <td>
+        <table id="rule-table">
+            {% for check in rule.checks %}
+                {{ define_check_row(check.field, check.operator, check.value) }}
+            {% endfor %}
+        </table>
+    </td>
+</tr>
+<tr>
+    <td></td>
+    <td>
+        <button id="new-check" type="button" onclick="addCheckRow(); return false">New Check</button>
+    </td>
+</tr>
+
+
+<tr>
+    <td>
+        <label for="template" >Template: </label>
+    </td>
+    <td>
+        <input name="template" value="{{ rule.template }}" class="template"/>
+    </td>
+</tr>
+
+
 </table>
 
-<div>
-<button type="button" onclick="addCheckRow(); return false">New Check</button>
+
+
+<div class="buttons">
+    <input id='cancel-button' type="button" name="cancel" value="Cancel" onClick="window.location.href='/astutus/app/usb/labelrule.html';" />
+    <input id='submit-button' type="submit" name="save" value="Save" />
 </div>
-
-
-<input name="id" value="{{ rule.id }}" type="hidden" />
-<div>
-    <label for="template" >Template: </label>
-    <input name="template" value="{{ rule.template }}" class="template"/>
-</div>
-
-<input type="button" name="cancel" value="Cancel" onClick="window.location.href='/astutus/usb/alias.html';" />
-<input type="submit" name="save" value="Save" />
 
 
 </form>

@@ -6,7 +6,7 @@ USB Devices
     :caption: You can:
 
     View USB devices as a tree <device_tree>
-    Manage device aliases <alias>
+    Manage device labels <label_rules>
 
 .. toctree::
     :hidden:
