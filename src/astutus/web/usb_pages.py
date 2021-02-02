@@ -196,13 +196,16 @@ def handle_usb_device():
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
 
 
-@usb_page.route('/astutus/app/usb/labelrule/index.html', methods=['GET', 'PATCH'])
+@usb_page.route('/astutus/app/usb/labelrule/index.html', methods=['GET', 'PATCH', 'POST'])
 def handle_usb_alias():
     if flask.request.method == 'GET':
         return flask.render_template(
             'app/usb/labelrule/styled_index.html',
             label_rules=astutus.usb.label.get_rules(),
             nodepath_item_list=get_alias_path_item_list())
+    if flask.request.method == 'POST':
+        rule = astutus.usb.label.new_rule()
+        return flask.redirect(flask.url_for('usb.handle_usb_edit_label_rule', idx=rule['id']))
     if flask.request.method == 'PATCH':
         request_data = flask.request.get_json(force=True)
         ids = request_data.get('ids')

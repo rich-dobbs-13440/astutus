@@ -89,6 +89,26 @@ def sort(ids: List) -> str:
     return None
 
 
+def new_rule() -> Dict:
+    max_id = None
+    for rule in rules:
+        if max_id is None:
+            max_id = rule['id']
+        elif rule['id'] > max_id:
+            max_id = rule['id']
+    if max_id is None:
+        max_id = 0
+    idx = max_id + 1
+    rule = {
+        'name': f'-- name rule {idx} --',
+        'id': idx,
+        'checks': [{'field': 'ilk', 'operator': 'equals', 'value': 'usb'}],
+        'template': '{color_for_usb} {vendor} {product_text} {end_color}'
+    }
+    rules.insert(0, rule)
+    return rule
+
+
 def rule_applies(rule, device_data: Dict[str, str]) -> bool:
     checks = rule.get('checks')
     if checks is None:
