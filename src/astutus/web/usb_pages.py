@@ -196,13 +196,21 @@ def handle_usb_device():
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
 
 
-@usb_page.route('/astutus/app/usb/labelrule/index.html', methods=['GET'])
+@usb_page.route('/astutus/app/usb/labelrule/index.html', methods=['GET', 'PATCH'])
 def handle_usb_alias():
     if flask.request.method == 'GET':
         return flask.render_template(
             'app/usb/labelrule/styled_index.html',
             label_rules=astutus.usb.label.get_rules(),
             nodepath_item_list=get_alias_path_item_list())
+    if flask.request.method == 'PATCH':
+        request_data = flask.request.get_json(force=True)
+        ids = request_data.get('ids')
+        logger.debug(f'ids: {ids}')
+        err_msg = astutus.usb.label.sort(ids)
+        if err_msg is not None:
+            return err_msg, HTTPStatus.BAD_REQUEST
+        return "Rules sorted", HTTPStatus.OK
 
 
 @usb_page.route('/astutus/app/usb/labelrule/<int:idx>/editor.html', methods=['GET', 'POST'])
@@ -215,62 +223,28 @@ def handle_usb_edit_label_rule(idx: int):
             'app/usb/styled_label_rule_editor.html',
             rule=rule)
     if flask.request.method == 'POST':
-        check_value = flask.request.form.getlist('check_value')
-
-        logger.debug(f'check_value: {check_value}')
-        return "Look at the log", HTTPStatus.OK
-
-
-@usb_page.route('/astutus/app/usb/labelrule/<path:nodepath>/index.html', methods=['GET', "DELETE", "POST"])
-def handle_usb_alias_item(nodepath):
-    if flask.request.method == 'GET':
-        item = {
-            'id': nodepath,
-        }
-        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-        alias = aliases.get(nodepath)
-        if alias is not None:
-            return flask.render_template(
-                'app/usb/labelrule/nodepath/styled_index.html',
-                item=item,
-                nodepath=nodepath,
-                alias=alias,
-                nodepath_item_list=get_alias_path_item_list())
-        return f"No alias for {nodepath} found.", HTTPStatus.BAD_REQUEST
-    if flask.request.method == 'DELETE':
-        logger.debug(f"Delete the item now: {nodepath}")
-        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-        logger.debug(f"aliases: {aliases}")
-        del aliases[nodepath]
-        logger.debug(f"After deletion: aliases: {aliases}")
-        aliases.write(filepath=None)
-        logger.debug(f"After write: aliases: {aliases}")
-        data = {
-            "redirect_url": "/astutus/app/usb/labelrule.html"
-        }
-        return data, HTTPStatus.ACCEPTED
-    if flask.request.method == 'POST':
-        form = flask.request.form
-        name = form.get('name')
-        pattern = form.get('pattern')
-        template = form.get('template')
-        color = form.get('color')
-        order = form.get('order')
-        priority = form.get('priority')
-        alias = {
+        name = flask.request.form.get('label_rule_name')
+        check_field_list = flask.request.form.getlist('check_field')
+        check_operator_list = flask.request.form.getlist('check_operator')
+        check_value_list = flask.request.form.getlist('check_value')
+        checks = []
+        for field, operator, value in zip(check_field_list, check_operator_list, check_value_list):
+            check = {
+                'field': field,
+                'operator': operator,
+                'value': value,
+            }
+            checks.append(check)
+        template = flask.request.form.get('label_rule_template')
+        rule = {
             'name': name,
-            'pattern': pattern,
-            'description_template': template,
-            'color': color,
-            'order': order,
-            'priority': priority
+            'id': idx,
+            'checks': checks,
+            'template': template,
         }
-        logger.info(f"alias: {alias}")
-        original_pattern = form.get('original_pattern')
-        aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-        del aliases[original_pattern]
-        aliases[pattern] = alias
-        aliases.write(filepath=None)
+        astutus.usb.label.update(rule)
+
+        logger.debug(f'rule: {rule}')
         return flask.redirect(flask.url_for('usb.handle_usb_alias'))
 
 

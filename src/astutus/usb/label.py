@@ -1,7 +1,8 @@
+import copy
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 
-rules = [
+original_rules = [
     {
         'name': 'Purple SMAKN Relay',
         'id': 6,
@@ -48,19 +49,47 @@ rules = [
     }
 ]
 
+rules = copy.deepcopy(original_rules)
 
-def get_rules():
+
+def get_rules() -> List[Dict]:
     return rules
 
 
-def get_rule(idx: int):
+def get_rule(idx: int) -> Dict:
     for rule in rules:
         if rule['id'] == idx:
             return rule
     return None
 
 
-def rule_applies(rule, device_data) -> bool:
+def update(rule_with_updated_value: Dict):
+    idx = rule_with_updated_value['id']
+    for item_idx, rule in enumerate(rules):
+        if rule['id'] == idx:
+            rules[item_idx] = rule_with_updated_value
+            break
+    return None
+
+
+def sort(ids: List) -> str:
+    """ sort the label rules in the order given by the ids.
+
+    Returns error message or None
+    """
+    global rules
+    if len(ids) != len(rules):
+        return f"Wrong number of ids.  Expected {len(rules)}, got {len(ids)}"
+    ids_as_ints = [int(idx) for idx in ids]
+    rules_as_dict = {rule['id']: rule for rule in rules}
+    new_rules = [rules_as_dict[idx] for idx in ids_as_ints]
+    if len(new_rules) != len(rules):
+        return f"Incorrect or repeated ids: {ids}"
+    rules = new_rules
+    return None
+
+
+def rule_applies(rule, device_data: Dict[str, str]) -> bool:
     checks = rule.get('checks')
     if checks is None:
         return True

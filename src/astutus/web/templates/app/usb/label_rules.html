@@ -1,28 +1,66 @@
-
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
 {% if label_rules | length > 1 %}
-    <h2>Items</h2>
-    {% for rule in label_rules%}
-        <div>
-            <table>
-                <tr>
-                    <td>Name</td><td>{{ rule.name }}</td>
-                </tr>
-            </table>
-            <table>
-                <tr>
-                    <td><button onclick="window.location.href='/astutus/app/usb/labelrule/{{ rule.id }}/editor.html'">Edit</button></td>
-                    <td>
-                        <form onsubmit="return deleteViaJavascript('{{ rule.id }}' );">
-                            <button type="submit">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-            </table>
-            <hr/>
-        </div>
-    {% endfor %}
+    <h2>Rules</h2>
+    <table>
+        <tbody id=rules-tbody>
+        {% for rule in label_rules%}
+            <tr data-rule_id="{{rule.id}}">
+                <td><i class="fa fa-arrows-v handle"></i></td>
+                <td>{{ rule.name }}</td>
+                <td><button onclick="window.location.href='/astutus/app/usb/labelrule/{{ rule.id }}/editor.html'">Edit</button></td>
+                <td>
+                    <form onsubmit="return deleteViaJavascript('{{ rule.id }}' );">
+                        <button type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+
+        function request_label_rule_sort(ids) {
+            data = {
+                "ids": ids
+            }
+            const xhr = new XMLHttpRequest();
+            xhr.onload = () => {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    // Nothing needed
+                } else {
+                    console.log('Updating sort order failed.  xhr:', xhr);
+                    alert('Updating sort order failed.  xhr:' + xhr)
+                }
+            };
+            xhr.open('PATCH', "");
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));
+        }
+
+        function onEndDrag(/**Event*/ evt) {
+            // Read the rule ids in the order that you want
+            var sortableRulesElement = document.getElementById('rules-tbody');
+            var rows = sortableRulesElement.rows;
+            ids = [];
+            for (row of rows) {
+                id = row.dataset["rule_id"];
+                ids.push(id);
+            }
+            // pass as list of id's to labels to reorder elements.
+            request_label_rule_sort(ids);
+        }
+
+        var sortableRulesElement = document.getElementById('rules-tbody');
+        var sortable = Sortable.create(sortableRulesElement, {
+            handle: '.handle', // handle's class
+            animation: 150,
+            onEnd: onEndDrag,
+        });
+
+    </script>
 {% else %}
     There are no rules defined.
 {% endif %}
-

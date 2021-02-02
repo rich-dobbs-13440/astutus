@@ -43,6 +43,8 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * Task: Can create, delete, and reorder label rules.
+  * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |in_progress| Task: Refactor to replace configuration with DeviceClassifier in device tree.
   * Task: Flush browsers site cache when a new version of application is used.
@@ -72,7 +74,8 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
-  * |newly_done| 2021-02-01 11:45 Task: Proof of concept for refactoring for device configurations.
+  * |newly_done| 2021-02-02 12:54 Task: Able to edit label rules.
+  * |done| 2021-02-01 11:45 Task: Proof of concept for refactoring for device configurations.
   * |done| 2021-01-28 13:58 Task: Test out current PyPI release to see how it works, and identify issues.
   * |done| 2021-01-28 13:58 Story Improve Application of Continuous Integration / Continuous Deployment.
   * |done| 2021-01-28 13:56 Task: Add classifiers to setup for better PyPI searchs.

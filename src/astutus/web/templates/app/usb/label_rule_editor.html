@@ -19,6 +19,7 @@
 
 
 <script>
+
     function addCheckRow() {
         var templateTable = document.querySelector('#rule-table-row-template-holder');
         var rows = templateTable.rows
@@ -118,7 +119,7 @@
         <label for="template" >Template: </label>
     </td>
     <td>
-        <input name="template" value="{{ rule.template }}" class="template"/>
+        <input name="label_rule_template" value="{{ rule.template }}" class="template"/>
     </td>
 </tr>
 
