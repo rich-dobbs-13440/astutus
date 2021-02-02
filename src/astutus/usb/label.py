@@ -109,6 +109,11 @@ def new_rule() -> Dict:
     return rule
 
 
+def delete_rule_by_id(idx: int):
+    rule = get_rule(idx)
+    rules.remove(rule)
+
+
 def rule_applies(rule, device_data: Dict[str, str]) -> bool:
     checks = rule.get('checks')
     if checks is None:

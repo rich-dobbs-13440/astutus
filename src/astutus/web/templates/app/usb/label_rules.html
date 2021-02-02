@@ -1,6 +1,6 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-{% if label_rules | length > 1 %}
+{% if label_rules | length > 0 %}
     <h2>Rules</h2>
     <table>
         <tbody id=rules-tbody>
@@ -9,13 +9,8 @@
                 <td><i class="fa fa-arrows-v handle"></i></td>
                 <td>{{ rule.name }}</td>
                 <td><button onclick="window.location.href='/astutus/app/usb/labelrule/{{ rule.id }}/editor.html'">Edit</button></td>
-                <td>
-                    <form onsubmit="return deleteViaJavascript('{{ rule.id }}' );">
-                        <button type="submit">Delete</button>
-                    </form>
-                </td>
+                <td><button type="button" onclick="deleteViaJavascript('{{ rule.id }}')">Delete</button></td>
             </tr>
-
         {% endfor %}
         </tbody>
     </table>
@@ -51,6 +46,29 @@
             }
             // pass as list of id's to labels to reorder elements.
             request_label_rule_sort(ids);
+        }
+
+        function deleteViaJavascript(idx) {
+            if (confirm('Are you sure you want to this rule?')) {
+                const xhr = new XMLHttpRequest();
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        if (xhr.status == 202) {
+                            redirectURL = xhr.response["redirect_url"]
+                            if (redirectURL != undefined) {
+                                window.location.replace(redirectURL);
+                            }
+                        }
+                    } else {
+                        console.log('deleteViaJavascript failed.  xhr:', xhr);
+                        alert('The method deleteViaJavascript failed.  xhr:' + xhr)
+                    }
+                };
+
+                xhr.open('DELETE', `/astutus/app/usb/labelrule/${idx}`);
+                xhr.responseType = 'json';
+                xhr.send();
+            }
         }
 
         var sortableRulesElement = document.getElementById('rules-tbody');

@@ -43,7 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * Task: Can create, delete, and reorder label rules.
+
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |in_progress| Task: Refactor to replace configuration with DeviceClassifier in device tree.
@@ -74,6 +74,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-02-02 14:30 Task: Can create, delete, and reorder label rules.
   * |newly_done| 2021-02-02 12:54 Task: Able to edit label rules.
   * |done| 2021-02-01 11:45 Task: Proof of concept for refactoring for device configurations.
   * |done| 2021-01-28 13:58 Task: Test out current PyPI release to see how it works, and identify issues.
@@ -82,7 +83,7 @@ Done:
   * |done| 2021-01-28 12:52 Task: Switch over to publishing upon merges to main.
   * |done| 2021-01-28 11:58 Task: Build number as part of packge identification
   * |done| 2021-01-28 11:58 Bug: Error message during package installation: ERROR: Failed building wheel for treelib
-  * |dropped| Task: Automate releases for merge to master.
+  * |dropped| Task: Automate releases for merge to master. - Not using releases for publishing.
   * |done| 2021-01-27 20:33 Task: Get PyPy publishing workflow running - manual steps.
   * |done| 2021-01-27 19:04 Task: Get a build step running with GitHub automation.
   * |done| 2021-01-27 11:00 Task: Add type hints to most code.

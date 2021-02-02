@@ -216,6 +216,21 @@ def handle_usb_alias():
         return "Rules sorted", HTTPStatus.OK
 
 
+@usb_page.route('/astutus/app/usb/labelrule/<int:idx>', methods=['DELETE'])
+def handle_label_item(idx):
+    if flask.request.method == 'DELETE':
+        err_msg = astutus.usb.label.delete_rule_by_id(idx)
+        if err_msg is not None:
+            data = {
+                "err_msg": "/astutus/app/usb/labelrule/index.html",
+            }
+            return data, HTTPStatus.BAD_REQUEST
+        data = {
+            "redirect_url": "/astutus/app/usb/labelrule/index.html"
+        }
+        return data, HTTPStatus.ACCEPTED
+
+
 @usb_page.route('/astutus/app/usb/labelrule/<int:idx>/editor.html', methods=['GET', 'POST'])
 def handle_usb_edit_label_rule(idx: int):
     if flask.request.method == 'GET':
