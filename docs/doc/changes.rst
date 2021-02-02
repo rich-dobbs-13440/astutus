@@ -43,7 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-
+  * |in_progress| Task: Add persistance to label rules.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |in_progress| Task: Refactor to replace configuration with DeviceClassifier in device tree.

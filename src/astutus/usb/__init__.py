@@ -61,3 +61,4 @@ from astutus.usb.usb_impl import find_tty_from_pci_path  # noqa
 from astutus.usb.usb_impl import find_tty_description_from_pci_path  # noqa
 from astutus.usb.usb_impl import find_vendor_info_from_busnum_and_devnum  # noqa
 from astutus.usb.device_classifier import DeviceClassifier  # noqa
+from astutus.usb.label import LabelRules  # noqa

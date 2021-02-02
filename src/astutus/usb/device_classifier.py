@@ -4,7 +4,7 @@ import copy
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util.pci
-import astutus.usb.label
+import astutus.usb
 import pymemcache
 import pymemcache.client.base
 
@@ -205,7 +205,7 @@ class DeviceClassifier(object):
     def get_template(self, device_path: str, rules: List[Dict]) -> str:
         device_data = self.get_device_data(device_path)
         for rule in rules:
-            if astutus.usb.label.rule_applies(rule, device_data):
+            if astutus.usb.LabelRules().rule_applies(rule, device_data):
                 extra_fields = rule.get('extra_fields')
                 if extra_fields is not None:
                     # Need to augment data before using the this template,

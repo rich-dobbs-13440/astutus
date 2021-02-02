@@ -105,7 +105,7 @@ def handle_label(path):
             device_data = device_classifier.get_device_data(sys_devices_path, extra_fields)
         logger.debug(f"node_data: {device_data}")
         label = device_classifier.get_label(
-            sys_devices_path, astutus.usb.label.get_rules(), astutus.usb.label.get_formatting_data('html'))
+            sys_devices_path, astutus.usb.LabelRules().get_rules(), astutus.usb.label.get_formatting_data('html'))
         device_data['html_label'] = label
         result = {
             'html_label': device_data.get('html_label'),
@@ -201,16 +201,16 @@ def handle_usb_alias():
     if flask.request.method == 'GET':
         return flask.render_template(
             'app/usb/labelrule/styled_index.html',
-            label_rules=astutus.usb.label.get_rules(),
+            label_rules=astutus.usb.LabelRules().get_rules(),
             nodepath_item_list=get_alias_path_item_list())
     if flask.request.method == 'POST':
-        rule = astutus.usb.label.new_rule()
+        rule = astutus.usb.LabelRules().new_rule()
         return flask.redirect(flask.url_for('usb.handle_usb_edit_label_rule', idx=rule['id']))
     if flask.request.method == 'PATCH':
         request_data = flask.request.get_json(force=True)
         ids = request_data.get('ids')
         logger.debug(f'ids: {ids}')
-        err_msg = astutus.usb.label.sort(ids)
+        err_msg = astutus.usb.LabelRules().sort(ids)
         if err_msg is not None:
             return err_msg, HTTPStatus.BAD_REQUEST
         return "Rules sorted", HTTPStatus.OK
@@ -219,7 +219,7 @@ def handle_usb_alias():
 @usb_page.route('/astutus/app/usb/labelrule/<int:idx>', methods=['DELETE'])
 def handle_label_item(idx):
     if flask.request.method == 'DELETE':
-        err_msg = astutus.usb.label.delete_rule_by_id(idx)
+        err_msg = astutus.usb.LabelRules().delete_rule_by_id(idx)
         if err_msg is not None:
             data = {
                 "err_msg": "/astutus/app/usb/labelrule/index.html",
@@ -234,7 +234,7 @@ def handle_label_item(idx):
 @usb_page.route('/astutus/app/usb/labelrule/<int:idx>/editor.html', methods=['GET', 'POST'])
 def handle_usb_edit_label_rule(idx: int):
     if flask.request.method == 'GET':
-        rule = astutus.usb.label.get_rule(idx)
+        rule = astutus.usb.LabelRules().get_rule(idx)
         if rule is None:
             return f'No such label rule: {idx}', HTTPStatus.BAD_REQUEST
         return flask.render_template(
@@ -260,7 +260,7 @@ def handle_usb_edit_label_rule(idx: int):
             'checks': checks,
             'template': template,
         }
-        astutus.usb.label.update(rule)
+        astutus.usb.LabelRules().update(rule)
 
         logger.debug(f'rule: {rule}')
         return flask.redirect(flask.url_for('usb.handle_usb_alias'))
@@ -319,7 +319,7 @@ def handle_usb_device_item(nodepath):
         for device_path in device_paths:
             device_data = device_classifier.get_device_data(device_path)
             label = device_classifier.get_label(
-                device_path, astutus.usb.label.get_rules(), astutus.usb.label.get_formatting_data('html'))
+                device_path, astutus.usb.LabelRules().get_rules(), astutus.usb.label.get_formatting_data('html'))
             augumented_label = f"{device_data['dirname']} {label}"
             labels.append(augumented_label)
 
