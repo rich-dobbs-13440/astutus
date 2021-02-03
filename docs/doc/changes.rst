@@ -47,7 +47,7 @@ Backlog:
   * Task: Add extra fields to label rule editor. (Forgot to include them initially.)
   * Task: Use example system device path to populate editor placeholder for label rules.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
-  * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
+  * |in_progress|
   * |in_progress| Task: Refactor to replace configuration with DeviceClassifier in device tree.
   * Task: Flush browsers site cache when a new version of application is used.
   * Task: Provide a link to the RPi's astutus-web-app.
@@ -76,6 +76,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-02-02 22:11 Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |newly_done| 2021-02-02 16:08 Task: Add persistance to label rules.
   * |newly_done| 2021-02-02 14:30 Task: Can create, delete, and reorder label rules.
   * |newly_done| 2021-02-02 12:54 Task: Able to edit label rules.
