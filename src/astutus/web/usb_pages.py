@@ -233,6 +233,7 @@ def handle_label_item(idx):
 def handle_usb_edit_label_rule(idx: int):
     if flask.request.method == 'GET':
         label_rules = astutus.usb.LabelRules()
+        check_fields = label_rules.check_field_set()
         rule = label_rules.get_rule(idx)
         if rule is None:
             return f'No such label rule: {idx}', HTTPStatus.BAD_REQUEST
@@ -240,7 +241,7 @@ def handle_usb_edit_label_rule(idx: int):
         tree_dirpaths = device_tree.get_tree_dirpaths()
         device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
         for dirpath in tree_dirpaths:
-            device_data = device_classifier.get_device_data(dirpath, extra_fields=['nodepath'])
+            device_data = device_classifier.get_device_data(dirpath, extra_fields=check_fields)
             logger.debug(f'device_data: {device_data}')
         filtered_dirpaths = device_classifier.filter_device_paths_for_rule(rule, label_rules.get_rules(), tree_dirpaths)
         device_data_for_rule = []

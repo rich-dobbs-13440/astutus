@@ -10,10 +10,13 @@ simple, so that may design may need to be revisited.
 
 import copy
 import json
+import logging
 import os
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
+
+logger = logging.getLogger(__name__)
 
 original_rules = [
     {
@@ -155,6 +158,21 @@ class LabelRules(object):
         rule = self.get_rule(idx)
         self.rules.remove(rule)
         self.write()
+
+    def check_field_set(self) -> List[str]:
+        """ Returns a list of unique fields used in the checks for all rules."""
+        field_set = set()
+        for rule in self.rules:
+            logger.debug(f'rule: {rule}')
+            checks = rule.get('checks')
+            if checks is None:
+                continue
+            for check in checks:
+                field = check.get('field')
+                if field is None:
+                    continue
+                field_set.add(field)
+        return list(field_set)
 
     @staticmethod
     def rule_applies(rule, device_data: Dict[str, str]) -> bool:
