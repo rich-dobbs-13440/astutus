@@ -47,7 +47,7 @@ function toggleVisibility(checkbox, cssClass, displayValue) {
     });
 }
 
-function handleDisplayAliasAddForm() {
+function handleDisplayAliasAddForm(placeholderInserter) {
 
     handleButtonMenuHide()
     data = current_button_data;
@@ -64,7 +64,7 @@ function handleDisplayAliasAddForm() {
         colorElement = document.querySelector("#color");
         colorElement.value = color;
     }
-    updatePlaceholderTable('#alias-placeholder-table', data);
+    placeholderInserter.updatePlaceholderTable(data);
 }
 
 function handleAddAliasFormCancel() {
@@ -72,79 +72,9 @@ function handleAddAliasFormCancel() {
     container.style.display = "none";
 }
 
-function getSortedKeys(obj) {
-    var keys = Object.keys(obj);
-    return keys.sort();
-}
 
-function do_include_in_placeholder_table(key) {
-    if (key == 'idx') {
-        return false;
-    }
-    if (key == 'idx') {
-        return false;
-    }
-    if (key.startsWith('alias_')) {
-        return false;
-    }
-    if (key.startsWith('resolved_')) {
-        return false;
-    }
-    if (key.startsWith('terminal_')) {
-        return false;
-    }
-    return true;
-}
 
-function updatePlaceholderTable(table_id, data) {
-    const tableElement = document.querySelector(table_id);
-    var dataKeys = getSortedKeys(data);
-    var idx;
-    var key;
-    var value;
-    var rowText;
-    lines = [];
-    for (idx = 0; idx < dataKeys.length; idx++) {
-        key = dataKeys[idx];
-        if (do_include_in_placeholder_table(key)) {
-            value = data[key];
-            placeholder = `{${key}}`
-            tdPlaceholder = `<td><div class="astutus-placeholder">${placeholder}</div></td>`;
-            tdCurrentValue = `<td><div class="astutus-current-value">${value}</div></td>`;
-            onClickText = `handleInsertButtonClick('${placeholder}')`
-            tdbutton = `<td><div class="astutus-insert-placeholder"><button onclick="${onClickText}">Insert</button></div></td>`
-            rowText = `<tr>${tdbutton}${tdPlaceholder}${tdCurrentValue}</tr>`;
-            lines.push(rowText)
-        }
-    }
-    tableElement.innerHTML = lines.join("\n")
-}
 
-var templateSelectionStart;
-var templateSelectionEnd
-function rememberTemplateSelection( selectionStart, selectionEnd) {
-    templateSelectionStart = selectionStart;
-    templateSelectionEnd = selectionEnd;
-}
-
-function handleInsertButtonClick(value) {
-    // Insert a placeholder into the template.
-    const templateElement = document.querySelector("#template")
-    var templateValue = templateElement.value
-    var startStr = templateValue.substring(0, templateSelectionStart);
-    // console.log("startStr: " + startStr);
-    var endStr = templateValue.substring(templateSelectionEnd);
-    // console.log("endStr: " + endStr);
-    var replacementStr = startStr + value + endStr
-    // console.log("replacementStr: " + replacementStr);
-    templateElement.value = replacementStr
-    var currentInsert = templateSelectionStart + value.length
-    // console.log('Desired current insert: ' + currentInsert)
-    templateSelectionStart = currentInsert
-    templateSelectionEnd = currentInsert
-    templateElement.selectionStart = currentInsert
-    templateElement.selectionEnd = currentInsert
-}
 
 var current_button_data;
 

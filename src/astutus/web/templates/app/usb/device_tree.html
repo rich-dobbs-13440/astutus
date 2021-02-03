@@ -41,7 +41,7 @@
             value="need to populate ..."
             onselect="console.log('onselect: ' + Date.now())"
             oninput="console.log('oninput: ' + Date.now())"
-            onblur="rememberTemplateSelection(this.selectionStart, this.selectionEnd)"
+            onblur="placeholderInserter.rememberTemplateSelection(this.selectionStart, this.selectionEnd)"
             onchange="console.log('onchange: ' + Date.now())"/></td>
       </tr>
       <tr>
@@ -60,23 +60,11 @@
       </table>
     </form>
   </div>
-  <div id="placeholder-instructions">
-    The following placeholders can be inserted into the template by clicking its Insert button.
-    <table class="astutus-table-scroll-header">
-      <thead><tr><th></th><th>Placeholder</th><th>Current Value</th></tr></thead>
-    </table>
-  </div>
-  <div class="astutus-table-scroll-wrapper">
-    <div class="astutus-table-scroll">
-      <table id="alias-placeholder-table" class="astutus-table-scroll">
-        <tr><td>Placeholder</td><td>Current Value</td><td></td></tr>
-      </table>
-    </div>
-  </div>
+  {% include "app/usb/placeholder.html" %}
 </div>
 <div id="button-menu" class="astutus-popup astutus-menu">
   <div>
-    <a onclick="handleDisplayAliasAddForm()">Edit alias...</a>
+    <a onclick="handleDisplayAliasAddForm(placeholderInserter)">Edit alias...</a>
   </div>
   <div>
     <a onclick="HandleWorkWithDevice()">Work with device...</a>
@@ -95,5 +83,9 @@
 // Set the background color upon loading
 document.querySelector("#tree-html-container").style.background = '{{ tree_html_background_color }}';
 </script>
-
+<script src="/static/placeholder.js"></script>
+<script>
+  var placeholderInserter = astutusUsbPlaceholderInserter.create(
+    '#alias-placeholder-table', '#template', 'placeholderInserter');
+</script>
 <script src="/static/device_tree.js"></script>
