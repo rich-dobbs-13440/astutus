@@ -142,7 +142,8 @@
 
 </form>
 
-{% include "app/usb/placeholder.html" %}
+{% import "app/usb/placeholder.html" as placeholder %}
+{{ placeholder.create_table('label-rule-placeholder-table') }}
 
 Got here!
 {% for device_data in device_data_for_rule %}

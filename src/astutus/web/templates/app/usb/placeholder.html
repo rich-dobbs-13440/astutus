@@ -1,5 +1,5 @@
 
-<!-- Need to parameterize for id's-->
+{% macro create_table(placeholder_table_id) %}
 <div>
     The following placeholders can be inserted into the template by clicking its Insert button.
     <table class="astutus-table-scroll-header">
@@ -8,8 +8,9 @@
   </div>
   <div class="astutus-table-scroll-wrapper">
     <div class="astutus-table-scroll">
-      <table id="alias-placeholder-table" class="astutus-table-scroll">
+      <table id="{{ placeholder_table_id }}" class="astutus-table-scroll">
         <tr><td>Placeholder</td><td>Current Value</td><td></td></tr>
       </table>
     </div>
   </div>
+  {% endmacro %}
