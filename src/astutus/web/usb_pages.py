@@ -98,7 +98,7 @@ def handle_label(path):
         request_data = flask.request.get_json(force=True)
         logger.debug(f"request_data: {request_data}")
         sys_devices_path = '/sys/' + path
-        device_classifier = astutus.usb.DeviceClassifier(expire_seconds=10)
+        device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
         device_data = device_classifier.get_device_data(sys_devices_path)
         extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
         if extra_fields is not None:
@@ -151,7 +151,7 @@ def handle_device_tree_item(path):
 
 
 @usb_page.route('/astutus/app/usb/device_tree.html', methods=['GET', 'POST'])
-def handle_usb_device():
+def handle_usb_device_tree():
     if flask.request.method == 'GET':
         begin = datetime.now()
         logger.info("Start device tree data creation")
@@ -160,11 +160,9 @@ def handle_usb_device():
         device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
         bare_tree_html = tree_to_html(bare_tree_dict, pci_device_info_map)
-        # aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
         background_color = astutus.util.get_setting('/astutus/app/usb/settings', 'background_color', "#fcfcfc")
         delta = datetime.now() - begin
         logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")
-
         return flask.render_template(
             'app/usb/styled_device_tree.html',
             bare_tree=bare_tree_html,
@@ -192,7 +190,7 @@ def handle_usb_device():
                 "priority": 50
             }
             astutus.usb.device_aliases.DeviceAliases.write_raw_as_json(filepath=None, raw_aliases=aliases)
-            return flask.redirect(flask.url_for('usb.handle_usb_device'))
+            return flask.redirect(flask.url_for('usb.handle_usb_device_tree'))
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
 
 
@@ -234,12 +232,24 @@ def handle_label_item(idx):
 @usb_page.route('/astutus/app/usb/labelrule/<int:idx>/editor.html', methods=['GET', 'POST'])
 def handle_usb_edit_label_rule(idx: int):
     if flask.request.method == 'GET':
-        rule = astutus.usb.LabelRules().get_rule(idx)
+        label_rules = astutus.usb.LabelRules()
+        rule = label_rules.get_rule(idx)
         if rule is None:
             return f'No such label rule: {idx}', HTTPStatus.BAD_REQUEST
+        device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
+        tree_dirpaths = device_tree.get_tree_dirpaths()
+        device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
+        for dirpath in tree_dirpaths:
+            device_data = device_classifier.get_device_data(dirpath, extra_fields=['nodepath'])
+            logger.debug(f'device_data: {device_data}')
+        filtered_dirpaths = device_classifier.filter_device_paths_for_rule(rule, label_rules.get_rules(), tree_dirpaths)
+        device_data_for_rule = []
+        for dirpath in filtered_dirpaths:
+            device_data_for_rule.append(device_classifier.get_device_data(dirpath))
         return flask.render_template(
             'app/usb/styled_label_rule_editor.html',
-            rule=rule)
+            rule=rule,
+            device_data_for_rule=device_data_for_rule)
     if flask.request.method == 'POST':
         name = flask.request.form.get('label_rule_name')
         check_field_list = flask.request.form.getlist('check_field')
@@ -297,7 +307,7 @@ def handle_usb_device_item(nodepath):
             'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
             'pci': ['nodepath'],
         }
-        device_classifier = astutus.usb.DeviceClassifier(expire_seconds=10)
+        device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
         device_data_list = []
         for device_path in device_paths:
             device_data = device_classifier.get_device_data(device_path)

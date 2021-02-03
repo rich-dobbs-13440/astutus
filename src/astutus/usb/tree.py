@@ -8,10 +8,10 @@ import os
 import os.path
 import sys
 from datetime import datetime
+from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.log
 import astutus.usb
-
 import astutus.usb.node
 import astutus.util
 import treelib
@@ -201,13 +201,20 @@ class UsbDeviceTree(object):
         return self.usb_device_dirpaths
 
     def get_ilk_by_dirpath(self):
+        """ The attribute ilk is one of 'usb', 'pci', or 'other'."""
         if self.ilk_by_dirpath is None:
             self.usb_device_dirpaths, self.ilk_by_dirpath = self.walk_basepath_for_usb(self.basepath)
         return self.ilk_by_dirpath
 
-    def get_tree_dirpaths(self):
+    def get_tree_dirpaths(self) -> List[str]:
+        """ Returns a list of directory paths for the tree.
+
+        The list is sorted from the top of the tree to the bottom, so parent nodes are guaranteed
+        to be listed before child nodes.
+        """
         if self.tree_dirpaths is None:
             self.tree_dirpaths = self.find_tree_dirpaths(self.basepath, self.get_usb_device_dirpath())
+            logger.debug(f'self.tree_dirpaths: {self.tree_dirpaths}')
         return self.tree_dirpaths
 
     def get_data_by_dirpath(self):

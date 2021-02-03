@@ -135,3 +135,11 @@
 
 
 </form>
+
+Got here!
+{% for device_data in device_data_for_rule %}
+<pre>
+    {{ device_data | tojson_pretty }}
+</pre>
+{% endfor %}
+And after here!

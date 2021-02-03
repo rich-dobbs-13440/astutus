@@ -1,3 +1,13 @@
+""" This module is used for most aspect of labeling device nodes.
+
+
+At this time, it's not clear on whether formatting data should be part of the the LabelRules class,
+or a separate class.
+
+This implementation uses a Python dictionary representation of rules.  The dictionary is not
+simple, so that may design may need to be revisited.
+"""
+
 import copy
 import json
 import os
@@ -81,7 +91,9 @@ class LabelRules(object):
             json.dump(content, rules_file, indent=4, sort_keys=True)
 
     def get_rules(self) -> List[Dict]:
-        return self.rules
+        # Return a copy, so that the content can only be changed
+        # by using the class interface.  This is needed for persistance.
+        return copy.deepcopy(self.rules)
 
     def get_rule(self, idx: int) -> Dict:
         for rule in self.rules:
@@ -99,7 +111,7 @@ class LabelRules(object):
         return None
 
     def sort(self, ids: List) -> str:
-        """ sort the label rules in the order given by the ids.
+        """ Sort the label rules in the order given by the ids.
 
         Returns error message or None
         """
@@ -115,6 +127,11 @@ class LabelRules(object):
         return None
 
     def new_rule(self) -> Dict:
+        """ Create a new rule, which has been added at the top of the rules list.
+
+        The rule will have a unique id.  It is created as applying to USB devices,
+        with a reasonable default template.
+         """
         max_id = None
         for rule in self.rules:
             if max_id is None:
@@ -152,6 +169,8 @@ class LabelRules(object):
                 if check.get('value') != data_value:
                     return False
             elif operator == 'contains':
+                if data_value is None:
+                    return False
                 if check.get('value') not in data_value:
                     return False
             else:

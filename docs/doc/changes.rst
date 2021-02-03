@@ -43,6 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * Task: Add extra fields to label rule editor. (Forgot to include them initially.)
   * Task: Use example system device path to populate editor placeholder for label rules.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.

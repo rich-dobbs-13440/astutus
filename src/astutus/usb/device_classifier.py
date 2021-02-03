@@ -202,23 +202,47 @@ class DeviceClassifier(object):
                     assert False, line
         device_data['interface_class_list'] = ','.join(interface_class_list)
 
-    def get_template(self, device_path: str, rules: List[Dict]) -> str:
+    def get_rule(self, device_path: str, rules: List[Dict]) -> Tuple[int, Dict]:
+        """ Return the idx and rule that will be used for this device path.
+
+        This will be used to select the rule to be edited for a particular node
+        on the device tree.
+
+        """
         device_data = self.get_device_data(device_path)
-        for rule in rules:
+        for idx, rule in enumerate(rules):
             if astutus.usb.LabelRules().rule_applies(rule, device_data):
-                extra_fields = rule.get('extra_fields')
-                if extra_fields is not None:
-                    # Need to augment data before using the this template,
-                    # so do so now.
-                    self.get_device_data(device_path, extra_fields)
-                return rule.get('template')
-        return '-- no rule_applies --'
+                return idx, rule
+        return None, None
+
+    def get_template(self, device_path: str, rules: List[Dict]) -> str:
+        _, rule = self.get_rule(device_path, rules)
+        if rule is None:
+            return '-- no rule_applies --'
+        extra_fields = rule.get('extra_fields')
+        if extra_fields is not None:
+            # Need to augment data before using the this template,
+            # so do so now.
+            self.get_device_data(device_path, extra_fields)
+        return rule.get('template')
 
     def get_label(self, device_path: str, rules: List[Dict], formatting_data: Dict[str, str] = []) -> str:
         template = self.get_template(device_path, rules)
         device_data = self.get_device_data(device_path)
         label = self.robust_format_map(template, device_data, formatting_data)
         return label
+
+    def filter_device_paths_for_rule(self, rule, rules, input_device_paths) -> List[str]:
+        """ Find all dirpaths for which the provided rule would be used to label the node.
+
+        Note: The rule must be a member of the rules list.  If it is not, the behavior is undefined.
+        """
+        filtered_device_paths = []
+        for device_path in input_device_paths:
+            _, rule_for_path = self.get_rule(device_path, rules)
+            if rule_for_path['id'] == rule['id']:
+                filtered_device_paths.append(device_path)
+        return filtered_device_paths
 
     @staticmethod
     def robust_format_map(template: str, device_data: Dict[str, str], formatting_data: Dict[str, str]):
