@@ -43,7 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * Bug: Operator selector not showing "contains" for selecting in nodepath.
+
   * Task: Add extra fields to label rule editor. (Forgot to include them initially.)
   * Task: Use example system device path to populate editor placeholder for label rules.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
@@ -76,6 +76,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-02-02 22:36 Bug: Operator selector not showing "contains" for selecting in nodepath.
   * |newly_done| 2021-02-02 22:11 Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |newly_done| 2021-02-02 16:08 Task: Add persistance to label rules.
   * |newly_done| 2021-02-02 14:30 Task: Can create, delete, and reorder label rules.
