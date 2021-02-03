@@ -195,7 +195,7 @@ def handle_usb_device_tree():
 
 
 @usb_page.route('/astutus/app/usb/labelrule/index.html', methods=['GET', 'PATCH', 'POST'])
-def handle_usb_alias():
+def handle_usb_label_rule():
     if flask.request.method == 'GET':
         return flask.render_template(
             'app/usb/labelrule/styled_index.html',
@@ -265,16 +265,19 @@ def handle_usb_edit_label_rule(idx: int):
             }
             checks.append(check)
         template = flask.request.form.get('label_rule_template')
+        # The extra fields are returned as a comma or space separated string.  They must be parsed to a list of strings
+        raw_extra_fields = flask.request.form.get('label_rule_extra_fields')
+        extra_fields = raw_extra_fields.replace(',', ' ').split()
         rule = {
             'name': name,
             'id': idx,
             'checks': checks,
             'template': template,
+            'extra_fields': extra_fields,
         }
         astutus.usb.LabelRules().update(rule)
-
         logger.debug(f'rule: {rule}')
-        return flask.redirect(flask.url_for('usb.handle_usb_alias'))
+        return flask.redirect(flask.url_for('usb.handle_usb_label_rule'))
 
 
 @usb_page.route('/astutus/app/usb/settings', methods=['GET', 'PATCH'])

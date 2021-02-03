@@ -116,13 +116,21 @@
 
 <tr>
     <td>
-        <label for="template" >Template: </label>
+        <label for="label_rule_template" >Template: </label>
     </td>
     <td>
         <input name="label_rule_template" value="{{ rule.template }}" class="template"/>
     </td>
 </tr>
 
+<tr>
+    <td>
+        <label for="label_rule_extra_fields" >Extra Fields: </label>
+    </td>
+    <td>
+        <input name="label_rule_extra_fields" value="{{ rule.extra_fields | join(', ')}}" class="template"/>
+    </td>
+</tr>
 
 </table>
 
