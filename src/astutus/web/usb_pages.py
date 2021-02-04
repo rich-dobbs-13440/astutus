@@ -237,6 +237,27 @@ def handle_label_item(idx):
         return data, HTTPStatus.ACCEPTED
 
 
+@usb_page.route('/astutus/app/usb/labelrule/*/editor.html', methods=['GET'])
+def handle_usb_edit_label_rule_for_embbeded_content():
+    """ This is used by the device tree to display a label rule editor for a particular device"""
+    if flask.request.method == 'GET':
+        dirpath = flask.request.args.get('forDevice')
+        logger.debug(f'dirpath: {dirpath}')
+        device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
+        rules = astutus.usb.LabelRules().get_rules()
+        idx, rule = device_classifier.get_rule(dirpath, rules)
+        logger.debug(f'rule: {rule}')
+        device_data_for_rule = [device_classifier.get_device_data(dirpath)]
+        return flask.render_template(
+            'app/usb/label_rule_editor.html',
+            rule=rule,
+            device_data_for_rule=device_data_for_rule,
+            # idx_item_list=get_labelrules_items_list() - probably not needed, since this is navigation
+            # outside of functional label rule editor.
+            )
+        return "<div>Can you show this?</div>"
+
+
 @usb_page.route('/astutus/app/usb/labelrule/<int:idx>/editor.html', methods=['GET', 'POST'])
 def handle_usb_edit_label_rule(idx: int):
     if flask.request.method == 'GET':

@@ -47,36 +47,37 @@ function toggleVisibility(checkbox, cssClass, displayValue) {
     });
 }
 
-function handleDisplayAliasAddForm(placeholderInserter) {
+// function handleDisplayAliasAddForm(placeholderInserter) {
 
-    handleButtonMenuHide()
-    data = current_button_data;
-    placeAndDisplayContainer(current_button, "#add-alias-form-container")
+//     handleButtonMenuHide()
+//     data = current_button_data;
+//     placeAndDisplayContainer(current_button, "#add-alias-form-container")
 
-    var aliasNameElement = document.querySelector("#name");
-    aliasNameElement.value = data["alias_name"];
-    var nodePathElement = document.querySelector("#nodepath");
-    nodePathElement.value = data["nodepath"];
-    templateElement = document.querySelector("#template");
-    templateElement.value = data["alias_description_template"];
-    var color = data["alias_color"];
-    if (color != "" && color != undefined) {
-        colorElement = document.querySelector("#color");
-        colorElement.value = color;
-    }
-    placeholderInserter.updatePlaceholderTable(data);
-}
+//     var aliasNameElement = document.querySelector("#name");
+//     aliasNameElement.value = data["alias_name"];
+//     var nodePathElement = document.querySelector("#nodepath");
+//     nodePathElement.value = data["nodepath"];
+//     templateElement = document.querySelector("#template");
+//     templateElement.value = data["alias_description_template"];
+//     var color = data["alias_color"];
+//     if (color != "" && color != undefined) {
+//         colorElement = document.querySelector("#color");
+//         colorElement.value = color;
+//     }
+//     placeholderInserter.updatePlaceholderTable(data);
+// }
 
-function handleAddAliasFormCancel() {
-    var container = document.querySelector("#add-alias-form-container");
-    container.style.display = "none";
-}
+// function handleAddAliasFormCancel() {
+//     var container = document.querySelector("#add-alias-form-container");
+//     container.style.display = "none";
+// }
 
 
 
 
 
 var current_button_data;
+var current_button;
 
 
 function onTreeButtonClick(button) {
@@ -97,6 +98,30 @@ function onTreeButtonClick(button) {
     current_button_data = data;
     current_button = button;
     placeAndDisplayContainer(button, "#button-menu")
+}
+
+function handleDisplayLabelEditor() {
+    handleButtonMenuHide()
+    // Need to populate container by calling server with correct information.
+    dirpath = current_button_data['dirpath']
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            alert('Got a good response from server.  Need to use to populate container.');
+            console.log(xhr.responseText);
+            const container = document.querySelector("#edit-label-container");
+            if (container != undefined) {
+                container.innerHTML = xhr.responseText;
+            }
+        } else {
+            console.log('Gettting HTML content for embedded label editor failed.  xhr:', xhr);
+            alert('ERROR: internal or runtime: Gettting HTML content for embedded label editor failed..  xhr:' + xhr);
+        }
+    };
+    xhr.open('GET', `/astutus/app/usb/labelrule/*/editor.html?forDevice=${dirpath}&embedded=true`);
+    xhr.send();
+    // console.log('handleDisplayLabelEditor - current_button_data: ', current_button_data)
+    placeAndDisplayContainer(current_button, "#edit-label-container")
 }
 
 function HandleWorkWithDevice() {

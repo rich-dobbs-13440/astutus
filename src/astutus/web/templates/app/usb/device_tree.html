@@ -12,52 +12,13 @@
   {% endif %}
 
 </div>
-  <!-- TODO: Add in collapsing feature without bringing the ugly styling
-    <script>
-    $(function() {
-      $('#tree-html-container').jstree();
-    });
-  </script> -->
-<div id="add-alias-form-container" class="astutus-popup">
-  <div class="add-alias-form">
-    <form method="POST">
-      <table id="astutus-add-alias-table">
-      <tr>
-        <td><label for="name">Name:</label></td>
-        <td><input  name="name" id="name" type="text" value="need to populate"/></td>
-      </tr>
-      <tr>
-        <td><label for="nodepath">Node path:</label></td>
-        <td>
-          <textarea name="nodepath" id="nodepath" rows="3" cols="50" wrap="soft"></textarea>
-        </td>
-      </tr>
-      <tr>
-        <td><label for="template">Template:</label></td>
-        <td><input name="template" id="template" type="text" value="need to populate ..."/></td>
-      </tr>
-      <tr>
-        <td><label for="color">Choose a color:</label></td>
-        <td>
-          <input name="color" id="color" type="color" class="astutus-color"/>
-        </td>
-      </tr>
-      <tr>
-        <td><input name="action" id="action" type="hidden" value="add_or_update_alias" /></td>
-      </tr>
-      <tr>
-        <td><input type="submit" value="Add" id="add_alias_form_add_button" /></td>
-        <td><input type="button" value="Cancel" onclick="handleAddAliasFormCancel()"/></td>
-      </tr>
-      </table>
-    </form>
-  </div>
-  {% import "app/usb/placeholder.html" as placeholder %}
-  {{ placeholder.create_table('alias-placeholder-table') }}
+<div id="edit-label-container" class="astutus-popup">
+<p>Content will be dynamically populated using AJAX.  </p>
 </div>
+
 <div id="button-menu" class="astutus-popup astutus-menu">
   <div>
-    <a onclick="handleDisplayAliasAddForm(placeholderInserter)">Edit alias...</a>
+    <a onclick="handleDisplayLabelEditor()">Edit or create label rule...</a>
   </div>
   <div>
     <a onclick="HandleWorkWithDevice()">Work with device...</a>
@@ -75,9 +36,5 @@
 <script>
 // Set the background color upon loading
 document.querySelector("#tree-html-container").style.background = '{{ tree_html_background_color }}';
-</script>
-<script src="/static/placeholder.js"></script>
-<script>
-  var placeholderInserter = astutusUsbPlaceholderInserter.create('#alias-placeholder-table', '#template');
 </script>
 <script src="/static/device_tree.js"></script>
