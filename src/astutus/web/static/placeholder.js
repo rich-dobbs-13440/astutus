@@ -1,14 +1,22 @@
 var astutusUsbPlaceholderInserter = {
-    create: function (tableSelector, templateSelector, inserterVariableName) {
+    create: function (tableSelector, templateSelector) {
         // Create a variable to hold methods and instance variables
-        return {
+        var inserter =  {
             'tableSelector': tableSelector,
-            'tableElement': document.querySelector(tableSelector),
             'templateSelector': templateSelector,
-            'templateElement': document.querySelector(templateSelector),
-            'inserterVariableName': inserterVariableName,
+            'tableElement': null,
+            'templateElement': null,
             'templateSelectionStart': null,
             'templateSelectionEnd': null,
+            initialize: function() {
+                this['tableElement'] = document.querySelector(this.tableSelector);
+                this['templateElement'] = document.querySelector(this.templateSelector);
+                var theInstance = this;
+                rememberTemplateSelectionClosure = function() {
+                    theInstance.rememberTemplateSelection();
+                }
+                this.templateElement.addEventListener('blur', rememberTemplateSelectionClosure);
+            },
             updatePlaceholderTable: function(data) {
                 var dataKeys = this.getSortedKeys(data);
                 var idx;
@@ -23,13 +31,17 @@ var astutusUsbPlaceholderInserter = {
                         placeholder = `{${key}}`
                         tdPlaceholder = `<td><div class="astutus-placeholder">${placeholder}</div></td>`;
                         tdCurrentValue = `<td><div class="astutus-current-value">${value}</div></td>`;
-                        onClickText = `${inserterVariableName}.handleInsertButtonClick('${placeholder}')`
-                        tdbutton = `<td><div class="astutus-insert-placeholder"><button onclick="${onClickText}">Insert</button></div></td>`
+                        tdbutton = `<td><div class="astutus-insert-placeholder"><button data-placeholder="${placeholder}">Insert</button></div></td>`
                         rowText = `<tr>${tdbutton}${tdPlaceholder}${tdCurrentValue}</tr>`;
                         lines.push(rowText)
                     }
                 }
-                this.tableElement.innerHTML = lines.join("\n")
+                this.tableElement.innerHTML = lines.join('\n');
+                var theInstance = this;
+                for (button of this.tableElement.getElementsByTagName('BUTTON')) {
+                    button.addEventListener('click', function(evt) { theInstance.handleInsertButtonClick(evt);} );
+                }
+
             },
             getSortedKeys: function (obj) {
                 var keys = Object.keys(obj);
@@ -53,21 +65,23 @@ var astutusUsbPlaceholderInserter = {
                 }
                 return true;
             },
-            rememberTemplateSelection: function(selectionStart, selectionEnd) {
-                this.templateSelectionStart = selectionStart;
-                this.templateSelectionEnd = selectionEnd;
+            rememberTemplateSelection: function() {
+                this.templateSelectionStart = this.templateElement.selectionStart;
+                this.templateSelectionEnd = this.templateElement.selectionEnd;
             },
-            handleInsertButtonClick: function(value) {
+            handleInsertButtonClick: function(event) {
+                button = event.srcElement;
+                placeholder = button.dataset.placeholder;
                 // Insert a placeholder into the template.
                 var templateValue = this.templateElement.value
                 var startStr = templateValue.substring(0, this.templateSelectionStart);
                 // console.log("startStr: " + startStr);
                 var endStr = templateValue.substring(this.templateSelectionEnd);
                 // console.log("endStr: " + endStr);
-                var replacementStr = startStr + value + endStr;
+                var replacementStr = startStr + placeholder + endStr;
                 // console.log("replacementStr: " + replacementStr);
                 this.templateElement.value = replacementStr
-                var currentInsert = this.templateSelectionStart + value.length;
+                var currentInsert = this.templateSelectionStart + placeholder.length;
                 // console.log('Desired current insert: ' + currentInsert)
                 this.templateSelectionStart = currentInsert;
                 this.templateSelectionEnd = currentInsert;
@@ -75,5 +89,7 @@ var astutusUsbPlaceholderInserter = {
                 this.templateElement.selectionEnd = currentInsert;
             }
         };
+        inserter.initialize()
+        return inserter;
     }
 };

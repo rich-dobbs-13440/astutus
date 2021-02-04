@@ -60,7 +60,7 @@ function handleDisplayAliasAddForm(placeholderInserter) {
     templateElement = document.querySelector("#template");
     templateElement.value = data["alias_description_template"];
     var color = data["alias_color"];
-    if (color != "") {
+    if (color != "" && color != undefined) {
         colorElement = document.querySelector("#color");
         colorElement.value = color;
     }

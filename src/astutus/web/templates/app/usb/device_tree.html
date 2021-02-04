@@ -34,15 +34,7 @@
       </tr>
       <tr>
         <td><label for="template">Template:</label></td>
-        <td><input
-            name="template"
-            id="template"
-            type="text"
-            value="need to populate ..."
-            onselect="console.log('onselect: ' + Date.now())"
-            oninput="console.log('oninput: ' + Date.now())"
-            onblur="placeholderInserter.rememberTemplateSelection(this.selectionStart, this.selectionEnd)"
-            onchange="console.log('onchange: ' + Date.now())"/></td>
+        <td><input name="template" id="template" type="text" value="need to populate ..."/></td>
       </tr>
       <tr>
         <td><label for="color">Choose a color:</label></td>
@@ -86,7 +78,6 @@ document.querySelector("#tree-html-container").style.background = '{{ tree_html_
 </script>
 <script src="/static/placeholder.js"></script>
 <script>
-  var placeholderInserter = astutusUsbPlaceholderInserter.create(
-    '#alias-placeholder-table', '#template', 'placeholderInserter');
+  var placeholderInserter = astutusUsbPlaceholderInserter.create('#alias-placeholder-table', '#template');
 </script>
 <script src="/static/device_tree.js"></script>

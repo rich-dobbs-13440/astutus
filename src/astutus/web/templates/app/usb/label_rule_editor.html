@@ -144,6 +144,10 @@
 
 {% import "app/usb/placeholder.html" as placeholder %}
 {{ placeholder.create_table('label-rule-placeholder-table') }}
+<script src="/static/placeholder.js"></script>
+<script>
+  var placeholderInserter = astutusUsbPlaceholderInserter.create('#label-rule-placeholder-table', '#template');
+</script>
 
 Got here!
 {% for device_data in device_data_for_rule %}
@@ -152,3 +156,15 @@ Got here!
 </pre>
 {% endfor %}
 And after here!
+
+
+{% if device_data_for_rule|length > 0 %}
+
+<script>
+    var data = {{ device_data_for_rule[0] | safe }};
+    // Need to add non-field placeholders
+    // Should have default fields without values for general definition???
+    placeholderInserter.updatePlaceholderTable(data);
+</script>
+
+{% endif %}
