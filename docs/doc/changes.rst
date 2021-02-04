@@ -43,8 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * |in_progress| Task: Navigation for label rules - vertical menu, breadcrumps - bookmark
-  * Task: Replace edit alias with edit or create label rule.
+  * |in_progress| Task: Replace edit alias with edit or create label rule.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * Task: Flush browsers site cache when a new version of application is used.
   * Task: Provide a link to the RPi's astutus-web-app.
@@ -73,6 +72,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-02-04 09:45 Task: Navigation for label rules - vertical menu, breadcrumps - bookmark
   * |newly_done| 2021-02-04 07:46 Task: Use example system device path to populate editor placeholder for label rules.
   * |dropped| 2021-02-03 17:50 Bug: Apparent bug in calculating node path:  .../usb(05e3:0610)/usb(05e3:0610) for SMAKN relay was mistaken.
   * |newly_done| 2021-02-03 09:05 Task: Add extra fields to label rule editor. (Forgot to include them initially.)

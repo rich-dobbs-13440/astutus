@@ -42,6 +42,14 @@ def get_alias_path_item_list():
     return items_list
 
 
+def get_labelrules_items_list():
+    label_rules = astutus.usb.LabelRules().get_rules()
+    items_list = []
+    for rule in label_rules:
+        items_list.append({'value': rule['id'], 'link_text': rule['name']})
+    return items_list
+
+
 @usb_page.route('/astutus/app/usb/index.html', methods=['GET'])
 def handle_usb():
     if flask.request.method == 'GET':
@@ -200,7 +208,7 @@ def handle_usb_label_rule():
         return flask.render_template(
             'app/usb/labelrule/styled_index.html',
             label_rules=astutus.usb.LabelRules().get_rules(),
-            nodepath_item_list=get_alias_path_item_list())
+            idx_item_list=get_labelrules_items_list())
     if flask.request.method == 'POST':
         rule = astutus.usb.LabelRules().new_rule()
         return flask.redirect(flask.url_for('usb.handle_usb_edit_label_rule', idx=rule['id']))
@@ -250,7 +258,8 @@ def handle_usb_edit_label_rule(idx: int):
         return flask.render_template(
             'app/usb/styled_label_rule_editor.html',
             rule=rule,
-            device_data_for_rule=device_data_for_rule)
+            device_data_for_rule=device_data_for_rule,
+            idx_item_list=get_labelrules_items_list())
     if flask.request.method == 'POST':
         name = flask.request.form.get('label_rule_name')
         check_field_list = flask.request.form.getlist('check_field')

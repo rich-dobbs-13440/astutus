@@ -11,7 +11,6 @@
 		"python.terminal.activateEnvironment": true,
 		"python.path": "${workspaceFolder}/venv/bin/python3",
 		"restructuredtext.confPath": "${workspaceFolder}/docs",
-		"emmet.includeLanguages": {"jinja-html": "html"},
 		"[restructuredtext]": {
 			"editor.quickSuggestions": false
 		},
@@ -19,6 +18,8 @@
 		"files.autoSave": "afterDelay",
 		"files.autoSaveDelay": 2000,
 		"terminal.integrated.scrollback": 10000,
+		"javascript.validate.enable": false,
+		"typescript.validate.enable": false,
 	},
 	"files.watcherExclude": {
 		"**/.git/objects/**": true,

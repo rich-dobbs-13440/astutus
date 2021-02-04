@@ -161,7 +161,8 @@ And after here!
 {% if device_data_for_rule|length > 0 %}
 
 <script>
-    var data = {{ device_data_for_rule[0] | safe }};
+
+    var data = {{ device_data_for_rule[0] | safe }}; // eslint-disable-line
     // Need to add non-field placeholders
     // Should have default fields without values for general definition???
     placeholderInserter.updatePlaceholderTable(data);

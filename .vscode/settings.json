@@ -1,4 +1,4 @@
 {
-    ,
-
+    "javascript.validate.enable": false,
+    "restructuredtext.confPath": "${workspaceFolder}/docs",
 }
