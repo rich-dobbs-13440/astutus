@@ -43,6 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * Bug: Apparent bugg in calculating node path:  .../usb(05e3:0610)/usb(05e3:0610) for SMAKN relay.
   * |in_progress| Task: Use example system device path to populate editor placeholder for label rules.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * Task: Replace edit alias with edit or create label rule.

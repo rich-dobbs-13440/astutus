@@ -106,7 +106,7 @@ def handle_label(path):
         logger.debug(f"node_data: {device_data}")
         label = device_classifier.get_label(
             sys_devices_path, astutus.usb.LabelRules().get_rules(), astutus.usb.label.get_formatting_data('html'))
-        device_data['html_label'] = label
+        device_data['html_label'] = f'<span class="node_id_class">{device_data["node_id"]}</span>{label}'
         result = {
             'html_label': device_data.get('html_label'),
             'sys_devices_path': sys_devices_path,
