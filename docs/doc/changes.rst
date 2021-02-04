@@ -43,7 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * Bug: Apparent bugg in calculating node path:  .../usb(05e3:0610)/usb(05e3:0610) for SMAKN relay.
+
   * |in_progress| Task: Use example system device path to populate editor placeholder for label rules.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * Task: Replace edit alias with edit or create label rule.
@@ -74,6 +74,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |dropped| 2021-02-03 17:50 Bug: Apparent bug in calculating node path:  .../usb(05e3:0610)/usb(05e3:0610) for SMAKN relay was mistaken.
   * |newly_done| 2021-02-03 09:05 Task: Add extra fields to label rule editor. (Forgot to include them initially.)
   * |done| 2021-02-02 22:36 Bug: Operator selector not showing "contains" for selecting in nodepath.
   * |done| 2021-02-02 22:11 Task: Refactor to use DeviceClassifier labels instead of aliases.

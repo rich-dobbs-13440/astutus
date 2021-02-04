@@ -119,7 +119,7 @@
         <label for="label_rule_template" >Template: </label>
     </td>
     <td>
-        <input name="label_rule_template" value="{{ rule.template }}" class="template"/>
+        <input name="label_rule_template" id="label-rule-template" value="{{ rule.template }}" class="template"/>
     </td>
 </tr>
 
@@ -128,7 +128,7 @@
         <label for="label_rule_extra_fields" >Extra Fields: </label>
     </td>
     <td>
-        <input name="label_rule_extra_fields" value="{{ rule.extra_fields | join(', ')}}" class="template"/>
+        <input name="label_rule_extra_fields"  value="{{ rule.extra_fields | join(', ')}}" class="template"/>
     </td>
 </tr>
 
@@ -146,7 +146,7 @@
 {{ placeholder.create_table('label-rule-placeholder-table') }}
 <script src="/static/placeholder.js"></script>
 <script>
-  var placeholderInserter = astutusUsbPlaceholderInserter.create('#label-rule-placeholder-table', '#template');
+  var placeholderInserter = astutusUsbPlaceholderInserter.create('#label-rule-placeholder-table', '#label-rule-template');
 </script>
 
 Got here!

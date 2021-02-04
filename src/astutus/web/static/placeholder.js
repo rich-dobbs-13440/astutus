@@ -10,7 +10,13 @@ var astutusUsbPlaceholderInserter = {
             'templateSelectionEnd': null,
             initialize: function() {
                 this['tableElement'] = document.querySelector(this.tableSelector);
+                if (this.tableElement == null) {
+                    this.raiseServerInternalError(`No element found with tableSelector of ${this.tableSelector}`)
+                }
                 this['templateElement'] = document.querySelector(this.templateSelector);
+                if (this.templateElement == null) {
+                    this.raiseServerInternalError(`No element found with templateSelector of ${this.templateSelector}`)
+                }
                 var theInstance = this;
                 rememberTemplateSelectionClosure = function() {
                     theInstance.rememberTemplateSelection();
@@ -87,6 +93,13 @@ var astutusUsbPlaceholderInserter = {
                 this.templateSelectionEnd = currentInsert;
                 this.templateElement.selectionStart = currentInsert;
                 this.templateElement.selectionEnd = currentInsert;
+            },
+            raiseServerInternalError: function(msg) {
+                const xhr = new XMLHttpRequest();
+                encodedMsg = encodeURIComponent(msg)
+                xhr.open('GET', `/astutus/internalerror/client?msg=${encodedMsg}`);
+                xhr.send();
+                alert(`INTERNAL ERROR: ${msg}`);
             }
         };
         inserter.initialize()

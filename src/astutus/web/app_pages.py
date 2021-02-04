@@ -1,4 +1,5 @@
 import logging
+from http import HTTPStatus
 
 import flask
 import flask.logging
@@ -16,3 +17,10 @@ def handle_top():
 @app_page.route('/astutus/app/index.html')
 def handle_astutus():
     return flask.render_template('app/styled_index.html')
+
+
+@app_page.route('/astutus/internalerror/<path:path>', methods=['GET'])
+def handle_internalerror(path):
+    args = flask.request.args
+    logger.error(f'Internal error from client:  {args}')
+    return f"args: {args}", HTTPStatus.INTERNAL_SERVER_ERROR
