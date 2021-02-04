@@ -244,7 +244,10 @@ def handle_usb_edit_label_rule_for_embbeded_content():
         dirpath = flask.request.args.get('forDevice')
         logger.debug(f'dirpath: {dirpath}')
         device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
-        rules = astutus.usb.LabelRules().get_rules()
+        label_rules = astutus.usb.LabelRules()
+        check_fields = label_rules.check_field_set()
+        device_classifier.get_device_data(dirpath, extra_fields=check_fields)
+        rules = label_rules.get_rules()
         idx, rule = device_classifier.get_rule(dirpath, rules)
         logger.debug(f'rule: {rule}')
         device_data_for_rule = [device_classifier.get_device_data(dirpath)]
@@ -252,8 +255,6 @@ def handle_usb_edit_label_rule_for_embbeded_content():
             'app/usb/label_rule_editor.html',
             rule=rule,
             device_data_for_rule=device_data_for_rule,
-            # idx_item_list=get_labelrules_items_list() - probably not needed, since this is navigation
-            # outside of functional label rule editor.
             )
         return "<div>Can you show this?</div>"
 

@@ -107,12 +107,18 @@ function handleDisplayLabelEditor() {
     const xhr = new XMLHttpRequest();
     xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-            alert('Got a good response from server.  Need to use to populate container.');
             console.log(xhr.responseText);
             const container = document.querySelector("#edit-label-container");
             if (container != undefined) {
                 container.innerHTML = xhr.responseText;
             }
+            var scriptElement = document.querySelector('#initialize-placeholder-table');
+            console.log('scriptElement.text: ', scriptElement.text);
+            eval(scriptElement.text)
+            // placeholderInsertData = {
+            //     'color_purple': '---',
+            // }
+            initialize_placeholder(placeholderInsertData);
         } else {
             console.log('Gettting HTML content for embedded label editor failed.  xhr:', xhr);
             alert('ERROR: internal or runtime: Gettting HTML content for embedded label editor failed..  xhr:' + xhr);

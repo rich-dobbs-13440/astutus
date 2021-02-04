@@ -17,35 +17,6 @@
 </tr>
 {% endmacro %}
 
-
-<script>
-
-    function addCheckRow() {
-        var templateTable = document.querySelector('#rule-table-row-template-holder');
-        var rows = templateTable.rows
-        const lastRow = rows[rows.length -1];
-        var clonedRow = lastRow.cloneNode(true);
-        var checkTable = document.querySelector('#rule-table');
-        checkTable.appendChild(clonedRow);
-    }
-
-    function deleteRow(button) {
-        node = button.parentNode;
-        while (node != undefined) {
-            console.log(node.nodeName);
-            if (node.nodeName == 'TR') {
-                break;
-            }
-            node = node.parentNode;
-        }
-        if (node != undefined) {
-            tr = node;
-            tr.parentNode.removeChild(tr);
-        } else {
-            alert('What went wrong????')
-        }
-    }
-</script>
 <style>
     div.buttons {
         padding-top: 2ch;
@@ -144,10 +115,7 @@
 
 {% import "app/usb/placeholder.html" as placeholder %}
 {{ placeholder.create_table('label-rule-placeholder-table') }}
-<script src="/static/placeholder.js"></script>
-<script>
-  var placeholderInserter = astutusUsbPlaceholderInserter.create('#label-rule-placeholder-table', '#label-rule-template');
-</script>
+
 
 Got here!
 {% for device_data in device_data_for_rule %}
@@ -157,15 +125,16 @@ Got here!
 {% endfor %}
 And after here!
 
+<script src="/static/placeholder.js"></script>
+<script src="/static/label_rule_editor.js"></script>
 
 {% if device_data_for_rule|length > 0 %}
 
-<script>
-
-    var data = {{ device_data_for_rule[0] | safe }}; // eslint-disable-line
+<script id="initialize-placeholder-table">
+    var placeholderInsertData = {{ device_data_for_rule[0] | safe }}; // eslint-disable-line
     // Need to add non-field placeholders
     // Should have default fields without values for general definition???
-    placeholderInserter.updatePlaceholderTable(data);
+    initialize_placeholder(placeholderInsertData);
 </script>
 
 {% endif %}
