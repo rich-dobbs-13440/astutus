@@ -27,4 +27,4 @@ PCI buses and devices connecting them despite the challenges of the USB implemen
 
 .. astutus_dyn_destination:: app/usb/labelrule/styled_index.html
 
-.. astutus_dyn_bookmark:: USB Aliases - /astutus/app/usb/labelrule
+.. astutus_dyn_bookmark:: USB Label Rules - /astutus/app/usb/labelrule

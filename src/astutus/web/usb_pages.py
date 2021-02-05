@@ -142,7 +142,7 @@ def handle_usb_device_tree():
         logger.info("Start device tree data creation")
         pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
         logger.debug(f"pci_device_info_map: {pci_device_info_map}")
-        device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
+        device_tree = astutus.usb.UsbDeviceTree(basepath=None)
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
         bare_tree_html = tree_to_html(bare_tree_dict, pci_device_info_map)
         background_color = astutus.util.get_setting('/astutus/app/usb/settings', 'background_color', "#fcfcfc")
@@ -166,7 +166,7 @@ def handle_usb_device_tree():
         #     name = form.get('name')
         #     if name is None:
         #         name = nodepath
-        #     aliases = astutus.usb.device_aliases.Device Aliases(filepath=None)
+        #     ali ases = astutus.usb.device_ali ases.Device Aliases(filepath=None)
         #     aliases[nodepath] = {
         #         "name": name,
         #         "color": f"{color}",
@@ -174,7 +174,7 @@ def handle_usb_device_tree():
         #         "order": "00",
         #         "priority": 50
         #     }
-        #     astutus.usb.device_aliases.Device Aliases.write_raw_as_json(filepath=None, raw_aliases=aliases)
+        #     astutus.usb.device_ al iases .Device Al iases .write_raw_as_json(filepath=None, raw_aliases=aliases)
         #     return flask.redirect(flask.url_for('usb.handle_usb_device_tree'))
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
 
@@ -246,7 +246,7 @@ def handle_usb_edit_label_rule(idx: int):
         rule = label_rules.get_rule(idx)
         if rule is None:
             return f'No such label rule: {idx}', HTTPStatus.BAD_REQUEST
-        device_tree = astutus.usb.UsbDeviceTree(basepath=None, device_aliases_filepath=None)
+        device_tree = astutus.usb.UsbDeviceTree(basepath=None)
         tree_dirpaths = device_tree.get_tree_dirpaths()
         device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
         for dirpath in tree_dirpaths:

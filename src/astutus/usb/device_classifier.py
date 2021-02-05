@@ -48,9 +48,6 @@ class DeviceClassifier(object):
             self.pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
             self.cache.set(self.pci_device_info_map_key, self.pci_device_info_map, expire=self.expire_seconds)
 
-        # self.aliases_key = self.make_key('astutus.usb.device_aliases.Device Aliases')
-        # self.aliases = None  # lazy fetching, and necessary reading of aliases until used.
-
         self.map_dirpath_to_ilk_key = self.make_key('map_dirpath_to_ilk')
         self.map_dirpath_to_ilk = self.cache.get(self.map_dirpath_to_ilk_key)
         if self.map_dirpath_to_ilk is None:

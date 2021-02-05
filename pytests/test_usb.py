@@ -2,7 +2,6 @@ import json
 import logging
 
 import astutus.usb
-import astutus.usb.device_aliases
 import pytest
 
 logger = logging.getLogger(__name__)
@@ -22,15 +21,3 @@ def test_usb_device_node_data_json_serializable():
         config=None,
         alias=None)
     json.dumps(node)
-
-
-@pytest.mark.skip(reason="Obsolete Maybe?")
-def test_execute_tree_cmd():
-    usb_tree = astutus.usb.UsbDeviceTree(
-        basepath=None,
-        device_configurations_filepath=None)
-
-    tree_html = usb_tree.execute_tree_cmd(verbose=True, to_html=True)
-    print("Start Tree")
-    print(tree_html)
-    print("End Tree")

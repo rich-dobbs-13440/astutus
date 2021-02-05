@@ -43,9 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * |in_progress| Task: Remove dead alias code.
   * |in_progress| Task: Replace edit alias with edit or create label rule.
-  * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * Task: Flush browsers site cache when a new version of application is used.
   * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
@@ -73,6 +71,8 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-02-05 11:14 Task: Refactor to use DeviceClassifier labels instead of aliases.
+  * |newly_done| 2021-02-05 11:14 Task: Remove dead alias code.
   * |newly_done| 2021-02-05 10:43 Task: Remove last of DeviceConfiguration code.
   * |done| 2021-02-04 09:45 Task: Navigation for label rules - vertical menu, breadcrumps - bookmark
   * |done| 2021-02-04 07:46 Task: Use example system device path to populate editor placeholder for label rules.

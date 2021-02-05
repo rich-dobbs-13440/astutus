@@ -18,11 +18,7 @@ import treelib
 
 logger = logging.getLogger(__name__)
 
-# TODO:  Move this to astutus.util to avoid breaking DRY principle.
-# DEFAULT_BASEPATH = "/sys/devices/pci0000:00"
 DEFAULT_BASEPATH = "/sys/devices"
-DEFAULT_DEVICE_ALIASES_FILEPATH = "~/.astutus/device_aliases.json"
-DEFAULT_DEVICE_CONFIGURATIONS_FILEPATH = "~/.astutus/device_configurations.json"
 
 
 def key_by_node_data_key(node):
@@ -74,17 +70,13 @@ class UsbDeviceTree(object):
 
     """
 
-    def __init__(self, basepath, device_aliases_filepath, device_configurations_filepath=None):
+    def __init__(self, basepath):
         if basepath is None:
             basepath = DEFAULT_BASEPATH
         self.basepath = basepath
-        self.device_aliases_filepath = device_aliases_filepath
-        self.device_configurations_filepath = device_configurations_filepath
         # These items for lazy evaluation.
         self.slot_to_device_info_map = None
         self.treelib_tree = None
-        self.device_configurations = None
-        self.aliases = None
         self.tree_dirpaths = None
         self.data_by_dirpath = None
         self.ilk_by_dirpath = None
@@ -339,11 +331,6 @@ class UsbDeviceTree(object):
 
         return sanitized_data
 
-    # def get_aliases(self):
-    #     if self.aliases is None:
-    #         self.aliases = astutus.usb.device_aliases.Device Aliases(filepath=self.device_aliases_filepath)
-    #     return self.aliases
-
     def get_treelib_tree(self):
         if self.treelib_tree is None:
             self.treelib_tree = self.assemble_tree(
@@ -430,12 +417,6 @@ def parse_arguments(raw_args):
         dest="loglevel",
         help="set the logging level - DEBUG, INFO, WARNING, ERROR")
 
-    parser.add_argument(
-        "-a", "--device-aliases",
-        default=None,
-        dest="device_aliases_filepath",
-        help=f"specify device aliases file - defaults to {DEFAULT_DEVICE_ALIASES_FILEPATH}")
-
     # TODO: pull basepath from user data, so it can be configured one time.
     parser.add_argument(
         "-b", "--basepath",
@@ -443,12 +424,6 @@ def parse_arguments(raw_args):
         dest="basepath",
         help=f'set the basepath for the PCI bus - defaults to "{DEFAULT_BASEPATH}"'
     )
-
-    parser.add_argument(
-        "-c", "--device-configurations",
-        default=None,
-        dest="device_configurations_filepath",
-        help=f"specify device configurations file - defaults to {DEFAULT_DEVICE_CONFIGURATIONS_FILEPATH}")
 
     args = parser.parse_args(args=raw_args)
     return args
@@ -463,11 +438,7 @@ def main(raw_args=None):
     loglevel = getattr(logging, args.loglevel)
     logging.basicConfig(format=astutus.log.console_format, level=loglevel)
 
-    tree = UsbDeviceTree(
-        basepath=args.basepath,
-        device_aliases_filepath=args.device_aliases_filepath,
-        device_configurations_filepath=args.device_configurations_filepath
-    )
+    tree = UsbDeviceTree(basepath=args.basepath)
 
     tree.execute_tree_cmd(verbose=args.verbose, node_ids=args.node_id_list, show_tree=True, to_dict=False)
 
