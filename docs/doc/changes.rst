@@ -73,10 +73,11 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
-  * |newly_done| 2021-02-04 09:45 Task: Navigation for label rules - vertical menu, breadcrumps - bookmark
-  * |newly_done| 2021-02-04 07:46 Task: Use example system device path to populate editor placeholder for label rules.
+  * |newly_done| 2021-02-05 10:43 Task: Remove last of DeviceConfiguration code.
+  * |done| 2021-02-04 09:45 Task: Navigation for label rules - vertical menu, breadcrumps - bookmark
+  * |done| 2021-02-04 07:46 Task: Use example system device path to populate editor placeholder for label rules.
   * |dropped| 2021-02-03 17:50 Bug: Apparent bug in calculating node path:  .../usb(05e3:0610)/usb(05e3:0610) for SMAKN relay was mistaken.
-  * |newly_done| 2021-02-03 09:05 Task: Add extra fields to label rule editor. (Forgot to include them initially.)
+  * |done| 2021-02-03 09:05 Task: Add extra fields to label rule editor. (Forgot to include them initially.)
   * |done| 2021-02-02 22:36 Bug: Operator selector not showing "contains" for selecting in nodepath.
   * |done| 2021-02-02 22:11 Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |done| 2021-02-02 16:08 Task: Add persistance to label rules.

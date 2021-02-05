@@ -204,7 +204,21 @@ html_formatting_data = {
     'end_color': '</span>'
 }
 
+ansi = astutus.util.AnsiSequenceStack()
+
+ansi_terminal_formatting_data = {
+    'color_for_usb': ansi.push('ForestGreen'),
+    'color_for_pci': ansi.push('DarkOrange'),
+    'color_for_other': ansi.push('DarkOrange'),
+    'color_purple': ansi.push('Purple'),
+    'end_color': ansi.pop()
+}
+
 
 def get_formatting_data(kind: str) -> Dict[str, str]:
-    assert kind == 'html'
-    return html_formatting_data
+    if kind == 'html':
+        return html_formatting_data
+    elif kind == 'ansi_terminal':
+        return ansi_terminal_formatting_data
+    else:
+        raise NotImplementedError(f'Formating data for kind "{kind}" not defined.')

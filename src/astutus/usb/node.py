@@ -4,9 +4,15 @@ import copy
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
-from astutus.usb.device_configurations import DeviceConfiguration
+import astutus.usb
 
 logger = logging.getLogger(__name__)
+
+
+extra_fields_for_ilk = {
+    'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
+    'pci': ['nodepath'],
+}
 
 
 def robust_format_map(template, data):
@@ -34,59 +40,35 @@ class DeviceNode(dict):
     def __init__(
             self,
             data: Dict,
-            config: DeviceConfiguration,
-            alias: Dict,
             cls_order: str):  # Should probably migrate cls order to be an int.
         dirpath = data['dirpath']
         assert dirpath is not None, data
-        if config is not None:
-            data['config_description'] = config.generate_description(dirpath, data)
-            data['config_color'] = config.get_color(dirpath)
-        else:
-            data['config_description'] = f"{data['description']}"
-            data['config_color'] = 'cyan'
-        if alias is not None:
-            data['alias_name'] = alias['name']
-            data['alias_description_template'] = alias['description_template']
-            data['alias_description'] = robust_format_map(data['alias_description_template'], data)
-            data['alias_color'] = alias['color']
-            data['resolved_description'] = data['alias_description']
-            data['resolved_color'] = data['alias_color']
-        else:
-            data['alias_name'] = ''
-            data['alias_description_template'] = ''
-            data['alias_description'] = ''
-            data['alias_color'] = ''
-            data['resolved_description'] = data['config_description']
-            data['resolved_color'] = data['config_color']
 
-        self.node_color = 'pink'
-        if alias is None:
-            self.order = '50'
-        else:
-            self.order = alias['order']
         self.cls_order = cls_order
+        device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
 
+        device_data = device_classifier.get_device_data(dirpath)
+        extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
+        if extra_fields is not None:
+            device_data = device_classifier.get_device_data(dirpath, extra_fields)
+        label = device_classifier.get_label(
+            dirpath, astutus.usb.LabelRules().get_rules(), astutus.usb.label.get_formatting_data('ansi_terminal'))
+        color = data.get('resolved_color', 'pink')
         ansi = astutus.util.AnsiSequenceStack()
         start = ansi.push
         end = ansi.end
-        color = data['resolved_color']
-        colored_description = f"{start(color)}{data['resolved_description'] }{end(color)}"
-        data['terminal_colored_description'] = colored_description
-        data['terminal_colored_node_label_concise'] = f"{data['dirname']} - {colored_description}"
-        colored_node_id = f"{start(self.node_color)}{data['node_id']}{end(self.node_color)}"
-        data['terminal_colored_node_label_verbose'] = f"{data['dirname']} - {colored_node_id} - {colored_description}"
-        dirname_span = f'<span class="dirname_class">{data["dirname"]}</span>'
-        node_id_span = f'<span class="node_id_class">{data["node_id"]}</span>'
-        description_span = f'<span style="color:{color}">{data["resolved_description"]}</span>'
-        data['html_label'] = f'{dirname_span} {node_id_span} {description_span}'
+        # colored_description = f"{start(color)}{label}{end(color)}"
+        data['terminal_colored_description'] = label
+        data['terminal_colored_node_label_concise'] = f"{data['dirname']} - {label}"
+        colored_node_id = f"{start(color)}{data['node_id']}{end(color)}"
+        data['terminal_colored_node_label_verbose'] = f"{data['dirname']} - {colored_node_id} - {label}"
 
         self.data = data
         # Inititialize super to support JSON serialization.
         super(DeviceNode, self).__init__(data)
 
     def key(self) -> str:
-        key_value = f"{self.cls_order} - {self.order} - {self.data['dirname']}"
+        key_value = f"{self.cls_order} - {self.data['dirname']}"
         logger.debug(f"key_value: {key_value}")
         return key_value
 
@@ -112,11 +94,11 @@ class OtherDeviceNodeData(DeviceNode):
         data['ilk'] = 'other'
         return data
 
-    def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+    def __init__(self, *, data: Dict):
         data = copy.deepcopy(data)
         assert data.get('dirpath') is not None, data
         data["description"] = data['dirpath']
-        super(OtherDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
+        super(OtherDeviceNodeData, self).__init__(data, self.cls_order)
 
 
 class PciDeviceNodeData(DeviceNode):
@@ -134,11 +116,11 @@ class PciDeviceNodeData(DeviceNode):
         data['ilk'] = 'pci'
         return data
 
-    def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+    def __init__(self, *, data: Dict):
         data = copy.deepcopy(data)
         assert data.get('dirpath') is not None, data
         data["description"] = "{Device}"  # f"data: {data}"
-        super(PciDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
+        super(PciDeviceNodeData, self).__init__(data, self.cls_order)
 
 
 class UsbDeviceNodeData(DeviceNode):
@@ -156,16 +138,16 @@ class UsbDeviceNodeData(DeviceNode):
         data['ilk'] = 'usb'
         return data
 
-    def __init__(self, *, data: Dict, config: DeviceConfiguration, alias: Dict):
+    def __init__(self, *, data: Dict):
         data = copy.deepcopy(data)
         busnum = int(data['busnum'])
         devnum = int(data['devnum'])
         _, _, description = astutus.usb.find_vendor_info_from_busnum_and_devnum(busnum, devnum)
         data["description"] = description
-        if config is not None and config.find_tty():
-            tty = astutus.usb.find_tty_from_pci_path(data['dirpath'])
-            data['tty'] = tty
-        super(UsbDeviceNodeData, self).__init__(data, config, alias, self.cls_order)
+        # if config is not None and config.find_tty():
+        #     tty = astutus.usb.find_tty_from_pci_path(data['dirpath'])
+        #     data['tty'] = tty
+        super(UsbDeviceNodeData, self).__init__(data, self.cls_order)
 
 
 def node_id_for_dirpath(dirpath: str) -> str:

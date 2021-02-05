@@ -47,24 +47,15 @@ def get_data_for_dirpath(ilk, dirpath, pci_device_info):
     return data
 
 
-def get_node_data(data, device_config, alias):
+def get_node_data(data):
     assert data is not None
     ilk = data['ilk']
     if ilk == 'usb':
-        node_data = astutus.usb.node.UsbDeviceNodeData(
-            data=data,
-            config=device_config,
-            alias=alias)
+        node_data = astutus.usb.node.UsbDeviceNodeData(data=data)
     elif ilk == 'pci':
-        node_data = astutus.usb.node.PciDeviceNodeData(
-            data=data,
-            config=device_config,
-            alias=alias)
+        node_data = astutus.usb.node.PciDeviceNodeData(data=data)
     elif ilk == 'other':
-        node_data = astutus.usb.node.OtherDeviceNodeData(
-            data=data,
-            config=device_config,
-            alias=alias)
+        node_data = astutus.usb.node.OtherDeviceNodeData(data=data)
     else:
         raise NotImplementedError()
     return node_data
@@ -275,9 +266,7 @@ class UsbDeviceTree(object):
             parent_dirpath, dirname = dirpath.rsplit('/', 1)
             # ilk = ilk_by_dirpath[dirpath]
             # nodepath = data.get('nodepath')
-            device_config = None
-            alias = None
-            node_data = get_node_data(data, device_config, alias)
+            node_data = get_node_data(data)
             if parent_dirpath == basepath:
                 pass
             if parent_dirpath == rootpath:

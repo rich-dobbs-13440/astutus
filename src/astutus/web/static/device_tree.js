@@ -162,7 +162,6 @@ function placeAndDisplayContainer(placementElement, containerId) {
 
 
 function updateNodeData(button, buttonData) {
-    // node_data = astutus.usb.tree.get_node_data(data, device_config, alias)
     var dirpath = button.dataset['dirpath'];
     var nodepath = button.dataset['nodepath'];
     var span = button.nextElementSibling

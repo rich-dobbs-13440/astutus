@@ -17,14 +17,6 @@ astutus.usb.device\_classifier module
    :undoc-members:
    :show-inheritance:
 
-astutus.usb.device\_configurations module
------------------------------------------
-
-.. automodule:: astutus.usb.device_configurations
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 astutus.usb.label module
 ------------------------
 
