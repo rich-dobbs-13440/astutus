@@ -50,10 +50,10 @@
     {{ define_check_row('--field--', 'equals', '--value--') }}
 </table>
 
+<div id="label-rule-editor-form-container">
 <form method="POST">
 
 <table id="layout-table">
-
 
 <tr>
     <td>
@@ -110,20 +110,11 @@
     <input id='submit-button' type="submit" name="save" value="Save" />
 </div>
 
-
 </form>
+</div>
 
 {% import "app/usb/placeholder.html" as placeholder %}
 {{ placeholder.create_table('label-rule-placeholder-table') }}
-
-
-Got here!
-{% for device_data in device_data_for_rule %}
-<pre>
-    {{ device_data | tojson_pretty }}
-</pre>
-{% endfor %}
-And after here!
 
 <script src="/static/placeholder.js"></script>
 <script src="/static/label_rule_editor.js"></script>

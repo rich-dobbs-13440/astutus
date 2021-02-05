@@ -8,6 +8,11 @@ function addCheckRow() {
     var clonedRow = lastRow.cloneNode(true);
     var checkTable = document.querySelector('#rule-table');
     checkTable.appendChild(clonedRow);
+
+    var root = document.querySelector(':root');
+    computedStyle = getComputedStyle(root);
+    old_height = computedStyle.getPropertyValue('--astutus-table-scroll-non-scrolled-height')
+    root.style.setProperty('--astutus-table-scroll-non-scrolled-height', old_height + 100);
 }
 
 function deleteRow(button) {
