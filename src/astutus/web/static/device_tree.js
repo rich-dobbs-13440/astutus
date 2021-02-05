@@ -105,7 +105,17 @@ function handleCancelLabelEditorPopup() {
     container.style.display = "none";
 }
 
-function handleDisplayLabelEditor() {
+function handleDisplayLabelEditorForNewRule() {
+    createNew = true;
+    handleDisplayLabelEditor(createNew);
+}
+
+function handleDisplayLabelEditorForExistingRuleForExistingRule() {
+    createNew = false;
+    handleDisplayLabelEditor(createNew);
+}
+
+function handleDisplayLabelEditor(createNew) {
     handleButtonMenuHide()
     // Need to populate container by calling server with correct information.
     dirpath = current_button_data['dirpath']
@@ -126,9 +136,8 @@ function handleDisplayLabelEditor() {
             alert('ERROR: internal or runtime: Gettting HTML content for embedded label editor failed..  xhr:' + xhr);
         }
     };
-    xhr.open('GET', `/astutus/app/usb/labelrule/*/editor.html?forDevice=${dirpath}&embedded=true`);
+    xhr.open('GET', `/astutus/app/usb/labelrule/*/editor.html?forDevice=${dirpath}&createNew=${createNew}&embedded=true`);
     xhr.send();
-    // console.log('handleDisplayLabelEditor - current_button_data: ', current_button_data)
     placeAndDisplayContainer(current_button, "#edit-label-container")
 }
 

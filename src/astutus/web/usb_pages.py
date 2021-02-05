@@ -228,14 +228,23 @@ def handle_usb_edit_label_rule_for_embbeded_content():
     if flask.request.method == 'GET':
         dirpath = flask.request.args.get('forDevice')
         logger.debug(f'dirpath: {dirpath}')
+        createNewString = flask.request.args.get('createNew')
+        if createNewString == 'false':
+            createNew = False
+        elif createNewString == 'true':
+            createNew = True
         device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
         label_rules = astutus.usb.LabelRules()
         check_fields = label_rules.check_field_set()
-        device_classifier.get_device_data(dirpath, extra_fields=check_fields)
+        device_data = device_classifier.get_device_data(dirpath, extra_fields=check_fields)
+        device_data_for_rule = [device_data]
         rules = label_rules.get_rules()
-        idx, rule = device_classifier.get_rule(dirpath, rules)
-        logger.debug(f'rule: {rule}')
-        device_data_for_rule = [device_classifier.get_device_data(dirpath)]
+        if createNew:
+            rule = astutus.usb.LabelRules().new_rule(device_data)
+        else:
+            idx, rule = device_classifier.get_rule(dirpath, rules)
+            logger.debug(f'rule: {rule}')
+
         cancel_onclick_action = "handleCancelLabelEditorPopup()"
         return flask.render_template(
             'app/usb/label_rule_editor.html',

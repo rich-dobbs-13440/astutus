@@ -134,11 +134,11 @@ class LabelRules(object):
         self.write()
         return None
 
-    def new_rule(self) -> Dict:
+    def new_rule(self, device_data=None) -> Dict:
         """ Create a new rule, which has been added at the top of the rules list.
 
-        The rule will have a unique id.  It is created as applying to USB devices,
-        with a reasonable default template.
+        The rule will have a unique id.  It will have reasonable defaults based
+        on the data available.
          """
         max_id = None
         for rule in self.rules:
@@ -149,11 +149,20 @@ class LabelRules(object):
         if max_id is None:
             max_id = 0
         idx = max_id + 1
+        if device_data is None:
+            ilk = 'usb'
+            node_check = None
+        else:
+            ilk = device_data.get('ilk')
+            node_check = {'field': 'node_id', 'operator': 'equals', 'value': device_data.get('node_id')}
+        checks_list = [{'field': 'ilk', 'operator': 'equals', 'value': ilk}]
+        if node_check is not None:
+            checks_list.append(node_check)
         rule = {
             'name': f'-- name rule {idx} --',
             'id': idx,
-            'checks': [{'field': 'ilk', 'operator': 'equals', 'value': 'usb'}],
-            'template': '{color_for_usb} {vendor} {product_text} {end_color}'
+            'checks': checks_list,
+            'template': '{color_for_' + ilk + '} {vendor} {product_text} {end_color}'
         }
         self.rules.insert(0, rule)
         self.write()
