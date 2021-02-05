@@ -43,6 +43,7 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * |in_progress| Task: Remove dead alias code.
   * |in_progress| Task: Replace edit alias with edit or create label rule.
   * |in_progress| Task: Refactor to use DeviceClassifier labels instead of aliases.
   * Task: Flush browsers site cache when a new version of application is used.
