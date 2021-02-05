@@ -106,10 +106,15 @@ class LabelRules(object):
 
     def update(self, rule_with_updated_value: Dict):
         idx = rule_with_updated_value['id']
+        found = False
         for item_idx, rule in enumerate(self.rules):
             if rule['id'] == idx:
                 self.rules[item_idx] = rule_with_updated_value
+                found = True
                 break
+        if not found:
+            logger.debug(f'self.rules: {self.rules}')
+        assert found, rule_with_updated_value
         self.write()
         return None
 

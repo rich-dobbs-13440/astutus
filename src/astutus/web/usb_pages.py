@@ -135,6 +135,34 @@ def handle_device_tree_item(path):
     return data_for_return, HTTPStatus.OK
 
 
+def process_update_label_rule(idx: int) -> None:
+    name = flask.request.form.get('label_rule_name')
+    check_field_list = flask.request.form.getlist('check_field')
+    check_operator_list = flask.request.form.getlist('check_operator')
+    check_value_list = flask.request.form.getlist('check_value')
+    checks = []
+    for field, operator, value in zip(check_field_list, check_operator_list, check_value_list):
+        check = {
+            'field': field,
+            'operator': operator,
+            'value': value,
+        }
+        checks.append(check)
+    template = flask.request.form.get('label_rule_template')
+    # The extra fields are returned as a comma or space separated string.  They must be parsed to a list of strings
+    raw_extra_fields = flask.request.form.get('label_rule_extra_fields')
+    extra_fields = raw_extra_fields.replace(',', ' ').split()
+    rule = {
+        'name': name,
+        'id': idx,
+        'checks': checks,
+        'template': template,
+        'extra_fields': extra_fields,
+    }
+    astutus.usb.LabelRules().update(rule)
+    logger.debug(f'rule: {rule}')
+
+
 @usb_page.route('/astutus/app/usb/device_tree.html', methods=['GET', 'POST'])
 def handle_usb_device_tree():
     if flask.request.method == 'GET':
@@ -154,29 +182,9 @@ def handle_usb_device_tree():
             tree_html=None,
             tree_html_background_color=background_color)
     if flask.request.method == 'POST':
-        # form = flask.request.form
-        # if form.get("action") == "add_or_update_alias":
-        #     logger.info("Handle add_or_update_alias")
-        #     nodepath = form.get('nodepath')
-        #     logger.debug(f"nodepath: {nodepath}")
-        #     template = form.get('template')
-        #     logger.debug(f"template: {template}")
-        #     color = form.get('color')
-        #     logger.debug(f"color: {color}")
-        #     name = form.get('name')
-        #     if name is None:
-        #         name = nodepath
-        #     ali ases = astutus.usb.device_ali ases.Device Aliases(filepath=None)
-        #     aliases[nodepath] = {
-        #         "name": name,
-        #         "color": f"{color}",
-        #         "description_template": f"{template}",
-        #         "order": "00",
-        #         "priority": 50
-        #     }
-        #     astutus.usb.device_ al iases .Device Al iases .write_raw_as_json(filepath=None, raw_aliases=aliases)
-        #     return flask.redirect(flask.url_for('usb.handle_usb_device_tree'))
-        return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
+        idx = int(flask.request.form.get('idx'))
+        process_update_label_rule(idx)
+        return flask.redirect(flask.url_for('usb.handle_usb_device_tree'))
 
 
 @usb_page.route('/astutus/app/usb/labelrule/index.html', methods=['GET', 'PATCH', 'POST'])
@@ -264,31 +272,7 @@ def handle_usb_edit_label_rule(idx: int):
             idx_item_list=get_labelrules_items_list(),
             cancel_onclick_action=cancel_onclick_action)
     if flask.request.method == 'POST':
-        name = flask.request.form.get('label_rule_name')
-        check_field_list = flask.request.form.getlist('check_field')
-        check_operator_list = flask.request.form.getlist('check_operator')
-        check_value_list = flask.request.form.getlist('check_value')
-        checks = []
-        for field, operator, value in zip(check_field_list, check_operator_list, check_value_list):
-            check = {
-                'field': field,
-                'operator': operator,
-                'value': value,
-            }
-            checks.append(check)
-        template = flask.request.form.get('label_rule_template')
-        # The extra fields are returned as a comma or space separated string.  They must be parsed to a list of strings
-        raw_extra_fields = flask.request.form.get('label_rule_extra_fields')
-        extra_fields = raw_extra_fields.replace(',', ' ').split()
-        rule = {
-            'name': name,
-            'id': idx,
-            'checks': checks,
-            'template': template,
-            'extra_fields': extra_fields,
-        }
-        astutus.usb.LabelRules().update(rule)
-        logger.debug(f'rule: {rule}')
+        process_update_label_rule(idx)
         return flask.redirect(flask.url_for('usb.handle_usb_label_rule'))
 
 
