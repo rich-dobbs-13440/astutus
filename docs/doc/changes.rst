@@ -176,5 +176,3 @@ Done:
   * |done| 2020-12-28 13:06 Story: As a developer, the database is operational in the Flask App.
   * |done| 2020-12-27 21:42 Story: As a developer, I have instructions on how to build the package.
   * |done| 2020-12-27 10:50 Use selector searches to allow relay test to work after rebooting.
-
-|flush_cache_on_release_change|

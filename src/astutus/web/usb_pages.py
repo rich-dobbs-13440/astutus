@@ -251,10 +251,12 @@ def handle_usb_edit_label_rule_for_embbeded_content():
         idx, rule = device_classifier.get_rule(dirpath, rules)
         logger.debug(f'rule: {rule}')
         device_data_for_rule = [device_classifier.get_device_data(dirpath)]
+        cancel_onclick_action = "handleCancelLabelEditorPopup()"
         return flask.render_template(
             'app/usb/label_rule_editor.html',
             rule=rule,
             device_data_for_rule=device_data_for_rule,
+            cancel_onclick_action=cancel_onclick_action
             )
         return "<div>Can you show this?</div>"
 
@@ -277,11 +279,13 @@ def handle_usb_edit_label_rule(idx: int):
         device_data_for_rule = []
         for dirpath in filtered_dirpaths:
             device_data_for_rule.append(device_classifier.get_device_data(dirpath))
+        cancel_onclick_action = "window.location.href='/astutus/app/usb/labelrule/index.html';"
         return flask.render_template(
             'app/usb/styled_label_rule_editor.html',
             rule=rule,
             device_data_for_rule=device_data_for_rule,
-            idx_item_list=get_labelrules_items_list())
+            idx_item_list=get_labelrules_items_list(),
+            cancel_onclick_action=cancel_onclick_action)
     if flask.request.method == 'POST':
         name = flask.request.form.get('label_rule_name')
         check_field_list = flask.request.form.getlist('check_field')

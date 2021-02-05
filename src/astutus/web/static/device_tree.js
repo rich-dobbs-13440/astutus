@@ -100,6 +100,11 @@ function onTreeButtonClick(button) {
     placeAndDisplayContainer(button, "#button-menu")
 }
 
+function handleCancelLabelEditorPopup() {
+    var container = document.querySelector("#edit-label-container");
+    container.style.display = "none";
+}
+
 function handleDisplayLabelEditor() {
     handleButtonMenuHide()
     // Need to populate container by calling server with correct information.
@@ -115,9 +120,6 @@ function handleDisplayLabelEditor() {
             var scriptElement = document.querySelector('#initialize-placeholder-table');
             console.log('scriptElement.text: ', scriptElement.text);
             eval(scriptElement.text)
-            // placeholderInsertData = {
-            //     'color_purple': '---',
-            // }
             initialize_placeholder(placeholderInsertData);
         } else {
             console.log('Gettting HTML content for embedded label editor failed.  xhr:', xhr);
