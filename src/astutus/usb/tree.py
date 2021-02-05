@@ -258,41 +258,39 @@ class UsbDeviceTree(object):
         logger.info(f"End assemble_bare_tree - duration: {(datetime.now() - start_time).total_seconds()}")
         return tree.to_dict(with_data=True)
 
-    # def assemble_tree(
-    #         self,
-    #         *,
-    #         basepath,
-    #         tree_dirpaths,
-    #         data_by_dirpath,
-    #         ilk_by_dirpath,
-    #         device_aliases,
-    #         device_configurations):
-    #     logger.info("Start assemble_tree")
-    #     start_time = datetime.now()
-    #     tree = treelib.Tree()
-    #     rootpath, tag = basepath.rsplit('/', 1)
-    #     for dirpath in tree_dirpaths:
-    #         data = data_by_dirpath[dirpath]
-    #         assert dirpath == data['dirpath']
-    #         parent_dirpath, dirname = dirpath.rsplit('/', 1)
-    #         # ilk = ilk_by_dirpath[dirpath]
-    #         nodepath = data.get('nodepath')
-    #         alias = device_aliases.find_highest_priority(nodepath)
-    #         device_config = device_configurations.find_configuration(data)
-    #         node_data = get_node_data(data, device_config, alias)
-    #         if parent_dirpath == basepath:
-    #             pass
-    #         if parent_dirpath == rootpath:
-    #             parent = None
-    #         else:
-    #             parent = parent_dirpath
-    #         tree.create_node(
-    #             tag=dirname,
-    #             identifier=dirpath,
-    #             parent=parent,
-    #             data=node_data)
-    #     logger.info(f"End assemble_tree - duration: {(datetime.now() - start_time).total_seconds()}")
-    #     return tree
+    def assemble_tree(
+            self,
+            *,
+            basepath,
+            tree_dirpaths,
+            data_by_dirpath,
+            ilk_by_dirpath):
+        logger.info("Start assemble_tree")
+        start_time = datetime.now()
+        tree = treelib.Tree()
+        rootpath, tag = basepath.rsplit('/', 1)
+        for dirpath in tree_dirpaths:
+            data = data_by_dirpath[dirpath]
+            assert dirpath == data['dirpath']
+            parent_dirpath, dirname = dirpath.rsplit('/', 1)
+            # ilk = ilk_by_dirpath[dirpath]
+            # nodepath = data.get('nodepath')
+            device_config = None
+            alias = None
+            node_data = get_node_data(data, device_config, alias)
+            if parent_dirpath == basepath:
+                pass
+            if parent_dirpath == rootpath:
+                parent = None
+            else:
+                parent = parent_dirpath
+            tree.create_node(
+                tag=dirname,
+                identifier=dirpath,
+                parent=parent,
+                data=node_data)
+        logger.info(f"End assemble_tree - duration: {(datetime.now() - start_time).total_seconds()}")
+        return tree
 
     def formulate_data_as_table(self, data):
         lines = []
@@ -352,10 +350,20 @@ class UsbDeviceTree(object):
 
         return sanitized_data
 
-    def get_aliases(self):
-        if self.aliases is None:
-            self.aliases = astutus.usb.device_aliases.DeviceAliases(filepath=self.device_aliases_filepath)
-        return self.aliases
+    # def get_aliases(self):
+    #     if self.aliases is None:
+    #         self.aliases = astutus.usb.device_aliases.Device Aliases(filepath=self.device_aliases_filepath)
+    #     return self.aliases
+
+    def get_treelib_tree(self):
+        if self.treelib_tree is None:
+            self.treelib_tree = self.assemble_tree(
+                basepath=self.basepath,
+                tree_dirpaths=self.get_tree_dirpaths(),
+                data_by_dirpath=self.get_data_by_dirpath(),
+                ilk_by_dirpath=self.get_ilk_by_dirpath()
+            )
+        return self.treelib_tree
 
     def get_tree_as_dict(self):
         if self.tree_as_dict is None:

@@ -9,14 +9,6 @@ astutus.usb package
 Submodules
 ----------
 
-astutus.usb.device\_aliases module
-----------------------------------
-
-.. automodule:: astutus.usb.device_aliases
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 astutus.usb.device\_classifier module
 -------------------------------------
 

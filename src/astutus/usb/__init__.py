@@ -49,7 +49,7 @@ needed for device control.
 
 """
 
-from astutus.usb.device_aliases import DeviceAliases  # noqa
+# from astutus.usb.device_aliases import Device Aliases  # noqa
 from astutus.usb.lcus_1_usb_relay import UsbRelayLcus1  # noqa
 from astutus.usb.device_configurations import DeviceConfiguration  # noqa
 

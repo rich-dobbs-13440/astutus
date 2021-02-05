@@ -327,18 +327,3 @@ Installing On Raspberry Pi
 
   pip3 install --no-index --find-links=. astutus
 
-Dynamic TOC Tree
-----------------
-
-Here is structure of toc generated on the page for the toctree directive:
-
-.. code-block:: html
-
-  <div class="toctree-wrapper compound">
-      <p class="caption"><span class="caption-text">Contents:</span></p>
-      <ul>
-        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_device.html">USB Device Tree</a></li>
-        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_alias.html">USB Aliases</a></li>
-        <li class="toctree-l1"><a class="reference internal" href="flask_app_dyn_usb_configuration.html">Device Configurations</a></li>
-        </ul>
-      </div>

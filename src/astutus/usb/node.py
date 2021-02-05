@@ -43,7 +43,7 @@ class DeviceNode(dict):
             data['config_description'] = config.generate_description(dirpath, data)
             data['config_color'] = config.get_color(dirpath)
         else:
-            data['config_description'] = ''
+            data['config_description'] = f"{data['description']}"
             data['config_color'] = 'cyan'
         if alias is not None:
             data['alias_name'] = alias['name']

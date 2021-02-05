@@ -129,6 +129,5 @@ dmypy.json
 .pyre/
 
 # Test artifacts:  Need to put in temp directory
-device_aliases.json
 device_configurations.json
 astutus.db

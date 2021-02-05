@@ -19,29 +19,6 @@ extra_fields_for_ilk = {
 }
 
 
-def get_alias_path_item_list():
-    aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-    alias_by_resolved_name = {}
-    for key, alias in aliases.items():
-        logger.debug(f"alias: {alias}")
-        # Need to have a good name for display.  For now just use description template
-        # if the name is not defined.  Long term, need to make sure name is defined
-        # and unique.
-        resolved_name = alias.get('name', alias['description_template'])
-        while True:
-            if resolved_name not in alias_by_resolved_name:
-                alias_by_resolved_name[resolved_name] = {'value': alias['pattern'], 'link_text': resolved_name}
-                break
-            else:
-                resolved_name += "+"
-    # Sort before returning list.
-    items_list = []
-    sorted_keys = sorted([key for key in alias_by_resolved_name.keys()])
-    for key in sorted_keys:
-        items_list.append(alias_by_resolved_name[key])
-    return items_list
-
-
 def get_labelrules_items_list():
     label_rules = astutus.usb.LabelRules().get_rules()
     items_list = []
@@ -177,28 +154,28 @@ def handle_usb_device_tree():
             tree_html=None,
             tree_html_background_color=background_color)
     if flask.request.method == 'POST':
-        form = flask.request.form
-        if form.get("action") == "add_or_update_alias":
-            logger.info("Handle add_or_update_alias")
-            nodepath = form.get('nodepath')
-            logger.debug(f"nodepath: {nodepath}")
-            template = form.get('template')
-            logger.debug(f"template: {template}")
-            color = form.get('color')
-            logger.debug(f"color: {color}")
-            name = form.get('name')
-            if name is None:
-                name = nodepath
-            aliases = astutus.usb.device_aliases.DeviceAliases(filepath=None)
-            aliases[nodepath] = {
-                "name": name,
-                "color": f"{color}",
-                "description_template": f"{template}",
-                "order": "00",
-                "priority": 50
-            }
-            astutus.usb.device_aliases.DeviceAliases.write_raw_as_json(filepath=None, raw_aliases=aliases)
-            return flask.redirect(flask.url_for('usb.handle_usb_device_tree'))
+        # form = flask.request.form
+        # if form.get("action") == "add_or_update_alias":
+        #     logger.info("Handle add_or_update_alias")
+        #     nodepath = form.get('nodepath')
+        #     logger.debug(f"nodepath: {nodepath}")
+        #     template = form.get('template')
+        #     logger.debug(f"template: {template}")
+        #     color = form.get('color')
+        #     logger.debug(f"color: {color}")
+        #     name = form.get('name')
+        #     if name is None:
+        #         name = nodepath
+        #     aliases = astutus.usb.device_aliases.Device Aliases(filepath=None)
+        #     aliases[nodepath] = {
+        #         "name": name,
+        #         "color": f"{color}",
+        #         "description_template": f"{template}",
+        #         "order": "00",
+        #         "priority": 50
+        #     }
+        #     astutus.usb.device_aliases.Device Aliases.write_raw_as_json(filepath=None, raw_aliases=aliases)
+        #     return flask.redirect(flask.url_for('usb.handle_usb_device_tree'))
         return "Unhandled post", HTTPStatus.NOT_IMPLEMENTED
 
 
