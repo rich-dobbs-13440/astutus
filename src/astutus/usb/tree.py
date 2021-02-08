@@ -4,8 +4,6 @@ import argparse
 import copy
 import json
 import logging
-import os
-import os.path
 import sys
 from datetime import datetime
 from typing import Dict, List, Optional, Set, Tuple  # noqa
@@ -17,8 +15,6 @@ import astutus.util
 import treelib
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_BASEPATH = "/sys/devices"
 
 
 def key_by_node_data_key(node):
@@ -72,7 +68,7 @@ class UsbDeviceTree(object):
 
     def __init__(self, basepath):
         if basepath is None:
-            basepath = DEFAULT_BASEPATH
+            basepath = astutus.usb.usb_impl.DEFAULT_BASEPATH
         self.basepath = basepath
         # These items for lazy evaluation.
         self.slot_to_device_info_map = None
@@ -87,22 +83,6 @@ class UsbDeviceTree(object):
         if self.slot_to_device_info_map is None:
             self.slot_to_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
         return self.slot_to_device_info_map
-
-    @staticmethod
-    def walk_basepath_for_usb(basepath):
-        logger.info(f"Start walk for {basepath}")
-        ilk_by_dirpath = {}
-        usb_device_paths = []
-        for dirpath, dirnames, filenames in os.walk(basepath):
-            if "busnum" in filenames and "devnum" in filenames:
-                usb_device_paths.append(dirpath)
-                ilk_by_dirpath[dirpath] = "usb"
-            elif "vendor" in filenames and "device" in filenames:
-                ilk_by_dirpath[dirpath] = "pci"
-            else:
-                ilk_by_dirpath[dirpath] = "other"
-        logger.info(f"End walk for {basepath}")
-        return usb_device_paths, ilk_by_dirpath
 
     @staticmethod
     def find_tree_dirpaths(basepath, device_paths):
@@ -180,13 +160,15 @@ class UsbDeviceTree(object):
 
     def get_usb_device_dirpath(self):
         if self.usb_device_dirpaths is None:
-            self.usb_device_dirpaths, self.ilk_by_dirpath = self.walk_basepath_for_usb(self.basepath)
+            self.ilk_by_dirpath, self.usb_device_dirpaths, _, _ = astutus.usb.usb_impl.walk_basepath_for_ilk(
+                self.basepath)
         return self.usb_device_dirpaths
 
     def get_ilk_by_dirpath(self):
         """ The attribute ilk is one of 'usb', 'pci', or 'other'."""
         if self.ilk_by_dirpath is None:
-            self.usb_device_dirpaths, self.ilk_by_dirpath = self.walk_basepath_for_usb(self.basepath)
+            self.ilk_by_dirpath, self.usb_device_dirpaths, _, _ = astutus.usb.usb_impl.walk_basepath_for_ilk(
+                self.basepath)
         return self.ilk_by_dirpath
 
     def get_tree_dirpaths(self) -> List[str]:
@@ -422,7 +404,7 @@ def parse_arguments(raw_args):
         "-b", "--basepath",
         default=None,
         dest="basepath",
-        help=f'set the basepath for the PCI bus - defaults to "{DEFAULT_BASEPATH}"'
+        help=f'set the basepath for the PCI bus - defaults to "{astutus.usb.usb_impl.DEFAULT_BASEPATH}"'
     )
 
     args = parser.parse_args(args=raw_args)

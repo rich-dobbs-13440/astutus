@@ -299,10 +299,44 @@ def handle_usb_settings():
         return "Need to persist settings here", HTTPStatus.NOT_IMPLEMENTED
 
 
-@usb_page.route('/astutus/app/usb/device/<path:nodepath>/index.html', methods=['GET'])
-def handle_usb_device_item(nodepath):
+def get_html_labels_for_paths(device_paths):
+    label_rules = astutus.usb.LabelRules()
+    check_fields = label_rules.check_field_set()
+    device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
+    labels = []
+    for dirpath in device_paths:
+        device_data = device_classifier.get_device_data(dirpath, extra_fields=check_fields)
+        extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
+        if extra_fields is not None:
+            device_classifier.get_device_data(dirpath, extra_fields)
+        label = device_classifier.get_label(
+            dirpath, label_rules.get_rules(), astutus.usb.label.get_formatting_data('html'))
+        labels.append(label)
+    return labels
+
+
+def get_device_path_item_list():
+    _, usb_device_dirpaths, _, _ = astutus.usb.usb_impl.walk_basepath_for_ilk()
+    labels = get_html_labels_for_paths(usb_device_dirpaths)
+    items_list = []
+    for dirpath, label in zip(usb_device_dirpaths, labels):
+        value = dirpath.replace(astutus.usb.usb_impl.DEFAULT_BASEPATH + '/', '')
+        items_list.append({'value': value, 'link_text': label})
+    return items_list
+
+
+@usb_page.route('/astutus/app/usb/devices.html', methods=['GET'])
+def handle_usb_devices():
+    return flask.render_template(
+        'app/usb/styled_devices.html',
+        device_path_item_list=get_device_path_item_list(),
+        )
+
+
+@usb_page.route('/astutus/app/usb/device/<path:bare_device_path>/index.html', methods=['GET'])
+def handle_usb_device_item(bare_device_path):
     if flask.request.method == 'GET':
-        sys_devices_path = flask.request.args.get('sys_device_path')
+        sys_devices_path = astutus.usb.usb_impl.DEFAULT_BASEPATH + '/' + bare_device_path + '/'
         sys_devices_path += '/'  # to pick up last element
         device_paths = []
         idx = 5
@@ -343,6 +377,7 @@ def handle_usb_device_item(nodepath):
             labels.append(augumented_label)
 
         return flask.render_template(
-            'app/usb/device/nodepath/styled_index.html',
+            'app/usb/device/styled_index.html',
             device_data_list=device_data_list,
+            device_path_item_list=get_device_path_item_list(),  # Used for vertical menu
             labels=labels)

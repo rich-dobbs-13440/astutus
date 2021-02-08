@@ -70,6 +70,8 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+
+  * |newly_done| 2021-02-08 10:41 Task: Use device labels for vertical menu for working with devices.
   * |newly_done| 2021-02-05 14:00 Task: Replace edit alias with edit or create label rule.
   * |newly_done| 2021-02-05 11:14 Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |newly_done| 2021-02-05 11:14 Task: Remove dead alias code.

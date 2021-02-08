@@ -8,6 +8,8 @@ import astutus.util
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_BASEPATH = "/sys/devices"
+
 
 def find_paths_for_vendor_and_product(vendor_id: str, product_id: str) -> List[str]:
     return_code, stdout, stderr = astutus.util.run_cmd(f'grep -r . -e "{vendor_id}" 2>/dev/null', cwd="/sys/devices")
@@ -108,3 +110,25 @@ def find_ilk_for_dirpath(dirpath):
 USB_KEY_ATTRIBUTES = ['manufacturer', 'product', 'idVendor', 'idProduct', 'busnum', 'devnum', 'serial']
 
 PCI_KEY_ATTRIBUTES = ['vendor', 'device', 'class']
+
+
+def walk_basepath_for_ilk(basepath=None):
+    if basepath is None:
+        basepath = astutus.usb.usb_impl.DEFAULT_BASEPATH
+    logger.info(f"Start walk for {basepath}")
+    ilk_by_dirpath = {}
+    usb_device_paths = []
+    pci_device_paths = []
+    other_device_paths = []
+    for dirpath, dirnames, filenames in os.walk(basepath):
+        if "busnum" in filenames and "devnum" in filenames:
+            usb_device_paths.append(dirpath)
+            ilk_by_dirpath[dirpath] = "usb"
+        elif "vendor" in filenames and "device" in filenames:
+            pci_device_paths.append(dirpath)
+            ilk_by_dirpath[dirpath] = "pci"
+        else:
+            other_device_paths.append(dirpath)
+            ilk_by_dirpath[dirpath] = "other"
+    logger.info(f"End walk for {basepath}")
+    return ilk_by_dirpath, usb_device_paths, pci_device_paths, other_device_paths

@@ -313,7 +313,7 @@ class FilePostProcessor(object):
         pattern_to_pick_out_link_text = r'(<a\s+(?:[\w]+\=\"[^\"]+\"\s*)*>?)([^>]*?)(</a>?)'
         # Replace the second matching group, keeping the first and third just like that originally are.
         if link_text is None:
-            substitution = r'\g<1>{{ ' + loop_variable + r'.link_text }}\g<3>'
+            substitution = r'\g<1>{{ ' + loop_variable + r'.link_text | safe }}\g<3>'
         else:
             log_as_info(f"link_text: {link_text}")
             substitution = r'\g<1>' + link_text + r'\g<3>'
