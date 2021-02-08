@@ -15,6 +15,7 @@ import os
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util
+from astutus.usb.device_classifier import DeviceClassifier, Rule, Check
 
 logger = logging.getLogger(__name__)
 
@@ -66,27 +67,72 @@ original_rules = [
 ]
 
 
+class LabelRule(Rule):
+
+    def __init__(self, data: Dict):
+        self.template = data['template']
+        logger.debug(f'self.template: {self.template}')
+        self.id = data['id']
+        self.name = data['name']
+        self.extra_fields = data.get('extra_fields')
+        self.checks = []
+        checks = data.get('checks')
+        if checks is not None:
+            for raw_check in checks:
+                check = Check(raw_check['field'], raw_check['operator'], raw_check['value'])
+                self.checks.append(check)
+
+    def as_dict(self) -> Dict:
+        checks_list = []
+        for check in self.checks:
+            checks_list.append(check.as_dict())
+        data = {
+           'template': self.template,
+           'id': self.id,
+           'name': self.name,
+           'extra_fields': self.extra_fields,
+           'checks': checks_list,
+        }
+        return data
+
+    def __repr__(self):
+        # return f'LabelRule({dir(self)})'
+        return f'LabelRule({self.as_dict()})'
+
+
 class LabelRules(object):
 
     def __init__(self, *, filepath=None):
         if filepath is None:
             filepath = os.path.join(astutus.util.get_user_data_path(), 'label_rules.json')
         self.filepath = filepath
+        self.rules = []
         self.read()
+        self.parse_rules()
 
-    def read(self):
+    def read(self) -> None:
         if not os.path.isfile(self.filepath):
             # Just read it from default values
-            self.rules = copy.deepcopy(original_rules)
+            self.raw_rules = copy.deepcopy(original_rules)
         else:
             with open(self.filepath, 'r') as rules_file:
                 content = json.load(rules_file)
-            self.rules = content['rules']
+            self.raw_rules = content['rules']
 
-    def write(self):
+    def parse_rules(self) -> None:
+        self.rules = []
+        for rule_as_dict in self.raw_rules:
+            rule = LabelRule(rule_as_dict)
+            self.rules.append(rule)
+            logger.debug(f'rule: {rule}')
+
+    def write(self) -> None:
         # Wrap rules in a dictionary for flexibility
+        rules_as_dict = []
+        for rule in self.rules:
+            rules_as_dict.append(rule.as_dict())
         content = {
-            'rules': self.rules,
+            'rules': rules_as_dict,
         }
         output_dir = os.path.dirname(self.filepath)
         os.makedirs(output_dir, exist_ok=True)
@@ -98,17 +144,18 @@ class LabelRules(object):
         # by using the class interface.  This is needed for persistance.
         return copy.deepcopy(self.rules)
 
-    def get_rule(self, idx: int) -> Dict:
+    def get_rule(self, idx: int) -> LabelRule:
         for rule in self.rules:
-            if rule['id'] == idx:
+            logger.debug(f'rule: {rule}')
+            if rule.id == idx:
                 return rule
         return None
 
-    def update(self, rule_with_updated_value: Dict):
-        idx = rule_with_updated_value['id']
+    def update(self, rule_with_updated_value: LabelRule):
+        idx = rule_with_updated_value.id
         found = False
         for item_idx, rule in enumerate(self.rules):
-            if rule['id'] == idx:
+            if rule.id == idx:
                 self.rules[item_idx] = rule_with_updated_value
                 found = True
                 break
@@ -126,7 +173,7 @@ class LabelRules(object):
         if len(ids) != len(self.rules):
             return f"Wrong number of ids.  Expected {len(self.rules)}, got {len(ids)}"
         ids_as_ints = [int(idx) for idx in ids]
-        rules_as_dict = {rule['id']: rule for rule in self.rules}
+        rules_as_dict = {rule.id: rule for rule in self.rules}
         new_rules = [rules_as_dict[idx] for idx in ids_as_ints]
         if len(new_rules) != len(self.rules):
             return f"Incorrect or repeated ids: {ids}"
@@ -134,7 +181,7 @@ class LabelRules(object):
         self.write()
         return None
 
-    def new_rule(self, device_data=None) -> Dict:
+    def new_rule(self, device_data=None) -> LabelRule:
         """ Create a new rule, which has been added at the top of the rules list.
 
         The rule will have a unique id.  It will have reasonable defaults based
@@ -143,9 +190,9 @@ class LabelRules(object):
         max_id = None
         for rule in self.rules:
             if max_id is None:
-                max_id = rule['id']
-            elif rule['id'] > max_id:
-                max_id = rule['id']
+                max_id = rule.id
+            elif rule.id > max_id:
+                max_id = rule.id
         if max_id is None:
             max_id = 0
         idx = max_id + 1
@@ -158,12 +205,13 @@ class LabelRules(object):
         checks_list = [{'field': 'ilk', 'operator': 'equals', 'value': ilk}]
         if node_check is not None:
             checks_list.append(node_check)
-        rule = {
+        data = {
             'name': f'-- name rule {idx} --',
             'id': idx,
             'checks': checks_list,
             'template': '{color_for_' + ilk + '} {vendor} {product_text} {end_color}'
         }
+        rule = LabelRule(data)
         self.rules.insert(0, rule)
         self.write()
         return rule
@@ -178,36 +226,50 @@ class LabelRules(object):
         field_set = set()
         for rule in self.rules:
             logger.debug(f'rule: {rule}')
-            checks = rule.get('checks')
-            if checks is None:
+            if rule.checks is None:
                 continue
-            for check in checks:
-                field = check.get('field')
-                if field is None:
+            for check in rule.checks:
+                if check.field is None:
                     continue
-                field_set.add(field)
+                field_set.add(check.field)
         return list(field_set)
 
+    def get_template(self, device_path: str, device_classifier: DeviceClassifier) -> str:
+        rule = device_classifier.get_rule(device_path, self.rules)
+        if rule is None:
+            return '-- no rule_applies --'
+        extra_fields = rule.extra_fields
+        if extra_fields is not None:
+            # Need to augment data before using the this template,
+            # so do so now.
+            device_classifier.get_device_data(device_path, extra_fields)
+        return rule.template
+
+    def get_label(
+            self, device_path: str, device_classifier: DeviceClassifier, formatting_data: Dict[str, str] = []) -> str:
+        template = self.get_template(device_path, device_classifier)
+        device_data = device_classifier.get_device_data(device_path)
+        label = self.robust_format_map(template, device_data, formatting_data)
+        return label
+
     @staticmethod
-    def rule_applies(rule, device_data: Dict[str, str]) -> bool:
-        checks = rule.get('checks')
-        if checks is None:
-            return True
-        for check in checks:
-            field = check.get('field')
-            data_value = device_data.get(field)
-            operator = check.get('operator')
-            if operator == 'equals':
-                if check.get('value') != data_value:
-                    return False
-            elif operator == 'contains':
-                if data_value is None:
-                    return False
-                if check.get('value') not in data_value:
-                    return False
-            else:
-                raise NotImplementedError(f'operator: {operator}')
-        return True
+    def robust_format_map(template: str, device_data: Dict[str, str], formatting_data: Dict[str, str]):
+        data = copy.deepcopy(device_data)
+        data.update(formatting_data)
+        data
+        max_count = template.count('{')
+        count = 0
+        while True:
+            try:
+                value = template.format_map(data)
+                return value
+            except KeyError as exception:
+                logger.error(f'exception: {exception}')
+                data[exception.args[0]] = f"--{exception.args[0]} missing--"
+                count += 1
+                if count > max_count:
+                    # Just a double check to prevent infinite loop in case of coding error'
+                    return f'robust_format_map error. template: {template} - data: {data}'
 
 
 html_formatting_data = {

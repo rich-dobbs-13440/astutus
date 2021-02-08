@@ -13,17 +13,12 @@ logger = logging.getLogger(__name__)
 usb_page = flask.Blueprint('usb', __name__, template_folder='templates')
 
 
-extra_fields_for_ilk = {
-    'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
-    'pci': ['nodepath'],
-}
-
-
 def get_labelrules_items_list():
     label_rules = astutus.usb.LabelRules().get_rules()
     items_list = []
     for rule in label_rules:
-        items_list.append({'value': rule['id'], 'link_text': rule['name']})
+        logger.debug(f'rule: {rule}')
+        items_list.append({'value': rule.id, 'link_text': rule.name})
     return items_list
 
 
@@ -85,12 +80,10 @@ def handle_label(path):
         sys_devices_path = '/sys/' + path
         device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
         device_data = device_classifier.get_device_data(sys_devices_path)
-        extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
-        if extra_fields is not None:
-            device_data = device_classifier.get_device_data(sys_devices_path, extra_fields)
         logger.debug(f"node_data: {device_data}")
-        label = device_classifier.get_label(
-            sys_devices_path, astutus.usb.LabelRules().get_rules(), astutus.usb.label.get_formatting_data('html'))
+        label_rules = astutus.usb.LabelRules()
+        label = label_rules.get_label(
+            sys_devices_path, device_classifier, astutus.usb.label.get_formatting_data('html'))
         device_data['html_label'] = f'<span class="node_id_class">{device_data["node_id"]}</span>{label}'
         result = {
             'html_label': device_data.get('html_label'),
@@ -305,12 +298,8 @@ def get_html_labels_for_paths(device_paths):
     device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
     labels = []
     for dirpath in device_paths:
-        device_data = device_classifier.get_device_data(dirpath, extra_fields=check_fields)
-        extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
-        if extra_fields is not None:
-            device_classifier.get_device_data(dirpath, extra_fields)
-        label = device_classifier.get_label(
-            dirpath, label_rules.get_rules(), astutus.usb.label.get_formatting_data('html'))
+        device_classifier.get_device_data(dirpath, extra_fields=check_fields)
+        label = label_rules.get_label(dirpath, device_classifier, astutus.usb.label.get_formatting_data('html'))
         labels.append(label)
     return labels
 
@@ -367,12 +356,11 @@ def handle_usb_device_item(bare_device_path):
             extra_fields = extra_fields_for_node_id.get(device_data['node_id'])
             if extra_fields is not None:
                 device_classifier.get_device_data(device_path, extra_fields)
-
+        label_rules = astutus.usb.LabelRules()
         labels = []
         for device_path in device_paths:
             device_data = device_classifier.get_device_data(device_path)
-            label = device_classifier.get_label(
-                device_path, astutus.usb.LabelRules().get_rules(), astutus.usb.label.get_formatting_data('html'))
+            label = label_rules.get_label(device_path, device_classifier, astutus.usb.label.get_formatting_data('html'))
             augumented_label = f"{device_data['dirname']} {label}"
             labels.append(augumented_label)
 

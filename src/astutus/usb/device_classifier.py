@@ -1,14 +1,57 @@
 import logging
 import re
-import copy
 from typing import Dict, List, Optional, Set, Tuple  # noqa
 
 import astutus.util.pci
-import astutus.usb
 import pymemcache
 import pymemcache.client.base
 
 logger = logging.getLogger(__name__)
+
+
+class Check(object):
+
+    def __init__(self, field: str, operator: str, value: str):
+        self.field = field
+        self.operator = operator
+        self.value = value
+
+    def as_dict(self) -> str:
+        return {
+            'field': self.field,
+            'operator': self.operator,
+            'value': self.value,
+        }
+
+
+class Rule(object):
+    """ Base class for rule """
+
+    def __init__(self, checks: List[Check]):
+        self.checks = []
+
+    def applies(self, device_data: Dict[str, str]) -> bool:
+        if self.checks is None:
+            return True
+        for check in self.checks:
+            data_value = device_data.get(check.field)
+            if check.operator == 'equals':
+                if check.value != data_value:
+                    return False
+            elif check.operator == 'contains':
+                if data_value is None:
+                    return False
+                if check.value not in data_value:
+                    return False
+            else:
+                raise NotImplementedError(f'operator: {check.operator}')
+        return True
+
+
+extra_fields_for_ilk = {
+    'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
+    'pci': ['nodepath'],
+}
 
 
 # Make this a plain function, to support eventual registration process
@@ -103,6 +146,7 @@ class DeviceClassifier(object):
                     ('ProgIf', 'programming_interface_register')
                 ]
             elif ilk == 'usb':
+                self.augument_from_lsusb(device_data)
                 key_changes = [
                     ('product', 'product_text'),
                 ]
@@ -199,7 +243,7 @@ class DeviceClassifier(object):
                     assert False, line
         device_data['interface_class_list'] = ','.join(interface_class_list)
 
-    def get_rule(self, device_path: str, rules: List[Dict]) -> Tuple[int, Dict]:
+    def get_rule(self, device_path: str, rules: List[Rule]) -> Rule:
         """ Return the idx and rule that will be used for this device path.
 
         This will be used to select the rule to be edited for a particular node
@@ -207,55 +251,19 @@ class DeviceClassifier(object):
 
         """
         device_data = self.get_device_data(device_path)
-        for idx, rule in enumerate(rules):
-            if astutus.usb.LabelRules().rule_applies(rule, device_data):
-                return idx, rule
-        return None, None
+        for rule in rules:
+            if rule.applies(device_data):
+                return rule
+        return None
 
-    def get_template(self, device_path: str, rules: List[Dict]) -> str:
-        _, rule = self.get_rule(device_path, rules)
-        if rule is None:
-            return '-- no rule_applies --'
-        extra_fields = rule.get('extra_fields')
-        if extra_fields is not None:
-            # Need to augment data before using the this template,
-            # so do so now.
-            self.get_device_data(device_path, extra_fields)
-        return rule.get('template')
-
-    def get_label(self, device_path: str, rules: List[Dict], formatting_data: Dict[str, str] = []) -> str:
-        template = self.get_template(device_path, rules)
-        device_data = self.get_device_data(device_path)
-        label = self.robust_format_map(template, device_data, formatting_data)
-        return label
-
-    def filter_device_paths_for_rule(self, rule, rules, input_device_paths) -> List[str]:
-        """ Find all dirpaths for which the provided rule would be used to label the node.
+    def filter_device_paths_for_rule(self, rule: Rule, rules: List[Rule], input_device_paths: List[str]) -> List[str]:
+        """ Find all dirpaths for which the provided rule would be used for node.
 
         Note: The rule must be a member of the rules list.  If it is not, the behavior is undefined.
         """
         filtered_device_paths = []
         for device_path in input_device_paths:
-            _, rule_for_path = self.get_rule(device_path, rules)
-            if rule_for_path['id'] == rule['id']:
+            rule_for_path = self.get_rule(device_path, rules)
+            if rule_for_path.id == rule.id:
                 filtered_device_paths.append(device_path)
         return filtered_device_paths
-
-    @staticmethod
-    def robust_format_map(template: str, device_data: Dict[str, str], formatting_data: Dict[str, str]):
-        data = copy.deepcopy(device_data)
-        data.update(formatting_data)
-        data
-        max_count = template.count('{')
-        count = 0
-        while True:
-            try:
-                value = template.format_map(data)
-                return value
-            except KeyError as exception:
-                logger.error(f'exception: {exception}')
-                data[exception.args[0]] = f"--{exception.args[0]} missing--"
-                count += 1
-                if count > max_count:
-                    # Just a double check to prevent infinite loop in case of coding error'
-                    return f'robust_format_map error. template: {template} - data: {data}'

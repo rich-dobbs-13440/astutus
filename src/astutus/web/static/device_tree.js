@@ -143,8 +143,9 @@ function handleDisplayLabelEditor(createNew) {
 
 function HandleWorkWithDevice() {
     console.log(current_button_data)
-    workWithUrl = '/astutus/app/usb/device/' + current_button_data['nodepath'] +
-        '/index.html?sys_device_path=' + current_button_data['dirpath'];
+    // Strip out '/sys/devices'
+    bare_path = current_button_data['dirpath'].replace('/sys/devices/', '')
+    workWithUrl = '/astutus/app/usb/device/' + bare_path + '/index.html'
     window.location.replace(workWithUrl);
 }
 

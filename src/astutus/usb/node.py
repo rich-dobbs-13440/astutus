@@ -9,27 +9,27 @@ import astutus.usb
 logger = logging.getLogger(__name__)
 
 
-extra_fields_for_ilk = {
-    'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
-    'pci': ['nodepath'],
-}
+# extra_fields_for_ilk = {
+#     'usb': ['nodepath', 'vendor', 'product_text', 'device_class'],
+#     'pci': ['nodepath'],
+# }
 
 
-def robust_format_map(template, data):
-    data = copy.deepcopy(data)
-    max_count = template.count('{')
-    count = 0
-    while True:
-        try:
-            value = template.format_map(data)
-            return value
-        except KeyError as exception:
-            logger.error(f'exception: {exception}')
-            data[exception.args[0]] = f"--{exception.args[0]} missing--"
-            count += 1
-            if count > max_count:
-                # Just a double check to prevent infinite loop in case of coding error'
-                return f'robust_format_map error. template: {template} - data: {data}'
+# def robust_format_map(template, data):
+#     data = copy.deepcopy(data)
+#     max_count = template.count('{')
+#     count = 0
+#     while True:
+#         try:
+#             value = template.format_map(data)
+#             return value
+#         except KeyError as exception:
+#             logger.error(f'exception: {exception}')
+#             data[exception.args[0]] = f"--{exception.args[0]} missing--"
+#             count += 1
+#             if count > max_count:
+#                 # Just a double check to prevent infinite loop in case of coding error'
+#                 return f'robust_format_map error. template: {template} - data: {data}'
 
 
 class DeviceNode(dict):
@@ -47,10 +47,10 @@ class DeviceNode(dict):
         self.cls_order = cls_order
         device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
 
-        device_data = device_classifier.get_device_data(dirpath)
-        extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
-        if extra_fields is not None:
-            device_data = device_classifier.get_device_data(dirpath, extra_fields)
+        device_classifier.get_device_data(dirpath)
+        # extra_fields = extra_fields_for_ilk.get(device_data['ilk'])
+        # if extra_fields is not None:
+        #     device_data = device_classifier.get_device_data(dirpath, extra_fields)
         label = device_classifier.get_label(
             dirpath, astutus.usb.LabelRules().get_rules(), astutus.usb.label.get_formatting_data('ansi_terminal'))
         color = data.get('resolved_color', 'pink')
