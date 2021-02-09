@@ -43,11 +43,10 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
+  * |in_progress| Bug: Internal server error Raspi - /astutus/app/usb/devices.html
+  * |in_progress| Task: Get color sensor working on RPi.
   * Task: Flush browsers site cache when a new version of application is used.
-  * Task: Provide a link to the RPi's astutus-web-app.
   * Task: Have an indication that publish wheels is proceding.
-  * Task: I can control SMAKN relay via web interface.
-  * Task: Get color sensor working on RPi.
   * Task: Write test with relays controlling lights and monitored by color sensor.
   * Task: Some tests of USB devices that are independent of current /sys/devices structure.
   * Task: Mark relay tests as slow.
@@ -70,8 +69,10 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
-  * |newly_done| 2021-02-08 17:28 Task: Refactoring for better separation of responsibility for device classifier and labels.
-  * |newly_done| 2021-02-08 10:41 Task: Use device labels for vertical menu for working with devices.
+  * |newly_done| 2021-02-09 11:54 Task: Provide a link to the RPi's astutus-web-app.
+  * |done| 2021-02-08 20:31 Task: I can control SMAKN relay via web interface.
+  * |done| 2021-02-08 17:28 Task: Refactoring for better separation of responsibility for device classifier and labels.
+  * |done| 2021-02-08 10:41 Task: Use device labels for vertical menu for working with devices.
   * |done| 2021-02-05 14:00 Task: Replace edit alias with edit or create label rule.
   * |done| 2021-02-05 11:14 Task: Refactor to use DeviceClassifier labels instead of aliases.
   * |done| 2021-02-05 11:14 Task: Remove dead alias code.

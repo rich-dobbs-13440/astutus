@@ -359,8 +359,33 @@ def handle_usb_device_item(bare_device_path):
             augumented_label = f"{device_data['dirname']} {label}"
             labels.append(augumented_label)
 
+        device_data = device_data_list[-1]
+        if device_data['node_id'] == 'usb(1a86:7523)':
+            tty_dev = '/dev/' + device_data.get('tty')
+            usb_relay_lcus1 = astutus.usb.UsbRelayLcus1(tty_dev)
+        else:
+            usb_relay_lcus1 = None
+
         return flask.render_template(
             'app/usb/device/styled_index.html',
             device_data_list=device_data_list,
             device_path_item_list=get_device_path_item_list(),  # Used for vertical menu
-            labels=labels)
+            labels=labels,
+            usb_relay_lcus1=usb_relay_lcus1)
+
+
+@usb_page.route('/astutus/app/usb/usb_relay_lcus1', methods=['PATCH'])
+def handle_usb_relay_lcus1():
+    request_data = flask.request.get_json(force=True)
+    tty_dev = request_data.get('tty_dev')
+    logger.debug(f'tty_dev: {tty_dev}')
+    action = request_data.get('action')
+    logger.debug(f'action: {action}')
+    with astutus.usb.UsbRelayLcus1(tty_dev) as usb_relay_lcus1:
+        if action == 'turn_on':
+            usb_relay_lcus1.turn_on()
+        elif action == 'turn_off':
+            usb_relay_lcus1.turn_off()
+        else:
+            return f'Unknown action: {action}', HTTPStatus.BAD_REQUEST
+    return f'action: {action}', HTTPStatus.OK

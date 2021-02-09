@@ -20,3 +20,32 @@
 {{ device_data | tojson_pretty }}
 </pre>
 {% endfor %}
+
+{% if usb_relay_lcus1 is not none %}
+Relay found!
+<pre>
+    {{ usb_relay_lcus1.OFF_SIGNAL }}
+</pre>
+<script>
+    function usb_relay_lcus1(action, tty_dev) {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                // Nothing needed
+            } else {
+                console.log('Updating usb_relay_lcus1 failed.  xhr:', xhr);
+                alert('Updating usb_relay_lcus1 failed.  xhr:' + xhr)
+            }
+        };
+        xhr.open('PATCH', '/astutus/app/usb/usb_relay_lcus1');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        data = {
+            'action': action,
+            'tty_dev': tty_dev
+        };
+        xhr.send(JSON.stringify(data));
+    }
+</script>
+<button onclick="usb_relay_lcus1('turn_on', '{{ usb_relay_lcus1.tty_dev}}')">On</button>
+<button onclick="usb_relay_lcus1('turn_off', '{{ usb_relay_lcus1.tty_dev}}')">Off</button>
+{% endif %}
