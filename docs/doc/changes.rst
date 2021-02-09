@@ -43,7 +43,6 @@ Rather we work on something else?  Just let us know!
 
 Backlog:
 
-  * |in_progress| Bug: Internal server error Raspi - /astutus/app/usb/devices.html
   * |in_progress| Task: Get color sensor working on RPi.
   * Task: Flush browsers site cache when a new version of application is used.
   * Task: Have an indication that publish wheels is proceding.
@@ -69,6 +68,7 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-02-09 11:54 Bug: Internal server error Raspi - /astutus/app/usb/devices.html.
   * |newly_done| 2021-02-09 11:54 Task: Provide a link to the RPi's astutus-web-app.
   * |done| 2021-02-08 20:31 Task: I can control SMAKN relay via web interface.
   * |done| 2021-02-08 17:28 Task: Refactoring for better separation of responsibility for device classifier and labels.

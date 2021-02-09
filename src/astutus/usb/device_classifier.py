@@ -77,29 +77,43 @@ def get_logitech_unifying_receiver_input_type(dirpath: str, device_data: Dict[st
     return ','.join(input_types)
 
 
+class DeviceClassifierException(Exception):
+    pass
+
+
 class DeviceClassifier(object):
 
     def __init__(self, *, expire_seconds):
-        self.expire_seconds = expire_seconds
-        # TODO: Cache socket.timeout for robustness
-        self.cache = pymemcache.client.base.Client(
-            'localhost', serde=pymemcache.serde.pickle_serde, connect_timeout=0.1, timeout=0.1)
 
-        self.pci_device_info_map_key = self.make_key('pci_device_info_map')
-        self.pci_device_info_map = self.cache.get(self.pci_device_info_map_key)
-        if self.pci_device_info_map is None:
-            self.pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
-            self.cache.set(self.pci_device_info_map_key, self.pci_device_info_map, expire=self.expire_seconds)
+        saved_exception = None
+        try:
+            self.expire_seconds = expire_seconds
+            # TODO: Cache socket.timeout for robustness
+            # self.cache = pymemcache.client.base.Client(
+            #     'localhost', serde=pymemcache.serde.pickle_serde, connect_timeout=0.1, timeout=0.1)
+            self.cache = pymemcache.client.base.Client(
+                '127.0.0.1', serde=pymemcache.serde.pickle_serde, connect_timeout=1., timeout=1.)
 
-        self.map_dirpath_to_ilk_key = self.make_key('map_dirpath_to_ilk')
-        self.map_dirpath_to_ilk = self.cache.get(self.map_dirpath_to_ilk_key)
-        if self.map_dirpath_to_ilk is None:
-            self.map_dirpath_to_ilk = {}
+            self.pci_device_info_map_key = self.make_key('pci_device_info_map')
+            self.pci_device_info_map = self.cache.get(self.pci_device_info_map_key)
+            if self.pci_device_info_map is None:
+                self.pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
+                self.cache.set(self.pci_device_info_map_key, self.pci_device_info_map, expire=self.expire_seconds)
 
-        self.map_dirpath_to_device_data_key = self.make_key('make_device_data_cache')
-        self.map_dirpath_to_device_data = self.cache.get(self.map_dirpath_to_device_data_key)
-        if self.map_dirpath_to_device_data is None:
-            self.map_dirpath_to_device_data = {}
+            self.map_dirpath_to_ilk_key = self.make_key('map_dirpath_to_ilk')
+            self.map_dirpath_to_ilk = self.cache.get(self.map_dirpath_to_ilk_key)
+            if self.map_dirpath_to_ilk is None:
+                self.map_dirpath_to_ilk = {}
+
+            self.map_dirpath_to_device_data_key = self.make_key('make_device_data_cache')
+            self.map_dirpath_to_device_data = self.cache.get(self.map_dirpath_to_device_data_key)
+            if self.map_dirpath_to_device_data is None:
+                self.map_dirpath_to_device_data = {}
+        except ConnectionRefusedError as exception:
+            logger.error(exception)
+            saved_exception = DeviceClassifierException(f'Need to install memcached! {exception}')
+        if saved_exception is not None:
+            raise saved_exception
 
     def make_key(self, short_key):
         key = f'{type(self)}-{short_key}'.replace(' ', '=')

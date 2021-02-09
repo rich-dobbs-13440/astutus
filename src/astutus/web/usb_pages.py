@@ -389,3 +389,13 @@ def handle_usb_relay_lcus1():
         else:
             return f'Unknown action: {action}', HTTPStatus.BAD_REQUEST
     return f'action: {action}', HTTPStatus.OK
+
+
+@usb_page.errorhandler(500)
+def handle_500_errors(error):
+    logger.error(error)
+    if isinstance(error, astutus.usb.device_classifier.DeviceClassifierException):
+        message = 'Memcached must be installed on the server computer for this part of the Astutus web application to work.'
+    else:
+        message = f'Error: {error}'
+    return flask.render_template('500.html', message=message), 500

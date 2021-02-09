@@ -95,5 +95,11 @@ def run_with_standard_options():
     )
 
 
+@app.errorhandler(500)
+def handle_500_errors(error):
+    logger.error(error)
+    return flask.render_template('500.html'), 500
+
+
 if __name__ == '__main__':
     astutus.web.flask_app.run_with_standard_options()
