@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime
 from http import HTTPStatus
@@ -29,7 +28,7 @@ def handle_usb():
             'app/usb/styled_index.html')
 
 
-def item_to_html(item, pci_device_info_map):
+def item_to_html(item):
     if isinstance(item, str):
         return [item]
     elif isinstance(item, dict):
@@ -39,7 +38,7 @@ def item_to_html(item, pci_device_info_map):
                 lines.append('<ul>')
                 for child in item['children']:
                     lines.append('<li>')
-                    lines.extend(item_to_html(child, pci_device_info_map))
+                    lines.extend(item_to_html(child))
                     lines.append('</li>')
                 lines.append('</ul>')
             elif key == 'data':
@@ -47,26 +46,20 @@ def item_to_html(item, pci_device_info_map):
             else:
                 dirpath = value['data']['dirpath']
                 dirname = value['data']['dirname']
-                maybe_slot = dirname[5:]
-                pci_device_info = pci_device_info_map.get(maybe_slot)
-                if pci_device_info is not None:
-                    data_pci = f' data-pci="{pci_device_info}"'
-                else:
-                    data_pci = ""
                 button_class = 'class="astutus-tree-item-button"'
-                lines.append(f'<button data-dirpath="{dirpath}" {button_class}{data_pci}>{dirname}</button>')
+                lines.append(f'<button data-dirpath="{dirpath}" {button_class}>{dirname}</button>')
                 lines.append('<span></span>')
-                lines.extend(item_to_html(value, pci_device_info_map))
+                lines.extend(item_to_html(value))
         return lines
     elif isinstance(item, list):
         assert False, item
     assert False, type(item)
 
 
-def tree_to_html(tree_dict, pci_device_info_map):
+def tree_to_html(tree_dict):
     lines = []
     lines.append('<ul class="ast"><li>')
-    lines.extend(item_to_html(tree_dict, pci_device_info_map))
+    lines.extend(item_to_html(tree_dict))
     lines.append('</li></ul>')
     return '\n' + '\n'.join(lines)
 
@@ -112,18 +105,22 @@ def handle_device_tree_item(path):
     request_data = flask.request.get_json(force=True)
     pci_device_info_arg = request_data.get('pciDeviceInfo')
     logger.debug(f'pci_device_info_arg: {pci_device_info_arg}')
-    if path == 'devices/pci0000:00':
-        pci_device_info = None
-        ilk = "other"
-    elif pci_device_info_arg == "Nothing!":
-        pci_device_info = None
-        ilk = "usb"
-    else:
-        pci_device_info = json.loads(pci_device_info_arg.replace("'", '"'))
-        ilk = "pci"
-    data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path, pci_device_info)
+    # if path == 'devices/pci0000:00':
+    #     pci_device_info = None
+    #     ilk = "other"
+    # elif pci_device_info_arg == "Nothing!":
+    #     pci_device_info = None
+    #     ilk = "usb"
+    # else:
+    #     pci_device_info = json.loads(pci_device_info_arg.replace("'", '"'))
+    #     ilk = "pci"
+
+    device_classifier = astutus.usb.DeviceClassifier(expire_seconds=20)
+    device_data = device_classifier.get_device_data(sys_devices_path, ['nodepath'])
+    # data = astutus.usb.tree.get_data_for_dirpath(ilk, sys_devices_path, pci_device_info)
     data_for_return = {
-        'data_for_dir': data,
+        # 'data_for_dir': data,
+        'data_for_dir': device_data,
     }
     return data_for_return, HTTPStatus.OK
 
@@ -161,11 +158,9 @@ def handle_usb_device_tree():
     if flask.request.method == 'GET':
         begin = datetime.now()
         logger.info("Start device tree data creation")
-        pci_device_info_map = astutus.util.pci.get_slot_to_device_info_map_from_lspci()
-        logger.debug(f"pci_device_info_map: {pci_device_info_map}")
         device_tree = astutus.usb.UsbDeviceTree(basepath=None)
         bare_tree_dict = device_tree.execute_tree_cmd(to_bare_tree=True)
-        bare_tree_html = tree_to_html(bare_tree_dict, pci_device_info_map)
+        bare_tree_html = tree_to_html(bare_tree_dict)
         background_color = astutus.util.get_setting('/astutus/app/usb/settings', 'background_color', "#fcfcfc")
         delta = datetime.now() - begin
         logger.info(f"Start rendering template for device tree.  Generation time: {delta.total_seconds()}")

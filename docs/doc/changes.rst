@@ -70,11 +70,12 @@ hand waving, but not as detailed as repository commits.
 
 Done:
 
+  * |newly_done| 2021-02-08 17:28 Task: Refactoring for better separation of responsibility for device classifier and labels.
   * |newly_done| 2021-02-08 10:41 Task: Use device labels for vertical menu for working with devices.
-  * |newly_done| 2021-02-05 14:00 Task: Replace edit alias with edit or create label rule.
-  * |newly_done| 2021-02-05 11:14 Task: Refactor to use DeviceClassifier labels instead of aliases.
-  * |newly_done| 2021-02-05 11:14 Task: Remove dead alias code.
-  * |newly_done| 2021-02-05 10:43 Task: Remove last of DeviceConfiguration code.
+  * |done| 2021-02-05 14:00 Task: Replace edit alias with edit or create label rule.
+  * |done| 2021-02-05 11:14 Task: Refactor to use DeviceClassifier labels instead of aliases.
+  * |done| 2021-02-05 11:14 Task: Remove dead alias code.
+  * |done| 2021-02-05 10:43 Task: Remove last of DeviceConfiguration code.
   * |done| 2021-02-04 09:45 Task: Navigation for label rules - vertical menu, breadcrumps - bookmark
   * |done| 2021-02-04 07:46 Task: Use example system device path to populate editor placeholder for label rules.
   * |dropped| 2021-02-03 17:50 Bug: Apparent bug in calculating node path:  .../usb(05e3:0610)/usb(05e3:0610) for SMAKN relay was mistaken.
